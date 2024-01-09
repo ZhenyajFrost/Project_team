@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.3" />
+    <PackageReference Include="Npm" Version="3.5.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,6 +23,17 @@
     <Content Remove="$(SpaRoot)**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ClientApp\src\components\Lot\NewFile.txt" />
+    <None Remove="ClientApp\src\components\NewFile.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ClientApp\src\API\" />
+    <Folder Include="ClientApp\src\components\hooks\" />
+    <Folder Include="ClientApp\src\utils\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
