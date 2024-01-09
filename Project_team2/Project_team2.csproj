@@ -28,6 +28,8 @@
   <ItemGroup>
     <None Remove="ClientApp\src\components\Lot\NewFile.txt" />
     <None Remove="ClientApp\src\components\NewFile.txt" />
+    <None Remove="ClientApp\src\styles\App.css" />
+    <None Remove="ClientApp\src\styles\NewFile.txt" />
   </ItemGroup>
 
   <ItemGroup>

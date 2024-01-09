@@ -6,7 +6,7 @@ function Lot({id, title, price, shortDescription, timeTillEnd, hot, imageURL }) 
 
 
     return (
-        <NavLink to={"/lots/" + id} className={hot ? "lot hot" : "lot"}>
+        <NavLink to={"/lot/" + id} className={hot ? "lot hot" : "lot"}>
             <img src={imageURL} className="lot-image" />
             <h3 className="lot-title">{title}</h3>
 
