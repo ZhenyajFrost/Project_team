@@ -1,5 +1,5 @@
 import React, { useRef, useImperativeHandle, forwardRef } from 'react'
-import Lot from '../Lot/Lot.js'
+import Lot from '../../Lot/Lot.js'
 import classes from './LotContainer.module.css'
 
 function LotContainer({lots, filter}) {
