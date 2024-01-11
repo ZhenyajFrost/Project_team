@@ -23,7 +23,7 @@ export const Home = () => {
 
     const sortedLots = useMemo(() => {
         if (searchQuery) {
-            return lots.filter(lot => lot.title.includes(searchQuery));
+            return lots.filter(lot => lot.title.toLowerCase().includes(searchQuery.toLowerCase()));
         }
         return lots;
     }, [ searchQuery, lots ]);
