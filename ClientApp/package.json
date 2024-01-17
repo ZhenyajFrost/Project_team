@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "bootstrap": "^5.1.0",
     "http-proxy-middleware": "^0.19.1",
     "jquery": "^3.5.1",
