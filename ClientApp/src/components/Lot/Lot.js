@@ -10,25 +10,11 @@ function Lot({
   timeTillEnd,
   hot,
   imageURL,
+  openModal
 }) {
-  const [editing, setEditing] = useState(false);
-  if (editing) {
-    return (
-      <div className={hot ? "lot hot" : "lot"} onBlur={() => setEditing(false)}>
-        <img src={imageURL} className="lot-image" />
-        <input className="lot-title" defaultValue={title}/>
 
-        <div className="lot-info">
-          <input className="lot-desc" defaultValue={shortDescription} />
-
-          <input className="lot-price" defaultValue={price}/>
-          <input className="lot-time" defaultValue={timeTillEnd}/>
-        </div>
-      </div>
-    );
-  }
   return (
-    <div className={hot ? "lot hot" : "lot"} onClick={() => setEditing(true)}>
+    <div className={hot ? "lot hot" : "lot"}>
       <img src={imageURL} className="lot-image" />
       <h3 className="lot-title">{title}</h3>
 
@@ -38,6 +24,7 @@ function Lot({
         <p className="lot-price">{price}</p>
         <p className="lot-time">{timeTillEnd}</p>
         <NavLink to={"/lot/" + id}>Details</NavLink>
+        <button onClick={openModal}>Edit</button>
       </div>
     </div>
   );

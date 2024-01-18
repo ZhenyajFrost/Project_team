@@ -9,10 +9,10 @@ const useRegistrationValidation = () => {
   };
  
   const validatePassword = (password) => {
- 
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/;
-    return passwordRegex.test(password);
+    
+      return passwordRegex.test(password);
   };
  
   const validateForm = (formData) => {
@@ -32,11 +32,12 @@ const useRegistrationValidation = () => {
     }
  
     setValidationErrors(errors);
- 
+
     // Return true if there are no validation errors
     return Object.keys(errors).length === 0;
   };
- 
+
+  console.log(validationErrors);
   return { validationErrors, validateForm };
 };
  

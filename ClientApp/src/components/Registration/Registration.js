@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "../UI/Button/Button.js";
 import Input from "../UI/Input/Input.jsx";
 import classes from "../../styles/LoginAndRegistration.module.css";
@@ -21,8 +21,8 @@ const Registration = () => {
   });
 
   const [passwordMatchError, setPasswordMatchError] = useState(false);
-  const { validationErrors, validateForm } = useRegistrationValidation();
-
+  const {validationErrors, validateForm } = useRegistrationValidation();
+  
   const handleFirstNameChange = (e) => {
     setFormData((prevData) => ({ ...prevData, firstName: e.target.value }));
   };
@@ -52,7 +52,7 @@ const Registration = () => {
   };
 
   const handlePostcodeChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, ostcode: e.target.value }));
+    setFormData((prevData) => ({ ...prevData, postcode: e.target.value }));
   };
 
   const handlePasswordChange = (e) => {
@@ -80,6 +80,7 @@ const Registration = () => {
     e.preventDefault();
 
     const isValid = validateForm(formData);
+    console.log(validationErrors)
 
     if (isValid) {
       const hash = bcrypt.hashSync(formData.password);
@@ -91,11 +92,25 @@ const Registration = () => {
 
       console.log(user);
     }
+
   };
 
   return (
     <div>
       <h2>Registration</h2>
+      <div>
+        {validationErrors.firstName && (
+          <p className="error">{validationErrors.firstName}</p>
+        )}
+
+        {validationErrors.lastName && (
+          <p className="error">{validationErrors.lastName}</p>
+        )}
+        
+        {validationErrors.password && (
+          <p className="error">{validationErrors.password}</p>
+        )}
+      </div>
       <form onSubmit={onSubmit}>
         <label className={classes.label} htmlFor="firstName">
           First Name:

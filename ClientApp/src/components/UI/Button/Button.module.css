@@ -6,3 +6,9 @@
     border: 1px solid teal;
     cursor: pointer;
 }
+
+.disable{
+    border: red;
+    color: red;
+    background-color: rgba(255, 100, 100, 0.295);
+}
