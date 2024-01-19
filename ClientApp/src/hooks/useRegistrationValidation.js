@@ -3,27 +3,30 @@ import { useState } from "react";
 const useRegistrationValidation = () => {
   const [validationErrors, setValidationErrors] = useState({});
  
-  const validateName = (name) => {
-    const nameRegex = /^[A-Za-z]+$/;
+  const validateText = (name) => {
+    const nameRegex = /^[a-zA-Z]*[-\s]?[a-zA-Z]*?$/;
     return nameRegex.test(name);
   };
  
   const validatePassword = (password) => {
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/;
-    
       return passwordRegex.test(password);
   };
  
   const validateForm = (formData) => {
     const errors = {};
  
-    if (!validateName(formData.firstName)) {
-      errors.firstName = "First name must only contain letters.";
+    if (!validateText(formData.firstName)) {
+      errors.firstName = "First name must only contain letters, space or \"-\"";
     }
  
-    if (!validateName(formData.lastName)) {
-      errors.lastName = "Last name must only contain letters.";
+    if (!validateText(formData.lastName)) {
+      errors.lastName = "Last name must only contain letters, space or \"-\"";
+    }
+
+    if(!validateText(formData.city)){
+      errors.city = "City must only contain letters, space or \"-\""
     }
  
     if (!validatePassword(formData.password)) {

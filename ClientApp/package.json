@@ -1,8 +1,9 @@
 {
-  "name": "project_team2",
+  "name": "designers_suck",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "axios": "^1.6.5",
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.1.0",
     "http-proxy-middleware": "^0.19.1",
@@ -10,7 +11,9 @@
     "merge": "^2.1.1",
     "oidc-client": "^1.11.5",
     "react": "^17.0.2",
+    "react-country-region-selector": "^3.6.1",
     "react-dom": "^17.0.2",
+    "react-input-mask": "^2.0.4",
     "react-router-bootstrap": "^0.25.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^5.0.1",

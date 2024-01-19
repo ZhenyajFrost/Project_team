@@ -1,11 +1,12 @@
 import React, { useRef, useState } from 'react';
 import Button from '../UI/Button/Button.js'
-import Input from '../UI/Input/Input.jsx'
+import Input from '../UI/Input/Input.js'
 import classes from '../../styles/LoginAndRegistration.module.css'
 import bcrypt from 'bcryptjs'
- 
+import axios from 'axios'
  
 const Login = () => {
+  const [login, setLogin] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 const inpRef = useRef();
@@ -16,14 +17,24 @@ const inpRef = useRef();
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
   };
- 
+  const handleLoginChange = (e) => {
+    setLogin(e.target.value);
+  };
   const onSubmit = (e) => {
-    // Add your authentication logic here
-    // For simplicity, let's just log the input values
     e.preventDefault();
     const hash = bcrypt.hashSync(password);
-    const user = {email, password:hash };
-   console.log(user);
+    const user = {login, email, password:hash };
+
+    axios.post("https://localhost:7074/api/auth/login", {
+      login: user.login,
+      email: user.email,
+      password: user.password
+    }).then((result) => {
+      console.log('Login successful:', result.data);
+    }).catch((err) => {
+      console.error('Login failed:', err);
+    });;
+
     setEmail("");
     setPassword("");
   };
@@ -32,6 +43,15 @@ const inpRef = useRef();
 <div>
 <h2>Login</h2>
 <form onSubmit={onSubmit}>
+<label className={classes.label} htmlFor="email">Login:</label>
+<Input
+          type="text"
+          id="login"
+          name="login"
+          value={login}
+          onChange={handleLoginChange}
+          required
+        />
 <label className={classes.label} htmlFor="email">Email:</label>
 <Input
           type="email"

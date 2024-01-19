@@ -1,10 +1,17 @@
+
+
+
+
 import React, { useState, useEffect } from "react";
 import Button from "../UI/Button/Button.js";
-import Input from "../UI/Input/Input.jsx";
+import Input from "../UI/Input/Input.js";
+import PhoneInput from "../UI/PhoneInput/PhoneInput.js";
 import classes from "../../styles/LoginAndRegistration.module.css";
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
 import useRegistrationValidation from "../../hooks/useRegistrationValidation.js";
+import { CountryDropdown, RegionDropdown, CountryRegionData } from 'react-country-region-selector';
+import axios from "axios";
 
 const Registration = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +21,7 @@ const Registration = () => {
     email: "",
     phone: "",
     country: "",
+    region: "",
     city: "",
     postcode: "",
     password: "",
@@ -21,8 +29,8 @@ const Registration = () => {
   });
 
   const [passwordMatchError, setPasswordMatchError] = useState(false);
-  const {validationErrors, validateForm } = useRegistrationValidation();
-  
+  const { validationErrors, validateForm } = useRegistrationValidation();
+
   const handleFirstNameChange = (e) => {
     setFormData((prevData) => ({ ...prevData, firstName: e.target.value }));
   };
@@ -44,7 +52,18 @@ const Registration = () => {
   };
 
   const handleCountryChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, country: e.target.value }));
+    if (e === "Russian Federation") {
+
+      alert("fuck you");
+      window.location.replace('https://prytulafoundation.org/');
+    } else {
+      setFormData((prevData) => ({ ...prevData, country: e }));
+
+    }
+  };
+
+  const handleRegionChange = (e) => {
+    setFormData((prevData) => ({ ...prevData, region: e }));
   };
 
   const handleCityChange = (e) => {
@@ -75,24 +94,25 @@ const Registration = () => {
   };
 
   const onSubmit = (e) => {
-    // Add your registration logic here
-    // For simplicity, let's just log the input values
     e.preventDefault();
+    if (e.target["diplo"].checked) {
+      const isValid = validateForm(formData);
 
-    const isValid = validateForm(formData);
-    console.log(validationErrors)
+      if (isValid) {
+        const hash = bcrypt.hashSync(formData.password);
+        const user = formData;
+        user.password = hash;
 
-    if (isValid) {
-      const hash = bcrypt.hashSync(formData.password);
+        axios.post("https://localhost:7074/api/auth/register", user).then((result) => {
+          console.log('Registration successful:', result.data);
+        }).catch((err) => {
+          console.error('Registration failed:', err);
+        });;
 
-      const token = nanoid();
-      const user = formData;
-      user.password = hash;
-      user.token = token;
-
-      console.log(user);
+      }
+    } else {
+      alert("NO DIPLODOCS ALLOWED")
     }
-
   };
 
   return (
@@ -106,9 +126,12 @@ const Registration = () => {
         {validationErrors.lastName && (
           <p className="error">{validationErrors.lastName}</p>
         )}
-        
+
         {validationErrors.password && (
           <p className="error">{validationErrors.password}</p>
+        )}
+        {validationErrors.city && (
+          <p className="error">{validationErrors.city}</p>
         )}
       </div>
       <form onSubmit={onSubmit}>
@@ -163,7 +186,7 @@ const Registration = () => {
         <label className={classes.label} htmlFor="phone">
           Phone:
         </label>
-        <Input
+        <PhoneInput
           type="tel"
           id="phone"
           name="phone"
@@ -174,24 +197,37 @@ const Registration = () => {
         <label className={classes.label} htmlFor="country">
           Country:
         </label>
-        <Input
-          type="text"
-          id="country"
-          name="country"
+        <CountryDropdown
+          //blacklist={['RU']}
           value={formData.country}
-          onChange={handleCountryChange}
-        />
+          onChange={handleCountryChange} />
+        <br />
+        {formData.country === "" ? <></> : <>
+          <label className={classes.label} htmlFor="region">
+            Region:
+          </label>
+          <RegionDropdown
+            country={formData.country}
+            value={formData.region}
+            onChange={handleRegionChange} />
+        </>}
 
-        <label className={classes.label} htmlFor="city">
-          City:
-        </label>
-        <Input
-          type="text"
-          id="city"
-          name="city"
-          value={formData.city}
-          onChange={handleCityChange}
-        />
+
+        <br />
+        {formData.region === "" ? <></> : <>
+          <label className={classes.label} htmlFor="city">
+            City:
+          </label>
+          <Input
+            type="text"
+            id="city"
+            name="city"
+            value={formData.city}
+            onChange={handleCityChange}
+          />
+        </>
+        }
+
 
         <label className={classes.label} htmlFor="postcode">
           Postcode:
@@ -231,8 +267,9 @@ const Registration = () => {
         {passwordMatchError && (
           <p style={{ color: "red" }}>Passwords do not match.</p>
         )}
-
+        <p>I am not a diplodocus <input name="diplo" type="checkbox" /></p>
         <Button type="submit" disabled={passwordMatchError}>
+
           Register
         </Button>
       </form>
