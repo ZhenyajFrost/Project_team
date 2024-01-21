@@ -1,30 +1,38 @@
 ﻿import React, { useState } from 'react'
-
+import PostService from '../API/PostService';
+import ImageGallery from "react-image-gallery";
+import '../styles/Home.css'
 function LotPage() {
     const id = window.location.href.split("/")[window.location.href.split("/").length - 1]; console.log(id);
     const [lot, setLot] = useState({ id: "", title: null, price: 0, timeTillEnd: 0, hot: false })
-    useState(() => {
-        fetch("https://659d64ca633f9aee79095579.mockapi.io/lot/" + id).then(v => v.json()).then(data => {
-            setLot(data);
-        })
+    useState(async () => {
+        let res = await PostService.getById(id);
+        console.log(res);
+        setLot(res);
     }, [setLot])
     console.log(lot.title);
     if (lot.title) {
         return (
             <>
-                <img src={lot.imageURL }/>
+                <ImageGallery items={lot.images.map((v,i) => {
+                    return {
+                        original: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzj49rb70qayLcsE_g-Bl54iw3sMoJsZRfLbU-tQOqWQ&s",
+                        thumbnail: "https://icarehealths.org/pages/potenboost/plp/Oiejw67Yhb/images/we.jpg"
+                    }
+                })}
+                wrapperClass="wrapper"/>
                 <h1>{lot.title}</h1>
                 <p>Only for {lot.price}</p>
                 <p>Over in <span className="time-left">{lot.timeTillEnd}</span></p>
             </>
-            
+
         )
     } else {
         return (
-            <h1>{ id}</h1>
-        )    
+            <h1>{id}</h1>
+        )
     }
-    
+
 }
 
 

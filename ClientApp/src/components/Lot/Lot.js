@@ -19,6 +19,7 @@ function Lot({
   title,
   price,
   shortDescription,
+  category,
   timeTillEnd,
   hot,
   imageURL,
@@ -34,11 +35,12 @@ function Lot({
   }, [ttl])
   return (
     <div className={hot ? "lot hot" : "lot"}>
-      <img src={imageURL} className="lot-image" />
+      <img src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzj49rb70qayLcsE_g-Bl54iw3sMoJsZRfLbU-tQOqWQ&s"} className="lot-image" />
       <h3 className="lot-title">{title}</h3>
 
       <div className="lot-info">
         <p className="lot-desc">{shortDescription}</p>
+        <p className="lot-category">Сат:{category}</p>
 
         <p className="lot-price">{price}</p>
         <p className="lot-time">{formatTime(timeTillEnd)}</p>

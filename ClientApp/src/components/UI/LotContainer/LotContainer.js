@@ -6,7 +6,6 @@ import Button from '../Button/Button.js';
 import classes from './LotContainer.module.css'
 
 function LotContainer({ lots, setLots }) {
-
     const [selectedId, setSelectedId]=useState(-1);
     return (
         <div className={classes.lotsContainer}>
@@ -15,6 +14,7 @@ function LotContainer({ lots, setLots }) {
                     title={lot.title}
                     price={lot.price}
                     shortDescription={lot.shortDescription}
+                    category={lot.category}
                     timeTillEnd={lot.timeTillEnd}
                     hot={lot.hot}
                     imageURL={lot.imageURL}

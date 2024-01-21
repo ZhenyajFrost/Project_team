@@ -1,7 +1,7 @@
 ﻿
 .lot {
-    width: 16vw;
-    height: 18vh;
+    width: 20vw;
+    height: 20vh;
     position:relative;
     text-align: center;
     margin: 10px;
@@ -16,16 +16,25 @@
 .lot-image {
     width: inherit;
     height: 50%;
-    width: 8vw;
+    width: 100%;
     transition: 1s ease all;
 }
 .lot-info{
     display:flex;
+    gap:20px;
+}
+.lot-info p{
+    background-color: gray;
+    white-space: nowrap;
+    overflow: hidden;
 }
 .lot-title{
     align-self: center;
     font-size: 1.5rem;
     height: 1.5rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 .lot-price{
     font-size: 1rem;
