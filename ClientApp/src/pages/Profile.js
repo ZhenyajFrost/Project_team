@@ -4,13 +4,13 @@ import './Profile.css'
 import FieldLatent from '../components/UI/FieldLatent/FieldLatent'
 function Profile() {
     const [user, setUser] = useState({
-        firstName:"Oleg",
+ 
         lastName:"Vynik"
     })
     if(true){
         return <>
-            <FieldLatent value={user.firstName} setValue={(v)=>setUser({...user, firstName:v})}/>
-            <FieldLatent value={user.lastName} setValue={(v)=>setUser({...user, lastName:v})} Inp={<h1>dick</h1>}/>
+            <span>First name</span><FieldLatent value={user.firstName} setValue={(v)=>setUser({...user, firstName:v})}/>
+            <span>Last name</span><FieldLatent value={user.lastName} setValue={(v)=>setUser({...user, lastName:v})}/>
         </>
     }else{
         return <>
