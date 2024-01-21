@@ -1,7 +1,9 @@
-﻿body {
-}
+﻿
 .lotsContainer{
-    max-width: 90vw;
+    margin: auto;
+    max-width: 70vw;
     display: flex;
     flex-wrap: wrap;
+    max-height: 50vh;
+    overflow-y: scroll;
 }
