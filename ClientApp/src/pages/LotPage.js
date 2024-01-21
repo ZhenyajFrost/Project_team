@@ -24,6 +24,12 @@ function LotPage() {
                 <h1>{lot.title}</h1>
                 <p>Only for {lot.price}</p>
                 <p>Over in <span className="time-left">{lot.timeTillEnd}</span></p>
+                <form>
+                    <button name='bet' value="10">+10$</button>
+                    <button name='bet' value="50">+50$</button>
+                    <button name='bet' value="100">+100$</button>
+                    <input name='bet' type='number'/>
+                </form>
             </>
 
         )

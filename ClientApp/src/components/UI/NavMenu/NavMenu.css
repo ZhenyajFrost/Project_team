@@ -16,3 +16,17 @@ html {
 .box-shadow {
   box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
+
+.avatar{
+  width:25px;
+  height: 25px;
+  transition: all 1s ease;
+  border-radius: 50%;
+  padding: 2.5px;
+}
+.avatar:hover{
+  width: 25px;
+  padding: 0;
+  height: 25px;
+  background-color: rgba(32, 219, 188, 0.7);
+}

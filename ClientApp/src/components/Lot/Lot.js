@@ -39,10 +39,10 @@ function Lot({
       <h3 className="lot-title">{title}</h3>
 
       <div className="lot-info">
-        <p className="lot-desc">{shortDescription}</p>
+        <p className="lot-desc">Desc:{shortDescription}</p>
         <p className="lot-category">Сат:{category}</p>
 
-        <p className="lot-price">{price}</p>
+        <p className="lot-price">Price:{price}</p>
         <p className="lot-time">{formatTime(timeTillEnd)}</p>
         <NavLink to={"/lot/" + id}>Details</NavLink>
         <button onClick={openModal}>Edit</button>
