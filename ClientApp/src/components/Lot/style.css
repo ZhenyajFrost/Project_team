@@ -1,65 +1,80 @@
-﻿
-.lot {
-    width: 20vw;
-    height: 20vh;
-    position:relative;
-    text-align: center;
-    margin: 10px;
-    border: 10px solid green;
-    overflow: hidden;
-    transition: 1s ease all;
-    text-decoration:none;
-    color:black;
+﻿.lot {
+  position: relative;
+  width: 612px;
+  height: 177px;
+  padding: 16px;
+  display: flex;
+  gap: 24px;
+  border-radius: 24px;
+  background: #fff;
+}
+.lot-text {
+  display: block;
+}
+.lot-title {
+  display: flex;
+  color: #1c1b1f;
+  align-items: baseline;
+  font-family: Manrope;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px;
+  gap: 12px;
+}
+.lot-title::after {
+  padding: 8px 10px;
+  align-items: center;
+
+  border-radius: 60px;
+  background: rgba(122, 210, 108, 0.1);
+  color: #7ad26c;
+
+  font-family: Manrope;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px;
+  content: "ACTIVE";
+}
+.lot-desc {
+  color: #474747;
+  font-family: Manrope;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  width: 368px;
+  height: 48px;
+  margin-top: 8.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+.lot-info {
+  display: flex;
+}
+.lot-info p {
+  display: flex;
+  padding: 4px 12px 4px 4px;
+  align-items: center;
+  gap: 10px;
+  border-radius: 40px;
+  background: #f8f8f8;
+}
+.lot-info svg {
+  width: 20px;
+  height: 20px;
+}
 
 .lot-image {
-    width: inherit;
-    height: 50%;
-    width: 100%;
-    transition: 1s ease all;
-}
-.lot-info{
-    display:flex;
-    gap:20px;
-}
-.lot-info p{
-    background-color: gray;
-    white-space: nowrap;
-    overflow: hidden;
-}
-.lot-title{
-    align-self: center;
-    font-size: 1.5rem;
-    height: 1.5rem;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-.lot-price{
-    font-size: 1rem;
-    justify-self:right; 
+  width: 145px;
+  height: 145px;
+  border-radius: 18px;
 }
 
-    .lot.hot {
-        background-color: red;
-    }
-
-.lot:hover {
-    padding: 5px;
-    margin: 5px;
-    background-color:yellow;
+.arrow-outward {
+  position: absolute;
+  top: 16px;
+  right: 16px;
 }
-.lot.hot:hover {
-    border: solid red 2px;
-}
-
-.lot:hover .lot-image {
-    width: calc(8vw + 10px)
-}
-.lot:hover .lot-title {
-    font-size:1.6rem;
-}
-    .lot:hover .lot-price {
-        font-size: 1.1rem;
-    }

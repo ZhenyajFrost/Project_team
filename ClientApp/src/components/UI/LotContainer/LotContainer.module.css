@@ -1,9 +1,8 @@
 ﻿
 .lotsContainer{
-    margin: auto;
-    max-width: 70vw;
     display: flex;
+    gap: 16px;
     flex-wrap: wrap;
-    max-height: 50vh;
+    height: 563px;
     overflow-y: scroll;
 }
