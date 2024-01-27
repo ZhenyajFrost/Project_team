@@ -1,7 +1,6 @@
 import React, { Component, useState, useEffect, useMemo } from 'react';
 import '../styles/Home.css';
 import { useFetching } from "../hooks/useFetching";
-import PostService from '../API/PostService';
 import { getPageCount, getPagesArray } from '../utils/pages.js';
 import LotContainer from '../components/UI/LotContainer/LotContainer.js';
 import Pagination from '../components/UI/Pagination/Pagination.js';
@@ -11,14 +10,15 @@ import ModalWindow from '../components/ModalWindow/ModalWindow.js';
 import Login from '../components/Login/Login.js';
 import Loader from '../components/Loader/Loader.js';
 import Registration from '../components/Registration/Registration.js';
+import LoadMoreButton from '../components/LoadMoreButton/LoadMoreButton.js';
 
 
 export const Home = () => {
     const [lots, setLots] = useState([])
     const [totalPages, setTotalPages] = useState();
     const [pagesToDisplay, setPagesToDisplay] = useState();
-    const [page, setPage] = useState(1)
-    const [limit, setLimit] = useState(12);
+    const [page, setPage] = useState(0)
+    const [limit, setLimit] = useState(6);
     const [modalVisible, setModalVisible] = useState(false);
     const [modalVisibleReg, setModalVisibleReg] = useState(false);
     const [selectedSort, setSelectedSort] = useState('');
@@ -36,21 +36,12 @@ export const Home = () => {
         setPage(_page)
     }
 
-    const [fetchLots, isLoading, lotsError] = useFetching(async () => {
-        const response = await PostService.getAll(limit, page);
-        const data = await response.json();
+    
 
-        setTotalPages(data.length);
-        setLots(data);
-        setPagesToDisplay(getPageCount(data.length, limit));
-    })
+    // useEffect(() => {
+    //     fetchLots()
+    // }, [page, limit])
 
-    useEffect(() => {
-        fetchLots()
-    }, [page, limit])
-    if (isLoading) {
-        return <Loader />
-    }
     return (
         <div>
             <h1>HOME</h1>
@@ -59,7 +50,9 @@ export const Home = () => {
                 <Input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search" />
             </div>
 
-            <LotContainer lots={sortedLots} setLots={setLots}/>
+            <LotContainer lots={sortedLots} setLots={setLots} setPage={setPage}/>
+            <LoadMoreButton setLots={setLots} curPage={page} setCurPage={setPage} perPage={limit}/>
+
             <Pagination totalPages={pagesToDisplay} page={page} changePage={changePage} />
 
             <Button onClick={() => setModalVisible(true)}>Modal Window Show</Button>
