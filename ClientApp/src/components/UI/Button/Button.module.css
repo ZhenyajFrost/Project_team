@@ -1,10 +1,7 @@
 ﻿.btn {
-    padding: 5px 15px;
-    color: teal;
-    font-size: 14px;
-    background: transparent;
-    border: 1px solid teal;
-    cursor: pointer;
+    width:fit-content;
+    padding: 8px, 24px, 8px, 24px;
+    border-radius: 24px;
 }
 
 .disable{

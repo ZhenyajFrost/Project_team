@@ -1,0 +1,15 @@
+.formDiv{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.form{
+    flex: 1 1 auto;
+    margin: auto;
+}
+
+.loginApp{
+    text-align: center;
+}
+

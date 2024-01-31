@@ -116,163 +116,110 @@ const Registration = () => {
   };
 
   return (
-    <div>
+    <div className={classes.reg}>
       <h2>Registration</h2>
-      <div>
-        {validationErrors.firstName && (
-          <p className="error">{validationErrors.firstName}</p>
-        )}
-
-        {validationErrors.lastName && (
-          <p className="error">{validationErrors.lastName}</p>
-        )}
-
+      <div className={classes.formDiv}>
         {validationErrors.password && (
           <p className="error">{validationErrors.password}</p>
         )}
-        {validationErrors.city && (
-          <p className="error">{validationErrors.city}</p>
-        )}
+        <div className={classes.form + " " + classes.formDiv}>
+          <form onSubmit={onSubmit}>
+            <div>
+              <div>
+                <label className={classes.label} htmlFor="login">
+                  Login:
+                </label>
+                <Input
+                  type="text"
+                  id="login"
+                  name="login"
+                  placeholder="Придумайте логін"
+                  value={formData.login}
+                  onChange={handleLoginChange}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className={classes.label} htmlFor="phone">
+                  Phone:
+                </label>
+                <PhoneInput
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handlePhoneChange}
+                />
+              </div>
+
+              <div>
+                <label className={classes.label} htmlFor="email">
+                  Email:
+                </label>
+                <Input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Введіть email"
+                  value={formData.email}
+                  onChange={handleEmailChange}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className={classes.label} htmlFor="password">
+                  Password:
+                </label>
+                <Input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Придумайте пароль"
+                  value={formData.password}
+                  onChange={handlePasswordChange}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className={classes.label} htmlFor="confirmPassword">
+                  Confirm Password:
+                </label>
+                <Input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Підтвердіть пароль"
+                  value={formData.confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  required
+                />
+                {passwordMatchError && (
+                  <p style={{ color: "red" }}>Passwords do not match.</p>
+                )}
+              </div>
+              <p>I am not a diplodocus <input name="diplo" type="checkbox" /></p>
+            </div>
+
+            <div>
+              <div type="" className="btn btn-light">Увійти в свій акаунт</div>
+              <Button disabled={passwordMatchError}>Зареєструватися</Button>
+            </div>
+
+          </form>
+        </div>
+
+        <div className={classes.form + " " + classes.formDiv}>або</div>
+
+        <div className={classes.form + " " + classes.formDiv} style={{ flexDirection: "column" }}>
+          <label>Увійти за допомогою</label>
+          <div className={classes.loginApp}>Google</div>
+          <div className={classes.loginApp}>Facebook</div>
+          <div className={classes.loginApp}>Apple</div>
+        </div>
       </div>
-      <form onSubmit={onSubmit}>
-        <label className={classes.label} htmlFor="firstName">
-          First Name:
-        </label>
-        <Input
-          type="text"
-          id="firstName"
-          name="firstName"
-          value={formData.firstName}
-          onChange={handleFirstNameChange}
-          required
-        />
-
-        <label className={classes.label} htmlFor="lastName">
-          Last Name:
-        </label>
-        <Input
-          type="text"
-          id="lastName"
-          name="lastName"
-          value={formData.lastName}
-          onChange={handleLastNameChange}
-          required
-        />
-
-        <label className={classes.label} htmlFor="login">
-          Login:
-        </label>
-        <Input
-          type="text"
-          id="login"
-          name="login"
-          value={formData.login}
-          onChange={handleLoginChange}
-          required
-        />
-
-        <label className={classes.label} htmlFor="email">
-          Email:
-        </label>
-        <Input
-          type="email"
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleEmailChange}
-          required
-        />
-
-        <label className={classes.label} htmlFor="phone">
-          Phone:
-        </label>
-        <PhoneInput
-          type="tel"
-          id="phone"
-          name="phone"
-          value={formData.phone}
-          onChange={handlePhoneChange}
-        />
-
-        <label className={classes.label} htmlFor="country">
-          Country:
-        </label>
-        <CountryDropdown
-          //blacklist={['RU']}
-          value={formData.country}
-          onChange={handleCountryChange} />
-        <br />
-        {formData.country === "" ? <></> : <>
-          <label className={classes.label} htmlFor="region">
-            Region:
-          </label>
-          <RegionDropdown
-            country={formData.country}
-            value={formData.region}
-            onChange={handleRegionChange} />
-        </>}
-
-
-        <br />
-        {formData.region === "" ? <></> : <>
-          <label className={classes.label} htmlFor="city">
-            City:
-          </label>
-          <Input
-            type="text"
-            id="city"
-            name="city"
-            value={formData.city}
-            onChange={handleCityChange}
-          />
-        </>
-        }
-
-
-        <label className={classes.label} htmlFor="postcode">
-          Postcode:
-        </label>
-        <Input
-          type="text"
-          id="postcode"
-          name="postcode"
-          value={formData.postcode}
-          onChange={handlePostcodeChange}
-        />
-
-        <label className={classes.label} htmlFor="password">
-          Password:
-        </label>
-        <Input
-          type="password"
-          id="password"
-          name="password"
-          value={formData.password}
-          onChange={handlePasswordChange}
-          required
-        />
-
-        <label className={classes.label} htmlFor="confirmPassword">
-          Confirm Password:
-        </label>
-        <Input
-          type="password"
-          id="confirmPassword"
-          name="confirmPassword"
-          value={formData.confirmPassword}
-          onChange={handleConfirmPasswordChange}
-          required
-        />
-
-        {passwordMatchError && (
-          <p style={{ color: "red" }}>Passwords do not match.</p>
-        )}
-        <p>I am not a diplodocus <input name="diplo" type="checkbox" /></p>
-        <Button type="submit" disabled={passwordMatchError}>
-
-          Register
-        </Button>
-      </form>
     </div>
   );
 };

@@ -85,7 +85,6 @@ export const Home = () => {
             <Button onClick={() => setModalVisibleReg(true)}>Modal Reg Window Show</Button>
             <ModalWindow visible={modalVisibleReg} setVisible={setModalVisibleReg}>
                 <Registration />
-                <Button onClick={() => setModalVisibleReg(false)}>Modal Window Close</Button>
             </ModalWindow>
 
         </div>

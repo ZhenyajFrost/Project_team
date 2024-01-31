@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import classes from '../../../styles/InputSearch.module.css'
 import search from '../../../images/search.svg'
+import Button from '../Button/Button';
 
 // -- Search without button
 // const InputSearch = React.forwardRef((props, ref) => {
@@ -36,13 +37,11 @@ const InputSearch = ({ onSearch, placeholder}) => {
                 onChange={handleInputChange}
                 placeholder={placeholder}
             />
-            <button
-                type="button"
-                className={"btn btn-dark " + classes.button}
+            <Button
                 onClick={handleSearchClick}
             >
                 Пошук
-            </button>
+            </Button>
         </div>
     );
 };
