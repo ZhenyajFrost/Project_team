@@ -78,13 +78,12 @@ export const Home = () => {
 
             <Button onClick={() => setModalVisible(true)}>Modal Window Show</Button>
             <ModalWindow visible={modalVisible} setVisible={setModalVisible}>
-                <Login />
-                <Button onClick={() => setModalVisible(false)}>Modal Window Close</Button>
+                <Login setModalWindow={setModalVisible} setModalWindowReg={setModalVisibleReg}/> 
             </ModalWindow>
 
             <Button onClick={() => setModalVisibleReg(true)}>Modal Reg Window Show</Button>
             <ModalWindow visible={modalVisibleReg} setVisible={setModalVisibleReg}>
-                <Registration />
+                <Registration setModalWindow={setModalVisibleReg} setModalWindowLog={setModalVisible}/>
             </ModalWindow>
 
         </div>

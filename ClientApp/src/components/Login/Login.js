@@ -4,29 +4,31 @@ import Input from '../UI/Input/Input.js'
 import classes from '../../styles/LoginAndRegistration.module.css'
 import bcrypt from 'bcryptjs'
 import axios from 'axios'
- 
-const Login = () => {
-  const [login, setLogin] = useState('');
+
+const Login = ({setModalWindow, setModalWindowReg}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-const inpRef = useRef();
+  const inpRef = useRef();
+
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
   };
- 
+
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
   };
-  const handleLoginChange = (e) => {
-    setLogin(e.target.value);
-  };
+
+  const onRegClick = () => {
+    setModalWindow(false);
+    setModalWindowReg(true);
+  }
+
   const onSubmit = (e) => {
     e.preventDefault();
     const hash = bcrypt.hashSync(password);
-    const user = {login, email, password:hash };
+    const user = {email, password: hash };
 
     axios.post("https://localhost:7074/api/auth/login", {
-      login: user.login,
       email: user.email,
       password: user.password
     }).then((result) => {
@@ -38,9 +40,70 @@ const inpRef = useRef();
     setEmail("");
     setPassword("");
   };
- 
+
   return (
-<div>
+    <div className={classes.reg}>
+      <h2>Login</h2>
+      <div className={classes.formDiv}>
+        <div className={classes.form + " " + classes.formDiv}>
+          <form onSubmit={onSubmit}>
+            <div style={{ marginBottom: "42px", width: "450px" }}>
+
+              <div>
+                <label className={classes.label} htmlFor="email">
+                  Email:
+                </label>
+                <Input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Введіть email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className={classes.label} htmlFor="password">
+                  Password:
+                </label>
+                <Input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Придумайте пароль"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div style={{ textAlign: 'end' }}>
+              <div type="" className="btn btn-light" onClick={onRegClick}>Зареєструватися</div>
+              <Button>Увійти</Button>
+            </div>
+
+          </form>
+        </div>
+
+        <div className={classes.form + " " + classes.formDiv}>або</div>
+
+        <div className={classes.form + " " + classes.formDiv} style={{ flexDirection: "column" }}>
+          <label>Увійти за допомогою</label>
+          <div className={classes.loginApp}>Google</div>
+          <div className={classes.loginApp}>Facebook</div>
+          <div className={classes.loginApp}>Apple</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
+
+{/* <div>
 <h2>Login</h2>
 <form onSubmit={onSubmit}>
 <label className={classes.label} htmlFor="email">Login:</label>
@@ -85,8 +148,4 @@ const inpRef = useRef();
           Login
 </Button>
 </form>
-</div>
-  );
-};
- 
-export default Login;
+</div> */}

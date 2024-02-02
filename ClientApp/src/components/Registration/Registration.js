@@ -13,17 +13,11 @@ import useRegistrationValidation from "../../hooks/useRegistrationValidation.js"
 import { CountryDropdown, RegionDropdown, CountryRegionData } from 'react-country-region-selector';
 import axios from "axios";
 
-const Registration = () => {
+function Registration ({setModalWindow, setModalWindowLog}) {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
     login: "",
     email: "",
     phone: "",
-    country: "",
-    region: "",
-    city: "",
-    postcode: "",
     password: "",
     confirmPassword: "",
   });
@@ -31,13 +25,13 @@ const Registration = () => {
   const [passwordMatchError, setPasswordMatchError] = useState(false);
   const { validationErrors, validateForm } = useRegistrationValidation();
 
-  const handleFirstNameChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, firstName: e.target.value }));
-  };
+  // const handleFirstNameChange = (e) => {
+  //   setFormData((prevData) => ({ ...prevData, firstName: e.target.value }));
+  // };
 
-  const handleLastNameChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, lastName: e.target.value }));
-  };
+  // const handleLastNameChange = (e) => {
+  //   setFormData((prevData) => ({ ...prevData, lastName: e.target.value }));
+  // };
 
   const handleLoginChange = (e) => {
     setFormData((prevData) => ({ ...prevData, login: e.target.value }));
@@ -51,28 +45,28 @@ const Registration = () => {
     setFormData((prevData) => ({ ...prevData, phone: e.target.value }));
   };
 
-  const handleCountryChange = (e) => {
-    if (e === "Russian Federation") {
+  // const handleCountryChange = (e) => {
+  //   if (e === "Russian Federation") {
 
-      alert("fuck you");
-      window.location.replace('https://prytulafoundation.org/');
-    } else {
-      setFormData((prevData) => ({ ...prevData, country: e }));
+  //     alert("fuck you");
+  //     window.location.replace('https://prytulafoundation.org/');
+  //   } else {
+  //     setFormData((prevData) => ({ ...prevData, country: e }));
 
-    }
-  };
+  //   }
+  // };
 
-  const handleRegionChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, region: e }));
-  };
+  // const handleRegionChange = (e) => {
+  //   setFormData((prevData) => ({ ...prevData, region: e }));
+  // };
 
-  const handleCityChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, city: e.target.value }));
-  };
+  // const handleCityChange = (e) => {
+  //   setFormData((prevData) => ({ ...prevData, city: e.target.value }));
+  // };
 
-  const handlePostcodeChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, postcode: e.target.value }));
-  };
+  // const handlePostcodeChange = (e) => {
+  //   setFormData((prevData) => ({ ...prevData, postcode: e.target.value }));
+  // };
 
   const handlePasswordChange = (e) => {
     setFormData((prevData) => ({ ...prevData, password: e.target.value }));
@@ -92,6 +86,11 @@ const Registration = () => {
       setPasswordMatchError(false);
     }
   };
+
+  const onLoginClick = () =>{
+    setModalWindow(false);
+    setModalWindowLog(true);
+  }
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -124,7 +123,7 @@ const Registration = () => {
         )}
         <div className={classes.form + " " + classes.formDiv}>
           <form onSubmit={onSubmit}>
-            <div>
+            <div style={{marginBottom: "42px", width: "450px"}}> 
               <div>
                 <label className={classes.label} htmlFor="login">
                   Login:
@@ -203,8 +202,8 @@ const Registration = () => {
               <p>I am not a diplodocus <input name="diplo" type="checkbox" /></p>
             </div>
 
-            <div>
-              <div type="" className="btn btn-light">Увійти в свій акаунт</div>
+            <div style={{textAlign: 'end'}}>
+              <div type="" className="btn btn-light" onClick={onLoginClick}>Увійти в свій акаунт</div>
               <Button disabled={passwordMatchError}>Зареєструватися</Button>
             </div>
 
