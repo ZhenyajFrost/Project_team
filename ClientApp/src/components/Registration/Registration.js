@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useEffect } from "react";
 import Button from "../UI/Button/Button.js";
 import Input from "../UI/Input/Input.js";
@@ -12,8 +8,9 @@ import { nanoid } from "nanoid";
 import useRegistrationValidation from "../../hooks/useRegistrationValidation.js";
 import { CountryDropdown, RegionDropdown, CountryRegionData } from 'react-country-region-selector';
 import axios from "axios";
+import LoginSocMed from "../LoginSocMed/LoginSocMed.js";
 
-function Registration ({setModalWindow, setModalWindowLog}) {
+function Registration ({setModalVisible, setModalLogVisible, setUser, setConfirmCode, setEmailSent}) {
   const [formData, setFormData] = useState({
     login: "",
     email: "",
@@ -21,6 +18,9 @@ function Registration ({setModalWindow, setModalWindowLog}) {
     password: "",
     confirmPassword: "",
   });
+  
+  const [confirmPassword, setConfirmPassword] = useState("");
+  //const [confirmCode, setConfirmCode] = useState("");
 
   const [passwordMatchError, setPasswordMatchError] = useState(false);
   const { validationErrors, validateForm } = useRegistrationValidation();
@@ -70,16 +70,13 @@ function Registration ({setModalWindow, setModalWindowLog}) {
 
   const handlePasswordChange = (e) => {
     setFormData((prevData) => ({ ...prevData, password: e.target.value }));
-    if (formData.confirmPassword && e.target.value !== formData.confirmPassword)
+    if (confirmPassword && e.target.value !== confirmPassword)
       setPasswordMatchError(true);
     else setPasswordMatchError(false);
   };
 
   const handleConfirmPasswordChange = (e) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      confirmPassword: e.target.value,
-    }));
+    setConfirmPassword(e.target.value);
     if (formData.password !== e.target.value) {
       setPasswordMatchError(true);
     } else {
@@ -88,8 +85,8 @@ function Registration ({setModalWindow, setModalWindowLog}) {
   };
 
   const onLoginClick = () =>{
-    setModalWindow(false);
-    setModalWindowLog(true);
+    setModalVisible(false);
+    setModalLogVisible(true);
   }
 
   const onSubmit = (e) => {
@@ -97,17 +94,22 @@ function Registration ({setModalWindow, setModalWindowLog}) {
     if (e.target["diplo"].checked) {
       const isValid = validateForm(formData);
 
-      if (isValid) {
+      if(isValid){
         const hash = bcrypt.hashSync(formData.password);
         const user = formData;
         user.password = hash;
 
-        axios.post("https://localhost:7074/api/auth/register", user).then((result) => {
-          console.log('Registration successful:', result.data);
-        }).catch((err) => {
-          console.error('Registration failed:', err);
-        });;
+        setEmailSent(true);
+        setUser(user);
+ 
+        axios.post("https://localhost:7074/api/auth/send-confrim-email", {email: user.email}).then(result => {
+          console.log('Email successfuly sent:', result.data)
+          setConfirmCode(result.data.code);
+          setUser(user);
 
+        }).catch((err) => {
+          console.error('Email sent failed:', err);
+        });;
       }
     } else {
       alert("NO DIPLODOCS ALLOWED")
@@ -115,15 +117,15 @@ function Registration ({setModalWindow, setModalWindowLog}) {
   };
 
   return (
-    <div className={classes.reg}>
+    <div>
       <h2>Registration</h2>
-      <div className={classes.formDiv}>
+      <div className={classes.container}>
         {validationErrors.password && (
           <p className="error">{validationErrors.password}</p>
         )}
-        <div className={classes.form + " " + classes.formDiv}>
+        <div className={classes.container}>
           <form onSubmit={onSubmit}>
-            <div style={{marginBottom: "42px", width: "450px"}}> 
+            <div className={classes.container} style={{flexDirection: 'column', gap: '0.5vw'}}>
               <div>
                 <label className={classes.label} htmlFor="login">
                   Login:
@@ -191,7 +193,7 @@ function Registration ({setModalWindow, setModalWindowLog}) {
                   id="confirmPassword"
                   name="confirmPassword"
                   placeholder="Підтвердіть пароль"
-                  value={formData.confirmPassword}
+                  value={confirmPassword}
                   onChange={handleConfirmPasswordChange}
                   required
                 />
@@ -203,24 +205,32 @@ function Registration ({setModalWindow, setModalWindowLog}) {
             </div>
 
             <div style={{textAlign: 'end'}}>
-              <div type="" className="btn btn-light" onClick={onLoginClick}>Увійти в свій акаунт</div>
+              <div className="btn btn-light" onClick={onLoginClick}>Увійти в свій акаунт</div>
               <Button disabled={passwordMatchError}>Зареєструватися</Button>
             </div>
 
           </form>
         </div>
 
-        <div className={classes.form + " " + classes.formDiv}>або</div>
+        <div className={classes.contBlock}>або</div>
 
-        <div className={classes.form + " " + classes.formDiv} style={{ flexDirection: "column" }}>
-          <label>Увійти за допомогою</label>
-          <div className={classes.loginApp}>Google</div>
-          <div className={classes.loginApp}>Facebook</div>
-          <div className={classes.loginApp}>Apple</div>
-        </div>
+        <LoginSocMed/>
       </div>
     </div>
   );
 };
 
 export default Registration;
+
+      // if (isValid) {
+      //   const hash = bcrypt.hashSync(formData.password);
+      //   const user = formData;
+      //   user.password = hash;
+
+      //   axios.post("https://localhost:7074/api/auth/register", user).then((result) => {
+      //     console.log('Registration successful:', result.data);
+      //   }).catch((err) => {
+      //     console.error('Registration failed:', err);
+      //   });;
+
+      // }

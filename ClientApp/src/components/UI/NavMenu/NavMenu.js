@@ -1,39 +1,138 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Container from 'react-bootstrap/Container';
-import { Link } from 'react-router-dom';
+import { Dropdown } from 'react-bootstrap';
 import './NavMenu.css';
 import logo from './images/logo.svg';
 import cart from './images/cart.svg';
 import catalog from './images/catalog.svg';
-import menu from './images/menu.svg';
 import profile from './images/profile.svg';
 import ukraineFlag from './images/ukraineFlag.svg';
 import arrow from './images/arrow.svg';
+import ModalWindow from '../../ModalWindow/ModalWindow';
+import Login from '../../Login/Login.js';
+import LoginForgotPassword from '../../Login/LoginForgotPassword.js';
+import Registration from '../../Registration/Registration.js';
+import RegistrationConfirm from '../../Registration/RegistrationConfirm.js';
 
-export class NavMenu extends Component {
-  static displayName = NavMenu.name;
+function NavMenu() {
+  const [modalLogVisible, setModalLogVisible] = useState(false);
+  const [modalRegVisible, setModalRegVisible] = useState(false);
+  const [forgotPass, setForgotPass] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [user, setUser] = useState(null);
+  const [confirmCode, setConfirmCode] = useState("");
 
-  constructor(props) {
-    super(props);
+  return (
+    <header>
+      <Navbar expand="lg">
+        <Container>
+          <Navbar.Brand href='/'>
+            <img src={logo} alt="logo" /> Exestic
+          </Navbar.Brand>
+          <Nav className='me-auto'>
+            <Nav.Link href='search'>
+              <img src={catalog} alt="catalog" /> Каталог
+            </Nav.Link>
+          </Nav>
+          <Nav className='nav-right'>
+            <Nav.Item className='country'>
+              <img src={ukraineFlag} alt="Ukraine flag" /> UA <img src={arrow} alt="arrow" />
+            </Nav.Item>
+            <Dropdown alignRight>
+              <Dropdown.Toggle as="a" bsPrefix="p-0" style={{ boxShadow: 'none' }}>
+                <img src={profile} alt="Profile" />
+              </Dropdown.Toggle>
 
-    this.toggleNavbar = this.toggleNavbar.bind(this);
-    this.state = {
-      collapsed: true
-    };
-  }
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => setModalLogVisible(true)}>Login</Dropdown.Item>
+                <Dropdown.Item onClick={() => setModalRegVisible(true)}>Registration</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+            <Nav.Item>
+              <img src={cart} alt="Cart"/>
+            </Nav.Item>
+          </Nav>
+        </Container>
+      </Navbar>
+      
+            <ModalWindow visible={modalLogVisible} setVisible={setModalLogVisible}>
+                {forgotPass ?
+                    <LoginForgotPassword setForgotPass={setForgotPass} /> :
+                    <Login setModalVisible={setModalLogVisible} setModalRegVisible={setModalRegVisible} setForgotPass={setForgotPass} />
+                }
 
-  toggleNavbar() {
-    this.setState({
-      collapsed: !this.state.collapsed
-    });
-  }
+            </ModalWindow>
 
-  render() {
+            
+            <ModalWindow visible={modalRegVisible} setVisible={setModalRegVisible}>
+                {emailSent ?
+                    <RegistrationConfirm user={user} confirmCode={confirmCode} setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setEmailSent={setEmailSent}/> :
+                    <Registration setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setUser={setUser} setConfirmCode={setConfirmCode}  setEmailSent={setEmailSent}/>
+                }
+            </ModalWindow>
+    </header>
+  );
+}
 
-    return (
-      <header>
+export default NavMenu;
+
+// export class NavMenu extends Component {
+//   static displayName = NavMenu.name;
+
+//   constructor(props) {
+//     super(props);
+
+//     this.toggleNavbar = this.toggleNavbar.bind(this);
+//     this.state = {
+//       collapsed: true
+//     };
+//   }
+
+//   toggleNavbar() {
+//     this.setState({
+//       collapsed: !this.state.collapsed
+//     });
+//   }
+
+//   render() {
+
+//     return (
+//       <header>
+
+//         <Navbar expand="lg">
+//           <Container>
+//             <Navbar.Brand href='/'>
+//               <img src={logo} />{" "}
+//               Exestic
+//             </Navbar.Brand>
+//             <Nav className='me-auto'>
+//                 <Nav.Link href='search' >
+//                   <img src={catalog} />{" "}
+//                   Каталог
+//                 </Nav.Link>
+//               </Nav>
+//               <Nav className='nav-right' pullRight>
+//                 <Nav.Item className='country' style={{marginRight: 18 + 'px'}}>
+//                   <img src={ukraineFlag} />{" "}
+//                   UA {" "}
+//                   <img src={arrow} />
+//                 </Nav.Item>
+//                 <Nav.Link className='profile' style={{marginRight: 18 + 'px'}} href="/profile">
+//                   <img src={profile} />
+//                 </Nav.Link>
+//                 <Nav.Item>
+//                   <img src={cart}/>
+//                 </Nav.Item>
+//               </Nav>
+//           </Container>
+//         </Navbar>
+//       </header>
+//     );
+//   }
+// }
+
         {/* <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" light>
            <Container>
             <NavbarBrand tag={Link} to="/">Project_team2</NavbarBrand>
@@ -55,34 +154,3 @@ export class NavMenu extends Component {
             </Collapse>
           </Container>
         </Navbar> */}
-        <Navbar expand="lg">
-          <Container>
-            <Navbar.Brand href='/'>
-              <img src={logo} />{" "}
-              Exestic
-            </Navbar.Brand>
-            <Nav className='me-auto'>
-                <Nav.Link href='search' >
-                  <img src={catalog} />{" "}
-                  Каталог
-                </Nav.Link>
-              </Nav>
-              <Nav className='nav-right' pullRight>
-                <Nav.Item className='country' style={{marginRight: 18 + 'px'}}>
-                  <img src={ukraineFlag} />{" "}
-                  UA {" "}
-                  <img src={arrow} />
-                </Nav.Item>
-                <Nav.Link className='profile' style={{marginRight: 18 + 'px'}} href="/profile">
-                  <img src={profile} />
-                </Nav.Link>
-                <Nav.Item>
-                  <img src={cart}/>
-                </Nav.Item>
-              </Nav>
-          </Container>
-        </Navbar>
-      </header>
-    );
-  }
-}

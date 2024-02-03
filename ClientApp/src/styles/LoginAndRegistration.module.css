@@ -1,19 +1,44 @@
-.formDiv{
+.container,
+.containerVer,
+form {
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+    flex-wrap: nowrap;
 }
 
-.form{
-    flex: 1 1 auto;
+.container {
+    gap: 1.5vw;
+}
+
+.containerVer {
+    flex-direction: column;
+    gap: 1vw;
+}
+
+form {
+    gap: 3vw;
+    width: 450px;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.contBlock {
     margin: auto;
 }
 
-.loginApp{
-    text-align: center;
-}
-
-h2{
+h2 {
     margin-bottom: 24px;
 }
 
+.text {
+    display: inline-flex;
+    justify-content: end;
+    font-family: Manrope;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 19px;
+    color: #1C1B1F;
+}
+
+.secondaryTxt {
+    color: #474747;
+}

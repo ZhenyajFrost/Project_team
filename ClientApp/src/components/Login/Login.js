@@ -1,11 +1,12 @@
 import React, { useRef, useState } from 'react';
 import Button from '../UI/Button/Button.js'
 import Input from '../UI/Input/Input.js'
+import LoginSocMed from '../LoginSocMed/LoginSocMed.js'
 import classes from '../../styles/LoginAndRegistration.module.css'
 import bcrypt from 'bcryptjs'
 import axios from 'axios'
 
-const Login = ({setModalWindow, setModalWindowReg}) => {
+const Login = ({setModalVisible, setModalRegVisible, setForgotPass}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const inpRef = useRef();
@@ -19,8 +20,8 @@ const Login = ({setModalWindow, setModalWindowReg}) => {
   };
 
   const onRegClick = () => {
-    setModalWindow(false);
-    setModalWindowReg(true);
+    setModalVisible(false);
+    setModalRegVisible(true);
   }
 
   const onSubmit = (e) => {
@@ -42,14 +43,13 @@ const Login = ({setModalWindow, setModalWindowReg}) => {
   };
 
   return (
-    <div className={classes.reg}>
+    <div>
       <h2>Login</h2>
-      <div className={classes.formDiv}>
-        <div className={classes.form + " " + classes.formDiv}>
+      <div className={classes.container}>
+        <div className={classes.container}>
           <form onSubmit={onSubmit}>
-            <div style={{ marginBottom: "42px", width: "450px" }}>
-
-              <div>
+            <div className={classes.containerVer}>
+              <div className={classes.containerVer}>
                 <label className={classes.label} htmlFor="email">
                   Email:
                 </label>
@@ -64,7 +64,7 @@ const Login = ({setModalWindow, setModalWindowReg}) => {
                 />
               </div>
 
-              <div>
+              <div className={classes.containerVer}>
                 <label className={classes.label} htmlFor="password">
                   Password:
                 </label>
@@ -78,24 +78,20 @@ const Login = ({setModalWindow, setModalWindowReg}) => {
                   required
                 />
               </div>
+
+              <div className={classes.text} onClick={() => setForgotPass(true)}>Забув пароль</div>
             </div>
 
             <div style={{ textAlign: 'end' }}>
-              <div type="" className="btn btn-light" onClick={onRegClick}>Зареєструватися</div>
+              <div className="btn btn-light" onClick={onRegClick}>Зареєструватися</div>
               <Button>Увійти</Button>
             </div>
-
           </form>
         </div>
 
-        <div className={classes.form + " " + classes.formDiv}>або</div>
+        <div className={classes.contBlock}>або</div>
 
-        <div className={classes.form + " " + classes.formDiv} style={{ flexDirection: "column" }}>
-          <label>Увійти за допомогою</label>
-          <div className={classes.loginApp}>Google</div>
-          <div className={classes.loginApp}>Facebook</div>
-          <div className={classes.loginApp}>Apple</div>
-        </div>
+        <LoginSocMed/>
       </div>
     </div>
   );

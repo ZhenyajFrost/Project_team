@@ -16,7 +16,9 @@
 }
 
 .nav-right{
+  display: inline-flex;
   flex-direction: row;
+  gap: 18px;
   width: max-content;
 }
 
