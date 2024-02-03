@@ -1,0 +1,35 @@
+.filterContainer {
+  display: flex;
+  background-color: #f8f8f8;
+  gap: 20px;
+}
+.filterItem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+input,
+select,
+input:focus,
+select:focus {
+  border: none;
+  outline: none;
+}
+
+.priceContainer {
+  display: flex;
+  gap: 10px;
+}
+.inputEl {
+  background-color: white;
+  display: flex;
+  border-radius: 50px;
+  padding: 10px;
+  max-height: 45px;
+}
+select.inputEl{
+    width: 250px;
+}
+.inputEl input{
+    width: 50px;
+}

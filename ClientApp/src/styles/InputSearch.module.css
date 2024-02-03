@@ -13,5 +13,31 @@
 
 .search{
     display: flex;
-    justify-content: space-between;
+
+}
+.search div{
+    display: flex;
+    background-color: #F8F8F8;
+    border-radius: 50px;
+    padding: 3px;
+    width: 100%;
+    justify-items: center;
+}
+.search input{
+    background-color: inherit;
+
+}
+.search input:focus{
+    border: none;
+    outline: none;
+    
+}
+.search img{
+    background-color: white;
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: auto;
 }

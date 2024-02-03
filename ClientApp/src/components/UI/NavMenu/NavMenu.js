@@ -62,7 +62,7 @@ export class NavMenu extends Component {
               Exestic
             </Navbar.Brand>
             <Nav className='me-auto'>
-                <Nav.Link >
+                <Nav.Link href='search' >
                   <img src={catalog} />{" "}
                   Каталог
                 </Nav.Link>

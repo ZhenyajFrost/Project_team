@@ -9,23 +9,14 @@ import ModalWindow from "../../ModalWindow/ModalWindow.js";
 import LotChange from "../../LotChange/LotChange.js";
 import Button from "../Button/Button.js";
 import classes from "./LotContainer.module.css";
-import CategoryContainer from "../../CategoryContainer/CategoryContainer.js";
 
-function LotContainer({ lots, setLots, setPage }) {
+function LotContainer({ lots, display = "grid" }) {
   //const [selectedId, setSelectedId] = useState(-1);
-  const [selectedCat, setSelectedCat] = useState("Холодильники");
-  const onCategoryChange = (cat)=>{
-    setSelectedCat(cat);
-    setPage(0);
-    setLots([]);
 
-  }
   return (
     <div>
-    <h2>Популярні лоти</h2>
-    <CategoryContainer categories={["Холодильники","Іфон 13","Картини","Телевізор","Іграшки","Навушники","Колеса)"]} onCategoryChange={onCategoryChange} selectedCategorie={selectedCat}/>
     
-      <div className={classes.lotsContainer}>
+      <div className={classes.lotsContainer+" "+(display==="grid" ? classes.grid : classes.list)}>
         {lots.map((lot, i) => (
           <Lot
             id={lot.id}

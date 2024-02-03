@@ -6,6 +6,7 @@ import LotPage from "./pages/LotPage.js"
 
 import './custom.css'
 import Profile from './pages/Profile.js';
+import SearchPage from './pages/SearchPage.js';
 
 export default class App extends Component {
     static displayName = App.name;
@@ -15,6 +16,7 @@ export default class App extends Component {
         <Layout>
          <Route path='/lot/:id' component={LotPage} />
          <Route path='/profile' component={Profile} />
+         <Route path='/search' component={SearchPage} />
 
         <Route exact path='/' component={Home} />
       </Layout>

@@ -1,0 +1,11 @@
+.upThing{
+    display: flex;
+    gap: space-between;
+}
+.upThing div{
+    display: flex;
+}
+.upThing svg{
+    width: 24px;
+    height: 24px;
+}
