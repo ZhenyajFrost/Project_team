@@ -23,17 +23,9 @@ export const Home = () => {
     const [pagesToDisplay, setPagesToDisplay] = useState();
     const [page, setPage] = useState(0);
     const [limit, setLimit] = useState(6);
-    const [selectedSort, setSelectedSort] = useState("");
 
     const [searchQuery, setSearchQuery] = useState("");
     const [sortedLots, setSortedLots] = useState(lots);
-
-    const [modalLogVisible, setModalLogVisible] = useState(false);
-    const [modalRegVisible, setModalRegVisible] = useState(false);
-    const [user, setUser] = useState({});
-    const [confirmCode, setConfirmCode] = useState('');
-    const [forgotPass, setForgotPass] = useState(false);
-    const [emailSent, setEmailSent] = useState(false);
 
     let history = useHistory();
     useEffect(() => {

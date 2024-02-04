@@ -40,7 +40,7 @@ const useRegistrationValidation = () => {
     return Object.keys(errors).length === 0;
   };
 
-  console.log(validationErrors);
+  //console.log(validationErrors);
   return { validationErrors, validateForm };
 };
  

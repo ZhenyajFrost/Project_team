@@ -1,123 +1,57 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../UI/Button/Button.js";
 import Input from "../UI/Input/Input.js";
 import PhoneInput from "../UI/PhoneInput/PhoneInput.js";
 import classes from "../../styles/LoginAndRegistration.module.css";
-import bcrypt from "bcryptjs";
-import { nanoid } from "nanoid";
 import useRegistrationValidation from "../../hooks/useRegistrationValidation.js";
-import { CountryDropdown, RegionDropdown, CountryRegionData } from 'react-country-region-selector';
-import axios from "axios";
+import useSendConfirmationEmail from "../../hooks/useSendConfirmationEmail";
 import LoginSocMed from "../LoginSocMed/LoginSocMed.js";
 
-function Registration ({setModalVisible, setModalLogVisible, setUser, setConfirmCode, setEmailSent}) {
+function Registration({ setModalVisible, setModalLogVisible, setUser, setEmailSent}) {
   const [formData, setFormData] = useState({
     login: "",
     email: "",
     phone: "",
     password: "",
-    confirmPassword: "",
+    confirmPassword: ""
   });
-  
-  const [confirmPassword, setConfirmPassword] = useState("");
-  //const [confirmCode, setConfirmCode] = useState("");
-
-  const [passwordMatchError, setPasswordMatchError] = useState(false);
   const { validationErrors, validateForm } = useRegistrationValidation();
+  const [passwordMatchError, setPasswordMatchError] = useState(false);
 
-  // const handleFirstNameChange = (e) => {
-  //   setFormData((prevData) => ({ ...prevData, firstName: e.target.value }));
-  // };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
 
-  // const handleLastNameChange = (e) => {
-  //   setFormData((prevData) => ({ ...prevData, lastName: e.target.value }));
-  // };
-
-  const handleLoginChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, login: e.target.value }));
-  };
-
-  const handleEmailChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, email: e.target.value }));
-  };
-
-  const handlePhoneChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, phone: e.target.value }));
-  };
-
-  // const handleCountryChange = (e) => {
-  //   if (e === "Russian Federation") {
-
-  //     alert("fuck you");
-  //     window.location.replace('https://prytulafoundation.org/');
-  //   } else {
-  //     setFormData((prevData) => ({ ...prevData, country: e }));
-
-  //   }
-  // };
-
-  // const handleRegionChange = (e) => {
-  //   setFormData((prevData) => ({ ...prevData, region: e }));
-  // };
-
-  // const handleCityChange = (e) => {
-  //   setFormData((prevData) => ({ ...prevData, city: e.target.value }));
-  // };
-
-  // const handlePostcodeChange = (e) => {
-  //   setFormData((prevData) => ({ ...prevData, postcode: e.target.value }));
-  // };
-
-  const handlePasswordChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, password: e.target.value }));
-    if (confirmPassword && e.target.value !== confirmPassword)
-      setPasswordMatchError(true);
-    else setPasswordMatchError(false);
-  };
-
-  const handleConfirmPasswordChange = (e) => {
-    setConfirmPassword(e.target.value);
-    if (formData.password !== e.target.value) {
-      setPasswordMatchError(true);
-    } else {
-      setPasswordMatchError(false);
+    if (name === "password" || name === "confirmPassword") {
+      const password = name === "password" ? value : formData.password;
+      const confirmPassword = name === "confirmPassword" ? value : formData.confirmPassword;
+      setPasswordMatchError(password !== confirmPassword);
     }
   };
 
-  const onLoginClick = () =>{
+  const onLoginClick = () => {
     setModalVisible(false);
     setModalLogVisible(true);
   }
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (e.target["diplo"].checked) {
-      const isValid = validateForm(formData);
-
-      if(isValid){
-        const hash = bcrypt.hashSync(formData.password);
-        const user = formData;
-        user.password = hash;
-
-        setEmailSent(true);
-        setUser(user);
- 
-        axios.post("https://localhost:7074/api/auth/send-confrim-email", {email: user.email}).then(result => {
-          console.log('Email successfuly sent:', result.data)
-          setConfirmCode(result.data.code);
-          setUser(user);
-
-        }).catch((err) => {
-          console.error('Email sent failed:', err);
-        });;
-      }
-    } else {
-      alert("NO DIPLODOCS ALLOWED")
+    if (!e.target["diplo"].checked) {
+      alert("NO DIPLODOCS ALLOWED");
+      return;
     }
+
+    if (!validateForm(formData) || passwordMatchError) return;
+    const { confirmPassword, ...userFormData } = formData;
+    setUser(userFormData);
+    setEmailSent(true);
   };
 
   return (
-    <div>
+<div>
       <h2>Registration</h2>
       <div className={classes.container}>
         {validationErrors.password && (
@@ -136,7 +70,7 @@ function Registration ({setModalVisible, setModalLogVisible, setUser, setConfirm
                   name="login"
                   placeholder="Придумайте логін"
                   value={formData.login}
-                  onChange={handleLoginChange}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
@@ -150,7 +84,7 @@ function Registration ({setModalVisible, setModalLogVisible, setUser, setConfirm
                   id="phone"
                   name="phone"
                   value={formData.phone}
-                  onChange={handlePhoneChange}
+                  onChange={handleInputChange}
                 />
               </div>
 
@@ -164,7 +98,7 @@ function Registration ({setModalVisible, setModalLogVisible, setUser, setConfirm
                   name="email"
                   placeholder="Введіть email"
                   value={formData.email}
-                  onChange={handleEmailChange}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
@@ -179,7 +113,7 @@ function Registration ({setModalVisible, setModalLogVisible, setUser, setConfirm
                   name="password"
                   placeholder="Придумайте пароль"
                   value={formData.password}
-                  onChange={handlePasswordChange}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
@@ -193,8 +127,8 @@ function Registration ({setModalVisible, setModalLogVisible, setUser, setConfirm
                   id="confirmPassword"
                   name="confirmPassword"
                   placeholder="Підтвердіть пароль"
-                  value={confirmPassword}
-                  onChange={handleConfirmPasswordChange}
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
                   required
                 />
                 {passwordMatchError && (
@@ -218,19 +152,6 @@ function Registration ({setModalVisible, setModalLogVisible, setUser, setConfirm
       </div>
     </div>
   );
-};
+}
 
 export default Registration;
-
-      // if (isValid) {
-      //   const hash = bcrypt.hashSync(formData.password);
-      //   const user = formData;
-      //   user.password = hash;
-
-      //   axios.post("https://localhost:7074/api/auth/register", user).then((result) => {
-      //     console.log('Registration successful:', result.data);
-      //   }).catch((err) => {
-      //     console.error('Registration failed:', err);
-      //   });;
-
-      // }

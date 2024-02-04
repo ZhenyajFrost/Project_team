@@ -26,12 +26,14 @@ function SearchPage(props) {
     setLots(data.filter((_, i) => i < (curPage + 1) * perPage));
     setCurPage(curPage + 1);
   });
+  
   useEffect(() => {
     setCurPage(1);
     // setLots([]);
     //fetchLots();
     
   }, [setCurPage, fetchLots]);
+
   return (
     <div>
       <InputSearch onSearch={(e) => setQuerry} value={querry} />

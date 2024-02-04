@@ -7,12 +7,12 @@ import bcrypt from 'bcryptjs'
 import axios from 'axios'
 
 const Login = ({setModalVisible, setModalRegVisible, setForgotPass}) => {
-  const [email, setEmail] = useState('');
+  const [loginVal, setLoginVal] = useState('');
   const [password, setPassword] = useState('');
   const inpRef = useRef();
 
   const handleEmailChange = (e) => {
-    setEmail(e.target.value);
+    setLoginVal(e.target.value);
   };
 
   const handlePasswordChange = (e) => {
@@ -26,10 +26,21 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass}) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    const hash = bcrypt.hashSync(password);
-    const user = {email, password: hash };
+    //const hash = bcrypt.hashSync(password);
+    var email;
+    var login;
 
+    if(loginVal.includes('@')){
+      email = loginVal;
+      login = " ";
+    }else{
+      email = " ";
+      login = loginVal
+    }
+    const user = {login: login ,email: email, password: password };
+    
     axios.post("https://localhost:7074/api/auth/login", {
+      login: user.login,
       email: user.email,
       password: user.password
     }).then((result) => {
@@ -38,7 +49,7 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass}) => {
       console.error('Login failed:', err);
     });;
 
-    setEmail("");
+    setLoginVal("");
     setPassword("");
   };
 
@@ -51,14 +62,14 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass}) => {
             <div className={classes.containerVer}>
               <div className={classes.containerVer}>
                 <label className={classes.label} htmlFor="email">
-                  Email:
+                  Email or login:
                 </label>
                 <Input
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="Введіть email"
-                  value={email}
+                  type="value"
+                  id="value"
+                  name="loginVal"
+                  placeholder="Введіть email aбо login"
+                  value={loginVal}
                   onChange={handleEmailChange}
                   required
                 />

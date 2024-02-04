@@ -22,7 +22,6 @@ function NavMenu() {
   const [forgotPass, setForgotPass] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [user, setUser] = useState(null);
-  const [confirmCode, setConfirmCode] = useState("");
 
   return (
     <header>
@@ -68,8 +67,8 @@ function NavMenu() {
             
             <ModalWindow visible={modalRegVisible} setVisible={setModalRegVisible}>
                 {emailSent ?
-                    <RegistrationConfirm user={user} confirmCode={confirmCode} setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setEmailSent={setEmailSent}/> :
-                    <Registration setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setUser={setUser} setConfirmCode={setConfirmCode}  setEmailSent={setEmailSent}/>
+                    <RegistrationConfirm user={user} setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setEmailSent={setEmailSent}/>:
+                    <Registration setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setUser={setUser} setEmailSent={setEmailSent}/>
                 }
             </ModalWindow>
     </header>
@@ -77,80 +76,3 @@ function NavMenu() {
 }
 
 export default NavMenu;
-
-// export class NavMenu extends Component {
-//   static displayName = NavMenu.name;
-
-//   constructor(props) {
-//     super(props);
-
-//     this.toggleNavbar = this.toggleNavbar.bind(this);
-//     this.state = {
-//       collapsed: true
-//     };
-//   }
-
-//   toggleNavbar() {
-//     this.setState({
-//       collapsed: !this.state.collapsed
-//     });
-//   }
-
-//   render() {
-
-//     return (
-//       <header>
-
-//         <Navbar expand="lg">
-//           <Container>
-//             <Navbar.Brand href='/'>
-//               <img src={logo} />{" "}
-//               Exestic
-//             </Navbar.Brand>
-//             <Nav className='me-auto'>
-//                 <Nav.Link href='search' >
-//                   <img src={catalog} />{" "}
-//                   Каталог
-//                 </Nav.Link>
-//               </Nav>
-//               <Nav className='nav-right' pullRight>
-//                 <Nav.Item className='country' style={{marginRight: 18 + 'px'}}>
-//                   <img src={ukraineFlag} />{" "}
-//                   UA {" "}
-//                   <img src={arrow} />
-//                 </Nav.Item>
-//                 <Nav.Link className='profile' style={{marginRight: 18 + 'px'}} href="/profile">
-//                   <img src={profile} />
-//                 </Nav.Link>
-//                 <Nav.Item>
-//                   <img src={cart}/>
-//                 </Nav.Item>
-//               </Nav>
-//           </Container>
-//         </Navbar>
-//       </header>
-//     );
-//   }
-// }
-
-        {/* <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" light>
-           <Container>
-            <NavbarBrand tag={Link} to="/">Project_team2</NavbarBrand>
-            <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
-            <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
-              <ul className="navbar-nav flex-grow">
-                <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
-                </NavItem>
-                <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/counter">Counter</NavLink>
-                </NavItem>
-                <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/profile">
-                    <img className='avatar' src='https://www.heymind.org.uk/wp-content/uploads/2022/04/avatar-placeholder.png' />
-                  </NavLink>
-                </NavItem>
-              </ul>
-            </Collapse>
-          </Container>
-        </Navbar> */}
