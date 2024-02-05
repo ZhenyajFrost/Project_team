@@ -30,17 +30,16 @@ const useRegistrationValidation = () => {
     }
  
     if (!validatePassword(formData.password)) {
+      console.log("UseReg: " + validatePassword(formData.password) + " password: " + formData.password);
       errors.password =
         "Password must have a minimum of 8 characters, at least one lowercase letter, one uppercase letter, and one special symbol.";
     }
  
     setValidationErrors(errors);
 
-    // Return true if there are no validation errors
     return Object.keys(errors).length === 0;
   };
 
-  //console.log(validationErrors);
   return { validationErrors, validateForm };
 };
  

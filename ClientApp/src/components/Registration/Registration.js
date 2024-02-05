@@ -7,7 +7,7 @@ import useRegistrationValidation from "../../hooks/useRegistrationValidation.js"
 import useSendConfirmationEmail from "../../hooks/useSendConfirmationEmail";
 import LoginSocMed from "../LoginSocMed/LoginSocMed.js";
 
-function Registration({ setModalVisible, setModalLogVisible, setUser, setEmailSent}) {
+function Registration({ user, setModalVisible, setModalLogVisible, setUser, setEmailSent}) {
   const [formData, setFormData] = useState({
     login: "",
     email: "",
@@ -15,6 +15,11 @@ function Registration({ setModalVisible, setModalLogVisible, setUser, setEmailSe
     password: "",
     confirmPassword: ""
   });
+
+  useEffect(() => {
+    setFormData(user);
+  },[]);
+
   const { validationErrors, validateForm } = useRegistrationValidation();
   const [passwordMatchError, setPasswordMatchError] = useState(false);
 

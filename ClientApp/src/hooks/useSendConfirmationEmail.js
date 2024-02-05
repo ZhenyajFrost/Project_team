@@ -10,7 +10,7 @@ const useSendConfirmationEmail = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.post("https://localhost:7074/api/auth/send-confirm-email", { email });
+      const response = await axios.post("https://localhost:7074/api/auth/send-confirm-code", { email });
       console.log('Email successfully sent:', response.data);
       setConfirmCode(response.data.code);
     } catch (err) {

@@ -21,7 +21,7 @@ function NavMenu() {
   const [modalRegVisible, setModalRegVisible] = useState(false);
   const [forgotPass, setForgotPass] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState("");
 
   return (
     <header>
@@ -67,8 +67,8 @@ function NavMenu() {
             
             <ModalWindow visible={modalRegVisible} setVisible={setModalRegVisible}>
                 {emailSent ?
-                    <RegistrationConfirm user={user} setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setEmailSent={setEmailSent}/>:
-                    <Registration setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setUser={setUser} setEmailSent={setEmailSent}/>
+                    <RegistrationConfirm user={user} setUser={setUser} setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setEmailSent={setEmailSent}/>:
+                    <Registration user={user} setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setUser={setUser} setEmailSent={setEmailSent}/>
                 }
             </ModalWindow>
     </header>
