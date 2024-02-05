@@ -17,27 +17,39 @@ function SearchPage(props) {
       ]
     )
   );
+  const [oldQuerry, setOldQuerry] = useState("");
+  const [filter, setFilter] = useState({});
   const [lots, setLots] = useState([]);
   const [curPage, setCurPage] = useState(1);
   const perPage = 7;
+  const [lotDisplay, setLotDisplay] = useState("list");
   const [fetchLots, isLoading] = useFetching(async () => {
     const response = await PostService.getAll(perPage, curPage);
     const data = await response.json();
     setLots(data.filter((_, i) => i < (curPage + 1) * perPage));
     setCurPage(curPage + 1);
   });
-  
-  useEffect(() => {
-    setCurPage(1);
-    // setLots([]);
-    //fetchLots();
-    
-  }, [setCurPage, fetchLots]);
 
+  useEffect(() => {
+    const doFetching = () => {
+      setCurPage(1);
+      setLots([]);
+      fetchLots();
+      setOldQuerry(querry);
+    };
+    if (oldQuerry !== querry) doFetching();
+  }, [querry, filter, fetchLots, oldQuerry]);
+  const onFilterChange = (e) => {
+    console.log(e);
+    setFilter(e);
+  };
   return (
-    <div>
-      <InputSearch onSearch={(e) => setQuerry} value={querry} />
-      <Filters />
+    <div className={css.searchContainer}>
+      <div className={css.searchFieldWrap}>
+        <label className={css.searchFieldLabel}>Пошук</label>
+        <InputSearch onSearch={(e) => setQuerry(e)} value={querry} />
+      </div>
+      <Filters onChange={onFilterChange} />
       <hr></hr>
       <div className={css.upThing}>
         <NavLink href="/">На головну</NavLink>
@@ -48,18 +60,18 @@ function SearchPage(props) {
               <option>Як ми це зробимо?</option>
             </select>
           </div>
-          <svg>
-            <use href={`${svg}#listView`} />
-          </svg>
-          <svg>
+          <svg onClick={() => setLotDisplay("grid")}>
             <use href={`${svg}#gridView`} />
+          </svg>
+          <svg onClick={() => setLotDisplay("list")}>
+            <use href={`${svg}#listView`} />
           </svg>
         </div>
       </div>
       {isLoading ? (
         <Loader />
       ) : (
-        <LotContainer display="list" lots={lots} setLots={setLots} />
+        <LotContainer display={lotDisplay} lots={lots} setLots={setLots} />
       )}
     </div>
   );
