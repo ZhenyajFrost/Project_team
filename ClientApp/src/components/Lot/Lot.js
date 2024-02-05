@@ -51,17 +51,18 @@ export const formatTime = (seconds) => {
   let days = Math.floor(hours / 24);
   hours = hours % 24;
   return (
-    days +
+    (days>0? days +
     " " +
     vidminDays(days) +
-    " " +
+    " " : "" )+
+    (hours>0?
     hours +
     " " +
     vidminHours(hours) +
+    " " :"")+
+    (minutes>0 ? minutes +
     " " +
-    minutes +
-    " " +
-    vidminMinutes(minutes)
+    vidminMinutes(minutes):"Time is up.")
   );
 };
 

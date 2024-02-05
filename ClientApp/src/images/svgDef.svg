@@ -1,0 +1,21 @@
+<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg"
+>
+    <symbol fill="none" viewBox="0 0 24 24" id="home">
+        <path
+            d="M5.7002 9.9L12.0002 5L18.3002 9.9V17.6C18.3002 17.9713 18.1527 18.3274 17.8901 18.5899C17.6276 18.8525 17.2715 19 16.9002 19H7.1002C6.72889 19 6.3728 18.8525 6.11025 18.5899C5.84769 18.3274 5.7002 17.9713 5.7002 17.6V9.9Z"
+            stroke="#474747" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M9.8999 19V12H14.0999V19" stroke="#474747" stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
+    </symbol>
+
+    <symbol viewBox="0 0 24 24" fill="none"
+        id="arrow-right">
+        <path d="M9 18L15 12L9 6" stroke="#474747" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+    </symbol>
+    <symbol viewBox="0 0 24 24" fill="none" id="arrow">
+        <path d="M12 5L19 12L12 19" stroke="white" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round" />
+    </symbol>
+</svg>
