@@ -15,7 +15,6 @@ function PictureCarousel({ images }) {
         const moveBkwrd = (i) => {
             if (i <= dist) {
               prev();
-              console.log("kdjdi");
               setTimeout(() => moveBkwrd(i + 1), (i+1)*750);
             }
           };
