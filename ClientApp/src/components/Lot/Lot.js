@@ -106,7 +106,7 @@ function Lot({
             <svg>
               <use href={`${MoneySvg}#schedule`} />
             </svg>
-            {formatTime(timeTillEnd)}
+            {formatTime(ttl)}
           </p>
            <NavLink to={"/lot/" + id} className="arrow-outward"><svg>
             <use href={`${MoneySvg}#arrow_outward`}/> 
