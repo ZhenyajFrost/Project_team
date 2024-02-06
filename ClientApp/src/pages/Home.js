@@ -1,21 +1,14 @@
 import React, { Component, useState, useEffect, useMemo } from "react";
 import { useHistory } from "react-router-dom";
-import "../styles/Home.css";
-import { useFetching } from "../hooks/useFetching";
-import { getPageCount, getPagesArray } from "../utils/pages.js";
+import css from "../styles/Home.module.css";
 import LotContainer from "../components/UI/LotContainer/LotContainer.js";
-import Pagination from "../components/UI/Pagination/Pagination.js";
-import Button from "../components/UI/Button/Button.js";
 import InputSearch from "../components/UI/Input/InputSearch.js";
-import ModalWindow from "../components/ModalWindow/ModalWindow.js";
-import Login from "../components/Login/Login.js";
-import LoginForgotPassword from '../components/Login/LoginForgotPassword.js';
-import Loader from "../components/Loader/Loader.js";
-import Registration from "../components/Registration/Registration.js";
 import LoadMoreButton from "../components/LoadMoreButton/LoadMoreButton.js";
 import homeImg from "../images/homeImg.svg";
 import CategoryContainer from "../components/CategoryContainer/CategoryContainer.js";
-import RegistrationConfirm from "../components/Registration/RegistrationConfirm.js";
+import Button from "../components/UI/Button/Button.js";
+import howItWorksImg from "../images/howItWorks.svg"
+import svg from "../images/svgDef.svg";
 
 export const Home = () => {
     const [lots, setLots] = useState([]);
@@ -67,60 +60,86 @@ export const Home = () => {
 
     return (
         <div>
-            <div
-                style={{
-                    position: "relative",
-                    borderRadius: "24px",
-                    marginTop: "24px",
-                }}
-            >
-                <img
-                    src={homeImg}
-                    alt="Description"
-                    style={{ width: "100%", height: "auto", borderRadius: "24px" }}
-                />
-                <p className="search">
-                    Створюйте та продавайте те, що вам потрібно прямо зараз
-                </p>
-                <div className="search">
-                    <label className="seacrh">Пошук</label>
-                    <InputSearch
-                        onSearch={handleSearch}
-                        placeholder="Введіть будь-яку позицію"
-                    />
-                    {/* --Search without button-- 
-                     <InputSearch value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Введіть будь-яку позицію" /> */}
+            <div style={{ position: "relative", borderRadius: "24px", marginTop: "24px" }}>
+                <img src={homeImg} alt="Description" style={{ width: "100%", height: "auto", borderRadius: "24px" }} />
+                <p className={css.search}>Створюйте та продавайте те, що вам потрібно прямо зараз</p>
+                <div className={`${css.search} ${css.borderRadius24}`} style={{ backgroundColor: "white" }}>
+                    <label className={css.search}>Пошук</label>
+                    <InputSearch onSearch={handleSearch} placeholder="Введіть будь-яку позицію" />
                 </div>
             </div>
-            <h2>Популярні лоти</h2>
 
-            <CategoryContainer
-                categories={[
-                    "Холодильники",
-                    "Іфон 13",
-                    "Картини",
-                    "Телевізор",
-                    "Іграшки",
-                    "Навушники",
-                    "Колеса)",
-                ]}
-                onCategoryChange={onCategoryChange}
-                selectedCategorie={selectedCat}
-            />
+            <h2 className={css.h2}>Популярні лоти</h2>
+
+            {/* Assuming CategoryContainer and LotContainer use CSS modules internally */}
+            <CategoryContainer categories={["Холодильники", "Іфон 13", "Картини", "Телевізор", "Іграшки", "Навушники", "Колеса)"]} onCategoryChange={onCategoryChange} selectedCategorie={selectedCat} />
 
             <LotContainer lots={sortedLots} />
-            <LoadMoreButton
-                setLots={setLots}
-                curPage={page}
-                setCurPage={setPage}
-                perPage={limit}
-            />
+            <LoadMoreButton setLots={setLots} curPage={page} setCurPage={setPage} perPage={limit} />
 
-            <Pagination
-                totalPages={pagesToDisplay}
-                page={page}
-                changePage={changePage}
-            />
+            <div className={`${css.mainCont} ${css.borderRadius24}`}>
+                <div className={`${css.container} ${css.flexColumn}`}>
+                    <h2 className={css.h2}>Як це працює?</h2>
+                    <div className={`${css.element} ${css.flexColumn}`}>
+                        <div className={css.header}>
+                            <div className={css.point}>01</div>
+                            <h4 className={css.h4}>Реєстрація та підготовка</h4>
+                        </div>
+                        <div className={css.text}>
+                            Учасники торгів реєструються на аукціонній платформі та отримують доступ до каталогу лотів і правил аукціону. Вони проводять попереднє дослідження лотів.
+                        </div>
+                    </div>
+                    <div className={`${css.element} ${css.flexColumn}`}>
+                        <div className={css.header}>
+                            <div className={css.point}>02</div>
+                            <h4 className={css.h4}>Реєстрація та підготовка</h4>
+                        </div>
+                        <div className={css.text}>
+                            Учасники торгів реєструються на аукціонній платформі та отримують доступ до каталогу лотів і правил аукціону. Вони проводять попереднє дослідження лотів.
+                        </div>
+                    </div>
+                    <Button className={css.button}>Детальніше</Button>
+                </div>
+                <div className={`${css.img} ${css.borderRadius24}`}>
+                    <img className={css.img} src={howItWorksImg} alt="How It Works" />
+                </div>
+            </div>
+
+            <div className={`${css.mainContQuest} ${css.borderRadius24} ${css.flexColumn}`}>
+                <h2 className={css.h2}>Популярне запитання</h2>
+                <div className={`${css.containerQuest}`}>
+                    <div className={`${css.elementQuest} ${css.borderRadius24} `}>
+                        <div className={`${css.headerQuest} ${css.flexColumn}`}>
+                            <div className={css.arrowQuest}>
+                                <svg>
+                                    <use href={`${svg}#arrow_outward`} />
+                                </svg>
+                            </div>
+                            <div className={css.textQuest}>Які обов'язкові дані потрібно вказати при реєстрації на нашій аукціонній платформі?</div>
+                        </div>
+                    </div>
+                    <div className={`${css.elementQuest} ${css.borderRadius24}`}>
+                        <div className={`${css.headerQuest} ${css.flexColumn}`}>
+                            <div className={css.arrowQuest}>
+                                <svg>
+                                    <use href={`${svg}#arrow_outward`} />
+                                </svg>
+                            </div>
+                            <div className={css.textQuest}>Які обов'язкові дані потрібно вказати при реєстрації на нашій аукціонній платформі?</div>
+                        </div>
+                    </div>
+                    <div className={`${css.elementQuest} ${css.borderRadius24}`}>
+                        <div className={`${css.headerQuest} ${css.flexColumn}`}>
+                            <div className={css.arrowQuest}>
+                                <svg>
+                                    <use href={`${svg}#arrow_outward`} />
+                                </svg>
+                            </div>
+                            <div className={css.textQuest}>Які обов'язкові дані потрібно вказати при реєстрації на нашій аукціонній платформі?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
