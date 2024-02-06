@@ -92,10 +92,10 @@ export const Home = () => {
                     <div className={`${css.element} ${css.flexColumn}`}>
                         <div className={css.header}>
                             <div className={css.point}>02</div>
-                            <h4 className={css.h4}>Реєстрація та підготовка</h4>
+                            <h4 className={css.h4}>Попередні торги та подання тендерних пропозицій</h4>
                         </div>
                         <div className={css.text}>
-                            Учасники торгів реєструються на аукціонній платформі та отримують доступ до каталогу лотів і правил аукціону. Вони проводять попереднє дослідження лотів.
+                        Учасники подають заявки на участь у попередніх торгах, де вони можуть брати участь в електронних або закритих торгах.
                         </div>
                     </div>
                     <Button className={css.button}>Детальніше</Button>
@@ -125,7 +125,7 @@ export const Home = () => {
                                     <use href={`${svg}#arrow_outward`} />
                                 </svg>
                             </div>
-                            <div className={css.textQuest}>Які обов'язкові дані потрібно вказати при реєстрації на нашій аукціонній платформі?</div>
+                            <div className={css.textQuest}>Як ви забезпечуєте прозорість і чесність тендерного процесу, а також вирішуєте можливі суперечки між учасниками?</div>
                         </div>
                     </div>
                     <div className={`${css.elementQuest} ${css.borderRadius24}`}>
@@ -135,7 +135,7 @@ export const Home = () => {
                                     <use href={`${svg}#arrow_outward`} />
                                 </svg>
                             </div>
-                            <div className={css.textQuest}>Які обов'язкові дані потрібно вказати при реєстрації на нашій аукціонній платформі?</div>
+                            <div className={css.textQuest}>Як відбувається передача майна після успішних торгів, і як ви гарантуєте законність цього процесу</div>
                         </div>
                     </div>
                 </div>

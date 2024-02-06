@@ -89,7 +89,13 @@ h4{
     max-width: 30%;
 }
 
-.header, .headerQuest {
+.header {
+    display: flex;
+    gap: 0.5vw;
+    align-items: center;
+}
+
+.headerQuest {
     display: flex;
     gap: 2vw;
 }
