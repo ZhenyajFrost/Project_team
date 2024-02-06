@@ -10,13 +10,13 @@ const useSendConfirmationEmail = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.post("https://localhost:7074/api/auth/send-confirm-code", { email });
+      const response = await axios.post("https://localhost:7074/api/auth/send_verification_code", { email });
       console.log('Email successfully sent:', response.data);
-      setConfirmCode(response.data.code);
+      setConfirmCode(response.data.verificationCode);
     } catch (err) {
       console.error('Email sent failed:', err);
-      console.log('Detected error, setting confirm code to random');
-      setConfirmCode(Math.floor(1000 + Math.random() * 9000));
+      // console.log('Detected error, setting confirm code to random');
+      // setConfirmCode(Math.floor(1000 + Math.random() * 9000));
       setError(err);
     } finally {
       setLoading(false);

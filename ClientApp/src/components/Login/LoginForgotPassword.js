@@ -13,13 +13,9 @@ const LoginForgotPassword = ({ setForgotPass }) => {
     password: ''
   });
   const [emailSet, setEmailSet] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
+  const [emailConfirmed, setEmailConfirmed] = useState(false);
 
   const { validationErrors, validateForm } = useRegistrationValidation();
-
-  const resetEmailSet = () => {
-    setEmailSet(false);
-  };
 
   const handleEmailChange = (e) => {
     setUser((prev) => ({
@@ -40,10 +36,10 @@ const LoginForgotPassword = ({ setForgotPass }) => {
 
     if(!validateForm(user)) return;
 
-    axios.post("https://localhost:7074/api/auth/update-password", {
-      email: user.email,
-      password: user.password
-    }).then((result) => {
+    axios.post("https://localhost:7074/api/EditUser/update-password", {
+        email: user.email,
+        newPassword: user.password
+      }).then((result) => {
       console.log('Updated successfuly:', result.data);
     }).catch((err) => {
       console.error('Failed to update:', err);
@@ -61,27 +57,19 @@ const LoginForgotPassword = ({ setForgotPass }) => {
     setEmailSet(true);
   };
 
+  const onEmailConfirmed = () =>{
+    setEmailConfirmed(true);
+    setEmailSet(false);
+  }
+
   return (
     <div>
       <h2>Вхід</h2>
-      {!emailSet ? (
+      {!emailSet? (
         <div className={classes.container}>
           <div className={classes.container}>
             <form onSubmit={user.password === '' ? onEmailSubmit : onPasswordSubmit}>
-              {!emailSent ? (
-                <div className={classes.containerVer}>
-                  <label className={classes.label} htmlFor="email">
-                    Email:
-                  </label>
-                  <Input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Введіть email"
-                    value={user.email}
-                    onChange={handleEmailChange}
-                    required />
-                </div>) : (
+              {emailConfirmed ?  (
                 <div className={classes.containerVer}>
                   <label className={classes.label} htmlFor="email">
                     Set Password:
@@ -97,7 +85,21 @@ const LoginForgotPassword = ({ setForgotPass }) => {
                     value={user.password}
                     onChange={handlePasswordChange}
                     required />
-                </div>)
+                </div>) :
+                (
+                  <div className={classes.containerVer}>
+                    <label className={classes.label} htmlFor="email">
+                      Email:
+                    </label>
+                    <Input
+                      type="email"
+                      id="email"
+                      name="email"
+                      placeholder="Введіть email"
+                      value={user.email}
+                      onChange={handleEmailChange}
+                      required />
+                  </div>) 
               }
 
               <div style={{ textAlign: 'end' }}>
@@ -113,11 +115,12 @@ const LoginForgotPassword = ({ setForgotPass }) => {
         </div>) :
         <ConfirmEmail
           user={user}
-          setEmailSent={setEmailSent}
+          setEmailSent={setEmailConfirmed}
+          setEmailSet={setEmailSet}
           isLogin={true}
-          setModalVisible={() => {/* logic here */ }}
-          setModalLogVisible={() => {/* logic here */ }}
-          onEmailConfirmed={resetEmailSet}
+          setModalVisible={() => {}}
+          setModalLogVisible={() => {}}
+          onEmailConfirmed={onEmailConfirmed}
         />
       }
     </div>

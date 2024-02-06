@@ -6,22 +6,22 @@ import Button from "../UI/Button/Button.js";
 import Input from "../UI/Input/Input.js";
 import useSendConfirmationEmail from "../../hooks/useSendConfirmationEmail";
 
-function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setModalVisible, setModalLogVisible, onEmailConfirmed}) {
+function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setEmailSet, setModalVisible, setModalLogVisible, onEmailConfirmed }) {
     const [code, setCode] = useState('');
     const { sendEmail, loading, error, confirmCode } = useSendConfirmationEmail();
 
     useEffect(() => {
         const fetchData = async () => {
-          await sendEmail(user.email);
+            await sendEmail(user.email);
         };
         fetchData();
         console.log("Start: " + confirmCode);
 
-      }, []);
+    }, []);
 
-    const onSendEmailAgain = async() => {
+    const onSendEmailAgain = async () => {
         await sendEmail(user.email);
-    } 
+    }
 
     useEffect(() => {
         console.log("Effect: " + confirmCode);
@@ -40,23 +40,25 @@ function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setModalVis
 
     const onEmailChange = () => {
         setEmailSent(false);
-    } 
-
-    const onLoginChangePass = (e) => {
-        e.preventDefault();
-
-        onEmailConfirmed();
-        setEmailSent(true);
+        if (isLogin)
+            setEmailSet(false);
     }
 
     const onSubmit = (e) => {
         e.preventDefault();
 
-        if(code.includes(confirmCode)){
+        if (code.includes(confirmCode)) {
+            if (isLogin) {
+                console.log("isLOgin: Succesful")
+                onEmailConfirmed();
+                return;
+            }
+
+            onConfirm();
             console.log(user);
             axios.post("https://localhost:7074/api/auth/register", user).then((result) => {
                 console.log('Registration successful:', result.data);
-                //onConfirm();
+                onConfirm();
             }).catch((err) => {
                 console.error('Registration failed:', err);
             });;
@@ -64,8 +66,6 @@ function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setModalVis
             alert("Code is incorrect try again!");
             setCode("");
         }
-
-        onConfirm();
     };
 
     return (
@@ -73,7 +73,7 @@ function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setModalVis
             <h2>Підтвердіть пошту</h2>
             <div className={classes.container}>
                 <div className={classes.container}>
-                    <form onSubmit={isLogin ? onLoginChangePass : onSubmit}>
+                    <form onSubmit={onSubmit}>
                         <div className={classes.container} style={{ flexDirection: 'column', gap: '0.5vw' }}>
                             <div>
                                 <p className={classes.secondaryTxt}> {loading ? "Sending..." : "Ми відправили код на вашу почту"}<br />

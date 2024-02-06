@@ -3,13 +3,12 @@ import Button from '../UI/Button/Button.js'
 import Input from '../UI/Input/Input.js'
 import LoginSocMed from '../LoginSocMed/LoginSocMed.js'
 import classes from '../../styles/LoginAndRegistration.module.css'
-import bcrypt from 'bcryptjs'
+import { setLocalStorage, getLocalStorage } from '../../utils/localStorage.js';
 import axios from 'axios'
 
-const Login = ({setModalVisible, setModalRegVisible, setForgotPass}) => {
+const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggined}) => {
   const [loginVal, setLoginVal] = useState('');
   const [password, setPassword] = useState('');
-  const inpRef = useRef();
 
   const handleEmailChange = (e) => {
     setLoginVal(e.target.value);
@@ -26,17 +25,17 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass}) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    //const hash = bcrypt.hashSync(password);
     var email;
     var login;
 
     if(loginVal.includes('@')){
       email = loginVal;
-      login = " ";
+      login = "";
     }else{
-      email = " ";
+      email = "";
       login = loginVal
     }
+
     const user = {login: login ,email: email, password: password };
     
     axios.post("https://localhost:7074/api/auth/login", {
@@ -44,11 +43,18 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass}) => {
       email: user.email,
       password: user.password
     }).then((result) => {
+      
+      setLocalStorage('isLoggined', true);
+      setIsLoggined(true);
+      setLocalStorage('user', result.data.user);
+      setLocalStorage('token', result.data.token);
+
       console.log('Login successful:', result.data);
     }).catch((err) => {
       console.error('Login failed:', err);
     });;
 
+    setModalVisible(false);
     setLoginVal("");
     setPassword("");
   };

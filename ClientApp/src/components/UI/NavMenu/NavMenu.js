@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Container from 'react-bootstrap/Container';
@@ -15,13 +16,49 @@ import Login from '../../Login/Login.js';
 import LoginForgotPassword from '../../Login/LoginForgotPassword.js';
 import Registration from '../../Registration/Registration.js';
 import RegistrationConfirm from '../../Registration/RegistrationConfirm.js';
+import { setLocalStorage, getLocalStorage, clearLocalStorage } from '../../../utils/localStorage.js';
 
 function NavMenu() {
+  const history = useHistory();
+
   const [modalLogVisible, setModalLogVisible] = useState(false);
   const [modalRegVisible, setModalRegVisible] = useState(false);
   const [forgotPass, setForgotPass] = useState(false);
+
   const [emailSent, setEmailSent] = useState(false);
+
   const [user, setUser] = useState("");
+
+  const [isLoggined, setIsLoggined] = useState(false);
+  const [userToken, setUserToken] = useState('');
+
+  useEffect(() => {
+    setIsLoggined(getLocalStorage('isLoggined'));
+    setUserToken(getLocalStorage('token'));
+    setUser(getLocalStorage('user'));
+
+    console.log("isLoggined: " + isLoggined);
+    console.log("user: " + user);
+    console.log("token: " + userToken);
+  }, []);
+
+  const onExit = () => {
+    clearLocalStorage({
+      isLoggined: 'isLoggined',
+      user: 'user',
+      token: 'token'
+    }, {
+      isLoggined: false,
+      user: {},
+      token: ''
+    });
+
+    setIsLoggined(false);
+    setUser({});
+    setUserToken('');
+
+    history.push('/');
+  }
 
   return (
     <header>
@@ -44,33 +81,38 @@ function NavMenu() {
                 <img src={profile} alt="Profile" />
               </Dropdown.Toggle>
 
-              <Dropdown.Menu>
-                <Dropdown.Item onClick={() => setModalLogVisible(true)}>Login</Dropdown.Item>
-                <Dropdown.Item onClick={() => setModalRegVisible(true)}>Registration</Dropdown.Item>
-              </Dropdown.Menu>
+              {isLoggined ?
+                (<Dropdown.Menu>
+                  <Dropdown.Item onClick={() => history.push('/profile')}>Profile</Dropdown.Item>
+                  <Dropdown.Item onClick={() => history.push('/mybids')}>My Bids</Dropdown.Item>
+                  <Dropdown.Item onClick={() => { onExit(); history.push('/'); }}>Exit</Dropdown.Item>
+                </Dropdown.Menu>) :
+                (<Dropdown.Menu>
+                  <Dropdown.Item onClick={() => setModalLogVisible(true)}>Login</Dropdown.Item>
+                  <Dropdown.Item onClick={() => setModalRegVisible(true)}>Registration</Dropdown.Item>
+                </Dropdown.Menu>)
+              }
             </Dropdown>
             <Nav.Item>
-              <img src={cart} alt="Cart"/>
+              <img src={cart} alt="Cart" />
             </Nav.Item>
           </Nav>
         </Container>
       </Navbar>
-      
-            <ModalWindow visible={modalLogVisible} setVisible={setModalLogVisible}>
-                {forgotPass ?
-                    <LoginForgotPassword setForgotPass={setForgotPass} /> :
-                    <Login setModalVisible={setModalLogVisible} setModalRegVisible={setModalRegVisible} setForgotPass={setForgotPass} />
-                }
 
-            </ModalWindow>
+      <ModalWindow visible={modalLogVisible} setVisible={setModalLogVisible}>
+        {forgotPass ?
+          <LoginForgotPassword setForgotPass={setForgotPass} /> :
+          <Login setModalVisible={setModalLogVisible} setModalRegVisible={setModalRegVisible} setForgotPass={setForgotPass} setIsLoggined={setIsLoggined}/>
+        }
+      </ModalWindow>
 
-            
-            <ModalWindow visible={modalRegVisible} setVisible={setModalRegVisible}>
-                {emailSent ?
-                    <RegistrationConfirm user={user} setUser={setUser} setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setEmailSent={setEmailSent}/>:
-                    <Registration user={user} setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setUser={setUser} setEmailSent={setEmailSent}/>
-                }
-            </ModalWindow>
+      <ModalWindow visible={modalRegVisible} setVisible={setModalRegVisible}>
+        {emailSent ?
+          <RegistrationConfirm user={user} setUser={setUser} setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setEmailSent={setEmailSent} /> :
+          <Registration user={user} setModalVisible={setModalRegVisible} setModalLogVisible={setModalLogVisible} setUser={setUser} setEmailSent={setEmailSent} />
+        }
+      </ModalWindow>
     </header>
   );
 }
