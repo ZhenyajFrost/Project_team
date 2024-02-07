@@ -1,0 +1,30 @@
+{
+  "files": {
+    "main.css": "/static/css/main.cc567b4b.css",
+    "main.js": "/static/js/main.58dfd5af.js",
+    "static/js/377.bc1cfb52.chunk.js": "/static/js/377.bc1cfb52.chunk.js",
+    "static/media/howItWorks.svg": "/static/media/howItWorks.3803abc26b36cb13ae165627bc296753.svg",
+    "static/media/homeImg.svg": "/static/media/homeImg.7c09cb4cb12e49ef9accc9b86bd7e94f.svg",
+    "service-worker.js": "/service-worker.js",
+    "static/media/svgDef.svg": "/static/media/svgDef.31b3657d0128abbced99712cb06c17f3.svg",
+    "static/media/logo.svg": "/static/media/logo.7e0107230c7910e673202c3333757fb5.svg",
+    "static/media/apple.svg": "/static/media/apple.df23d90027ff3939fb2555728a009289.svg",
+    "static/media/profile.svg": "/static/media/profile.8133ea770c87ea467967e506c03906aa.svg",
+    "static/media/google.svg": "/static/media/google.41cd10468bc747b0b9e56a05df75ab60.svg",
+    "static/media/images.svg": "/static/media/images.b443f08e84e34e96ee4a12c8a2b5be25.svg",
+    "static/media/cart.svg": "/static/media/cart.74f32bc6c96b214e04964410ae80815c.svg",
+    "static/media/search.svg": "/static/media/search.d4a3fd898cf6e7e1829fdc7950166097.svg",
+    "static/media/facebook.svg": "/static/media/facebook.06769dadc9ce370cdb2516349fba36ac.svg",
+    "static/media/catalog.svg": "/static/media/catalog.c7f5f0dad321614cbfd3e68b0a61ef50.svg",
+    "index.html": "/index.html",
+    "static/media/ukraineFlag.svg": "/static/media/ukraineFlag.c4790317ee4fc56c214d78ce0782f946.svg",
+    "static/media/arrow.svg": "/static/media/arrow.c5164d8a04a8b84da8a8d0f648cc8468.svg",
+    "main.cc567b4b.css.map": "/static/css/main.cc567b4b.css.map",
+    "main.58dfd5af.js.map": "/static/js/main.58dfd5af.js.map",
+    "377.bc1cfb52.chunk.js.map": "/static/js/377.bc1cfb52.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.cc567b4b.css",
+    "static/js/main.58dfd5af.js"
+  ]
+}
