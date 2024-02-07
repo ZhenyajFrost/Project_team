@@ -4,7 +4,9 @@ import LoginSocMed from "../LoginSocMed/LoginSocMed.js";
 import classes from "../../styles/LoginAndRegistration.module.css";
 import Button from "../UI/Button/Button.js";
 import Input from "../UI/Input/Input.js";
-import useSendConfirmationEmail from "../../hooks/useSendConfirmationEmail";
+import useSendConfirmationEmail from "../../API/useSendConfirmationEmail.js";
+import { AUTH_ENDPOINT } from '../../API/apiConstant'
+
 
 function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setEmailSet, setModalVisible, setModalLogVisible, onEmailConfirmed }) {
     const [code, setCode] = useState('');
@@ -56,7 +58,7 @@ function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setEmailSet
 
             onConfirm();
             console.log(user);
-            axios.post("https://localhost:7074/api/auth/register", user).then((result) => {
+            axios.post(`${AUTH_ENDPOINT}/register`, user).then((result) => {
                 console.log('Registration successful:', result.data);
                 onConfirm();
             }).catch((err) => {

@@ -6,6 +6,8 @@ import classes from '../../styles/LoginAndRegistration.module.css'
 import ConfirmEmail from '../Registration/RegistrationConfirm.js';
 import useRegistrationValidation from "../../hooks/useRegistrationValidation.js";
 import axios from "axios";
+import { EDIT_USER_ENDPOINT } from '../../API/apiConstant';
+
 
 const LoginForgotPassword = ({ setForgotPass }) => {
   const [user, setUser] = useState({
@@ -36,7 +38,7 @@ const LoginForgotPassword = ({ setForgotPass }) => {
 
     if(!validateForm(user)) return;
 
-    axios.post("https://localhost:7074/api/EditUser/update-password", {
+    axios.post(`${EDIT_USER_ENDPOINT}/update-password`, {
         email: user.email,
         newPassword: user.password
       }).then((result) => {

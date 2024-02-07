@@ -4,7 +4,6 @@ import Input from "../UI/Input/Input.js";
 import PhoneInput from "../UI/PhoneInput/PhoneInput.js";
 import classes from "../../styles/LoginAndRegistration.module.css";
 import useRegistrationValidation from "../../hooks/useRegistrationValidation.js";
-import useSendConfirmationEmail from "../../hooks/useSendConfirmationEmail";
 import LoginSocMed from "../LoginSocMed/LoginSocMed.js";
 
 function Registration({ user, setModalVisible, setModalLogVisible, setUser, setEmailSent}) {

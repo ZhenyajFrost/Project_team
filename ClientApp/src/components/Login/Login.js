@@ -3,8 +3,10 @@ import Button from '../UI/Button/Button.js'
 import Input from '../UI/Input/Input.js'
 import LoginSocMed from '../LoginSocMed/LoginSocMed.js'
 import classes from '../../styles/LoginAndRegistration.module.css'
-import { setLocalStorage, getLocalStorage } from '../../utils/localStorage.js';
+import { setLocalStorage } from '../../utils/localStorage.js';
 import axios from 'axios'
+import { AUTH_ENDPOINT } from '../../API/apiConstant.js'
+
 
 const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggined}) => {
   const [loginVal, setLoginVal] = useState('');
@@ -38,7 +40,7 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
 
     const user = {login: login ,email: email, password: password };
     
-    axios.post("https://localhost:7074/api/auth/login", {
+    axios.post(`${AUTH_ENDPOINT}/login`, {
       login: user.login,
       email: user.email,
       password: user.password
