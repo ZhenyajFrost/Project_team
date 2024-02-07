@@ -8,10 +8,20 @@ code {
 }
 
 .btn-primary {
-  color: #fff;
+  color: var(--white);
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
 body{
-  background-color: #F8F8F8;
+  background-color: var(--gray);
+}
+
+:root{
+  --gray: #F8F8F8;
+  --white: #fff;
+  --black: #373b3e;
+  --strongGreen: #7ad26c;
+  --subtleGreen: rgba(122, 210, 108, 0.1);
+  --textColor: #1C1B1F;
+  --secondaryTextColor:#474747;
 }

@@ -23,6 +23,7 @@ function LotPage() {
     setLot(res);
   }, [setLot]);
   console.log(lot);
+  const lotInfo = {"Технічний статус":"несправний", "Наявність":"в наявності", 'Місцезнаходження':'Волинь', 'Стан': 'б/в'}
   return (
     <div>
       <LotPath category={lot.category} name={lot.title} />
@@ -47,7 +48,7 @@ function LotPage() {
         </div>
         <div>
           <h2>{lot.title}</h2>
-          <div>
+          <div className={css.splitContainer}>
             <div className={css.sides}>
               <p>Продавець: {lot.seller}</p>
               <p>
@@ -57,7 +58,15 @@ function LotPage() {
                 {formatTime(lot.timeTillEnd)}
               </p>
             </div>
+            <hr/>
             <div> {lot.price} <div className={css.buyBtn}>Купити</div></div>
+          </div>
+
+          <div className={css.splitContainer}>
+            <p>Детальніше про лот:</p>
+            <div className={css.lotChars}>
+              {Object.keys(lotInfo).map(v=><><span>{v}:</span><span>{lotInfo[v]}</span></>)}
+            </div>
           </div>
         </div>
       </div>
