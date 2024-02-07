@@ -1,0 +1,9 @@
+.fAc{
+    display: flex;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+.fAc img{
+    width: 30px;
+    height: 44px;
+}
