@@ -5,12 +5,15 @@ import LotContainer from "../components/UI/LotContainer/LotContainer.js";
 import InputSearch from "../components/UI/Input/InputSearch.js";
 import LoadMoreButton from "../components/LoadMoreButton/LoadMoreButton.js";
 import homeImg from "../images/homeImg.svg";
-import CategoryContainer from "../components/CategoryContainer/CategoryContainer.js";
+import CategoryContainer from "../components/SmallCategoryContainer/SmallCategoryContainer.js";
 import Button from "../components/UI/Button/Button.js";
 import howItWorksImg from "../images/howItWorks.svg"
 import svg from "../images/svgDef.svg";
+import BigCategoryContainer from "../components/BigCategoryContainer/BigCategoryContainer.js";
+import {setLocalStorage, getLocalStorage} from "../utils/localStorage.js"
 
 export const Home = () => {
+    
     const [lots, setLots] = useState([]);
     const [totalPages, setTotalPages] = useState();
     const [pagesToDisplay, setPagesToDisplay] = useState();
@@ -19,11 +22,19 @@ export const Home = () => {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [sortedLots, setSortedLots] = useState(lots);
-
+    const [categories, setCategories] = useState([]);
     let history = useHistory();
     useEffect(() => {
         setSortedLots(lots);
     }, [lots]);
+    useEffect(()=>{
+        const exst =getLocalStorage("categories");
+        const back = [{title:"Sex toys"}, {title:"Slaves"}, {title:"Drugs"}, {title:"Medicine"}, {title:"Pizza (Cheese)"}, {title:"Dick"}, {title:"Dog food"}, {title:"Oleg Vynik"}]
+        if(back!==exst){
+            setLocalStorage("categories", back);
+        }
+        setCategories(back);
+    },[])
 
     const handleSearch = (newSearchQuery) => {
         setSearchQuery(newSearchQuery);
@@ -68,6 +79,8 @@ export const Home = () => {
                     <InputSearch onSearch={handleSearch} placeholder="Введіть будь-яку позицію" />
                 </div>
             </div>
+
+            <BigCategoryContainer categories={categories}/>
 
             <h2 className={css.h2}>Популярні лоти</h2>
 

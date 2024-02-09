@@ -5,9 +5,6 @@ import React, {
   useState,
 } from "react";
 import Lot from "../../Lot/Lot.js";
-import ModalWindow from "../../ModalWindow/ModalWindow.js";
-import LotChange from "../../LotChange/LotChange.js";
-import Button from "../Button/Button.js";
 import classes from "./LotContainer.module.css";
 
 function LotContainer({ lots, display = "grid" }) {
@@ -37,16 +34,3 @@ function LotContainer({ lots, display = "grid" }) {
 }
 
 export default LotContainer;
-
-
-
-        {/* <ModalWindow visible={selectedId >= 0} setVisible={setSelectedId}>
-          <LotChange
-            lot={lots[selectedId]}
-            setLot={(data) =>
-              setLots([...lots.filter((_, i) => i !== selectedId), data])
-            }
-            kms={() => setSelectedId(-1)}
-          />
-          <Button onClick={() => setSelectedId(-1)}>Modal Window Close</Button>
-        </ModalWindow> */}
