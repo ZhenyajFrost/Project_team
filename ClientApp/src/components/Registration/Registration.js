@@ -17,7 +17,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
 
   useEffect(() => {
     setFormData(user);
-  },[]);
+  },[user]);
 
   const { validationErrors, validateForm } = useRegistrationValidation();
   const [passwordMatchError, setPasswordMatchError] = useState(false);

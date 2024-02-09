@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect, useMemo } from "react";
+import React, {useState, useEffect} from "react";
 import { useHistory } from "react-router-dom";
 import css from "../styles/Home.module.css";
 import LotContainer from "../components/UI/LotContainer/LotContainer.js";
@@ -15,12 +15,12 @@ import {setLocalStorage, getLocalStorage} from "../utils/localStorage.js"
 export const Home = () => {
     
     const [lots, setLots] = useState([]);
-    const [totalPages, setTotalPages] = useState();
-    const [pagesToDisplay, setPagesToDisplay] = useState();
+    //const [totalPages, setTotalPages] = useState();
+    //const [pagesToDisplay, setPagesToDisplay] = useState();
     const [page, setPage] = useState(0);
-    const [limit, setLimit] = useState(6);
+    const [limit] = useState(6);
 
-    const [searchQuery, setSearchQuery] = useState("");
+    
     const [sortedLots, setSortedLots] = useState(lots);
     const [categories, setCategories] = useState([]);
     let history = useHistory();
@@ -37,7 +37,7 @@ export const Home = () => {
     },[])
 
     const handleSearch = (newSearchQuery) => {
-        setSearchQuery(newSearchQuery);
+        
         if (newSearchQuery) {
             // setSortedLots(lots.filter(lot =>
             //     lot.title.toLowerCase().includes(newSearchQuery.toLowerCase())
@@ -58,9 +58,9 @@ export const Home = () => {
     //     return lots;
     // }, [searchQuery, lots]);
 
-    const changePage = (_page) => {
-        setPage(_page);
-    };
+    // const changePage = (_page) => {
+    //     setPage(_page);
+    // };
 
     const [selectedCat, setSelectedCat] = useState("Холодильники");
     const onCategoryChange = (cat) => {
