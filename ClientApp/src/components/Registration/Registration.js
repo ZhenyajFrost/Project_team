@@ -6,7 +6,7 @@ import classes from "../../styles/LoginAndRegistration.module.css";
 import useRegistrationValidation from "../../hooks/useRegistrationValidation.js";
 import LoginSocMed from "../LoginSocMed/LoginSocMed.js";
 
-function Registration({ user, setModalVisible, setModalLogVisible, setUser, setEmailSent}) {
+function Registration({ user, setModalVisible, setModalLogVisible, setUser, setEmailSent }) {
   const [formData, setFormData] = useState({
     login: "",
     email: "",
@@ -16,8 +16,9 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
   });
 
   useEffect(() => {
-    setFormData(user);
-  },[user]);
+    if (user)
+      setFormData(user);
+  }, [user]);
 
   const { validationErrors, validateForm } = useRegistrationValidation();
   const [passwordMatchError, setPasswordMatchError] = useState(false);
@@ -55,7 +56,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
   };
 
   return (
-<div>
+    <div>
       <h2>Registration</h2>
       <div className={classes.container}>
         {validationErrors.password && (
@@ -63,9 +64,9 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
         )}
         <div className={classes.container}>
           <form onSubmit={onSubmit}>
-            <div className={classes.container} style={{flexDirection: 'column', gap: '0.5vw'}}>
+            <div className={classes.container} style={{ flexDirection: 'column', gap: '0.5vw' }}>
               <div>
-                <label className={classes.label} htmlFor="login">
+                <label className={classes.label} >
                   Login:
                 </label>
                 <Input
@@ -142,7 +143,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
               <p>I am not a diplodocus <input name="diplo" type="checkbox" /></p>
             </div>
 
-            <div style={{textAlign: 'end'}}>
+            <div style={{ textAlign: 'end' }}>
               <div className="btn btn-light" onClick={onLoginClick}>Увійти в свій акаунт</div>
               <Button disabled={passwordMatchError}>Зареєструватися</Button>
             </div>
@@ -152,7 +153,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
 
         <div className={classes.contBlock}>або</div>
 
-        <LoginSocMed/>
+        <LoginSocMed />
       </div>
     </div>
   );

@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from "react";
 import regions from "./regions.json";
-import categories from "./categories.json";
+import cts from "./categories.json";
 import css from "./styles.module.css";
 import Notiflix from "notiflix";
 
-function Filters({ onChange }) {
+function Filters({ onChange, initial }) {
+  console.log(initial)
+  const [categories, setCategories] = useState(cts)
   const [params, setParams] = useState({
     category: categories[0],
     minPrice: 1,
     maxPrice: Infinity,
     endTill: new Date(new Date().getDate() + 1),
     region: regions[0],
+    ...initial
   });
+  console.log("d"+params)
   useEffect(() => {
+
+
+
     //перевірка, чи не була категорія змінена інспект елементом
     if (!categories.includes(params.category)) {
       Notiflix.Notify.failure(
@@ -20,6 +27,9 @@ function Filters({ onChange }) {
       );
       return;
     }
+
+   
+
     //перевірка ціни
     const minPrice = Number(params.minPrice);
     const maxPrice = Number(params.maxPrice);
@@ -52,9 +62,9 @@ function Filters({ onChange }) {
       );
       return;
     }
-
+    console.log("fiuuuuuck")
     onChange(params)
-  }, [params, onChange]);
+  }, [params]);
 
   return (
     <>
@@ -64,6 +74,7 @@ function Filters({ onChange }) {
           Нові лоти за
           <select
             className={css.inputEl}
+            value={initial.category}
             onChange={(e) => {
               setParams({ ...params, category: e.target.value });
             }}

@@ -1,10 +1,15 @@
 import React from 'react'
+import classes from './BigCategoryItem.module.css'
+import svg from '../../images/svgDef.svg'
+import { NavLink } from 'reactstrap'
 
-export default function BigCategoryItem({ id, title, imgUrl }) {
+export default function BigCategoryItem({ title, imgId }) {
     return (
-        <div style={{position:"relative"}}>
-            <img alt='dick' src={imgUrl} style={{position:"absolute", top:"24px", left:"24px", width:"24px", height:"24px"}} />
-            <h3>{title}</h3>
-        </div>
+        <NavLink className={classes.item} href={`/search?category=${imgId}/`}>
+                <svg>
+                    <use href={`${svg}#${imgId}`}/>
+                    </svg>
+                <h4>{title}</h4>
+        </NavLink>
     )
 }

@@ -46,6 +46,7 @@ div.search {
     margin: auto;
     padding: 20px;
     gap: 18px;
+    box-shadow: 0px 4px 14px 0px #0000000A;
 }
 
 h2 {
@@ -60,7 +61,6 @@ h4{
 .mainCont, .mainContQuest {
     display: flex;
     padding: 24px 24px 24px 48px;
-    margin-top: 100px;
     border-radius: 32px;
 }
 .mainCont{

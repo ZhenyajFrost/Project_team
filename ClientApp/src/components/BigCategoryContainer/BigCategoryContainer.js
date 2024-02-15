@@ -1,18 +1,18 @@
 import React from "react";
 import BigCategoryItem from "../BigCategoryItem/BigCategoryItem"
-import classes from "../UI/LotContainer/LotContainer.module.css";
+import classes from "./BigCategoryContainer.module.css";
   
-  function BigCategoryContainer({ categories}) {
+  function BigCategoryContainer({categories}) {
   
     return (
       <div>
       
-        <div className={classes.lotsContainer + " " + classes.grid }>
+        <div className={classes.container}>
           {categories.map((category, i) => (
             <BigCategoryItem
               id={category.id}
               title={category.title}
-              imageURL={category.imageURL}
+              imgId={category.imgId}
             />
           ))}
   

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import css from "../styles/Home.module.css";
 import LotContainer from "../components/UI/LotContainer/LotContainer.js";
@@ -10,34 +10,34 @@ import Button from "../components/UI/Button/Button.js";
 import howItWorksImg from "../images/howItWorks.svg"
 import svg from "../images/svgDef.svg";
 import BigCategoryContainer from "../components/BigCategoryContainer/BigCategoryContainer.js";
-import {setLocalStorage, getLocalStorage} from "../utils/localStorage.js"
+import { setLocalStorage, getLocalStorage } from "../utils/localStorage.js"
 
 export const Home = () => {
-    
+
     const [lots, setLots] = useState([]);
     //const [totalPages, setTotalPages] = useState();
     //const [pagesToDisplay, setPagesToDisplay] = useState();
     const [page, setPage] = useState(0);
     const [limit] = useState(6);
 
-    
+
     const [sortedLots, setSortedLots] = useState(lots);
     const [categories, setCategories] = useState([]);
     let history = useHistory();
     useEffect(() => {
         setSortedLots(lots);
     }, [lots]);
-    useEffect(()=>{
-        const exst =getLocalStorage("categories");
-        const back = [{title:"Sex toys"}, {title:"Slaves"}, {title:"Drugs"}, {title:"Medicine"}, {title:"Pizza (Cheese)"}, {title:"Dick"}, {title:"Dog food"}, {title:"Oleg Vynik"}]
-        if(back!==exst){
+    useEffect(() => {
+        const exst = getLocalStorage("categories");
+        const back = [{ title: "Антикваріат", imgId: "antic" }, { title: "Дім", imgId: "house" }, { title: "Електроніка", imgId: "electronic" }, { title: "Спорт", imgId: "sport" }, { title: "Мода", imgId: "moda" }, { title: "Авто", imgId: "auto" }, { title: "Дитячий", imgId: "kids" }, { title: "Інші", imgId: "other" }]
+        if (back !== exst) {
             setLocalStorage("categories", back);
         }
         setCategories(back);
-    },[])
+    }, [])
 
     const handleSearch = (newSearchQuery) => {
-        
+
         if (newSearchQuery) {
             // setSortedLots(lots.filter(lot =>
             //     lot.title.toLowerCase().includes(newSearchQuery.toLowerCase())
@@ -70,8 +70,8 @@ export const Home = () => {
     };
 
     return (
-        <div>
-            <div style={{ position: "relative", borderRadius: "24px", marginTop: "24px" }}>
+        <div style={{display: "flex", flexDirection: "column", gap: "8vw"}}>
+            <div id="search" style={{ position: "relative", borderRadius: "24px", marginTop: "1.5vw" }}>
                 <img src={homeImg} alt="Description" style={{ width: "100%", height: "auto", borderRadius: "24px" }} />
                 <p className={css.search}>Створюйте та продавайте те, що вам потрібно прямо зараз</p>
                 <div className={`${css.search} ${css.borderRadius24}`} style={{ backgroundColor: "white" }}>
@@ -80,17 +80,21 @@ export const Home = () => {
                 </div>
             </div>
 
-            <BigCategoryContainer categories={categories}/>
+            <div id="categories">
+                <h2>Популярні категорії</h2>
+                <BigCategoryContainer categories={categories} />
+            </div>
 
-            <h2 className={css.h2}>Популярні лоти</h2>
 
-            {/* Assuming CategoryContainer and LotContainer use CSS modules internally */}
-            <CategoryContainer categories={["Холодильники", "Іфон 13", "Картини", "Телевізор", "Іграшки", "Навушники", "Колеса)"]} onCategoryChange={onCategoryChange} selectedCategorie={selectedCat} />
+            <div id="lots">
+                <h2 className={css.h2}>Популярні лоти</h2>
+                <CategoryContainer categories={["Холодильники", "Іфон 13", "Картини", "Телевізор", "Іграшки", "Навушники", "Колеса)"]} onCategoryChange={onCategoryChange} selectedCategorie={selectedCat} />
 
-            <LotContainer lots={sortedLots} />
-            <LoadMoreButton setLots={setLots} curPage={page} setCurPage={setPage} perPage={limit} />
+                <LotContainer lots={sortedLots} />
+                <LoadMoreButton setLots={setLots} curPage={page} setCurPage={setPage} perPage={limit} />
+            </div>
 
-            <div className={`${css.mainCont} ${css.borderRadius24}`}>
+            <div id="howItW" className={`${css.mainCont} ${css.borderRadius24}`}>
                 <div className={`${css.container} ${css.flexColumn}`}>
                     <h2 className={css.h2}>Як це працює?</h2>
                     <div className={`${css.element} ${css.flexColumn}`}>
@@ -108,7 +112,7 @@ export const Home = () => {
                             <h4 className={css.h4}>Попередні торги та подання тендерних пропозицій</h4>
                         </div>
                         <div className={css.text}>
-                        Учасники подають заявки на участь у попередніх торгах, де вони можуть брати участь в електронних або закритих торгах.
+                            Учасники подають заявки на участь у попередніх торгах, де вони можуть брати участь в електронних або закритих торгах.
                         </div>
                     </div>
                     <Button className={css.button}>Детальніше</Button>
@@ -118,7 +122,7 @@ export const Home = () => {
                 </div>
             </div>
 
-            <div className={`${css.mainContQuest} ${css.borderRadius24} ${css.flexColumn}`}>
+            <div id="questions" className={`${css.mainContQuest} ${css.borderRadius24} ${css.flexColumn}`}>
                 <h2 className={css.h2}>Популярне запитання</h2>
                 <div className={`${css.containerQuest}`}>
                     <div className={`${css.elementQuest} ${css.borderRadius24} `}>

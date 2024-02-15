@@ -39,8 +39,19 @@ function SearchPage(props) {
     };
     if (oldQuerry !== querry) doFetching();
   }, [querry, filter, fetchLots, oldQuerry]);
+
+  useEffect(()=>{
+    let args = window.location.href.split("?")[1];
+    if(args){
+      args = args.split("/")[0];
+      const obj = {};
+      args.split("&").forEach(v=>{
+          obj[v.split("=")[0]]= v.split("=")[1];
+      })
+      setFilter(obj);
+    }
+  }, [])
   const onFilterChange = (e) => {
-    console.log(e);
     setFilter(e);
   };
   return (
@@ -49,7 +60,7 @@ function SearchPage(props) {
         <label className={css.searchFieldLabel}>Пошук</label>
         <InputSearch onSearch={(e) => setQuerry(e)} value={querry} />
       </div>
-      <Filters onChange={onFilterChange} />
+      <Filters onChange={onFilterChange} initial={filter}/>
       <hr></hr>
       <div className={css.upThing}>
         <NavLink href="/">На головну</NavLink>

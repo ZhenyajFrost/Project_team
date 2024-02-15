@@ -3,6 +3,8 @@ import { Route } from 'react-router';
 import { Layout } from './pages/Layout';
 import { Home } from './pages/Home';
 import LotPage from "./pages/LotPage.js"
+import CreateLot from "./pages/CreateLot.js"
+
 
 import './custom.css'
 import Profile from './pages/Profile.js';
@@ -18,6 +20,7 @@ export default class App extends Component {
          <Route path='/profile' component={Profile} />
          <Route path='/search' component={SearchPage} />
 
+        <Route exact path='/create' component={CreateLot} />
         <Route exact path='/' component={Home} />
       </Layout>
     );

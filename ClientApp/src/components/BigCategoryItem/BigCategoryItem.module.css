@@ -1,0 +1,15 @@
+.item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px;
+    background-color: var(--itemContainerColor);
+    gap: 2.75vw;
+    border-radius: 24px;
+}
+
+.item h4 {
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 24px;
+}

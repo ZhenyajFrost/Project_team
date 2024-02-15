@@ -32,7 +32,7 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
 
     if(loginVal.includes('@')){
       email = loginVal;
-      login = "";
+      login = "gayLoverChildPorn";
     }else{
       email = "";
       login = loginVal
