@@ -1,0 +1,12 @@
+.container{
+    display: flex;
+    flex-direction: row;
+    gap: 1vw;
+}
+
+.item{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5vw;
+    width: 50%;
+}

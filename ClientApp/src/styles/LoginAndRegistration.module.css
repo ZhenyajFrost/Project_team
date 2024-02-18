@@ -15,10 +15,14 @@ form {
 }
 
 form {
-  gap: 3vw;
-  width: 450px;
+  gap: 1.5vw;
+
   flex-direction: column;
   justify-content: space-between;
+}
+
+.form{
+  width: 450px;
 }
 
 .contBlock {

@@ -1,0 +1,10 @@
+.navbar{
+    display: flex;
+    gap: 1vw;
+    margin-bottom: 3vw;
+}
+
+.selectedPage{
+    background-color: white;
+    color: black;
+}

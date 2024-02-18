@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 import NavMenu  from '../components/UI/NavMenu/NavMenu';
-import  Footer  from '../components/UI/Footer/Footer';
+import Footer  from '../components/UI/Footer/Footer';
 import css from "./Layout.module.css"
 
 export class Layout extends Component {
@@ -11,7 +11,6 @@ export class Layout extends Component {
     return (
       <div>
         <NavMenu />
-        dick
         <Container class={css.container}>
           {this.props.children}
         </Container>

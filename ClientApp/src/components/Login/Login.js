@@ -66,7 +66,7 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
       <h2>Login</h2>
       <div className={classes.container}>
         <div className={classes.container}>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={onSubmit} className={classes.form}>
             <div className={classes.containerVer}>
               <div className={classes.containerVer}>
                 <label className={classes.label} htmlFor="email">

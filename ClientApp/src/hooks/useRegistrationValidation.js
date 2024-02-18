@@ -7,6 +7,11 @@ const useRegistrationValidation = () => {
     const nameRegex = /^[a-zA-Z]*[-\s]?[a-zA-Z]*?$/;
     return nameRegex.test(name);
   };
+
+  const validateLogin = (name) => {
+    const nameRegex = /^[a-z0-9_-]*$/;
+    return nameRegex.test(name);
+  };
  
   const validatePassword = (password) => {
     const passwordRegex =
@@ -17,19 +22,22 @@ const useRegistrationValidation = () => {
   const validateForm = (formData) => {
     const errors = {};
  
-    if (!validateText(formData.firstName)) {
+    if (!validateText(formData.firstName) && formData.firstName) {
+      console.log("UseReg: " + validateText(formData.firstName) + " firstName: " + formData.firstName);
       errors.firstName = "First name must only contain letters, space or \"-\"";
     }
+
+    if (!validateLogin(formData.login) && formData.login) {
+      console.log("UseReg: " + validateLogin(formData.login) + " firstName: " + formData.firstName);
+      errors.login = "Login name must only contain letters, numbers, space,  \"-\" or \"_\"";
+    }
  
-    if (!validateText(formData.lastName)) {
+    if (!validateText(formData.lastName) && formData.lastName) {
+      console.log("UseReg: " + validateText(formData.lastName) + " lastName: " + formData.lastName);
       errors.lastName = "Last name must only contain letters, space or \"-\"";
     }
-
-    if(!validateText(formData.city)){
-      errors.city = "City must only contain letters, space or \"-\""
-    }
  
-    if (!validatePassword(formData.password)) {
+    if (!validatePassword(formData.password) && formData.password) {
       console.log("UseReg: " + validatePassword(formData.password) + " password: " + formData.password);
       errors.password =
         "Password must have a minimum of 8 characters, at least one lowercase letter, one uppercase letter, and one special symbol.";

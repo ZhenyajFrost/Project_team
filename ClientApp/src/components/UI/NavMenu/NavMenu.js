@@ -83,9 +83,11 @@ function NavMenu() {
 
               {isLoggined ?
                 (<Dropdown.Menu>
-                  <Dropdown.Item onClick={() => history.push('/profile')}>Profile</Dropdown.Item>
-                  <Dropdown.Item onClick={() => history.push('/mybids')}>My Bids</Dropdown.Item>
-                  <Dropdown.Item onClick={() => { onExit(); history.push('/'); }}>Exit</Dropdown.Item>
+                  <Dropdown.Item onClick={() => history.push('/profile')}>Мої Вподобання</Dropdown.Item>
+                  <Dropdown.Item onClick={() => history.push('/profile')}>Мої ставки</Dropdown.Item>
+                  <Dropdown.Item onClick={() => history.push('/profile')}>Оголошення</Dropdown.Item>
+                  <Dropdown.Item onClick={() => history.push('/profile')}>Налаштування</Dropdown.Item>
+                  <Dropdown.Item onClick={() => { onExit(); history.push('/'); }} style={{color: "red"}}>Exit</Dropdown.Item>
                 </Dropdown.Menu>) :
                 (<Dropdown.Menu>
                   <Dropdown.Item onClick={() => setModalLogVisible(true)}>Login</Dropdown.Item>

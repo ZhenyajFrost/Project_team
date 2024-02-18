@@ -70,7 +70,7 @@ const LoginForgotPassword = ({ setForgotPass }) => {
       {!emailSet? (
         <div className={classes.container}>
           <div className={classes.container}>
-            <form onSubmit={user.password === '' ? onEmailSubmit : onPasswordSubmit}>
+            <form onSubmit={user.password === '' ? onEmailSubmit : onPasswordSubmit} className={classes.form}>
               {emailConfirmed ?  (
                 <div className={classes.containerVer}>
                   <label className={classes.label} htmlFor="email">

@@ -1,0 +1,20 @@
+.item{
+    box-shadow: none;
+    border-radius: 24px;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    gap: 1vw;
+}
+
+.grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1vw;
+}
+
+.delete{
+    margin: auto;
+}

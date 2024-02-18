@@ -63,7 +63,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
           <p className="error">{validationErrors.password}</p>
         )}
         <div className={classes.container}>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={onSubmit} className={classes.form}>
             <div className={classes.container} style={{ flexDirection: 'column', gap: '0.5vw' }}>
               <div>
                 <label className={classes.label} >
