@@ -1,0 +1,19 @@
+.createForm {
+}
+.createForm div {
+  background-color: var(--white);
+  padding: 20px;
+  border-radius: 24px;
+  font-family: Manrope;
+  letter-spacing: 0em;
+}
+.createForm h2 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+.createForm p {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 19px;
+}
