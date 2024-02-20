@@ -1,6 +1,6 @@
 .createForm {
 }
-.createForm div {
+.createSection {
   background-color: var(--white);
   padding: 20px;
   border-radius: 24px;

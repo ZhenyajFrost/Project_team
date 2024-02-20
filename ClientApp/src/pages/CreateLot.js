@@ -43,7 +43,7 @@ export default function CreateLot() {
     <div>
       <h1>Створити оголошення</h1>
       <form onSubmit={onSubmit} className={css.createForm}>
-        <div>
+        <div className={css.createSection}>
           <h2>Опишіть у подробицях</h2>
           <p>Вкажіть назву</p>
           <Input
@@ -62,15 +62,15 @@ export default function CreateLot() {
             бути? На дизайні видно лише 3 дні, того я не знаю
           </span>
         </div>
-        <div>
+        <div className={css.createSection}>
           <h2>Фото</h2>
           <span>
             Перше фото буде на обкладинці оголошення. Перетягніть фото, щоб
             змінити порядок.
           </span>
-          <MultiplePhotoSelector />
+          <MultiplePhotoSelector photos={lot.images} setPhotos={(e)=>{setLot({...lot, images:e})}}/>
         </div>
-        <div>
+        <div className={css.createSection}>
           <h2>Деталі про товар</h2>
           <p>Опис</p>
           <textarea
@@ -86,7 +86,7 @@ export default function CreateLot() {
           <p>Стан</p>
           <StatePicker />
         </div>
-        <div>
+        <div className={css.createSection}>
           <h2>Ціна</h2>
           <div>
             <p>Вкажіть Мінімальну Ціну</p>
@@ -125,11 +125,11 @@ export default function CreateLot() {
           </div>
         </div>
 
-        <div>
+        <div className={css.createSection}>
           <h2>Місцезнаходження</h2>
           <LocationSelector />
         </div>
-        <div>
+        <div className={css.createSection}>
           <h2>Ваші контактні дані</h2>
           <div>
             <span>
@@ -142,7 +142,7 @@ export default function CreateLot() {
             </span>
           </div>
         </div>
-        <div>
+        <div className={css.createSection}>
             <button type="submit">Опублікувати</button>
         </div>
       </form>
