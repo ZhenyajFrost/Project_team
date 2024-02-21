@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import css from "./style.module.css";
 import { Buffer } from "buffer";
 
-function PhotoItem({ photo, setPhoto }) {
+function PhotoItem({ photo, setPhoto, order }) {
   let disp;
   const [drag, setDrag] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [positionStart, setPositionStart] = useState({ top: 0, left: 0 });
   const addPhoto = () => {
     var input = document.createElement("input");
     input.type = "file";
@@ -38,16 +39,30 @@ function PhotoItem({ photo, setPhoto }) {
       );
   }
   const move = (e) => {
+    const left = e.clientX - e.target.width / 2;
+    const top = e.clientY + e.target.height / 2;
     setPosition({
-      top: e.clientY - e.target.height / 2,
-      left: e.clientX - e.target.width / 2,
+      top,
+      left,
     });
   };
   if (drag) {
     return (
       <div className={css.item}>
         <div
-          onMouseUp={() => setDrag(false)}
+          onMouseUp={(e) => {
+            setDrag(false);
+            const n = 0.8
+            let res = 0
+            if (
+              position.left - positionStart.left > e.target.width *n ||
+              position.left - positionStart.left < -e.target.width * n
+            ) {
+              res+=(position.left - positionStart.left) / (e.target.width * n)
+              
+            }
+            order(res)
+          }}
           onMouseMove={move}
           className={css.item + " " + css.dragable}
           style={{ top: position.top + "px", left: position.left + "px" }}
@@ -63,6 +78,10 @@ function PhotoItem({ photo, setPhoto }) {
           if (photo && photo !== "+") {
             setDrag(true);
             move(e);
+            setPositionStart({
+              left: e.clientX - e.target.width / 2,
+              top: e.clientY + e.target.height / 2,
+            });
           }
         }}
         className={css.item}
