@@ -40,7 +40,7 @@ function PhotoItem({ photo, setPhoto, order }) {
   }
   const move = (e) => {
     const left = e.clientX - e.target.width / 2;
-    const top = e.clientY + e.target.height / 2;
+    const top = e.clientY - e.target.height / 2;
     setPosition({
       top,
       left,
@@ -52,16 +52,28 @@ function PhotoItem({ photo, setPhoto, order }) {
         <div
           onMouseUp={(e) => {
             setDrag(false);
-            const n = 0.8
-            let res = 0
+            const n = 0.7;
+            let res = 0;
             if (
-              position.left - positionStart.left > e.target.width *n ||
+              position.left - positionStart.left > e.target.width * n ||
               position.left - positionStart.left < -e.target.width * n
             ) {
-              res+=(position.left - positionStart.left) / (e.target.width * n)
-              
+              res += Math.round(
+                (position.left - positionStart.left) / (e.target.width * n)
+              );
             }
-            order(res)
+            // console.log({pt:position.top, pst:positionStart.top, eh: e.target.height})
+            if (
+              position.top - positionStart.top > e.target.height ||
+              position.top - positionStart.top < -e.target.height
+            ) {
+              res +=
+                Math.round(
+                  (position.top - positionStart.top) / e.target.height
+                ) * 5;
+            }
+
+            order(res);
           }}
           onMouseMove={move}
           className={css.item + " " + css.dragable}
@@ -80,7 +92,7 @@ function PhotoItem({ photo, setPhoto, order }) {
             move(e);
             setPositionStart({
               left: e.clientX - e.target.width / 2,
-              top: e.clientY + e.target.height / 2,
+              top: e.clientY - e.target.height / 2,
             });
           }
         }}
