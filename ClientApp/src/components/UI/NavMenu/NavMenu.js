@@ -72,23 +72,20 @@ function NavMenu() {
             </Nav.Link>
           </Nav>
           <Nav className='nav-right'>
-            <Nav.Item className='country'>
-              <img src={ukraineFlag} alt="Ukraine flag" /> UA <img src={arrow} alt="arrow" />
-            </Nav.Item>
-            <Dropdown alignRight>
+            <Dropdown >
               <Dropdown.Toggle as="a" bsPrefix="p-0" style={{ boxShadow: 'none' }}>
                 <img src={profile} alt="Profile" />
               </Dropdown.Toggle>
 
               {isLoggined ?
-                (<Dropdown.Menu>
+                (<Dropdown.Menu align="end" >
                   <Dropdown.Item onClick={() => history.push('/profile')}>Мої Вподобання</Dropdown.Item>
                   <Dropdown.Item onClick={() => history.push('/profile')}>Мої ставки</Dropdown.Item>
                   <Dropdown.Item onClick={() => history.push('/profile')}>Оголошення</Dropdown.Item>
                   <Dropdown.Item onClick={() => history.push('/profile')}>Налаштування</Dropdown.Item>
                   <Dropdown.Item onClick={() => { onExit(); history.push('/'); }} style={{color: "red"}}>Exit</Dropdown.Item>
                 </Dropdown.Menu>) :
-                (<Dropdown.Menu>
+                (<Dropdown.Menu align="end" >
                   <Dropdown.Item onClick={() => setModalLogVisible(true)}>Login</Dropdown.Item>
                   <Dropdown.Item onClick={() => setModalRegVisible(true)}>Registration</Dropdown.Item>
                 </Dropdown.Menu>)

@@ -11,7 +11,7 @@ export class Layout extends Component {
     return (
       <div>
         <NavMenu />
-        <Container class={css.container}>
+        <Container className={css.container1}>
           {this.props.children}
         </Container>
         <Footer />
