@@ -1,5 +1,6 @@
 ﻿import React, { useState } from "react";
-import PostService from "../components/PostService/PostService.js";
+import PostService from "../API/PostService.js";
+import PostServiceComponent from "../components/PostService/PostService.js";
 import css from "../styles/LotPage.module.css";
 import Loader from "../components/Loader/Loader";
 import LotPath from "../components/LotPath/LotPath";
@@ -7,6 +8,7 @@ import PictureCarousel from "../components/PictureCarousel/PictureCarousel";
 import svg from "../images/svgDef.svg";
 import { formatTime } from "../utils/formatTime";
 import UserShort from "../components/UserShort/UserShort.js";
+import { nanoid } from "nanoid";
 
 function LotPage() {
   const id =
@@ -88,15 +90,15 @@ function LotPage() {
             <div className={css.lotChars}>
               {Object.keys(lotInfo).map((v) => (
                 <>
-                  <span>{v}:</span>
-                  <span>{lotInfo[v]}</span>
+                  <span key={nanoid()}>{v}:</span>
+                  <span key={nanoid()}>{lotInfo[v]}</span>
                 </>
               ))}
             </div>
           </div>
           <div className={css.splitContainer}>
             <p>Способи доставки:</p>
-            <PostService
+            <PostServiceComponent
               name={"Укрпошта"}
               price={15}
               time={"2-5"}
@@ -104,7 +106,7 @@ function LotPage() {
                 "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Ukrposhta-ua-icon.svg/1422px-Ukrposhta-ua-icon.svg.png"
               }
             />
-            <PostService
+            <PostServiceComponent
               name={"Нова пошта"}
               price={50}
               time={"2-5"}
@@ -112,7 +114,7 @@ function LotPage() {
                 "https://lavbottle.com.ua/wp-content/uploads/2017/02/logo-nova-poshta.png"
               }
             />
-            <PostService
+            <PostServiceComponent
               name={"Нова пошта"}
               price={85}
               time={"1-2"}
