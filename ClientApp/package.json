@@ -10,6 +10,7 @@
     "axios": "^1.6.5",
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.1.0",
+    "buffer": "^6.0.3",
     "country-state-city": "^3.2.1",
     "http-proxy-middleware": "^0.19.1",
     "jquery": "^3.5.1",
