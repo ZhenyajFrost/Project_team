@@ -71,7 +71,7 @@ function SearchPage(props) {
               <option>Як ми це зробимо?</option>
             </select>
           </div>
-          <svg onClick={() => setLotDisplay("grid")}>
+          <svg onClick={() => setLotDisplay("grid-2col")}>
             <use href={`${svg}#gridView`} />
           </svg>
           <svg onClick={() => setLotDisplay("list")}>

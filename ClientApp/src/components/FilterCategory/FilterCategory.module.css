@@ -1,0 +1,41 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 15vw;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 19px;
+}
+
+.btnContainer{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 24px;
+    background-color: white;
+}
+
+.btn{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px 4px 24px;
+}
+
+.number{
+    background-color: var(--gray);
+    color: var(--textColor);
+    border-radius: 60px;
+    padding: 8px;
+    line-height: 14px;    
+}
+
+.activeCat{
+    background-color: white;
+    border: none;
+    color: var(--textColor);
+}

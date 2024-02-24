@@ -24,9 +24,11 @@ export const Home = () => {
     const [sortedLots, setSortedLots] = useState(lots);
     const [categories, setCategories] = useState([]);
     let history = useHistory();
+
     useEffect(() => {
         setSortedLots(lots);
     }, [lots]);
+    
     useEffect(() => {
         const exst = getLocalStorage("categories");
         const back = [{ title: "Антикваріат", imgId: "antic" }, { title: "Дім", imgId: "house" }, { title: "Електроніка", imgId: "electronic" }, { title: "Спорт", imgId: "sport" }, { title: "Мода", imgId: "moda" }, { title: "Авто", imgId: "auto" }, { title: "Дитячий", imgId: "kids" }, { title: "Інші", imgId: "other" }]
@@ -90,7 +92,7 @@ export const Home = () => {
                 <h2 className={css.h2}>Популярні лоти</h2>
                 <CategoryContainer categories={["Холодильники", "Іфон 13", "Картини", "Телевізор", "Іграшки", "Навушники", "Колеса)"]} onCategoryChange={onCategoryChange} selectedCategorie={selectedCat} />
 
-                <LotContainer lots={sortedLots} />
+                <LotContainer lots={sortedLots} display="grid-2col"/>
                 <LoadMoreButton setLots={setLots} curPage={page} setCurPage={setPage} perPage={limit} />
             </div>
 

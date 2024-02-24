@@ -6,7 +6,6 @@ import Container from 'react-bootstrap/Container';
 import { Dropdown } from 'react-bootstrap';
 import './NavMenu.css';
 import logo from './images/logo.svg';
-import cart from './images/cart.svg';
 import catalog from './images/catalog.svg';
 import profile from './images/profile.svg';
 import ukraineFlag from './images/ukraineFlag.svg';
@@ -95,9 +94,6 @@ function NavMenu() {
                 </Dropdown.Menu>)
               }
             </Dropdown>
-            <Nav.Item>
-              <img src={cart} alt="Cart" />
-            </Nav.Item>
           </Nav>
         </Container>
       </Navbar>

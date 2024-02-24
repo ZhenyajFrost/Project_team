@@ -13,15 +13,16 @@
 
 .search{
     display: flex;
-
 }
+
 .search div{
     display: flex;
-    background-color: #F8F8F8;
+    background-color: var(--white);
     border-radius: 50px;
-    padding: 3px;
+    padding: 3px 16px;
     width: 100%;
     justify-items: center;
+    border: 1px solid var(--borderColor);
 }
 .search input{
     background-color: inherit;

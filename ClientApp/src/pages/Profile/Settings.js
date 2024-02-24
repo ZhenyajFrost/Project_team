@@ -16,6 +16,7 @@ import Button from '../../components/UI/Button/Button';
 import PhoneInput from '../../components/UI/PhoneInput/PhoneInput';
 import Checkbox from '../../components/UI/Checkbox/Checkbox';
 import { getLocalStorage } from '../../utils/localStorage';
+import ImageUpload from '../../components/ImageUpload/ImageUpload';
 
 const CustomAccordion = styled(Accordion)({
     '&&': {
@@ -432,6 +433,7 @@ function Settings() {
                 </CustomAccordionSummary>
                 <CustomAccordionDetails>
                     <div className={css.container}>
+                        <ImageUpload />
 
                     </div>
                 </CustomAccordionDetails>

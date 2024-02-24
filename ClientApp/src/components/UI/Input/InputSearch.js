@@ -14,7 +14,7 @@ import Button from "../Button/Button";
 //     );
 // });
 
-const InputSearch = ({ onSearch, placeholder="", value="" }) => {
+const InputSearch = ({ onSearch, placeholder="", value="", nobutton }) => {
   const [inputValue, setInputValue] = useState(value);
 
   const handleInputChange = (e) => {
@@ -40,7 +40,7 @@ const InputSearch = ({ onSearch, placeholder="", value="" }) => {
         />
       </div>
 
-      <Button onClick={handleSearchClick}>Пошук</Button>
+      {!nobutton && <Button onClick={handleSearchClick}>Пошук</Button>}
     </div>
   );
 };

@@ -1,0 +1,54 @@
+.lot {
+    display: flex;
+    flex-direction: column;
+    gap: 1vw;
+    padding: 16px;
+    border-radius: 24px;
+    box-shadow: 0px 4px 14px 0px #0000001A;
+    background-color: #FFFFFF;
+}
+
+.image {
+    width: 269px;
+    height: 180px;
+    border-radius: 18px;
+}
+
+.info{
+    display: flex;
+    flex-direction: column;
+    gap: 1vw;
+}
+
+.bottom{
+    display: flex;
+    flex-direction: row;
+    gap: 2vw;
+}
+.title {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 24px;
+}
+
+.desc {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 24px;
+
+    height: calc(line-height * 2);
+    color: var(--secondaryTextColor);
+}
+
+.text {
+    display: flex;
+    flex-direction: row;
+    gap: 0.4vw;
+    align-items: center;
+
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 24px;
+
+    color: var(--textColor);
+}

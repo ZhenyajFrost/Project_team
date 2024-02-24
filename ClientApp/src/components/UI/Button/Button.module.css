@@ -2,7 +2,7 @@
     width:fit-content;
     padding: 8px 24px 8px 24px;
     border-radius: 24px;
-    background-color: #242424;
+    background-color: var(--buttonColor);
     font-family: Manrope;
 }
 

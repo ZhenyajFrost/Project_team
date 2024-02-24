@@ -24,7 +24,7 @@ export default class App extends Component {
                     <Route path='/profile' render={({ match: { url } }) => (
                         <ProfileLayout>
                             <Switch>
-                                <Route path={`${url}/`} component={ProfileLots} exact />
+                                <Route path={`${url}/`} component={ProfileSettings} exact />
                                 <Route path={`${url}/lots`} component={ProfileLots} />
                                 <Route path={`${url}/settings`} component={ProfileSettings} />
                             </Switch>

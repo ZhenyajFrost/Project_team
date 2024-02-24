@@ -1,0 +1,60 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.body{
+    display: grid;
+    grid-template-columns: 25% 75%;
+    gap: 12px;
+}
+
+.filter{
+    width: 100%;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.btn {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5vw;
+    align-items: center;
+    border-radius: 40px;
+    padding: 12px 24px 12px 20px;
+    height: fit-content;
+}
+
+.tab {
+    cursor: pointer;
+    padding: 16px 24px;
+}
+
+.btn, .tab {
+    font-size: 14px;
+    line-height: 14px;
+}
+
+.tabContainer {
+    list-style-type: none;
+    display: flex;
+    flex-direction: row;
+    gap: 0.3vw;
+    border-radius: 43px;
+    background-color: var(--white);
+    padding: 4px;
+    width: fit-content;
+    margin-bottom: 0;
+}
+
+.activeTab {
+    background-color: var(--buttonColor);
+    color: white;
+    border-radius: 43px;
+    font-weight: 700;
+}

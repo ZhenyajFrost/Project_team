@@ -7,6 +7,7 @@ import PictureCarousel from "../components/PictureCarousel/PictureCarousel";
 import svg from "../images/svgDef.svg";
 import { formatTime } from "../utils/formatTime";
 import UserShort from "../components/UserShort/UserShort.js";
+
 function LotPage() {
   const id =
     window.location.href.split("/")[window.location.href.split("/").length - 1];

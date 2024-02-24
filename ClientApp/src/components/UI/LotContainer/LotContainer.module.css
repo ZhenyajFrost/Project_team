@@ -1,24 +1,29 @@
-﻿
-.lotsContainer{
-    display: flex;
-    gap: 16px;
-    height: 563px;
-    overflow-y: auto;
-}
-.lotsContainer.grid{
-    flex-wrap: wrap;
+﻿.lotsContainer {
+  display: flex;
+  gap: 16px;
 
 }
-.lotsContainer.grid div:has(img){
+
+.grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.list {
+  flex-wrap: nowrap;
+  height: auto;
+  flex-direction: column;
+}
+
+/* .lotsContainer.grid div:has(img){
   width: 612px;
-
 }
+
 .lotsContainer.list div:has(img){
     width: 100%;
-  
-  }
-.lotsContainer.list{
-    flex-wrap: wrap;
-    height: auto;
-    
-}
+} */

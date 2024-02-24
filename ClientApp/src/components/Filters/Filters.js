@@ -18,8 +18,6 @@ function Filters({ onChange, initial }) {
   console.log("d"+params)
   useEffect(() => {
 
-
-
     //перевірка, чи не була категорія змінена інспект елементом
     if (!categories.includes(params.category)) {
       Notiflix.Notify.failure(
@@ -67,8 +65,6 @@ function Filters({ onChange, initial }) {
   }, [params]);
 
   return (
-    <>
-      <h2>Фільри</h2>
       <div className={css.filterContainer}>
         <div className={css.filterItem}>
           Нові лоти за
@@ -136,7 +132,6 @@ function Filters({ onChange, initial }) {
           </select>
         </div>
       </div>
-    </>
   );
 }
 

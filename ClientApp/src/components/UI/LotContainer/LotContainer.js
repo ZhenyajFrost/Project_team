@@ -1,21 +1,18 @@
-import React, {
-  useRef,
-  useImperativeHandle,
-  forwardRef,
-  useState,
-} from "react";
+import React from "react";
 import Lot from "../../Lot/Lot.js";
+import LotSmall from "../../Lot/LotSmall/LotSmall.js"
 import classes from "./LotContainer.module.css";
 
-function LotContainer({ lots, display = "grid" }) {
-  //const [selectedId, setSelectedId] = useState(-1);
+function LotContainer({ lots, display = "", lotStyle = "basic" }) {
+  const displayClass = display ? classes[display] : '';
+  const classString = `${classes.lotsContainer} ${displayClass}`;
 
-  return (
-    <div>
-    
-      <div className={classes.lotsContainer+" "+(display==="grid" ? classes.grid : classes.list)}>
-        {lots.map((lot, i) => (
+  const renderLot = (lot, style) => {
+    switch (style) {
+      case "basic":
+        return (
           <Lot
+            key={lot.id}
             id={lot.id}
             title={lot.title}
             price={lot.price}
@@ -24,11 +21,29 @@ function LotContainer({ lots, display = "grid" }) {
             timeTillEnd={lot.timeTillEnd}
             hot={lot.hot}
             imageURL={lot.imageURL}
-            //openModal={() => setSelectedId(i)}
           />
-        ))}
+        );
+      case "small":
+        return (
+          <LotSmall
+            key={lot.id}
+            id={lot.id}
+            title={lot.title}
+            price={lot.price}
+            shortDescription={lot.shortDescription}
+            timeTillEnd={lot.timeTillEnd}
+            imageURL={lot.imageURL}
+            location={lot.location}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
-      </div>
+  return (
+    <div className={classString}>
+      {lots.map((lot) => renderLot(lot, lotStyle))}
     </div>
   );
 }
