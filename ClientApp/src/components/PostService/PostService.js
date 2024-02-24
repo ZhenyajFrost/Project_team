@@ -1,7 +1,7 @@
 import React from 'react';
 import css from "./style.module.css"
 
-function PostService({name, price, time, img}) {
+function PostServiceComponent({name, price, time, img}) {
     return (
         <div className={css.fAc}>
             <img alt='postLogo' src={img}/>
@@ -13,4 +13,4 @@ function PostService({name, price, time, img}) {
     );
 }
 
-export default PostService;
+export default PostServiceComponent;
