@@ -5,8 +5,10 @@ import svg from "../../images/svgDef.svg";
 import FiltersWSearch from '../../components/FiltersWSearch/FiltersWSearch';
 import FilterCategory from '../../components/FilterCategory/FilterCategory';
 import LotContainer from '../../components/UI/LotContainer/LotContainer'
+import { useHistory } from 'react-router-dom/cjs/react-router-dom';
 
 function Lots({ user }) {
+    const history = useHistory();
     const [activeTab, setActiveTab] = useState('Active');
     const [filter, setFilter] = useState({});
     const categories = [{ label: 'Антикваріат', value: 'antic', quantity: 10 },
@@ -17,6 +19,10 @@ function Lots({ user }) {
     const handleTabClick = (tab) => {
         setActiveTab(tab);
     };
+
+    const handleAddButton = () => {
+        history.push('/create');
+    }
 
     const onFilterChange = (e) => {
         setFilter(e);
@@ -46,7 +52,7 @@ function Lots({ user }) {
                     </li>
                 </ul>
 
-                <Button className={css.btn}>
+                <Button className={css.btn} onClick={handleAddButton}>
                     <svg>
                         <use href={`${svg}#plus`} />
                     </svg>
@@ -57,7 +63,7 @@ function Lots({ user }) {
             <FiltersWSearch onChange={onFilterChange} initial={filter} />
 
             <div className={css.body}>
-                <FilterCategory categories={categories} setLots={setLots} style={{width: "100%"}}/>
+                <FilterCategory categories={categories} setLots={setLots}/>
                 
                 <div className={css.lots}>
                 {activeTab === 'Active' ? <LotContainer lots={lots} display="grid-3col" lotStyle="small" /> : <></>}

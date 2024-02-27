@@ -9,23 +9,38 @@ import svg from "../images/svgDef.svg";
 import { formatTime } from "../utils/formatTime";
 import UserShort from "../components/UserShort/UserShort.js";
 import { nanoid } from "nanoid";
+import useGetLotById from "../API/Lots/useGetLotById.js";
 
 function LotPage() {
   const id =
     window.location.href.split("/")[window.location.href.split("/").length - 1];
   console.log(id);
-  const [lot, setLot] = useState({
-    id: "",
-    title: null,
-    price: 0,
-    timeTillEnd: 0,
-    hot: false,
-  });
+
+
+  // const [lot, setLot] = useState({
+  //   id: "",
+  //   title: null,
+  //   price: 0,
+  //   timeTillEnd: 0,
+  //   hot: false,
+  // });
+
+  const [getLotById, lot, isLoading, error] = useGetLotById();
+
   useState(async () => {
-    let res = await PostService.getById(id);
-    console.log(res);
-    setLot(res);
-  }, [setLot]);
+    await getLotById(id);
+  }, []);
+
+  useState( () => {
+    console.log(lot);
+  }, [lot]);
+
+  // useState(async () => {
+  //   let res = await PostService.getById(id);
+  //   console.log(res);
+  //   setLot(res);
+  // }, [setLot]);
+
   console.log(lot);
   const lotInfo = {
     "Технічний статус": "несправний",

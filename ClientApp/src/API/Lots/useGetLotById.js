@@ -12,7 +12,7 @@ const useGetLotById = () => {
         try {
             const response = await axios.get(`${LOTS_ENDPOINT}/getLotById/${lotId}`);
             console.log('Lot successfully retrieved: ', response.data);
-            setLot(response.data.lot);
+            setLot(response.data);
         } catch (error) {
             console.error('Getting lot failed: ', error);
             setError(error);
@@ -21,7 +21,7 @@ const useGetLotById = () => {
         }
     };
 
-    return { getLotById, lot, isLoading, error };
+    return  [getLotById, lot, isLoading, error ];
 };
 
 export default useGetLotById;

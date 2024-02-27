@@ -15,8 +15,10 @@ import Input from '../../components/UI/Input/Input';
 import Button from '../../components/UI/Button/Button';
 import PhoneInput from '../../components/UI/PhoneInput/PhoneInput';
 import Checkbox from '../../components/UI/Checkbox/Checkbox';
-import { getLocalStorage } from '../../utils/localStorage';
+import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
 import ImageUpload from '../../components/ImageUpload/ImageUpload';
+import useUpdateUser from '../../API/User/useUpdateUser';
+import useUpdatePassword from '../../API/User/useUpdatePassword';
 
 const CustomAccordion = styled(Accordion)({
     '&&': {
@@ -56,7 +58,10 @@ const CustomAccordionDetails = styled(AccordionDetails)({
 });
 
 function Settings() {
-    var user = getLocalStorage('user');
+    const user = getLocalStorage('user');
+    const token = getLocalStorage('token');
+    const [updateUser, isLoading, error] = useUpdateUser();
+    const [updatePassword, isLoadingPass, errorPass] = useUpdatePassword();
     const [formData, setFormData] = useState({
         lastName: '',
         firstName: '',
@@ -80,27 +85,29 @@ function Settings() {
         if (user) {
             setFormData(prev => ({
                 ...prev,
-                ...user, // This assumes `user` has the same top-level fields as `formData`
+                ...user,
                 notifications: {
                     ...prev.notifications,
-                    ...(user.notifications || {}), // Safely spread `user.notifications` if it exists
+                    ...(user.notifications || {}),
                 },
             }));
+            setSelectedRegion(user.region);
+            setSelectedCity(user.city);
+
         }
-    
-        // Note: Logging `formData` right after `setFormData` won't reflect changes immediately due to setState being asynchronous
     }, []);
-    
-    // To observe formData changes, you could use another useEffect
+
+
     useEffect(() => {
         console.log(`formData: ${JSON.stringify(formData)}`);
         console.log(formData);
-    }, [formData]); // This effect runs whenever `formData` changes
+        console.log(selectedRegion)
+    }, [formData]);
 
     const { validationErrors, validateForm } = useRegistrationValidation();
 
-    const [selectedRegion, setSelectedRegion] = useState(null); // For Select component
-    const [selectedCity, setSelectedCity] = useState(null); // For Select component
+    const [selectedRegion, setSelectedRegion] = useState(user.region); // For Select component
+    const [selectedCity, setSelectedCity] = useState(user.city); // For Select component
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -118,12 +125,12 @@ function Settings() {
         setFormData(prev => ({
             ...prev,
             region: selectedOption ? selectedOption.label : '',
-            city: '', // Reset city value when region changes
+            city: '',
             notifications: {
                 ...prev.notifications
             },
         }));
-        setSelectedCity(null); // Reset city select
+        setSelectedCity(null);
     };
 
     const handleCityChange = (selectedOption) => {
@@ -137,9 +144,9 @@ function Settings() {
         }));
     };
 
-    const handleContactSubmit = (e) => {
+    const handleContactSubmit = async (e) => {
         e.preventDefault();
-        var data = {
+        var dataToUpdate = {
             lastName: formData.lastName,
             firstName: formData.firstName,
             login: formData.login,
@@ -148,63 +155,53 @@ function Settings() {
             phone: formData.phone
         }
 
-        if (validateForm(data)) {
-            console.log(validateForm(data));
-            console.log("Check")
+        if (!validateForm(dataToUpdate)) {
             return;
         }
 
-        console.log(data);
+        console.log(dataToUpdate);
 
-        //Logic to server
+        await updateUser(user.id, dataToUpdate); //TOKEN IN THE FUTURE
+        console.log(error);
 
-        setFormData({
-            lastName: '',
-            firstName: '',
-            login: '',
-            region: '',
-            city: '',
-        });
-        setSelectedRegion(null);
-        setSelectedCity(null);
+        setSelectedRegion(dataToUpdate.region);
+        setSelectedCity(dataToUpdate.city);
     };
 
-    const handlePasswordSubmit = (e) => {
+    const handlePasswordSubmit = async (e) => {
         e.preventDefault();
-        var data = {
-            oldPassword: formData.oldPassword,
-            password: formData.password
+        var dataToUpdate = {
+            newPassword: formData.password
         }
 
-        if (validateForm(data)) {
+        if (!validateForm(dataToUpdate)) {
+            console.log(validationErrors);
             return;
         }
 
-        console.log(data);
+        console.log(dataToUpdate);
 
-        //Logic to server
+        await updatePassword(user.email, dataToUpdate.newPassword); //TOKEN IN THE FUTURE
+        console.log(error);
 
-        setFormData({
-            oldPassword: '',
-            password: '',
-        });
+        // setFormData({
+        //     oldPassword: '',
+        //     password: '',
+        // });
     }
 
-    const handleEmailSubmit = (e) => {
+    const handleEmailSubmit = async (e) => {
         e.preventDefault();
-        var data = {
-            oldPassword: formData.oldPassword,
-            email: formData.email
+        var dataToUpdate = {
+            //password: formData.oldPassword,
+            currentEmail: user.email,
+            newEmail: formData.email
         }
 
-        console.log(data);
+        console.log(dataToUpdate);
 
-        //Logic to server
-
-        setFormData({
-            oldPassword: '',
-            email: '',
-        });
+        await updateUser(user.id, dataToUpdate);
+        console.log(error);
     }
 
     const handleNotificationsChanged = (e) => {
@@ -233,7 +230,7 @@ function Settings() {
                     aria-controls="contactData-content"
                     id="ContactData-header"
                 >
-                    Змінити контактні дані
+                    {isLoading ? 'Loading...' : 'Змінити контактні дані'}
                 </CustomAccordionSummary>
                 <CustomAccordionDetails>
                     <form onSubmit={handleContactSubmit}>
@@ -301,7 +298,7 @@ function Settings() {
                                 selectedCity={selectedCity}
                             />
                         </div>
-                        <Button type="submit">Зберегти</Button>
+                        <Button type="submit" diabled={isLoading}>Зберегти</Button>
                     </form>
                 </CustomAccordionDetails>
             </CustomAccordion>
@@ -312,7 +309,7 @@ function Settings() {
                     aria-controls="password-content"
                     id="password-header"
                 >
-                    Змінити пароль
+                    {isLoadingPass ? "Loading..." :  "Змінити пароль"}
                 </CustomAccordionSummary>
                 <CustomAccordionDetails>
                     <form onSubmit={handlePasswordSubmit}>
@@ -464,7 +461,7 @@ function Settings() {
                 </CustomAccordionSummary>
                 <CustomAccordionDetails>
                     <div className={css.container}>
-                    <Button onClick={handleDeleteProfile} className={css.delete}>Видалити профіль</Button>
+                        <Button onClick={handleDeleteProfile} className={css.delete}>Видалити профіль</Button>
 
                     </div>
                 </CustomAccordionDetails>

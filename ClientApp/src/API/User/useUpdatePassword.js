@@ -3,19 +3,16 @@ import axios from 'axios';
 import { EDIT_USER_ENDPOINT } from '../apiConstant';
 import { setLocalStorage, getLocalStorage } from '../../utils/localStorage';
 
-const useUpdateUser = () => {
+const useUpdatePassword = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const updateUser = async (userId, fieldsToUpdate) => {
+    const updatePassword = async (email, newPassword) => {
         setLoading(true);
+
         try {
-            const response = await axios.post(`${EDIT_USER_ENDPOINT}/update-user`, {userId, fieldsToUpdate});
-            console.log('User successfully updated: ', response.data);
-            setLocalStorage('user', {
-                ...getLocalStorage('user'),
-                ...fieldsToUpdate
-            })
+            const response = await axios.post(`${EDIT_USER_ENDPOINT}/update-password`, {email, newPassword} );
+            console.log('Password successfully updated: ', response.data);
         } catch (error) {
             console.error('Updating lot failed: ', error);
             setError(error);
@@ -24,7 +21,7 @@ const useUpdateUser = () => {
         }
     };
 
-    return [ updateUser, isLoading, error ];
+    return [updatePassword, isLoading, error];
 };
 
-export default useUpdateUser;
+export default useUpdatePassword;

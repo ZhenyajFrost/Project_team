@@ -11,14 +11,18 @@ import howItWorksImg from "../images/howItWorks.svg"
 import svg from "../images/svgDef.svg";
 import BigCategoryContainer from "../components/BigCategoryContainer/BigCategoryContainer.js";
 import { setLocalStorage, getLocalStorage } from "../utils/localStorage.js"
+import useGetLots from "../API/Lots/useGetLots.js";
 
 export const Home = () => {
 
-    const [lots, setLots] = useState([]);
+    //const [lots, setLots] = useState([]);
     //const [totalPages, setTotalPages] = useState();
     //const [pagesToDisplay, setPagesToDisplay] = useState();
-    const [page, setPage] = useState(0);
-    const [limit] = useState(6);
+    const [getLots, lots, isLoading, error] = useGetLots();
+    const [pagination, setPagination] = useState({
+        page: 1,
+        limit: 10
+    });
 
 
     const [sortedLots, setSortedLots] = useState(lots);
@@ -29,7 +33,8 @@ export const Home = () => {
         setSortedLots(lots);
     }, [lots]);
     
-    useEffect(() => {
+    useEffect(async () => {
+        await getLots();
         const exst = getLocalStorage("categories");
         const back = [{ title: "Антикваріат", imgId: "antic" }, { title: "Дім", imgId: "house" }, { title: "Електроніка", imgId: "electronic" }, { title: "Спорт", imgId: "sport" }, { title: "Мода", imgId: "moda" }, { title: "Авто", imgId: "auto" }, { title: "Дитячий", imgId: "kids" }, { title: "Інші", imgId: "other" }]
         if (back !== exst) {
@@ -67,8 +72,8 @@ export const Home = () => {
     const [selectedCat, setSelectedCat] = useState("Холодильники");
     const onCategoryChange = (cat) => {
         setSelectedCat(cat);
-        setPage(0);
-        setLots([]);
+        setPagination({page: 1, limit: 10});
+        //setLots([]);
     };
 
     return (
@@ -93,7 +98,7 @@ export const Home = () => {
                 <CategoryContainer categories={["Холодильники", "Іфон 13", "Картини", "Телевізор", "Іграшки", "Навушники", "Колеса)"]} onCategoryChange={onCategoryChange} selectedCategorie={selectedCat} />
 
                 <LotContainer lots={sortedLots} display="grid-2col"/>
-                <LoadMoreButton setLots={setLots} curPage={page} setCurPage={setPage} perPage={limit} />
+                <LoadMoreButton setLots={getLots} curPage={pagination.page} setCurPage={(newPage) => setPagination(prev => ({ ...prev, page: newPage }))} perPage={pagination.limit} />
             </div>
 
             <div id="howItW" className={`${css.mainCont} ${css.borderRadius24}`}>
