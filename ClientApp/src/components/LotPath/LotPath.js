@@ -1,9 +1,9 @@
 import React from "react";
 import svg from "../../images/svgDef.svg";
 import { NavLink } from "react-bootstrap";
-import css from "./style.module.css"
+import css from "./style.module.css";
 
-function LotPath({ category, name }) {
+function LotPath({ path }) {
   return (
     <div className={css.path}>
       <NavLink href="/">
@@ -12,14 +12,15 @@ function LotPath({ category, name }) {
         </svg>
         Products
       </NavLink>
-      <svg>
-        <use href={`${svg}#arrow-right`} />
-      </svg>
-      <NavLink href="*">{category}</NavLink>
-      <svg>
-        <use href={`${svg}#arrow-right`} />
-      </svg>
-      <NavLink href="">{name}</NavLink>
+
+      {path.map((v) => (
+        <>
+          <svg>
+            <use href={`${svg}#arrow-right`} />
+          </svg>
+          <NavLink href={v.path}>{v.name}</NavLink>
+        </>
+      ))}
     </div>
   );
 }

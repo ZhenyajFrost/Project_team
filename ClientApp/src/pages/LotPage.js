@@ -57,7 +57,7 @@ function LotPage() {
   };
   return (
     <div>
-      <LotPath category={lot.category} name={lot.title} />
+      <LotPath path={[{name:lot.category, path:`/search?category=${lot.category}/`},{name:lot.title, path:""}]} />
       <div className={css.cont}>
         <div className={css.left}>
           <div className={css.sideThing}>
