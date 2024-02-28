@@ -5,7 +5,8 @@ import MultiplePhotoSelector from "../components/MultiplePhotoSelector/MultipleP
 import StatePicker from "../components/StatePicker/StatePicker";
 import LocationSelector from "../components/LocationSelector/LocationSelector";
 import { getLocalStorage } from "../utils/localStorage";
-import css from "../styles/Create.module.css"
+import css from "../styles/Create.module.css";
+import useCreateLot from "../API/Lots/useCreateLot";
 
 export default function CreateLot() {
   const [lot, setLot] = useState({
@@ -14,20 +15,24 @@ export default function CreateLot() {
     endOn: new Date(),
     minimalBid: 0,
     sellOn: Infinity,
+    state: "Нове",
     images: [],
   });
   const [user, setUser] = useState({ firstName: "", lastName: "", email: "" });
+  const create = useCreateLot();
+  
   useEffect(() => {
     const svd = getLocalStorage("user");
     if (svd) setUser(svd);
   }, []);
   const onInput = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target ? e.target : e;
     setLot({ ...lot, [name]: value });
   };
   const onSubmit = (e) => {
     e.preventDefault();
     console.log(lot);
+    create.createLot(lot)
     setLot({
       title: "",
       description: "",
@@ -68,7 +73,12 @@ export default function CreateLot() {
             Перше фото буде на обкладинці оголошення. Перетягніть фото, щоб
             змінити порядок.
           </span>
-          <MultiplePhotoSelector photos={lot.images} setPhotos={(e)=>{setLot({...lot, images:e})}}/>
+          <MultiplePhotoSelector
+            photos={lot.images}
+            setPhotos={(e) => {
+              setLot({ ...lot, images: e });
+            }}
+          />
         </div>
         <div className={css.createSection}>
           <h2>Деталі про товар</h2>
@@ -78,72 +88,96 @@ export default function CreateLot() {
             onInput={onInput}
             value={lot.description}
             placeholder="Детальніше опишіть товар"
+            className={css.desc}
           />
           {lot.description.length < 40 ? (
             <p>Введіть щонайменше 40 символів</p>
           ) : null}
 
           <p>Стан</p>
-          <StatePicker />
+          <StatePicker
+            change={(e) => setLot({ ...lot, state: e })}
+            current={lot.state}
+          />
         </div>
         <div className={css.createSection}>
           <h2>Ціна</h2>
-          <div>
-            <p>Вкажіть Мінімальну Ціну</p>
-            <span>
-              <Input
-                name="minimalBid"
-                onInput={onInput}
-                value={lot.minimalBid}
-                type="number"
-                placeHolder="1200"
-              />
-              Грн
-            </span>
-            <p>Вкажіть мінімальну суму для 1 кроку</p>
-            <span>
-              <Input
-                name="stepPrice"
-                onInput={onInput}
-                value={lot.stepPrice}
-                type="number"
-                placeHolder="500"
-              />
-              Грн
-            </span>
-            <p>Вкажіть бажану Ціну за яку готові продати</p>
-            <span>
-              <Input
-                name="minimalBid"
-                onInput={onInput}
-                value={lot.minimalBid}
-                type="number"
-                placeHolder="1200"
-              />
-              Грн
-            </span>
+          <div className={css.priceCont}>
+            <div>
+              <p>Вкажіть Мінімальну Ціну</p>
+              <span>
+                <Input
+                  className={css.priceInp}
+                  name="minimalBid"
+                  onInput={onInput}
+                  value={lot.minimalBid}
+                  type="number"
+                  placeHolder="1200"
+                />
+                Грн
+              </span>
+            </div>
+            <div>
+              <p>Вкажіть мінімальну суму для 1 кроку</p>
+              <span>
+                <Input
+                  className={css.priceInp}
+                  name="stepPrice"
+                  onInput={onInput}
+                  value={lot.stepPrice}
+                  type="number"
+                  placeHolder="500"
+                />
+                Грн
+              </span>
+            </div>
+            <div>
+              <p>Вкажіть бажану Ціну за яку готові продати</p>
+              <span>
+                <Input
+                  className={css.priceInp}
+                  name="sellOn"
+                  onInput={onInput}
+                  value={lot.sellOn}
+                  type="number"
+                  placeHolder="1200"
+                />
+                Грн
+              </span>
+            </div>
           </div>
         </div>
 
         <div className={css.createSection}>
           <h2>Місцезнаходження</h2>
-          <LocationSelector />
+          <LocationSelector
+            onRegionChange={(e) => onInput({ name: "region", value: e })}
+            onCityChange={(e) => onInput({ name: "city", value: e })}
+            selectedRegion={lot.region}
+          />
         </div>
         <div className={css.createSection}>
           <h2>Ваші контактні дані</h2>
           <div>
             <span>
               <p>ПІБ</p>
-              <Input value={user.firstName + " " + user.lastName} disabled={true}/>
+              <Input
+                value={user.firstName + " " + user.lastName}
+                disabled={true}
+              />
             </span>
             <span>
               <p>Email</p>
-              <Input value={user.email} disabled={true}/>
+              <Input value={user.email} disabled={true} />
             </span>
           </div>
         </div>
         <div className={css.createSection}>
-            <button type="submit">Опублікувати</button>
+          <div className={css.fincont}>
+            <button className={css.final} type="submit">
+              Опублікувати
+            </button>
+          </div>
         </div>
       </form>
     </div>

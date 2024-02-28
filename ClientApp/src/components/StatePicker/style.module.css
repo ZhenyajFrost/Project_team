@@ -1,0 +1,39 @@
+.statecont {
+  display: flex;
+  gap: 24px;
+  height: 34px;
+  width: 178px;
+  background-color: var(--gray);
+  border-radius: 24px;
+  width: fit-content;
+  padding: 5px;
+  position: relative;
+}
+.state {
+  padding: 2px;
+  font-family: Manrope;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0em;
+  text-align: left;
+}
+.slider {
+    transition: 0.5s ease all;
+  height: 34px;
+  top: 0;
+  background-color: var(--buttonColor);
+  color: var(--white);
+  position: absolute;
+
+  padding: 7px;
+  border-radius: 43px;
+  pointer-events: none;
+
+  font-family: Manrope;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0em;
+  text-align: left;
+}

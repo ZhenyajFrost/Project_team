@@ -17,3 +17,39 @@
   font-weight: 500;
   line-height: 19px;
 }
+.desc {
+  width: 609px;
+  height: 224px;
+  padding: 16px;
+  border-radius: 24px;
+  border: 1px solid var(--borderColor);
+  gap: 8px;
+}
+.priceCont {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+}
+.priceCont span {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  padding: 5px 15px;
+  border: 1px solid #ebebeb;
+  border-radius: 24px;
+  line-height: 40px;
+}
+.priceInp {
+  background-color: transparent;
+}
+.fincont{
+  display: flex;
+  justify-content: right;
+}
+.final {
+  padding: 12px 24px 12px 24px;
+  border-radius: 40px;
+  gap: 8px;
+  background-color: var(--buttonColor);
+  color: var(--white);
+}
