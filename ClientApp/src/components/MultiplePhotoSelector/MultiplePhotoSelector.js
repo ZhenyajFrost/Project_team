@@ -16,11 +16,10 @@ function MultiplePhotoSelector({ photos, setPhotos }) {
     <PhotoItem
       photo={v}
       order={(e) => {
-        console.log(photos.length, e);
+
         if(e===0){
           return;
-        }
-        
+        }        
         if(i+e>=10){
           e=9
         }
@@ -44,20 +43,6 @@ function MultiplePhotoSelector({ photos, setPhotos }) {
           }
         }
         setPhotos(cop)
-        // if (e > 0)
-        //   setPhotos([
-        //     ...disp.slice(0, i),
-        //     ...disp.slice(Math.min(i + 1, 9), Math.min(i + e +1, 9)),
-        //     v,
-        //     ...disp.slice(Math.min(i + e +1, 9)),
-        //   ]);
-        // else
-        //   setPhotos([
-        //     ...disp.slice(0, Math.max(i+e, 0)),
-        //     v,
-        //     ...disp.slice(Math.max(i+e, 0), i),
-        //     ...disp.slice(i + 1),
-        //   ]);
       }}
       setPhoto={(p) =>
         setPhotos([...disp.slice(0, i), p, ...disp.slice(i + 1)])
