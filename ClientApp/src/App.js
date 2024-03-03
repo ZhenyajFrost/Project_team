@@ -25,7 +25,10 @@ export default class App extends Component {
           <RestrictedPath
             path="/create"
             component={CreateLot}
-            fallback={Home}
+            fallback={{
+              pathname: "",
+              search: "?modal=login",
+            }}
             condition={user && user.login}
           />
           {/* <Route exact path='/create' component={CreateLot} /> */}
