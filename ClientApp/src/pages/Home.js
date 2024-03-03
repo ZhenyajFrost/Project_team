@@ -23,6 +23,7 @@ export const Home = () => {
         page: 1,
         pageSize: 6
     });
+    
 
 
     const [sortedLots, setSortedLots] = useState(lots);
@@ -75,6 +76,8 @@ export const Home = () => {
         setPagination({page: 1, limit: 10});
         //setLots([]);
     };
+
+
 
     return (
         <div style={{display: "flex", flexDirection: "column", gap: "8vw"}}>

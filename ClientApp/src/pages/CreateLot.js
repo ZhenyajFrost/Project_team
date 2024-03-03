@@ -11,7 +11,7 @@ import useCreateLot from "../API/Lots/useCreateLot";
 export default function CreateLot() {
   const [lot, setLot] = useState({
     title: "",
-    description: "",
+    ShortDescription: "",
     endOn: new Date(),
     minimalBid: 0,
     sellOn: Infinity,
@@ -20,7 +20,7 @@ export default function CreateLot() {
   });
   const [user, setUser] = useState({ firstName: "", lastName: "", email: "" });
   const create = useCreateLot();
-  
+
   useEffect(() => {
     const svd = getLocalStorage("user");
     if (svd) setUser(svd);
@@ -31,18 +31,25 @@ export default function CreateLot() {
   };
   const onSubmit = (e) => {
     e.preventDefault();
+    if (lot.city) {
+      lot.region = lot.region.label;
+      lot.city = lot.city.label;
+    }
+    lot.userId = user.id;
+    lot.timeTillEnd = lot.endOn;
+    lot.endOn = undefined;
     console.log(lot);
-    create.createLot(lot)
-    setLot({
-      title: "",
-      description: "",
-      endOn: new Date(),
-      minimalBid: 0,
-      sellOn: Infinity,
-      mainImage: "",
-      images: [],
-      category: "",
-    });
+    create.createLot(lot);
+    // setLot({
+    //   title: "",
+    //   ShortDescription: "",
+    //   endOn: new Date(),
+    //   minimalBid: 0,
+    //   sellOn: Infinity,
+    //   mainImage: "",
+    //   images: [],
+    //   category: "",
+    // });
   };
   return (
     <div>
@@ -84,13 +91,13 @@ export default function CreateLot() {
           <h2>Деталі про товар</h2>
           <p>Опис</p>
           <textarea
-            name="description"
+            name="ShortDescription"
             onInput={onInput}
-            value={lot.description}
+            value={lot.ShortDescription}
             placeholder="Детальніше опишіть товар"
             className={css.desc}
           />
-          {lot.description.length < 40 ? (
+          {lot.ShortDescription.length < 40 ? (
             <p>Введіть щонайменше 40 символів</p>
           ) : null}
 
