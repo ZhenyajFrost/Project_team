@@ -4,13 +4,9 @@ import Button from '../UI/Button/Button'
 import PostService from '../../API/PostService';
 import { useFetching } from '../../hooks/useFetching';
 
-export default function FilterCategory({ userId, pagination, categories, setLots }) {
+export default function FilterCategory({ categories, onChange}) {
     const [quantityOfLots, setQuantityOfLots] = useState(32);
     const [activeCat, setActiveCat] = useState('all');
-
-    // useEffect(()=>{
-    //     setLots(activeLots);
-    // }, [activeLots]);
 
     const handleCatClick = async (e) => {
         setActiveCat(e.target.value);
@@ -20,8 +16,13 @@ export default function FilterCategory({ userId, pagination, categories, setLots
         // const data = await response.json();
         // setActiveLots(data);
 
-        await setLots(userId, pagination.page, pagination.pageSize);
     };
+
+    useEffect(() => {
+        console.log("Filters changed in FiltersSearch")
+
+        onChange({category: activeCat});
+    }, [activeCat]);
 
     return (
         <div className={css.container}>

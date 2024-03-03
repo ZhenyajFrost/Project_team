@@ -1,0 +1,38 @@
+.container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1vw;
+}
+
+.containerB{
+    display: flex;
+    flex-direction: column;
+    gap: 2vw;
+}
+
+div.image{
+    display: flex;
+    border: 1px solid var(--borderColor);
+    background-color: var(--f9);
+    color: var(--black);
+    font-size: 14px;
+    justify-content: center;
+    align-items: center;
+}
+
+.image{
+    width: 84px;
+    height: 84px;
+    border-radius: 40px;
+}
+
+img.image{
+    position: relative;
+}
+
+.delete{
+    color: black;
+    background-color: var(--f9);
+    border: 1px solid var(--borderColor);
+}

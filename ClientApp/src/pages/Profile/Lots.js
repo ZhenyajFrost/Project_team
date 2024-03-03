@@ -13,7 +13,7 @@ function Lots() {
     const user = getLocalStorage('user');
     const history = useHistory();
     const [activeTab, setActiveTab] = useState('Active');
-    const [filter, setFilter] = useState({});
+    const [filters, setFilters] = useState({});
     const categories = [{ label: 'Антикваріат', value: 'antic', quantity: 10 },
     { label: 'Дім', value: 'home', quantity: 12 }]; //WRITE LOGIC
 
@@ -28,19 +28,22 @@ function Lots() {
     };
 
     useEffect(async() => { 
-        await getLots(user.id, pagination.page, pagination.pageSize, activeTab);
+        await getLots(user.id, pagination.page, pagination.pageSize, activeTab, filters);
     }, [activeTab])
 
     useEffect(async() => { 
-        await getLots(user.id, pagination.page, pagination.pageSize, activeTab, filter);
-    }, [filter]) //REWRITE TO BUTTON AND DESIGNERS SUCK
+        await getLots(user.id, pagination.page, pagination.pageSize, activeTab, filters);
+    }, [filters]) //REWRITE TO BUTTON AND DESIGNERS SUCK
 
     const handleAddButton = () => {
         history.push('/create');
     }
 
-    const onFilterChange = (e) => {
-        setFilter(e);
+    const onFilterChange = (filterChanges) => {
+        setFilters(prev => ({
+            ...prev,
+            ...filterChanges
+        }));
     };
 
     return (
@@ -75,10 +78,10 @@ function Lots() {
                 </Button>
             </div>
 
-            <FiltersWSearch onChange={onFilterChange} initial={filter} />
+            <FiltersWSearch onChange={onFilterChange} initial={filters} />
 
             <div className={css.body}>
-                <FilterCategory categories={categories} pagination={pagination} userId={user.id} setLots={getLots} />
+                <FilterCategory onChange={onFilterChange} categories={categories}/>
 
                 <div className={css.lots}>
                     {activeTab === 'Active' ? <LotContainer lots={lots} display="grid-3col" lotStyle="small" /> : <></>}

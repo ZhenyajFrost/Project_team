@@ -43,7 +43,7 @@ function FiltersWSearch({ onChange, initial }) {
     //перевірка дати
     //хз як з датою працюватимемо (об'єкт, стрінг чи щось тому подібне), тож залишу це пустим
 
-    console.log("fiuuuuuck")
+    console.log("Filters changed in FiltersWSearch")
     onChange(filters)
   }, [filters]);
 
