@@ -5,30 +5,34 @@ import InputSearch from '../UI/Input/InputSearch'
 
 function FiltersWSearch({ onChange, initial }) {
   console.log(initial)
-  const [params, setParams] = useState({
+  const [filters, setFilters] = useState({
+    searchQuery: "",
     minPrice: 1,
     maxPrice: Infinity,
     endTill: new Date(new Date().getDate() + 1),
     ...initial
   });
-  console.log("d" + params)
-  useEffect(() => {
 
+  console.log("d" + filters)
+
+  useEffect(() => {
     //перевірка ціни
-    const minPrice = Number(params.minPrice);
-    const maxPrice = Number(params.maxPrice);
+    const minPrice = Number(filters.minPrice);
+    const maxPrice = Number(filters.maxPrice);
     if (isNaN(minPrice) || isNaN(maxPrice)) {
       Notiflix.Notify.failure(
         "Будь ласка, не вийобуйтесь і оберіть нормальну ціну."
       );
       return;
     }
+
     if (minPrice < 0) {
-      setParams({ ...params, minPrice: minPrice * -1 });
+      setFilters(prev => ({ ...prev, minPrice: (minPrice * -1)}));
       return;
     }
+
     if (maxPrice < 0) {
-      setParams({ ...params, maxPrice: maxPrice * -1 });
+      setFilters(prev => ({ ...prev, maxPrice: maxPrice * -1 }));
       return;
     }
     if (maxPrice < minPrice) {
@@ -40,14 +44,22 @@ function FiltersWSearch({ onChange, initial }) {
     //хз як з датою працюватимемо (об'єкт, стрінг чи щось тому подібне), тож залишу це пустим
 
     console.log("fiuuuuuck")
-    onChange(params)
-  }, [params]);
+    onChange(filters)
+  }, [filters]);
+
+  const onSearch = (value) => {
+    setFilters(prev => ({
+      ...prev,
+      searchQuery: value
+    }));
+  }
+  
 
   return (
     <div className={css.filterContainer}>
       <div className={css.filterItem}>
         Пошук
-        <InputSearch placeholder="Введіть будь-яку позицію" nobutton />
+        <InputSearch onSearch={onSearch} value={filters.searchQuery} placeholder="Введіть будь-яку позицію" nobutton />
       </div>
       <div className={css.filterItem}>
         Ціна
@@ -56,9 +68,9 @@ function FiltersWSearch({ onChange, initial }) {
             Від:
             <input
               type="number"
-              value={params.minPrice}
+              value={filters.minPrice}
               onChange={(e) => {
-                setParams({ ...params, minPrice: e.target.value });
+                setFilters({ ...filters, minPrice: e.target.value });
               }}
             />
           </div>
@@ -67,10 +79,10 @@ function FiltersWSearch({ onChange, initial }) {
             До:
             <input
               type="number"
-              value={params.maxPrice}
+              value={filters.maxPrice}
 
               onChange={(e) => {
-                setParams({ ...params, maxPrice: e.target.value });
+                setFilters({ ...filters, maxPrice: e.target.value });
               }}
             />
           </div>
@@ -81,7 +93,7 @@ function FiltersWSearch({ onChange, initial }) {
         <select
           className={css.inputEl}
           onChange={(e) => {
-            setParams({ ...params, endTill: e.target.value });
+            setFilters({ ...filters, endTill: e.target.value });
           }}
         >
           <option>Всі оголошення</option>

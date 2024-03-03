@@ -14,14 +14,14 @@ import { setLocalStorage, getLocalStorage } from "../utils/localStorage.js"
 import useGetLots from "../API/Lots/useGetLots.js";
 
 export const Home = () => {
-
     //const [lots, setLots] = useState([]);
     //const [totalPages, setTotalPages] = useState();
     //const [pagesToDisplay, setPagesToDisplay] = useState();
+    
     const [getLots, lots, isLoading, error] = useGetLots();
     const [pagination, setPagination] = useState({
         page: 1,
-        limit: 10
+        pageSize: 6
     });
 
 
@@ -34,7 +34,7 @@ export const Home = () => {
     }, [lots]);
     
     useEffect(async () => {
-        await getLots();
+        await getLots(pagination.page, pagination.pageSize);
         const exst = getLocalStorage("categories");
         const back = [{ title: "Антикваріат", imgId: "antic" }, { title: "Дім", imgId: "house" }, { title: "Електроніка", imgId: "electronic" }, { title: "Спорт", imgId: "sport" }, { title: "Мода", imgId: "moda" }, { title: "Авто", imgId: "auto" }, { title: "Дитячий", imgId: "kids" }, { title: "Інші", imgId: "other" }]
         if (back !== exst) {

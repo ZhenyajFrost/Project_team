@@ -81,7 +81,7 @@ function NavMenu() {
                 (<Dropdown.Menu align="end" >
                   <Dropdown.Item onClick={() => history.push('/profile')}>Мої Вподобання</Dropdown.Item>
                   <Dropdown.Item onClick={() => history.push('/profile')}>Мої ставки</Dropdown.Item>
-                  <Dropdown.Item onClick={() => history.push('/profile')}>Оголошення</Dropdown.Item>
+                  <Dropdown.Item onClick={() => history.push('/profile/lots')}>Оголошення</Dropdown.Item>
                   <Dropdown.Item onClick={() => history.push('/profile')}>Налаштування</Dropdown.Item>
                   <Dropdown.Item onClick={() => { onExit(); history.push('/'); }} style={{color: "red"}}>Exit</Dropdown.Item>
                 </Dropdown.Menu>) :

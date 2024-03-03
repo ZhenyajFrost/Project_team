@@ -19,6 +19,9 @@ import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
 import ImageUpload from '../../components/ImageUpload/ImageUpload';
 import useUpdateUser from '../../API/User/useUpdateUser';
 import useUpdatePassword from '../../API/User/useUpdatePassword';
+import useUpdateEmail from '../../API/User/useUpdateEmail';
+import useToggleNotification from '../../API/User/useToggleNotification';
+import { State, City } from 'country-state-city';
 
 const CustomAccordion = styled(Accordion)({
     '&&': {
@@ -60,8 +63,12 @@ const CustomAccordionDetails = styled(AccordionDetails)({
 function Settings() {
     const user = getLocalStorage('user');
     const token = getLocalStorage('token');
+
     const [updateUser, isLoading, error] = useUpdateUser();
     const [updatePassword, isLoadingPass, errorPass] = useUpdatePassword();
+    const [updateEmail, isLoadingEmail, errorEmail] = useUpdateEmail();
+    const [toggleNotification, isLoadingNotifi, errorNotifi] = useToggleNotification();
+    
     const [formData, setFormData] = useState({
         lastName: '',
         firstName: '',
@@ -79,6 +86,11 @@ function Settings() {
         },
     });
 
+    const { validationErrors, validateForm } = useRegistrationValidation();
+
+    const [selectedRegion, setSelectedRegion] = useState(''); // For Select component
+    const [selectedCity, setSelectedCity] = useState(user.city); // For Select component
+
     useEffect(() => {
         console.log(`user: ${JSON.stringify(user)}`);
         console.log(user);
@@ -91,23 +103,29 @@ function Settings() {
                     ...(user.notifications || {}),
                 },
             }));
-            setSelectedRegion(user.region);
-            setSelectedCity(user.city);
+
+            State.getStatesOfCountry('UA').map((state) => {
+                if (state.name === user.region) {
+                    setSelectedRegion({
+                        value: state.isoCode,
+                        label: state.name,
+                    });
+                }
+            });
+
+            setSelectedCity({
+                value: user.city,
+                label: user.city
+            });
 
         }
     }, []);
 
-
-    useEffect(() => {
-        console.log(`formData: ${JSON.stringify(formData)}`);
-        console.log(formData);
-        console.log(selectedRegion)
-    }, [formData]);
-
-    const { validationErrors, validateForm } = useRegistrationValidation();
-
-    const [selectedRegion, setSelectedRegion] = useState(user.region); // For Select component
-    const [selectedCity, setSelectedCity] = useState(user.city); // For Select component
+    // useEffect(() => {
+    //     console.log(`formData: ${JSON.stringify(formData)}`);
+    //     console.log(`selectedRegion: ${JSON.stringify(selectedRegion)}`)
+    //     console.log(`selectedCity: ${JSON.stringify(selectedCity)}`)
+    // }, [formData, selectedRegion, selectedCity]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -161,11 +179,22 @@ function Settings() {
 
         console.log(dataToUpdate);
 
-        await updateUser(user.id, dataToUpdate); //TOKEN IN THE FUTURE
+        await updateUser(token, dataToUpdate); //TOKEN IN THE FUTURE
         console.log(error);
 
-        setSelectedRegion(dataToUpdate.region);
-        setSelectedCity(dataToUpdate.city);
+        State.getStatesOfCountry('UA').map((state) => {
+            if (state.name === dataToUpdate.region) {
+                setSelectedRegion({
+                    value: state.isoCode,
+                    label: state.name,
+                });
+            }
+        });
+
+        setSelectedCity({
+            value: dataToUpdate.city,
+            label: dataToUpdate.city
+        });
     };
 
     const handlePasswordSubmit = async (e) => {
@@ -199,14 +228,18 @@ function Settings() {
         }
 
         console.log(dataToUpdate);
+        console.log("token " + token);
 
-        await updateUser(user.id, dataToUpdate);
+        await updateEmail(token, dataToUpdate);
         console.log(error);
     }
 
-    const handleNotificationsChanged = (e) => {
+    const handleNotificationsChanged = async (e) => {
         const { name, checked } = e.target;
         console.log(`name: ${name}, checked: ${checked}`);
+
+        await toggleNotification(user.id, name); //TOKEN
+
         setFormData(prevFormData => ({
             ...prevFormData,
             notifications: {
@@ -309,7 +342,7 @@ function Settings() {
                     aria-controls="password-content"
                     id="password-header"
                 >
-                    {isLoadingPass ? "Loading..." :  "Змінити пароль"}
+                    {isLoadingPass ? "Loading..." : "Змінити пароль"}
                 </CustomAccordionSummary>
                 <CustomAccordionDetails>
                     <form onSubmit={handlePasswordSubmit}>
@@ -353,7 +386,7 @@ function Settings() {
                     aria-controls="email-content"
                     id="email-header"
                 >
-                    Змінити пошту
+                    {isLoadingEmail ? 'Loading...' : 'Змінити пошту'}
                 </CustomAccordionSummary>
                 <CustomAccordionDetails>
                     <form onSubmit={handleEmailSubmit}>
@@ -394,7 +427,7 @@ function Settings() {
                     aria-controls="notifications-content"
                     id="notifications-header"
                 >
-                    Сповіщення
+                    {isLoadingNotifi ? "Loading..." : "Сповіщення"}
                 </CustomAccordionSummary>
                 <CustomAccordionDetails>
                     <div className={css.container}>

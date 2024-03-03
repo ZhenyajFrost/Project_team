@@ -14,16 +14,20 @@ import Button from "../Button/Button";
 //     );
 // });
 
-const InputSearch = ({ onSearch, placeholder="", value="", nobutton }) => {
+const InputSearch = ({ onSearch, placeholder = "", value = "", nobutton }) => {
   const [inputValue, setInputValue] = useState(value);
 
   const handleInputChange = (e) => {
-    setInputValue(e.target.value);
+    const newValue = e.target.value;
+    setInputValue(newValue);
+    if (nobutton && onSearch) {
+      onSearch(newValue); // Directly call onSearch when `nobutton` is true
+    }
   };
 
   const handleSearchClick = () => {
-    if (onSearch) {
-      onSearch(inputValue);
+    if (onSearch && !nobutton) {
+      onSearch(inputValue); // Only invoke onSearch on button click when `nobutton` is false
     }
   };
 

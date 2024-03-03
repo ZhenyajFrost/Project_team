@@ -7,10 +7,10 @@ const useUpdateUser = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const updateUser = async (userId, fieldsToUpdate) => {
+    const updateUser = async (token, fieldsToUpdate) => {
         setLoading(true);
         try {
-            const response = await axios.post(`${EDIT_USER_ENDPOINT}/update-user`, {userId, fieldsToUpdate});
+            const response = await axios.post(`${EDIT_USER_ENDPOINT}/update-user`, {token, fieldsToUpdate});
             console.log('User successfully updated: ', response.data);
             setLocalStorage('user', {
                 ...getLocalStorage('user'),

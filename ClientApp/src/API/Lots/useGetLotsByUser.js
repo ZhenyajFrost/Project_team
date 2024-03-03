@@ -2,21 +2,24 @@ import React, { useState } from "react";
 import axios from 'axios';
 import { LOTS_ENDPOINT } from '../apiConstant';
 
-const useGetLots = () => {
+const useGetLotsByUser = () => {
     const [isLoading, setLoading] = useState(false);
 
     const [error, setError] = useState(null);
     const [lots, setLots] = useState([]);
     const [totalCount, setTotalCount] = useState();
 
-    const getLots = async (page, pageSize) => { //FILTER
+    const getLots = async (userId, page, pageSize, activeTab, filters) => { //FILTER
         setLoading(true);
         try {
-            const response = await axios.get(`${LOTS_ENDPOINT}/getAllLots`, {
+            const response = await axios.get(`${LOTS_ENDPOINT}/getLotsByUser`, {
                 params:
                 {
+                    userId: userId,
                     page: page,
-                    pageSize: pageSize
+                    pageSize: pageSize,
+                    activeTab: activeTab,
+                    filters: filters
                 }
             }); //FILTER IS NEEDED
             console.log('Lots successfully retrieved: ', response.data);
@@ -33,4 +36,4 @@ const useGetLots = () => {
     return [getLots, lots, isLoading, error];
 };
 
-export default useGetLots;
+export default useGetLotsByUser;
