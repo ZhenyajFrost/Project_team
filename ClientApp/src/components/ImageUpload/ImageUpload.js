@@ -54,7 +54,9 @@ const ImageUpload = () => {
       }
 
       const data = await response.json();
-      console.log(data.url);
+
+      console.log(data.url); //LOGIC TO SERVER
+      
       alert("Image uploaded successfully.");
     } catch (error) {
       console.error(error);

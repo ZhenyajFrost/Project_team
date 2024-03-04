@@ -1,8 +1,0 @@
-{
-"SpaProxyServer": {
-"ServerUrl": "https://localhost:44424",
-"LaunchCommand": "npm start",
-"WorkingDirectory": "C:\\Users\\zheny\\OneDrive\\Документы\\GitHub\\Project_team\\Project_team2\\ClientApp\\",
-"MaxTimeoutInSeconds": "120"
-}
-}
