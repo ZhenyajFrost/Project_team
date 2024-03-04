@@ -35,5 +35,6 @@ public class UserProfile
         LastLogin = reader["LastLogin"].ToString();
         RegistrationTime = reader["RegistrationTime"].ToString();
         IsAdmin = Convert.ToBoolean(reader["IsAdmin"]);
+        Avatar = reader["Avatar"].ToString();
     }
 }

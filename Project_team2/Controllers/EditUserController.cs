@@ -276,7 +276,43 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+        [HttpPost("delete-user")]
+        public IActionResult DeleteUser([FromBody] DeleteUserRequest request)
+        {
+            var userId = ExtractUserIdFromToken(request.Token);
+            try
+            {
+                // Проверяем наличие идентификатора пользователя в запросе
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return BadRequest(new { message = "User Id is required" });
+                }
 
+                // Открываем соединение с базой данных
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    // Строим запрос на удаление пользователя
+                    string query = $"DELETE FROM Users WHERE Id = '{userId}'";
+
+                    // Выполняем запрос на удаление
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+
+                    // Возвращаем успешный результат
+                    return Ok(new { message = "User deleted successfully" });
+                }
+            }
+            catch (Exception ex)
+            {
+                // В случае ошибки возвращаем статус 500 и сообщение об ошибке
+                Console.WriteLine($"Error deleting user: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
+            }
+        }
         [HttpPost("update-email")]
         public IActionResult UpdateEmail([FromBody] UpdateEmailModel model)
         {
@@ -346,7 +382,9 @@ namespace Project2.Controllers
         public Dictionary<string, string> FieldsToUpdate { get; set; }
 
     }
-
+    public class DeleteUserRequest { 
+        public string Token { get; set; }
+    }
     public class UpdateEmailModel
     {
         public string Token { get; set; }
