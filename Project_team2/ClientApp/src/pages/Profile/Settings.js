@@ -15,6 +15,8 @@ import Input from '../../components/UI/Input/Input';
 import Button from '../../components/UI/Button/Button';
 import PhoneInput from '../../components/UI/PhoneInput/PhoneInput';
 import Checkbox from '../../components/UI/Checkbox/Checkbox';
+import ModalWindow from "../../components/ModalWindow/ModalWindow.js";
+
 import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
 import ImageUpload from '../../components/ImageUpload/ImageUpload';
 import useUpdateUser from '../../API/User/useUpdateUser';
@@ -24,6 +26,7 @@ import useToggleNotification from '../../API/User/useToggleNotification';
 import { State, City } from 'country-state-city';
 import useDeleteUser from '../../API/User/useDeleteUser';
 import { useHistory } from 'react-router-dom/cjs/react-router-dom';
+import EmailConfirm from '../../components/EmailConfirm/EmailConfirm.js';
 
 const CustomAccordion = styled(Accordion)({
     '&&': {
@@ -67,6 +70,8 @@ function Settings() {
     const token = getLocalStorage('token');
 
     const history = useHistory();
+    const [modalEmailVisible, setModalEmailVisible] = useState(false)
+    const [modalDeleteVisible, setModalDeleteVisible] = useState(false)
 
     const [updateUser, isLoading, error] = useUpdateUser();
     const [deleteUser, isLoadingDel, errorDel] = useDeleteUser();
@@ -220,10 +225,14 @@ function Settings() {
         });
     }
 
-    const handleEmailSubmit = async (e) => {
+    const handleModalEmail = async (e) => {
         e.preventDefault();
+        setModalEmailVisible(true);
+    }
+
+    const onEmailConfirmed = async () => {
         var dataToUpdate = {
-            //password: formData.oldPassword,
+            password: formData.oldPassword,
             currentEmail: user.email,
             newEmail: formData.email
         }
@@ -232,7 +241,11 @@ function Settings() {
         console.log("token " + token);
 
         await updateEmail(token, dataToUpdate);
-        console.log(error);
+        
+        setFormData((prev) => ({
+            ...prev,
+            oldPassword: '' 
+        }))
     }
 
     const handleNotificationsChanged = async (e) => {
@@ -390,7 +403,7 @@ function Settings() {
                     {isLoadingEmail ? 'Loading...' : 'Змінити пошту'}
                 </CustomAccordionSummary>
                 <CustomAccordionDetails>
-                    <form onSubmit={handleEmailSubmit}>
+                    <form onSubmit={handleModalEmail}>
                         <div className={css.container}>
                             <div className={css.grid}>
                                 <div>
@@ -495,11 +508,28 @@ function Settings() {
                 </CustomAccordionSummary>
                 <CustomAccordionDetails>
                     <div className={css.container}>
-                        <Button onClick={handleDeleteProfile} className={css.delete}>Видалити профіль</Button>
-
+                        <Button onClick={() => setModalDeleteVisible(true)} className={css.delete}>Видалити профіль</Button>
                     </div>
                 </CustomAccordionDetails>
             </CustomAccordion>
+
+            <ModalWindow visible={modalEmailVisible} setVisible={setModalEmailVisible}>
+                <EmailConfirm
+                    email={formData.email}
+                    setModalVisible={setModalEmailVisible}
+                    onEmailConfirmed={onEmailConfirmed}
+                    modalVisible={modalEmailVisible}
+                />
+            </ModalWindow>
+
+            <ModalWindow visible={modalDeleteVisible} setVisible={setModalDeleteVisible}>
+                <EmailConfirm
+                    email={user.email}
+                    setModalVisible={setModalDeleteVisible}
+                    onEmailConfirmed={handleDeleteProfile}
+                    modalVisible={modalDeleteVisible}
+                />
+            </ModalWindow>
         </div>
     );
 

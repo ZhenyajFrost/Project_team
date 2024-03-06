@@ -11,8 +11,13 @@ const useUpdateEmail = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post(`${EDIT_USER_ENDPOINT}/update-email`, {token, currentEmail: fieldsToUpdate.currentEmail, newEmail: fieldsToUpdate.newEmail} );
+            const response = await axios.post(`${EDIT_USER_ENDPOINT}/update-email`, {token, password: fieldsToUpdate.password, currentEmail: fieldsToUpdate.currentEmail, newEmail: fieldsToUpdate.newEmail} );
             console.log('Email successfully updated: ', response.data);
+            
+            setLocalStorage('user', {
+                ...getLocalStorage('user'),
+                email: fieldsToUpdate.newEmail
+            })
         } catch (error) {
             console.error('Updating email failed: ', error);
             setError(error);
