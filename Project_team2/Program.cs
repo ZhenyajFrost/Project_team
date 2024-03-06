@@ -1,3 +1,9 @@
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Project_team2;
+using System;
+using System.Threading.Tasks;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -10,7 +16,27 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<ILoggerFactory, LoggerFactory>();
 
+// Используем Config для предоставления параметров конструктора LotViewsEmailService
+builder.Services.AddHostedService<LotViewsEmailService>(sp =>
+    new LotViewsEmailService(
+        Config.MySqlConnection,
+        Config.SmtpServer,
+        Config.SmtpPort,
+        Config.SmtpUsername,
+        Config.SmtpPassword
+    )
+);
+builder.Services.AddHostedService<LotExpirationReminderService>(sp =>
+    new LotExpirationReminderService(
+        Config.MySqlConnection,
+        Config.SmtpServer,
+        Config.SmtpPort,
+        Config.SmtpUsername,
+        Config.SmtpPassword
+    )
+);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
