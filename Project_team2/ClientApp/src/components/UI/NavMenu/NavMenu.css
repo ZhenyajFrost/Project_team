@@ -1,4 +1,9 @@
-﻿a.navbar-brand {
+﻿.navbar > .container{
+  max-width:calc(100vw - 200px);
+  margin: auto;
+}
+
+a.navbar-brand {
   display: flex;
   white-space: normal;
   text-align: center;
