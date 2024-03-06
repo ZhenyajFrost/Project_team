@@ -66,7 +66,7 @@ export default function CreateLot() {
           />
 
           <p>Вкажіть Категорію</p>
-          <CategorySelector onInput={onInput} />
+          <CategorySelector onCatChange={(c)=>onInput({name:"category", value:c})} selectedCat={lot.category} />
 
           <p>Тривалість торгів</p>
           <span>

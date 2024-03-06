@@ -1,0 +1,22 @@
+.mainCont {
+  width: 408px;
+  padding: 18px 24px 18px 24px;
+  border-radius: 24px;
+  justify-content: space-between;
+  display: flex;
+  background-color: #e7eef2;
+
+  align-items: center;
+}
+.catCont {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.catCont p {
+  margin: 0;
+}
+.catCont svg {
+  background-color: var(--white);
+  border-radius: 24px;
+}
