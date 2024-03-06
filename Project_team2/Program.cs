@@ -37,6 +37,12 @@ builder.Services.AddHostedService<LotExpirationReminderService>(sp =>
         Config.SmtpPassword
     )
 );
+builder.Services.AddHostedService<LotSchedulingService>(sp =>
+    new LotSchedulingService(
+        Config.MySqlConnection,
+        sp.GetRequiredService<ILogger<LotSchedulingService>>()
+    )
+);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
