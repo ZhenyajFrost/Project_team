@@ -8,8 +8,6 @@ import "./NavMenu.css";
 import logo from "./images/logo.svg";
 import catalog from "./images/catalog.svg";
 import profile from "./images/profile.svg";
-import ukraineFlag from "./images/ukraineFlag.svg";
-import arrow from "./images/arrow.svg";
 import ModalWindow from "../../ModalWindow/ModalWindow";
 import Login from "../../Login/Login.js";
 import LoginForgotPassword from "../../Login/LoginForgotPassword.js";
@@ -30,30 +28,34 @@ function NavMenu() {
 
   const [emailSent, setEmailSent] = useState(false);
 
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState(null);
+  const [isLoggined, setIsLoggined] = useState(null);
+  const [token, setToken] = useState(null);
 
-  const [isLoggined, setIsLoggined] = useState(false);
-  const [userToken, setUserToken] = useState("");
   useEffect(() => {
-    setIsLoggined(getLocalStorage("isLoggined"));
-    setUserToken(getLocalStorage("token"));
-    setUser(getLocalStorage("user"));
+    setToken(getLocalStorage('token'));
+    setUser(getLocalStorage('user'));
+    setIsLoggined(getLocalStorage('isLoggined'));
 
     const modal = new URLSearchParams(window.location.search).get("modal");
+
     if (modal) {
       if (modal === "login") {
-        console.log(modal);
-
         setModalLogVisible(true);
-      }
-      if (modal === "register") {
+      } else if (modal === "register") {
         setModalRegVisible(true);
       }
     }
+
     console.log("isLoggined: " + isLoggined);
     console.log("user: " + user);
-    console.log("token: " + userToken);
+    console.log("token: " + token);
   }, []);
+
+  useEffect(() => {
+    setToken(getLocalStorage("token"));
+    setUser(getLocalStorage("user"));
+  }, [isLoggined]);
 
   const onExit = () => {
     clearLocalStorage(
@@ -67,13 +69,15 @@ function NavMenu() {
         user: {},
         token: "",
       }
+      
     );
 
     setIsLoggined(false);
     setUser({});
-    setUserToken("");
+    setToken("");
 
     history.push("/");
+    window.location.reload();
   };
 
   return (
@@ -101,11 +105,23 @@ function NavMenu() {
 
               {isLoggined ?
                 (<Dropdown.Menu align="end" >
+                  <Dropdown.Item>
+                    {user && <div className="nav-profile">
+                      {user.avatar && <img src={user.avatar} class="avatar" />}
+                      <div className="info">
+                        <span className="login">{`${user.login}`}</span>
+                        <span className="email">{`${user.email}`}</span>
+                      </div>
+                    </div>}
+
+                  </Dropdown.Item>
                   <Dropdown.Item onClick={() => history.push('/profile')}>Мої Вподобання</Dropdown.Item>
                   <Dropdown.Item onClick={() => history.push('/profile')}>Мої ставки</Dropdown.Item>
+                  <hr />
                   <Dropdown.Item onClick={() => history.push('/profile/lots')}>Оголошення</Dropdown.Item>
                   <Dropdown.Item onClick={() => history.push('/profile')}>Налаштування</Dropdown.Item>
-                  <Dropdown.Item onClick={() => { onExit(); history.push('/'); }} style={{color: "red"}}>Exit</Dropdown.Item>
+                  <hr />
+                  <Dropdown.Item onClick={() => { onExit(); history.push('/'); }} style={{ color: "red" }}>Exit</Dropdown.Item>
                 </Dropdown.Menu>) :
                 (<Dropdown.Menu align="end" >
                   <Dropdown.Item onClick={() => setModalLogVisible(true)}>Login</Dropdown.Item>

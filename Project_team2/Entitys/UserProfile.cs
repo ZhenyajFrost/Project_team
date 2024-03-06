@@ -16,9 +16,7 @@ public class UserProfile
     public string LastLogin { get; set; }
     public string RegistrationTime { get; set; }
     public bool IsAdmin { get; set; }
-    public bool NotificationsAdvices { get; set; }
-    public bool NotificationsHelp { get; set; }
-    public bool NotificationsRemind { get; set; }
+
 
     public UserProfile(MySqlDataReader reader)
     {

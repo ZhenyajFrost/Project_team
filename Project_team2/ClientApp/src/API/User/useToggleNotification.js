@@ -7,13 +7,13 @@ const useToggleNotification = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const toggleNotification = async (userId, notification) => { //TOKEN
+    const toggleNotification = async (token, notification) => { //TOKEN
         const postUrl = `${EDIT_USER_ENDPOINT}/toggleNotifications${notification.charAt(0).toUpperCase() + notification.slice(1)}`;
         setLoading(true);
 
         try {
             const response = await axios.post(postUrl, {
-                userId: userId
+                token
             });
             console.log(`Notification: ${notification} successfully updated: ${response.data}`);
         } catch (error) {

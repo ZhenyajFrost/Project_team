@@ -12,9 +12,13 @@ public class Lot
     public bool Approved { get; set; }
     public string[] ImageURLs { get; set; }
     public string UserId { get; set; }
-    public decimal CurrentBid { get; set; } // Новое свойство для текущей ставки
-    public string Region { get; set; } // Новое свойство для региона
-    public string City { get; set; }   // Новое свойство для города
+    public decimal CurrentBid { get; set; }
+    public string Region { get; set; }
+    public string City { get; set; }
+    public bool IsWaitingPayment { get; set; } // новое свойство
+    public bool IsNew { get; set; } // новое свойство
+    public decimal MinPrice { get; set; } // новое свойство
+    public decimal MinStepPrice { get; set; } // новое свойство
 
     public Lot(MySqlDataReader reader)
     {
@@ -29,10 +33,15 @@ public class Lot
         string imageURLsString = reader["ImageURLs"].ToString();
         ImageURLs = imageURLsString.Split(',');
         UserId = reader["UserId"].ToString();
-        CurrentBid = Convert.ToDecimal(reader["CurrentBid"]); // Извлекаем текущую ставку из результата запроса
+        CurrentBid = Convert.ToDecimal(reader["CurrentBid"]);
 
-        // Добавление извлечения региона и города из результата запроса
         Region = reader["Region"].ToString();
         City = reader["City"].ToString();
+
+        // Извлечение новых полей из результата запроса и установка соответствующих свойств
+        IsWaitingPayment = Convert.ToBoolean(reader["isWaitingPayment"]);
+        IsNew = Convert.ToBoolean(reader["isNew"]);
+        MinPrice = Convert.ToDecimal(reader["minPrice"]);
+        MinStepPrice = Convert.ToDecimal(reader["minStepPrice"]);
     }
 }

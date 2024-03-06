@@ -56,10 +56,12 @@ namespace Project2.Controllers
                         {
                             var storedHash = reader["password"].ToString();
                             var userId = reader["Id"].ToString();
-                           
+                            var isAdmin = Convert.ToBoolean(reader["IsAdmin"]);
 
                             var userProfile = new UserProfile(reader);
-                            
+                            notificationsAdvices = Convert.ToBoolean(reader["NotificationsAdvices"]);
+                            notificationsHelp = Convert.ToBoolean(reader["NotificationsHelp"]);
+                            notificationsRemind = Convert.ToBoolean(reader["NotificationsRemind"]);
                             reader.Close();
 
                             if (BCrypt.Net.BCrypt.Verify(model.Password, storedHash))
@@ -84,8 +86,13 @@ namespace Project2.Controllers
                                     message = "Authentication successful",
                                     user = userProfile,
                                     token = GenerateJwtToken(userId),
-                                    
                                    
+                                    notifications = new
+                                    {
+                                        advices = notificationsAdvices,
+                                        help = notificationsHelp,
+                                        remind = notificationsRemind
+                                    }
                                 };
 
                                 await NotifyTelegramChatLogin(userProfile);

@@ -37,7 +37,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("createLot")]
-        public IActionResult CreateLot([FromBody] LotModel model, string region, string city)
+        public IActionResult CreateLot([FromBody] LotModel model)
         {
             try
             {
@@ -45,8 +45,8 @@ namespace Project2.Controllers
                 {
                     connection.Open();
 
-                    string query = "INSERT INTO Lots (title, price, shortDescription, category, timeTillEnd, imageURLs, UserId, region, city) " +
-                                   "VALUES (@title, @price, @shortDescription, @category, @timeTillEnd, @imageURLs, @userId, @region, @city)";
+                    string query = "INSERT INTO Lots (title, price, shortDescription, category, timeTillEnd, imageURLs, UserId, region, city, IsNew, MinPrice, MinStepPrice) " +
+                            "VALUES (@title, @price, @shortDescription, @category, @timeTillEnd, @imageURLs, @userId, @region, @city, @isNew, @minPrice, @minStepPrice)";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@title", model.Title);
@@ -56,12 +56,14 @@ namespace Project2.Controllers
                         command.Parameters.AddWithValue("@timeTillEnd", model.TimeTillEnd);
                         command.Parameters.AddWithValue("@imageURLs", string.Join(",", model.ImageURLs));
                         command.Parameters.AddWithValue("@userId", model.UserId);
-                        command.Parameters.AddWithValue("@region", region);
-                        command.Parameters.AddWithValue("@city", city);
+                        command.Parameters.AddWithValue("@region", model.Region) ;
+                        command.Parameters.AddWithValue("@city", model.City);
+                        command.Parameters.AddWithValue("@isNew", model.IsNew);
+                        command.Parameters.AddWithValue("@minPrice", model.MinPrice);
+                        command.Parameters.AddWithValue("@minStepPrice", model.MinStepPrice);
 
                         command.ExecuteNonQuery();
                     }
-
                     return Ok(new { message = "Lot created successfully" });
                 }
             }
@@ -170,9 +172,13 @@ namespace Project2.Controllers
                                         ShortDescription = reader.GetString("shortDescription"),
                                         Category = reader.GetString("category"),
                                         TimeTillEnd = reader.GetDateTime("timeTillEnd").ToString(),
-                                        // Прочитайте остальные поля из базы данных и добавьте их в модель лота
                                         ImageURLs = reader["ImageURLs"].ToString().Split(','),
-                                        UserId = reader["UserId"].ToString()
+                                        UserId = reader["UserId"].ToString(),
+                                        Region = reader["region"].ToString(), // Добавляем извлечение региона из базы данных
+                                        City = reader["city"].ToString(), // Добавляем извлечение города из базы данных
+                                        IsNew = Convert.ToBoolean(reader["isNew"]), // Добавляем извлечение IsNew из базы данных
+                                        MinPrice = reader.GetDecimal("minPrice"), // Добавляем извлечение MinPrice из базы данных
+                                        MinStepPrice = reader.GetDecimal("minStepPrice") // Добавляем извлечение MinStepPrice из базы данных
                                     };
                                     lots.Add(lot);
                                 }
@@ -189,6 +195,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
 
 
         [HttpGet("getLotsByCategory")]
@@ -242,7 +249,12 @@ namespace Project2.Controllers
                                         TimeTillEnd = reader["TimeTillEnd"].ToString(),
                                         // Парсим строку ImageURLs в массив строк
                                         ImageURLs = reader["ImageURLs"].ToString().Split(','),
-                                        UserId = reader["UserId"].ToString()
+                                        UserId = reader["UserId"].ToString(),
+                                        Region = reader["region"].ToString(), // Добавляем извлечение региона из базы данных
+                                        City = reader["city"].ToString(), // Добавляем извлечение города из базы данных
+                                        IsNew = Convert.ToBoolean(reader["isNew"]), // Добавляем извлечение IsNew из базы данных
+                                        MinPrice = reader.GetDecimal("minPrice"), // Добавляем извлечение MinPrice из базы данных
+                                        MinStepPrice = reader.GetDecimal("minStepPrice") // Добавляем извлечение MinStepPrice из базы данных
                                     };
 
                                     // Добавляем лот в список
@@ -263,6 +275,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
 
         [HttpGet("getLotsByUser")]
         public IActionResult GetLotsByUser(string userId, bool active = false, bool archive = false, bool unactive = false, int pageNumber = 1, int pageSize = 10)
@@ -330,7 +343,12 @@ namespace Project2.Controllers
                                         TimeTillEnd = reader["TimeTillEnd"].ToString(),
                                         // Парсим строку ImageURLs в массив строк
                                         ImageURLs = reader["ImageURLs"].ToString().Split(','),
-                                        UserId = reader["UserId"].ToString()
+                                        UserId = reader["UserId"].ToString(),
+                                        Region = reader["region"].ToString(), // Добавляем извлечение региона из базы данных
+                                        City = reader["city"].ToString(), // Добавляем извлечение города из базы данных
+                                        IsNew = Convert.ToBoolean(reader["isNew"]), // Добавляем извлечение IsNew из базы данных
+                                        MinPrice = reader.GetDecimal("minPrice"), // Добавляем извлечение MinPrice из базы данных
+                                        MinStepPrice = reader.GetDecimal("minStepPrice") // Добавляем извлечение MinStepPrice из базы данных
                                     };
 
                                     // Добавляем лот в список
@@ -351,6 +369,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
 
         [HttpPost("updateLot")]
         public IActionResult UpdateLot([FromBody] UpdateLotRequest request)
@@ -545,7 +564,12 @@ namespace Project2.Controllers
                                     Category = reader["Category"].ToString(),
                                     TimeTillEnd = reader["TimeTillEnd"].ToString(),
                                     ImageURLs = reader["ImageURLs"].ToString().Split(','),
-                                    UserId = reader["UserId"].ToString()
+                                    UserId = reader["UserId"].ToString(),
+                                    Region = reader["region"].ToString(), // Добавляем извлечение региона из базы данных
+                                    City = reader["city"].ToString(), // Добавляем извлечение города из базы данных
+                                    IsNew = Convert.ToBoolean(reader["isNew"]), // Добавляем извлечение IsNew из базы данных
+                                    MinPrice = reader.GetDecimal("minPrice"), // Добавляем извлечение MinPrice из базы данных
+                                    MinStepPrice = reader.GetDecimal("minStepPrice") // Добавляем извлечение MinStepPrice из базы данных
                                 };
 
                                 // Возвращаем найденный лот
@@ -568,8 +592,9 @@ namespace Project2.Controllers
             }
         }
 
+
         [HttpPost("SearchLots")]
-        public IActionResult SearchLots(string searchString, string category, decimal? minPrice, decimal? maxPrice, string region, string city, string sortBy, int page = 1, int pageSize = 10)
+        public IActionResult SearchLots(string searchString, string category, decimal? minPrice, decimal? maxPrice, string region, string city, bool? isNew, string sortBy, int page = 1, int pageSize = 10)
         {
             try
             {
@@ -617,6 +642,11 @@ namespace Project2.Controllers
                         conditions.Add("City = @City");
                     }
 
+                    if (isNew.HasValue)
+                    {
+                        conditions.Add("IsNew = @IsNew");
+                    }
+
                     // Объединяем все условия с помощью оператора AND
                     query += string.Join(" AND ", conditions);
 
@@ -625,7 +655,7 @@ namespace Project2.Controllers
                     using (MySqlCommand countCommand = new MySqlCommand(countQuery, connection))
                     {
                         // Добавляем параметры запроса
-                        AddQueryParameters(countCommand, searchString, category, minPrice, maxPrice, region, city);
+                        AddQueryParameters(countCommand, searchString, category, minPrice, maxPrice, region, city, isNew);
 
                         totalRecords = Convert.ToInt32(countCommand.ExecuteScalar());
                         totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
@@ -653,7 +683,7 @@ namespace Project2.Controllers
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         // Добавляем параметры запроса
-                        AddQueryParameters(command, searchString, category, minPrice, maxPrice, region, city);
+                        AddQueryParameters(command, searchString, category, minPrice, maxPrice, region, city, isNew);
 
                         // Добавляем параметры для пагинации
                         int startIndex = (page - 1) * pageSize;
@@ -681,7 +711,7 @@ namespace Project2.Controllers
             }
         }
 
-        private void AddQueryParameters(MySqlCommand command, string searchString, string category, decimal? minPrice, decimal? maxPrice, string region, string city)
+        private void AddQueryParameters(MySqlCommand command, string searchString, string category, decimal? minPrice, decimal? maxPrice, string region, string city, bool? isNew)
         {
             if (!string.IsNullOrWhiteSpace(searchString))
             {
@@ -707,7 +737,12 @@ namespace Project2.Controllers
             {
                 command.Parameters.AddWithValue("@City", city);
             }
+            if (isNew.HasValue)
+            {
+                command.Parameters.AddWithValue("@IsNew", isNew.Value);
+            }
         }
+
 
         [HttpPost("getUserLikedLots")]
         public IActionResult GetUserLikedLots(string Token, int page = 1, int pageSize = 10)
@@ -715,7 +750,7 @@ namespace Project2.Controllers
             var UserId = ExtractUserIdFromToken(Token);
             try
             {
-                List<LotModel> likedLots = new List<LotModel>();
+                List<Lot> likedLots = new List<Lot>();
 
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
@@ -752,18 +787,7 @@ namespace Project2.Controllers
                             {
                                 while (reader.Read())
                                 {
-                                    LotModel lot = new LotModel
-                                    {
-                                        Id = Convert.ToInt32(reader["Id"]),
-                                        Title = reader["Title"].ToString(),
-                                        Price = Convert.ToDecimal(reader["Price"]),
-                                        CurrentBid = Convert.ToDecimal(reader["CurrentBid"]),
-                                        ShortDescription = reader["ShortDescription"].ToString(),
-                                        Category = reader["Category"].ToString(),
-                                        TimeTillEnd = reader["TimeTillEnd"].ToString(),
-                                        ImageURLs = reader["ImageURLs"].ToString().Split(','),
-                                        UserId = reader["UserId"].ToString()
-                                    };
+                                    Lot lot = new Lot(reader); // Создание объекта Lot из данных в результате запроса
                                     likedLots.Add(lot);
                                 }
                             }
@@ -779,6 +803,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
 
     }
     public class UpdateLotRequest
@@ -797,8 +822,11 @@ namespace Project2.Controllers
         public string TimeTillEnd { get; set; }
         public string[] ImageURLs { get; set; }
         public string UserId { get; set; }
-        public string Region { get; set; } // Новое свойство для региона
-        public string City { get; set; }   // Новое свойство для города
+        public string Region { get; set; }
+        public string City { get; set; }
+        public bool IsNew { get; set; } // Новое свойство для флага "новый"
+        public decimal MinPrice { get; set; } // Новое свойство для минимальной цены
+        public decimal MinStepPrice { get; set; } // Новое свойство для минимального шага цены
     }
 
 }

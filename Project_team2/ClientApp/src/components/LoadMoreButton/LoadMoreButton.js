@@ -7,11 +7,10 @@ import Button from "../UI/Button/Button";
 
 function LoadMoreButton({ perPage, curPage, setLots, setCurPage }) {
   const [fetchLots, isLoading] = useFetching(async () => {
-    const response = await PostService.getAll(perPage, curPage);
-    const data = await response.json();
-    setLots(data.filter((_, i)=>i<(curPage+1)*perPage))
+    await setLots()
     setCurPage(curPage + 1);
   });
+  
   if (isLoading) {
     return <Loader />;
   }

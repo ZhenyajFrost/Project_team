@@ -71,6 +71,7 @@ const ImageUpload = () => {
 
       console.log(data.url); //LOGIC TO SERVER
       updateUser(token, { avatar: data.url });
+      window.location.reload();
 
       alert("Image uploaded successfully.");
     } catch (error) {
@@ -82,7 +83,7 @@ const ImageUpload = () => {
   return (
     <div className={css.containerB}>
       <div className={css.container}>
-        <div className={css.image}>{!previewUrl && "Your logo"}{<img src={previewUrl} className={css.image}/>}</div>
+        <div className={css.image}>{!previewUrl ? "Your logo" : <img src={previewUrl} className={css.image}/>}</div>
 
         <input
           ref={inputRef}

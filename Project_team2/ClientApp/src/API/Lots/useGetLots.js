@@ -30,7 +30,7 @@ const useGetLots = () => {
         }
     };
 
-    return [getLots, lots, isLoading, error];
+    return [getLots, lots, totalCount, isLoading, error];
 };
 
 export default useGetLots;

@@ -37,10 +37,9 @@ namespace Project2.Controllers
         [HttpPost("toggleNotificationsAdvices")]
         public IActionResult ToggleNotificationsAdvices([FromBody] ToggleNotificationsModel model)
         {
+            var userId = ExtractUserIdFromToken(model.Token);
             try
             {
-                string userId = model.UserId; // Получаем userId из модели
-
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
@@ -78,10 +77,9 @@ namespace Project2.Controllers
         [HttpPost("toggleNotificationsHelp")]
         public IActionResult ToggleNotificationsHelp([FromBody] ToggleNotificationsModel model)
         {
+            var userId = ExtractUserIdFromToken(model.Token);
             try
             {
-                string userId = model.UserId; // Получаем userId из модели
-
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
@@ -120,9 +118,10 @@ namespace Project2.Controllers
         [HttpPost("toggleNotificationsRemind")]
         public IActionResult ToggleNotificationsRemind([FromBody] ToggleNotificationsModel model)
         {
+            var userId = ExtractUserIdFromToken(model.Token);
             try
             {
-                string userId = model.UserId; // Получаем userId из модели
+               
 
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
@@ -204,7 +203,6 @@ namespace Project2.Controllers
             }
         }
 
-
         private void UpdateUserPassword(string email, string newPasswordHash)
         {
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
@@ -221,6 +219,7 @@ namespace Project2.Controllers
                 }
             }
         }
+        
         [HttpPost("update-user")]
         public IActionResult UpdateUser([FromBody] UpdateUserRequest request)
         {
@@ -276,6 +275,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
         [HttpPost("delete-user")]
         public IActionResult DeleteUser([FromBody] DeleteUserRequest request)
         {
@@ -313,6 +313,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+        
         [HttpPost("update-email")]
         public IActionResult UpdateEmail([FromBody] UpdateEmailModel model)
         {
@@ -374,7 +375,7 @@ namespace Project2.Controllers
     }
     public class ToggleNotificationsModel
     {
-        public string UserId { get; set; }
+        public string Token { get; set; }
     }
     public class UpdateUserRequest
     {

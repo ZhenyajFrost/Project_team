@@ -22,6 +22,8 @@ import useUpdatePassword from '../../API/User/useUpdatePassword';
 import useUpdateEmail from '../../API/User/useUpdateEmail';
 import useToggleNotification from '../../API/User/useToggleNotification';
 import { State, City } from 'country-state-city';
+import useDeleteUser from '../../API/User/useDeleteUser';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom';
 
 const CustomAccordion = styled(Accordion)({
     '&&': {
@@ -64,11 +66,14 @@ function Settings() {
     const user = getLocalStorage('user');
     const token = getLocalStorage('token');
 
+    const history = useHistory();
+
     const [updateUser, isLoading, error] = useUpdateUser();
+    const [deleteUser, isLoadingDel, errorDel] = useDeleteUser();
     const [updatePassword, isLoadingPass, errorPass] = useUpdatePassword();
     const [updateEmail, isLoadingEmail, errorEmail] = useUpdateEmail();
     const [toggleNotification, isLoadingNotifi, errorNotifi] = useToggleNotification();
-    
+
     const [formData, setFormData] = useState({
         lastName: '',
         firstName: '',
@@ -120,12 +125,6 @@ function Settings() {
 
         }
     }, []);
-
-    // useEffect(() => {
-    //     console.log(`formData: ${JSON.stringify(formData)}`);
-    //     console.log(`selectedRegion: ${JSON.stringify(selectedRegion)}`)
-    //     console.log(`selectedCity: ${JSON.stringify(selectedCity)}`)
-    // }, [formData, selectedRegion, selectedCity]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -200,7 +199,7 @@ function Settings() {
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
         var dataToUpdate = {
-            newPassword: formData.password
+            password: formData.password
         }
 
         if (!validateForm(dataToUpdate)) {
@@ -210,13 +209,14 @@ function Settings() {
 
         console.log(dataToUpdate);
 
-        await updatePassword(user.email, dataToUpdate.newPassword); //TOKEN IN THE FUTURE
+        await updatePassword(user.email, dataToUpdate.password); //TOKEN IN THE FUTURE
         console.log(error);
 
-        // setFormData({
-        //     oldPassword: '',
-        //     password: '',
-        // });
+        setFormData({
+            ...user,
+            oldPassword: '',
+            password: '',
+        });
     }
 
     const handleEmailSubmit = async (e) => {
@@ -238,7 +238,7 @@ function Settings() {
         const { name, checked } = e.target;
         console.log(`name: ${name}, checked: ${checked}`);
 
-        await toggleNotification(user.id, name); //TOKEN
+        await toggleNotification(token, name);
 
         setFormData(prevFormData => ({
             ...prevFormData,
@@ -249,10 +249,10 @@ function Settings() {
         }));
     };
 
-    const handleDeleteProfile = () => {
-        console.log("Profile delted :0")
-
-        //Delete profile
+    const handleDeleteProfile = async () => {
+        history.push('/');
+        await deleteUser(token);
+        window.location.reload();
     }
 
     return (

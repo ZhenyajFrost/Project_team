@@ -18,13 +18,11 @@ export const Home = () => {
     //const [totalPages, setTotalPages] = useState();
     //const [pagesToDisplay, setPagesToDisplay] = useState();
     
-    const [getLots, lots, isLoading, error] = useGetLots();
+    const [getLots, lots, totalCount, isLoading, error] = useGetLots();
     const [pagination, setPagination] = useState({
         page: 1,
         pageSize: 6
     });
-    
-
 
     const [sortedLots, setSortedLots] = useState(lots);
     const [categories, setCategories] = useState([]);
@@ -76,8 +74,6 @@ export const Home = () => {
         setPagination({page: 1, limit: 10});
         //setLots([]);
     };
-
-
 
     return (
         <div style={{display: "flex", flexDirection: "column", gap: "8vw"}}>

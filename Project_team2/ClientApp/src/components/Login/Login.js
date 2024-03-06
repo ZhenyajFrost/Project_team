@@ -45,11 +45,19 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
       email: user.email,
       password: user.password
     }).then((result) => {
-      
+
+      const user = {
+        ...result.data.user,
+        notifications: {
+          ...result.data.notifications,
+        }
+      }
+      setLocalStorage('user',user);
+      console.log(result.data.user);
+      setLocalStorage('token', result.data.token);
       setLocalStorage('isLoggined', true);
       setIsLoggined(true);
-      setLocalStorage('user', result.data.user);
-      setLocalStorage('token', result.data.token);
+
 
       console.log('Login successful:', result.data);
     }).catch((err) => {
