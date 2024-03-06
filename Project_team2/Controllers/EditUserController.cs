@@ -237,6 +237,8 @@ namespace Project2.Controllers
             }
         }
 
+
+
         private void UpdateUserPassword(string email, string newPasswordHash)
         {
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
@@ -364,10 +366,22 @@ namespace Project2.Controllers
                         {
                             if (reader.Read())
                             {
-                                // Обновляем email пользователя в базе данных
-                                UpdateUserEmail(model.Token, model.CurrentEmail, model.NewEmail);
+                                // Получаем хэш пароля из базы данных
+                                string storedPasswordHash = reader.GetString("Password");
 
-                                return Ok(new { message = "Email updated successfully" });
+                                // Проверяем, совпадает ли пароль с хэшем пароля в базе данных
+                                if (BCrypt.Net.BCrypt.Verify(model.Password, storedPasswordHash))
+                                {
+                                    // Обновляем email пользователя в базе данных
+                                    UpdateUserEmail(model.Token, model.CurrentEmail, model.NewEmail);
+
+                                    return Ok(new { message = "Email updated successfully" });
+                                }
+                                else
+                                {
+                                    // Пароль не совпадает с хэшем пароля в базе данных
+                                    return BadRequest(new { message = "Invalid password" });
+                                }
                             }
                             else
                             {
@@ -422,6 +436,7 @@ namespace Project2.Controllers
         public string Token { get; set; }
         public string CurrentEmail { get; set; }
         public string NewEmail { get; set; }
+        public string Password { get; set; }
     }
     public class UpdatePassByEmailModel
     {
@@ -430,6 +445,7 @@ namespace Project2.Controllers
     }
     public class UpdatePassWithTokenModel
     {
+       
         public string OldPassword { get; set; }
         public string NewPassword { get; set; }
         public string Token { get; set; }

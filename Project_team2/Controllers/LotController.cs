@@ -8,6 +8,8 @@ using Newtonsoft.Json.Converters;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using Newtonsoft.Json.Linq;
+using System.Reflection.PortableExecutable;
+using System.Security.Cryptography;
 
 namespace Project2.Controllers
 {
@@ -15,6 +17,7 @@ namespace Project2.Controllers
     [ApiController]
     public class LotsController : ControllerBase
     {
+        private readonly ILogger<LotSchedulingService> _logger;
         private readonly string _connString;
         public LotsController(){
          _connString = Config.MySqlConnection;
@@ -56,7 +59,7 @@ namespace Project2.Controllers
                         command.Parameters.AddWithValue("@timeTillEnd", model.TimeTillEnd);
                         command.Parameters.AddWithValue("@imageURLs", string.Join(",", model.ImageURLs));
                         command.Parameters.AddWithValue("@userId", model.UserId);
-                        command.Parameters.AddWithValue("@region", model.Region) ;
+                        command.Parameters.AddWithValue("@region", model.Region);
                         command.Parameters.AddWithValue("@city", model.City);
                         command.Parameters.AddWithValue("@isNew", model.IsNew);
                         command.Parameters.AddWithValue("@minPrice", model.MinPrice);
@@ -64,6 +67,17 @@ namespace Project2.Controllers
 
                         command.ExecuteNonQuery();
                     }
+
+                    // Получение идентификатора созданного лота
+                    int createdLotId = GetCreatedLotId(connection);
+
+                    // Планирование задачи на момент завершения лота
+                    DateTime endTime = DateTime.Parse(model.TimeTillEnd);
+
+                    // Планирование задачи на время завершения лота
+
+                    ScheduleTaskForLotEnd(createdLotId, endTime);
+
                     return Ok(new { message = "Lot created successfully" });
                 }
             }
@@ -73,6 +87,60 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
+        private void ScheduleTaskForLotEnd(int lotId, DateTime endTime)
+        {
+            // Рассчитываем время до завершения лота
+            TimeSpan timeUntilEnd = endTime - DateTime.Now;
+
+            // Планирование задачи для завершения лота
+            Task.Delay(timeUntilEnd).ContinueWith(async _ =>
+            {
+                try
+                {
+                    // Выполнение действий для завершения лота
+                    await DeactivateLot(lotId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"An error occurred while deactivating lot {lotId}: {ex}");
+                }
+            });
+
+            // Вывод информации о запланированной задаче в консоль
+            Console.WriteLine($"Task scheduled for lot {lotId} end at {endTime}");
+        }
+
+        private async Task DeactivateLot(int lotId)
+        {
+            // Выполнение действий для завершения лота
+            using (MySqlConnection connection = new MySqlConnection(_connString))
+            {
+                await connection.OpenAsync();
+
+                // Обновление состояния лота в базе данных
+                string query = "UPDATE Lots SET Active = false, Unactive = true WHERE Id = @LotId";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@LotId", lotId);
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+
+            _logger.LogInformation($"Lot {lotId} has been deactivated.");
+        }
+
+        private int GetCreatedLotId(MySqlConnection connection)
+        {
+            string query = "SELECT LAST_INSERT_ID()";
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                return Convert.ToInt32(command.ExecuteScalar());
+            }
+        }
+
+      
+
         [HttpPost("getHotsLot")]
         public IActionResult GetHotLots(int page = 1, int pageSize = 10)
         {
