@@ -40,6 +40,8 @@ namespace Project2.Controllers
             var userId = ExtractUserIdFromToken(model.Token);
             try
             {
+               
+
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
@@ -80,6 +82,8 @@ namespace Project2.Controllers
             var userId = ExtractUserIdFromToken(model.Token);
             try
             {
+                
+
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
@@ -159,37 +163,49 @@ namespace Project2.Controllers
         }
 
 
-        [HttpPost("update-password")]
-        public IActionResult UpdatePassword([FromBody] UpdatePassModel model)
+        [HttpPost("update-password-with-token")]
+        public IActionResult UpdatePasswordWithToken([FromBody] UpdatePassWithTokenModel model)
         {
             try
             {
+                // Получаем идентификатор пользователя из токена
+                var userId = ExtractUserIdFromToken(model.Token);
+
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
 
-                    // Проверка наличия пользователя по электронной почте
-                    string query = "SELECT * FROM Users WHERE Email = @Email";
+                    // Проверка наличия пользователя по идентификатору
+                    string query = "SELECT * FROM Users WHERE Id = @UserId";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@Email", model.Email);
+                        command.Parameters.AddWithValue("@UserId", userId);
 
                         using (MySqlDataReader reader = command.ExecuteReader())
                         {
                             if (reader.Read())
                             {
-                                // Получаем идентификатор пользователя
-                                int userId = reader.GetInt32("Id");
+                                // Получаем хэш пароля из базы данных
+                                string storedPasswordHash = reader.GetString("Password");
 
-                                // Обновляем пароль в базе данных
-                                string newPasswordHash = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
-                                UpdateUserPassword(model.Email, newPasswordHash);
+                                // Проверяем, совпадает ли старый пароль с хэшем пароля в базе данных
+                                if (BCrypt.Net.BCrypt.Verify(model.OldPassword, storedPasswordHash))
+                                {
+                                    // Обновляем пароль в базе данных
+                                    string newPasswordHash = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
+                                    UpdateUserPassword(reader.GetString("Email"), newPasswordHash);
 
-                                return Ok(new { message = "Password updated successfully" });
+                                    return Ok(new { message = "Password updated successfully" });
+                                }
+                                else
+                                {
+                                    // Старый пароль не совпадает с хэшем пароля в базе данных
+                                    return BadRequest(new { message = "Old password does not match" });
+                                }
                             }
                             else
                             {
-                                // Пользователь с указанным email не найден
+                                // Пользователь с указанным идентификатором не найден
                                 return NotFound(new { message = "User not found" });
                             }
                         }
@@ -198,10 +214,30 @@ namespace Project2.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка в методе UpdatePassword: {ex.ToString()}");
+                Console.WriteLine($"Ошибка в методе UpdatePasswordWithToken: {ex.ToString()}");
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
+        [HttpPost("update-password-by-email")]
+        public IActionResult UpdatePasswordByEmail([FromBody] UpdatePassByEmailModel model)
+        {
+            try
+            {
+                // Обновляем пароль в базе данных
+                string newPasswordHash = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
+                UpdateUserPassword(model.Email, newPasswordHash);
+
+                return Ok(new { message = "Password updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка в методе UpdatePasswordByEmail: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+            }
+        }
+
+
 
         private void UpdateUserPassword(string email, string newPasswordHash)
         {
@@ -219,7 +255,6 @@ namespace Project2.Controllers
                 }
             }
         }
-        
         [HttpPost("update-user")]
         public IActionResult UpdateUser([FromBody] UpdateUserRequest request)
         {
@@ -275,7 +310,6 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-
         [HttpPost("delete-user")]
         public IActionResult DeleteUser([FromBody] DeleteUserRequest request)
         {
@@ -313,7 +347,6 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-        
         [HttpPost("update-email")]
         public IActionResult UpdateEmail([FromBody] UpdateEmailModel model)
         {
@@ -392,10 +425,17 @@ namespace Project2.Controllers
         public string CurrentEmail { get; set; }
         public string NewEmail { get; set; }
     }
-    public class UpdatePassModel
+    public class UpdatePassByEmailModel
     {
-       
         public string Email { get; set; }
         public string NewPassword { get; set; }
     }
+    public class UpdatePassWithTokenModel
+    {
+        public string Email { get; set; }
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
+        public string Token { get; set; }
+    }
+
 }

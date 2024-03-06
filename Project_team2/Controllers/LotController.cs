@@ -554,23 +554,15 @@ namespace Project2.Controllers
                             if (reader.Read())
                             {
                                 // Создание объекта лота на основе данных из базы данных
-                                LotModel lot = new LotModel
+                                Lot lot = new Lot(reader);
+
+                                // Увеличиваем значение Views на 1
+                                string updateViewsQuery = "UPDATE Lots SET Views = Views + 1 WHERE Id = @id";
+                                using (MySqlCommand updateCommand = new MySqlCommand(updateViewsQuery, connection))
                                 {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    Title = reader["Title"].ToString(),
-                                    Price = Convert.ToDecimal(reader["Price"]),
-                                    CurrentBid = Convert.ToDecimal(reader["CurrentBid"]),
-                                    ShortDescription = reader["ShortDescription"].ToString(),
-                                    Category = reader["Category"].ToString(),
-                                    TimeTillEnd = reader["TimeTillEnd"].ToString(),
-                                    ImageURLs = reader["ImageURLs"].ToString().Split(','),
-                                    UserId = reader["UserId"].ToString(),
-                                    Region = reader["region"].ToString(), // Добавляем извлечение региона из базы данных
-                                    City = reader["city"].ToString(), // Добавляем извлечение города из базы данных
-                                    IsNew = Convert.ToBoolean(reader["isNew"]), // Добавляем извлечение IsNew из базы данных
-                                    MinPrice = reader.GetDecimal("minPrice"), // Добавляем извлечение MinPrice из базы данных
-                                    MinStepPrice = reader.GetDecimal("minStepPrice") // Добавляем извлечение MinStepPrice из базы данных
-                                };
+                                    updateCommand.Parameters.AddWithValue("@id", id);
+                                    updateCommand.ExecuteNonQuery();
+                                }
 
                                 // Возвращаем найденный лот
                                 return Ok(lot);
@@ -591,6 +583,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
 
 
         [HttpPost("SearchLots")]
