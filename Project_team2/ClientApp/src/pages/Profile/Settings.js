@@ -18,7 +18,7 @@ import Checkbox from '../../components/UI/Checkbox/Checkbox';
 import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
 import ImageUpload from '../../components/ImageUpload/ImageUpload';
 import useUpdateUser from '../../API/User/useUpdateUser';
-import useUpdatePassword from '../../API/User/useUpdatePassword';
+import useUpdatePasswordToken from '../../API/User/useUpdatePasswordToken.js';
 import useUpdateEmail from '../../API/User/useUpdateEmail';
 import useToggleNotification from '../../API/User/useToggleNotification';
 import { State, City } from 'country-state-city';
@@ -70,7 +70,7 @@ function Settings() {
 
     const [updateUser, isLoading, error] = useUpdateUser();
     const [deleteUser, isLoadingDel, errorDel] = useDeleteUser();
-    const [updatePassword, isLoadingPass, errorPass] = useUpdatePassword();
+    const [updatePassword, isLoadingPass, errorPass] = useUpdatePasswordToken();
     const [updateEmail, isLoadingEmail, errorEmail] = useUpdateEmail();
     const [toggleNotification, isLoadingNotifi, errorNotifi] = useToggleNotification();
 
@@ -199,6 +199,7 @@ function Settings() {
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
         var dataToUpdate = {
+            oldPassword: formData.oldPassword,
             password: formData.password
         }
 
@@ -209,7 +210,7 @@ function Settings() {
 
         console.log(dataToUpdate);
 
-        await updatePassword(user.email, dataToUpdate.password); //TOKEN IN THE FUTURE
+        await updatePassword(token, dataToUpdate.oldPassword, dataToUpdate.password);
         console.log(error);
 
         setFormData({

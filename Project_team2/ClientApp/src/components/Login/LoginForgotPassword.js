@@ -7,7 +7,7 @@ import ConfirmEmail from '../Registration/RegistrationConfirm.js';
 import useRegistrationValidation from "../../hooks/useRegistrationValidation.js";
 import axios from "axios";
 import { EDIT_USER_ENDPOINT } from '../../API/apiConstant';
-import useUpdatePassword from '../../API/User/useUpdatePassword.js';
+import useUpdatePasswordEmail from '../../API/User/useUpdatePasswordEmail.js';
 
 
 const LoginForgotPassword = ({ setForgotPass }) => {
@@ -19,7 +19,7 @@ const LoginForgotPassword = ({ setForgotPass }) => {
   const [emailConfirmed, setEmailConfirmed] = useState(false);
 
   const { validationErrors, validateForm } = useRegistrationValidation();
-  const [updatePassword, isLoading, error] = useUpdatePassword();
+  const [updatePassword, isLoading, error] = useUpdatePasswordEmail();
 
   const handleEmailChange = (e) => {
     setUser((prev) => ({
