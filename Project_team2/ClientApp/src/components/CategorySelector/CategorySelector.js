@@ -19,7 +19,7 @@ function CategorySelector({ selectedCat, onCatChange }) {
             </svg>
             <p>{selectedCat.title}</p>
           </div>
-          <div onClick={() => setModal(true)}>Змінити</div>
+          <div onClick={() => setModal(true)} className={css.button}>Змінити</div>
         </div>
         <ModalWindow
           visible={modal}
