@@ -1,40 +1,45 @@
 import React, { useEffect, useState } from "react";
 import regions from "./regions.json";
-import cts from "./categories.json";
+import cts from "../../Data/categories.json";
 import css from "./styles.module.css";
 import Notiflix from "notiflix";
 
 function Filters({ onChange, initial }) {
-  console.log(initial)
-  const [categories, setCategories] = useState(cts)
+  console.log(initial);
+  const [categories, setCategories] = useState(cts);
   const [params, setParams] = useState({
     category: categories[0],
     minPrice: 1,
     maxPrice: Infinity,
     endTill: new Date(new Date().getDate() + 1),
     region: regions[0],
-    ...initial
+    ...initial,
   });
-  console.log("d"+params)
+  console.log("d" + params);
   useEffect(() => {
-
     //перевірка, чи не була категорія змінена інспект елементом
-    if (!categories.includes(params.category)) {
-      Notiflix.Notify.failure(
-        "Будь ласка, не вийобуйтесь і оберіть нормальну категорію."
-      );
+    const catExists = (c) => {
+      if(c==="Будь-яка" || c==="any"){
+        return true;
+      }
+      let res = false;
+      categories.forEach((cat) => {
+        if (cat.imgId === c || cat.title === c) {
+          res = true;
+        }
+      });
+      return res;
+    };
+    if (!catExists(params.category)) {
+      Notiflix.Notify.failure("Будь ласка, оберіть нормальну категорію.");
       return;
     }
-
-   
 
     //перевірка ціни
     const minPrice = Number(params.minPrice);
     const maxPrice = Number(params.maxPrice);
     if (isNaN(minPrice) || isNaN(maxPrice)) {
-      Notiflix.Notify.failure(
-        "Будь ласка, не вийобуйтесь і оберіть нормальну ціну."
-      );
+      Notiflix.Notify.failure("Будь ласка, оберіть нормальну ціну.");
       return;
     }
     if (minPrice < 0) {
@@ -60,78 +65,78 @@ function Filters({ onChange, initial }) {
       );
       return;
     }
-    console.log("fiuuuuuck")
-    onChange(params)
+    onChange(params);
   }, [params]);
 
   return (
-      <div className={css.filterContainer}>
-        <div className={css.filterItem}>
-          Нові лоти за
-          <select
-            className={css.inputEl}
-            value={initial.category}
-            onChange={(e) => {
-              setParams({ ...params, category: e.target.value });
-            }}
-          >
-            {categories.map((v) => (
-              <option>{v}</option>
-            ))}
-          </select>
-        </div>
-        <div className={css.filterItem}>
-          Ціна
-          <div className={css.priceContainer}>
-            <div className={css.inputEl}>
-              Від:
-              <input
-                type="number"
-                value={params.minPrice}
-                onChange={(e) => {
-                  setParams({ ...params, minPrice: e.target.value });
-                }}
-              />
-            </div>
+    <div className={css.filterContainer}>
+      <div className={css.filterItem}>
+        Нові лоти за
+        <select
+          className={css.inputEl}
+          value={initial.category}
+          onChange={(e) => {
+            setParams({ ...params, category: e.target.value });
+          }}
+        >
+            <option value={"any"}>Будь-яка</option>
 
-            <div className={css.inputEl}>
-              До:
-              <input
-                type="number"
-                value={params.maxPrice}
+          {categories.map((v) => (
+            <option value={v.imgId}>{v.title}</option>
+          ))}
+        </select>
+      </div>
+      <div className={css.filterItem}>
+        Ціна
+        <div className={css.priceContainer}>
+          <div className={css.inputEl}>
+            Від:
+            <input
+              type="number"
+              value={params.minPrice}
+              onChange={(e) => {
+                setParams({ ...params, minPrice: e.target.value });
+              }}
+            />
+          </div>
 
-                onChange={(e) => {
-                  setParams({ ...params, maxPrice: e.target.value });
-                }}
-              />
-            </div>
+          <div className={css.inputEl}>
+            До:
+            <input
+              type="number"
+              value={params.maxPrice}
+              onChange={(e) => {
+                setParams({ ...params, maxPrice: e.target.value });
+              }}
+            />
           </div>
         </div>
-        <div className={css.filterItem}>
-          Що завершуються протягом:
-          <select
-            className={css.inputEl}
-            onChange={(e) => {
-              setParams({ ...params, endTill: e.target.value });
-            }}
-          >
-            <option>Всі оголошення</option>
-          </select>
-        </div>
-        <div className={css.filterItem}>
-          Регіон:
-          <select
-            className={css.inputEl}
-            onChange={(e) => {
-              setParams({ ...params, region: e.target.value });
-            }}
-          >
-            {regions.map((v) => (
-              <option>{v}</option>
-            ))}
-          </select>
-        </div>
       </div>
+      <div className={css.filterItem}>
+        Що завершуються протягом:
+        <select
+          className={css.inputEl}
+          onChange={(e) => {
+            setParams({ ...params, endTill: e.target.value });
+          }}
+        >
+          <option>Всі оголошення</option>
+        </select>
+      </div>
+      <div className={css.filterItem}>
+        Регіон:
+        <select
+          className={css.inputEl}
+          onChange={(e) => {
+            setParams({ ...params, region: e.target.value });
+          }}
+        >
+          {regions.map((v) => (
+            <option>{v}</option>
+          ))}
+        </select>
+      </div>
+    </div>
   );
 }
 

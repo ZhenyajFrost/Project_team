@@ -1,0 +1,34 @@
+[
+    {
+        "title": "Антикваріат",
+        "imgId": "antic"
+    },
+    {
+        "title": "Дім",
+        "imgId": "house"
+    },
+    {
+        "title": "Електроніка",
+        "imgId": "electronic"
+    },
+    {
+        "title": "Спорт",
+        "imgId": "sport"
+    },
+    {
+        "title": "Мода",
+        "imgId": "moda"
+    },
+    {
+        "title": "Авто",
+        "imgId": "auto"
+    },
+    {
+        "title": "Дитячий",
+        "imgId": "kids"
+    },
+    {
+        "title": "Інші",
+        "imgId": "other"
+    }
+]

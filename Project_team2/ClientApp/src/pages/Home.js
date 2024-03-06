@@ -10,8 +10,8 @@ import Button from "../components/UI/Button/Button.js";
 import howItWorksImg from "../images/howItWorks.svg"
 import svg from "../images/svgDef.svg";
 import BigCategoryContainer from "../components/BigCategoryContainer/BigCategoryContainer.js";
-import { setLocalStorage, getLocalStorage } from "../utils/localStorage.js"
 import useGetLots from "../API/Lots/useGetLots.js";
+import categories from "../Data/categories.json"
 
 export const Home = () => {
     //const [lots, setLots] = useState([]);
@@ -25,7 +25,6 @@ export const Home = () => {
     });
 
     const [sortedLots, setSortedLots] = useState(lots);
-    const [categories, setCategories] = useState([]);
     let history = useHistory();
 
     useEffect(() => {
@@ -34,12 +33,6 @@ export const Home = () => {
     
     useEffect(async () => {
         await getLots(pagination.page, pagination.pageSize);
-        const exst = getLocalStorage("categories");
-        const back = [{ title: "Антикваріат", imgId: "antic" }, { title: "Дім", imgId: "house" }, { title: "Електроніка", imgId: "electronic" }, { title: "Спорт", imgId: "sport" }, { title: "Мода", imgId: "moda" }, { title: "Авто", imgId: "auto" }, { title: "Дитячий", imgId: "kids" }, { title: "Інші", imgId: "other" }]
-        if (back !== exst) {
-            setLocalStorage("categories", back);
-        }
-        setCategories(back);
     }, [])
 
     const handleSearch = (newSearchQuery) => {

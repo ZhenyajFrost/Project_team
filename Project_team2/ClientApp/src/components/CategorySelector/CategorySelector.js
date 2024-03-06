@@ -1,6 +1,6 @@
 import React from 'react';
 
-function CategorySelector(props) {
+function CategorySelector({selectedCat, onCatChange}) {
     return (
         <div>
             
