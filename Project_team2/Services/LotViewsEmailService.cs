@@ -90,7 +90,9 @@ public class LotViewsEmailService : BackgroundService
                     // Отправляем письмо с информацией о лоте каждому пользователю
                     foreach (var email in recipientEmails)
                     {
-                        string emailBody = $"Лот с наибольшим количеством просмотров: ID={lotId}, Название={lotTitle}, Просмотры={views}";
+                        string emailBody = $"Лот с наибольшим количеством просмотров: ID={lotId}, Название={lotTitle}, Просмотры={views}" +
+                            $"" +
+                            $"Ссылка: https://localhost:44424/lot/{lotId}";
                         SendEmail(email, "Лот с наибольшим количеством просмотров", emailBody);
                     }
 

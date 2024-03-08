@@ -7,9 +7,10 @@ import LocationSelector from "../components/LocationSelector/LocationSelector";
 import { getLocalStorage } from "../utils/localStorage";
 import css from "../styles/Create.module.css";
 import useCreateLot from "../API/Lots/useCreateLot";
+import { Notify } from "notiflix";
 
 export default function CreateLot() {
-  const [lot, setLot] = useState({
+  const initialState = {
     title: "",
     ShortDescription: "",
     endOn: new Date(),
@@ -17,7 +18,9 @@ export default function CreateLot() {
     sellOn: Infinity,
     state: "Нове",
     images: [],
-  });
+  };
+
+  const [lot, setLot] = useState({});
   const [user, setUser] = useState({ firstName: "", lastName: "", email: "" });
   const create = useCreateLot();
 
@@ -31,6 +34,14 @@ export default function CreateLot() {
   };
   const onSubmit = (e) => {
     e.preventDefault();
+
+    for (let a of Object.keys(initialState)) {
+      if (!lot[a]) {
+        Notify.failure(`поле ${a} не заповнене`);
+        return;
+      }
+    }
+
     if (lot.city) {
       lot.region = lot.region.label;
       lot.city = lot.city.label;
@@ -40,16 +51,7 @@ export default function CreateLot() {
     lot.endOn = undefined;
     console.log(lot);
     create.createLot(lot);
-    // setLot({
-    //   title: "",
-    //   ShortDescription: "",
-    //   endOn: new Date(),
-    //   minimalBid: 0,
-    //   sellOn: Infinity,
-    //   mainImage: "",
-    //   images: [],
-    //   category: "",
-    // });
+    setLot({});
   };
   return (
     <div>
@@ -66,7 +68,10 @@ export default function CreateLot() {
           />
 
           <p>Вкажіть Категорію</p>
-          <CategorySelector onCatChange={(c)=>onInput({name:"category", value:c})} selectedCat={lot.category} />
+          <CategorySelector
+            onCatChange={(c) => onInput({ name: "category", value: c })}
+            selectedCat={lot.category}
+          />
 
           <p>Тривалість торгів</p>
           <span>
@@ -97,7 +102,7 @@ export default function CreateLot() {
             placeholder="Детальніше опишіть товар"
             className={css.desc}
           />
-          {lot.ShortDescription.length < 40 ? (
+          {lot.ShortDescription && lot.ShortDescription.length < 40 ? (
             <p>Введіть щонайменше 40 символів</p>
           ) : null}
 
