@@ -51,6 +51,7 @@ namespace Project2.Controllers
                         var notificationsAdvices = false;
                         var notificationsHelp = false;
                         var notificationsRemind = false;
+                        var likedLotIds = new List<int>(); // Массив для хранения идентификаторов лотов, на которые пользователь поставил лайк
 
                         if (await reader.ReadAsync())
                         {
@@ -73,20 +74,32 @@ namespace Project2.Controllers
                                     updateCommand.Parameters.AddWithValue("@UserId", userId);
                                     await updateCommand.ExecuteNonQueryAsync();
                                     // Получаем информацию об уведомлениях из базы данных
-                                   
+
+                                }
+
+                                // Запрос на получение идентификаторов лотов, на которые пользователь поставил лайк
+                                var getLikedLotsQuery = "SELECT LotId FROM LikedLots WHERE UserId = @UserId";
+                                await using (var getLikedLotsCommand = new MySqlCommand(getLikedLotsQuery, connection))
+                                {
+                                    getLikedLotsCommand.Parameters.AddWithValue("@UserId", userId);
+                                    await using (var likedLotsReader = await getLikedLotsCommand.ExecuteReaderAsync())
+                                    {
+                                        while (await likedLotsReader.ReadAsync())
+                                        {
+                                            likedLotIds.Add(likedLotsReader.GetInt32("LotId"));
+                                        }
+                                    }
                                 }
 
                                 userProfile.LastLogin = DateTime.UtcNow.ToString();
 
-                                
-
-                                // Создаем объект JSON, содержащий все необходимые данные
+                                // Создаем объект JSON, содержащий все необходимые данные, включая массив идентификаторов лотов, на которые пользователь поставил лайк
                                 var response = new
                                 {
                                     message = "Authentication successful",
                                     user = userProfile,
                                     token = GenerateJwtToken(userId),
-                                   
+                                    likedLotIds, // Включаем массив идентификаторов лотов, на которые пользователь поставил лайк, в ответ
                                     notifications = new
                                     {
                                         advices = notificationsAdvices,
@@ -106,7 +119,7 @@ namespace Project2.Controllers
                         }
                         else
                         {
-                            return Unauthorized(new { message = "User not found" }); // Добавленный возврат значения
+                            return Unauthorized(new { message = "User not found" });
                         }
                     }
                 }

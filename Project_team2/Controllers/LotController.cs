@@ -814,9 +814,10 @@ namespace Project2.Controllers
 
 
         [HttpPost("getUserLikedLots")]
-        public IActionResult GetUserLikedLots(string Token, int page = 1, int pageSize = 10)
+        public IActionResult GetUserLikedLots([FromBody] getUserLikedLots model, int page = 1, int pageSize = 10)
         {
-            var UserId = ExtractUserIdFromToken(Token);
+            
+            var UserId = ExtractUserIdFromToken(model.Token);
             try
             {
                 List<Lot> likedLots = new List<Lot>();
@@ -874,6 +875,9 @@ namespace Project2.Controllers
         }
 
 
+    }
+    public class getUserLikedLots { 
+    public string Token { get; set; }
     }
     public class LikesLot { 
     public string Token { get; set; }
