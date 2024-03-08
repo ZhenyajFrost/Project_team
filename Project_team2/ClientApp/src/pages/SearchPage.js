@@ -8,6 +8,7 @@ import LotContainer from "../components/UI/LotContainer/LotContainer";
 import { useFetching } from "../hooks/useFetching";
 import PostService from "../API/PostService";
 import Loader from "../components/Loader/Loader";
+import useGetLots from "../API/Lots/useGetLots";
 
 function SearchPage(props) {
   const [querry, setQuerry] = useState(
@@ -19,26 +20,18 @@ function SearchPage(props) {
   );
   const [oldQuerry, setOldQuerry] = useState("");
   const [filter, setFilter] = useState({});
-  const [lots, setLots] = useState([]);
   const [curPage, setCurPage] = useState(1);
   const perPage = 7;
   const [lotDisplay, setLotDisplay] = useState("list");
-  const [fetchLots, isLoading] = useFetching(async () => {
-    const response = await PostService.getAll(perPage, curPage);
-    const data = await response.json();
-    setLots(data.filter((_, i) => i < (curPage + 1) * perPage));
-    setCurPage(curPage + 1);
-  });
-
+  const [getLots, lots, totalCount, isLoading, error] = useGetLots();
   useEffect(() => {
     const doFetching = () => {
       setCurPage(1);
-      setLots([]);
-      fetchLots();
+      getLots(curPage, perPage, filter )
       setOldQuerry(querry);
     };
     if (oldQuerry !== querry) doFetching();
-  }, [querry, filter, fetchLots, oldQuerry]);
+  }, [querry, filter, oldQuerry, getLots, curPage]);
 
   useEffect(()=>{
     let args = window.location.href.split("?")[1];
@@ -82,7 +75,7 @@ function SearchPage(props) {
       {isLoading ? (
         <Loader />
       ) : (
-        <LotContainer display={lotDisplay} lots={lots} setLots={setLots} />
+        <LotContainer display={lotDisplay} lots={lots} />
       )}
     </div>
   );
