@@ -15,9 +15,9 @@ import LikeButton from '../components/UI/LikeButton/LikeButton.js'
 
 function LotPage() {
   const token = getLocalStorage('token');
+  const user = getLocalStorage('user');
   
-  const id =
-    window.location.href.split("/")[window.location.href.split("/").length - 1];
+  const id = parseInt(window.location.href.split("/").pop(), 10);
   console.log(id);
 
 
@@ -51,13 +51,6 @@ function LotPage() {
     Наявність: "в наявності",
     Місцезнаходження: "Волинь",
     Стан: "б/в",
-  };
-  const user = {
-    name: "sigma mewing male",
-    since: "вересень 1939",
-    last: "10 січня",
-    avatar:
-      "https://i.kym-cdn.com/editorials/icons/original/000/006/374/looksmaxxing.jpg",
   };
   return (
     <div>

@@ -50,8 +50,10 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
         ...result.data.user,
         notifications: {
           ...result.data.notifications,
-        }
+        },
+        likedLotIds: result.data.likedLotIds,
       }
+
       setLocalStorage('user',user);
       console.log(result.data.user);
       setLocalStorage('token', result.data.token);

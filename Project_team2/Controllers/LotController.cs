@@ -881,7 +881,7 @@ namespace Project2.Controllers
     }
     public class LikesLot { 
     public string Token { get; set; }
-    public string LotId { get; set; }
+    public int LotId { get; set; }
     }
     public class UpdateLotRequest
     {
