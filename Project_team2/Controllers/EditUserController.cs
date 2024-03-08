@@ -162,7 +162,6 @@ namespace Project2.Controllers
             }
         }
 
-
         [HttpPost("update-password-with-token")]
         public IActionResult UpdatePasswordWithToken([FromBody] UpdatePassWithTokenModel model)
         {
@@ -445,7 +444,6 @@ namespace Project2.Controllers
     }
     public class UpdatePassWithTokenModel
     {
-       
         public string OldPassword { get; set; }
         public string NewPassword { get; set; }
         public string Token { get; set; }

@@ -92,7 +92,6 @@ const ImageUpload = () => {
           style={{ display: "none" }}
         />
 
-        {/* Button to trigger the file input dialog */}
         <Button className="file-btn" onClick={onChooseFile}> Завантажити нове зображення</Button>
         {selectedFile && (
           <Button onClick={onDelete} className={css.delete}>Видалити</Button>
