@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Input from "../components/UI/Input/Input";
-import CategorySelector from "../components/CategorySelector/CategorySelector";
-import MultiplePhotoSelector from "../components/MultiplePhotoSelector/MultiplePhotoSelector";
-import StatePicker from "../components/StatePicker/StatePicker";
+import CategorySelector from "../components/Genesis/CategorySelector/CategorySelector";
+import MultiplePhotoSelector from "../components/Genesis/MultiplePhotoSelector/MultiplePhotoSelector";
+import StatePicker from "../components/Genesis/StatePicker/StatePicker";
 import LocationSelector from "../components/LocationSelector/LocationSelector";
 import { getLocalStorage } from "../utils/localStorage";
 import css from "../styles/Create.module.css";

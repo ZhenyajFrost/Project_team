@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import categories from "../../Data/categories.json";
-import def from "../../images/svgDef.svg";
-import ModalWindow from "../ModalWindow/ModalWindow";
+import categories from "../../../Data/categories.json";
+import def from "../../../images/svgDef.svg";
+import ModalWindow from "../../ModalWindow/ModalWindow";
 import css from "./style.module.css"
+import CategoryModal from "../CategoryModal/CategoryModal";
 
 function CategorySelector({ selectedCat, onCatChange }) {
   const [modal, setModal] = useState(false);
@@ -25,17 +26,7 @@ function CategorySelector({ selectedCat, onCatChange }) {
           visible={modal}
           setVisible={setModal}
           children={
-            <select
-              onInput={(e) => {
-                onCatChange(JSON.parse(e.target.value));
-              }}
-            >
-              {categories.map((v) => (
-                <option value={JSON.stringify(v)} key={v.imgId}>
-                  {v.title}
-                </option>
-              ))}
-            </select>
+            <CategoryModal onSelect={(c)=>{onCatChange(c); setModal(false)}} categories={categories}/>
           }
         />
       </>

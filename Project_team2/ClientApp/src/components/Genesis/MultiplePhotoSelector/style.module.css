@@ -5,12 +5,14 @@
   overflow: hidden;
   max-height: 300px;
 }
+
 .item {
   width: max(160px, calc(20% - 24px));
   height: 120px;
   border-radius: 24px;
   border: var(--borderColor) solid 1px;
   pointer-events: all;
+  position: relative;
 }
 .item.dragable{
     position: absolute;
@@ -30,4 +32,19 @@
   border-radius: inherit;
   pointer-events: none;
   pointer-events:stroke;
+}
+.item.dragable{
+  position: fixed;
+  z-index: 200;
+}
+
+.item:first-child:has(img):not(.dragable)::after{
+  background-color: var(--itemContainerColor);
+  content: "головна";
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+
+  border-radius: 24px;
+  padding: 0 10px;
 }
