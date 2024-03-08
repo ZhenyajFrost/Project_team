@@ -8,11 +8,12 @@ import { getLocalStorage } from "../utils/localStorage";
 import css from "../styles/Create.module.css";
 import useCreateLot from "../API/Lots/useCreateLot";
 import { Notify } from "notiflix";
+import TimeSelector from "../components/Genesis/TimeSelector/TimeSelector";
 
 export default function CreateLot() {
   const initialState = {
     title: "",
-    category:0,
+    category: 0,
     ShortDescription: "",
     endOn: 0,
     minimalBid: 0,
@@ -20,8 +21,8 @@ export default function CreateLot() {
     sellOn: Infinity,
     state: "Нове",
     images: [],
-    region:{},
-    city:{}
+    region: {},
+    city: {},
   };
 
   const [lot, setLot] = useState({});
@@ -38,14 +39,15 @@ export default function CreateLot() {
   };
   const onSubmit = (e) => {
     e.preventDefault();
-
     for (let a of Object.keys(initialState)) {
       if (!lot[a]) {
         Notify.failure(`поле ${a} не заповнене`);
         return;
       }
     }
-
+    if (lot.ShortDescription.length < 40) {
+      Notify.failure("Опис має бути щонайменше 40 символів");
+    }
     if (lot.city) {
       lot.region = lot.region.label;
       lot.city = lot.city.label;
@@ -77,10 +79,15 @@ export default function CreateLot() {
           />
 
           <p>Тривалість торгів</p>
-          <span>
-            Залишаю нотатку тому, хто побачить. Який вибір між к-стю днів має
-            бути? На дизайні видно лише 3 дні, того я не знаю
-          </span>
+          <TimeSelector
+            onChange={(t) => {
+              const today = new Date();
+              const endDate = new Date(
+                today.setDate(today.getDate() + Number(t))
+              );
+              onInput({ name: "endOn", value: endDate });
+            }}
+          />
         </div>
         <div className={css.createSection}>
           <h2>Фото</h2>
