@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import css from "./style.module.css";
 import { Buffer } from "buffer";
+import { Notify } from "notiflix";
 
 function PhotoItem({ photo, setPhoto, order }) {
   let disp;
@@ -8,21 +9,47 @@ function PhotoItem({ photo, setPhoto, order }) {
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [positionStart, setPositionStart] = useState({ top: 0, left: 0 });
   const addPhoto = () => {
-    var input = document.createElement("input");
+    const input = document.createElement("input");
     input.type = "file";
     input.onchange = (e) => {
-      var file = e.target.files[0];
+      const file = e.target.files[0];
 
       // setting up the reader
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.readAsArrayBuffer(file);
 
       // here we tell the reader what to do when it's done reading...
-      reader.onload = (readerEvent) => {
-        var content = readerEvent.target.result; // this is the content!
-        setPhoto(new Buffer.from(content).toString("base64"));
-        console.log(content);
+      reader.onload = async (readerEvent) => {
+        const content = new Buffer.from(readerEvent.target.result).toString("base64"); 
+        
+        const cloudName = "ebayclone";
+      const formData = new FormData();
+      formData.append("upload_preset", "lot");
+      formData.append("file", content);
+  
+      try {
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: "POST",
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          throw new Error('HTTP error! status: ' + response.status);
+        }
+  
+        const data = await response.json();
+  
+        console.log(data);
+  
+        Notify.success("Зображення завантажено успішно!");
+      } catch (error) {
+        Notify.failure("Щось пішло не так")
+      }
       };
+
+
+      
+
     };
     input.click();
   };

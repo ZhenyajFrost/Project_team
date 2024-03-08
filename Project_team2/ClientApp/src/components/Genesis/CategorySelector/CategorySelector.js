@@ -26,7 +26,7 @@ function CategorySelector({ selectedCat, onCatChange }) {
           visible={modal}
           setVisible={setModal}
           children={
-            <CategoryModal onSelect={(c)=>{onCatChange(c); setModal(false)}} categories={categories}/>
+            <CategoryModal onSelect={(c)=>{onCatChange(c); setModal(false); }} categories={categories}/>
           }
         />
       </>

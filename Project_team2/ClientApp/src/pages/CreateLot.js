@@ -12,12 +12,16 @@ import { Notify } from "notiflix";
 export default function CreateLot() {
   const initialState = {
     title: "",
+    category:0,
     ShortDescription: "",
-    endOn: new Date(),
+    endOn: 0,
     minimalBid: 0,
+    stepPrice: 0,
     sellOn: Infinity,
     state: "Нове",
     images: [],
+    region:{},
+    city:{}
   };
 
   const [lot, setLot] = useState({});
@@ -48,8 +52,7 @@ export default function CreateLot() {
     }
     lot.userId = user.id;
     lot.timeTillEnd = lot.endOn;
-    lot.endOn = undefined;
-    console.log(lot);
+    lot.category = lot.category.id;
     create.createLot(lot);
     setLot({});
   };
