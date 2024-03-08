@@ -60,22 +60,30 @@ public class LotSchedulingService : BackgroundService
         // Рассчитываем время до завершения лота
         TimeSpan timeUntilEnd = endTime - DateTime.Now;
 
-        // Планирование задачи для завершения лота
-        Task.Delay(timeUntilEnd).ContinueWith(async _ =>
+        // Проверяем, что время до завершения положительное
+        if (timeUntilEnd.TotalMilliseconds > 0)
         {
-            try
+            // Планирование задачи для завершения лота
+            Task.Delay(timeUntilEnd).ContinueWith(async _ =>
             {
-                // Выполнение действий для завершения лота
-                await DeactivateLot(lotId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"An error occurred while deactivating lot {lotId}: {ex}");
-            }
-        });
+                try
+                {
+                    // Выполнение действий для завершения лота
+                    await DeactivateLot(lotId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"An error occurred while deactivating lot {lotId}: {ex}");
+                }
+            });
 
-        // Вывод информации о запланированной задаче в консоль
-        Console.WriteLine($"Task scheduled for lot {lotId} end at {endTime}");
+            // Вывод информации о запланированной задаче в консоль
+            Console.WriteLine($"Task scheduled for lot {lotId} end at {endTime}");
+        }
+        else
+        {
+            _logger.LogWarning($"Task for lot {lotId} could not be scheduled because end time has already passed.");
+        }
     }
 
     private async Task DeactivateLot(int lotId)

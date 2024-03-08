@@ -10,8 +10,12 @@ import { formatTime } from "../utils/formatTime";
 import UserShort from "../components/UserShort/UserShort.js";
 import { nanoid } from "nanoid";
 import useGetLotById from "../API/Lots/useGetLotById.js";
+import { getLocalStorage } from "../utils/localStorage.js";
+import LikeButton from '../components/UI/LikeButton/LikeButton.js'
 
 function LotPage() {
+  const token = getLocalStorage('token');
+  
   const id =
     window.location.href.split("/")[window.location.href.split("/").length - 1];
   console.log(id);
@@ -97,6 +101,7 @@ function LotPage() {
             <div>
               {" "}
               {lot.price} <div className={css.buyBtn}>Купити</div>
+              <LikeButton token={token} lotId={id}/>
             </div>
           </div>
 

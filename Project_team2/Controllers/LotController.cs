@@ -19,9 +19,9 @@ namespace Project2.Controllers
     {
         private readonly ILogger<LotSchedulingService> _logger;
         private readonly string _connString;
-        public LotsController(){
-         _connString = Config.MySqlConnection;
-    }
+        public LotsController() {
+            _connString = Config.MySqlConnection;
+        }
         public string ExtractUserIdFromToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -139,7 +139,7 @@ namespace Project2.Controllers
             }
         }
 
-      
+
 
         [HttpPost("getHotsLot")]
         public IActionResult GetHotLots(int page = 1, int pageSize = 10)
@@ -346,7 +346,7 @@ namespace Project2.Controllers
 
 
         [HttpGet("getLotsByUser")]
-        public IActionResult GetLotsByUser(string userId, bool active = false, bool archive = false, bool unactive = false, int pageNumber = 1, int pageSize = 10)
+        public IActionResult GetLotsByUser(string userId, bool active = false, bool archive = false, bool unactive = false, bool isWaitingPayment = false, bool isWaitingDelivery = false, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
@@ -369,6 +369,14 @@ namespace Project2.Controllers
                     {
                         condition += " AND Unactive = true";
                     }
+                    if (isWaitingPayment)
+                    {
+                        condition += " AND isWaitingPayment = true";
+                    }
+                    if (isWaitingDelivery)
+                    {
+                        condition += " AND isWaitingDelivery = true";
+                    }
 
                     // Запрос на получение общего количества лотов, созданных выбранным пользователем
                     string countQuery = $"SELECT COUNT(*) FROM Lots WHERE UserId = @userId {condition}";
@@ -379,7 +387,7 @@ namespace Project2.Controllers
 
                         // Строим запрос на выборку лотов, созданных пользователем, с учетом пагинации и фильтрации
                         string query = $"SELECT * FROM Lots WHERE UserId = @userId {condition} " +
-                                       "ORDER BY Id DESC LIMIT @pageSize OFFSET @offset";
+                                        "ORDER BY Id DESC LIMIT @pageSize OFFSET @offset";
 
                         // Вычисляем смещение (offset) на основе номера страницы и размера страницы
                         int offset = (pageNumber - 1) * pageSize;
@@ -437,6 +445,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
 
 
         [HttpPost("updateLot")]
@@ -547,58 +556,57 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-        [HttpPost("likeLot")]
-        public IActionResult LikeLot(string Token, int lotId)
+        [HttpPost("toggleLike")]
+        public IActionResult ToggleLike([FromBody] LikesLot likesLot)
         {
-            var UserId = ExtractUserIdFromToken(Token);
+
+            var UserId = ExtractUserIdFromToken(likesLot.Token);
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
 
-                    string query = "INSERT INTO LikedLots (UserId, LotId) VALUES (@userId, @lotId)";
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    // Проверяем, существует ли запись о лайке для данного пользователя и лота
+                    string checkQuery = "SELECT COUNT(*) FROM LikedLots WHERE UserId = @userId AND LotId = @lotId";
+                    using (MySqlCommand checkCommand = new MySqlCommand(checkQuery, connection))
                     {
-                        command.Parameters.AddWithValue("@userId", UserId);
-                        command.Parameters.AddWithValue("@lotId", lotId);
-                        command.ExecuteNonQuery();
-                    }
+                        checkCommand.Parameters.AddWithValue("@userId", UserId);
+                        checkCommand.Parameters.AddWithValue("@lotId", likesLot.LotId);
+                        int count = Convert.ToInt32(checkCommand.ExecuteScalar());
 
-                    return Ok(new { message = "Lot liked successfully" });
+                        if (count > 0)
+                        {
+                            // Если запись о лайке уже существует, удаляем ее
+                            string deleteQuery = "DELETE FROM LikedLots WHERE UserId = @userId AND LotId = @lotId";
+                            using (MySqlCommand deleteCommand = new MySqlCommand(deleteQuery, connection))
+                            {
+                                deleteCommand.Parameters.AddWithValue("@userId", UserId);
+                                deleteCommand.Parameters.AddWithValue("@lotId", likesLot.LotId);
+                                deleteCommand.ExecuteNonQuery();
+                            }
+
+                            return Ok(new { message = "Lot unliked successfully" });
+                        }
+                        else
+                        {
+                            // Если запись о лайке не существует, добавляем ее
+                            string insertQuery = "INSERT INTO LikedLots (UserId, LotId) VALUES (@userId, @lotId)";
+                            using (MySqlCommand insertCommand = new MySqlCommand(insertQuery, connection))
+                            {
+                                insertCommand.Parameters.AddWithValue("@userId", UserId);
+                                insertCommand.Parameters.AddWithValue("@lotId", likesLot.LotId);
+                                insertCommand.ExecuteNonQuery();
+                            }
+
+                            return Ok(new { message = "Lot liked successfully" });
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in LikeLot method: {ex.ToString()}");
-                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
-            }
-        }
-
-        [HttpPost("unlikeLot")]
-        public IActionResult UnlikeLot(string Token, int lotId)
-        {
-            var UserId = ExtractUserIdFromToken(Token);
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(_connString))
-                {
-                    connection.Open();
-
-                    string query = "DELETE FROM LikedLots WHERE UserId = @userId AND LotId = @lotId";
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@userId", UserId);
-                        command.Parameters.AddWithValue("@lotId", lotId);
-                        command.ExecuteNonQuery();
-                    }
-
-                    return Ok(new { message = "Lot unliked successfully" });
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in UnlikeLot method: {ex.ToString()}");
+                Console.WriteLine($"Error in ToggleLike method: {ex.ToString()}");
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
@@ -806,9 +814,10 @@ namespace Project2.Controllers
 
 
         [HttpPost("getUserLikedLots")]
-        public IActionResult GetUserLikedLots(string Token, int page = 1, int pageSize = 10)
+        public IActionResult GetUserLikedLots([FromBody] getUserLikedLots model, int page = 1, int pageSize = 10)
         {
-            var UserId = ExtractUserIdFromToken(Token);
+            
+            var UserId = ExtractUserIdFromToken(model.Token);
             try
             {
                 List<Lot> likedLots = new List<Lot>();
@@ -866,6 +875,13 @@ namespace Project2.Controllers
         }
 
 
+    }
+    public class getUserLikedLots { 
+    public string Token { get; set; }
+    }
+    public class LikesLot { 
+    public string Token { get; set; }
+    public string LotId { get; set; }
     }
     public class UpdateLotRequest
     {

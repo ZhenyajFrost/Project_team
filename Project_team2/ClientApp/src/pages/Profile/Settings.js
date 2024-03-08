@@ -241,7 +241,8 @@ function Settings() {
         console.log("token " + token);
 
         await updateEmail(token, dataToUpdate);
-        
+
+        window.location.reload();
         setFormData((prev) => ({
             ...prev,
             oldPassword: '' 
@@ -478,7 +479,6 @@ function Settings() {
                 <CustomAccordionDetails>
                     <div className={css.container}>
                         <ImageUpload />
-
                     </div>
                 </CustomAccordionDetails>
             </CustomAccordion>
