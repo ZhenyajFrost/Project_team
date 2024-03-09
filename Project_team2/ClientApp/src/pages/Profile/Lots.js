@@ -27,13 +27,13 @@ function Lots() {
         setActiveTab(tab);
     };
 
-    useEffect(async() => { 
-        await getLots(user.id, pagination.page, pagination.pageSize, activeTab, filters);
-    }, [activeTab])
+    useEffect(() => { 
+        getLots(user.id, pagination.page, pagination.pageSize, activeTab, filters).then(v=>console.log(v));
+    }, [activeTab, filters])
 
-    useEffect(async() => { 
-        await getLots(user.id, pagination.page, pagination.pageSize, activeTab, filters);
-    }, [filters]) //REWRITE TO BUTTON AND DESIGNERS SUCK
+    // useEffect(async() => { 
+    //     await getLots(user.id, pagination.page, pagination.pageSize, activeTab, filters);
+    // }, [filters]) //REWRITE TO BUTTON AND DESIGNERS SUCK
 
     const handleAddButton = () => {
         history.push('/create');

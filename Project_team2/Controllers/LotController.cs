@@ -403,35 +403,37 @@ namespace Project2.Controllers
                             List<LotModel> lots = new List<LotModel>();
 
                             // Читаем результаты выборки
-                            using (MySqlDataReader reader = command.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-                                    // Создаем объект LotModel для каждой строки результата
-                                    LotModel lot = new LotModel
-                                    {
-                                        Id = Convert.ToInt32(reader["Id"]),
-                                        Title = reader["Title"].ToString(),
-                                        Price = Convert.ToDecimal(reader["Price"]),
-                                        CurrentBid = Convert.ToDecimal(reader["CurrentBid"]),
-                                        ShortDescription = reader["ShortDescription"].ToString(),
-                                        Category = (int)reader["Category"],
-                                        TimeTillEnd = reader["TimeTillEnd"].ToString(),
-                                        // Парсим строку ImageURLs в массив строк
-                                        ImageURLs = reader["ImageURLs"].ToString().Split(','),
-                                        UserId = reader["UserId"].ToString(),
-                                        Region = reader["region"].ToString(), // Добавляем извлечение региона из базы данных
-                                        City = reader["city"].ToString(), // Добавляем извлечение города из базы данных
-                                        IsNew = Convert.ToBoolean(reader["isNew"]), // Добавляем извлечение IsNew из базы данных
-                                        MinPrice = reader.GetDecimal("minPrice"), // Добавляем извлечение MinPrice из базы данных
-                                        MinStepPrice = reader.GetDecimal("minStepPrice") // Добавляем извлечение MinStepPrice из базы данных
-                                    };
+                            //using (MySqlDataReader reader = command.ExecuteReader())
+                            //{
+                            //    while (reader.Read())
+                            //    {
+                            //        // Создаем объект LotModel для каждой строки результата
+                            //        LotModel lot = new LotModel
+                            //        {
+                            //            Id = Convert.ToInt32(reader["Id"]),
+                            //            Title = reader["Title"].ToString(),
+                            //            Price = Convert.ToDecimal(reader["Price"]),
+                            //            CurrentBid = Convert.ToDecimal(reader["CurrentBid"]),
+                            //            ShortDescription = reader["ShortDescription"].ToString(),
+                            //            Category = (int)reader["Category"],
+                            //            TimeTillEnd = reader["TimeTillEnd"].ToString(),
+                            //            // Парсим строку ImageURLs в массив строк
+                            //            ImageURLs = reader["ImageURLs"].ToString().Split(','),
+                            //            UserId = reader["UserId"].ToString(),
+                            //            Region = reader["region"].ToString(), // Добавляем извлечение региона из базы данных
+                            //            City = reader["city"].ToString(), // Добавляем извлечение города из базы данных
+                            //            IsNew = Convert.ToBoolean(reader["isNew"]), // Добавляем извлечение IsNew из базы данных
+                            //            MinPrice = reader.GetDecimal("minPrice"), // Добавляем извлечение MinPrice из базы данных
+                            //            MinStepPrice = reader.GetDecimal("minStepPrice") // Добавляем извлечение MinStepPrice из базы данных
+                            //        };
 
-                                    // Добавляем лот в список
-                                    lots.Add(lot);
-                                }
-                            }
+                            //        // Добавляем лот в список
+                            //        lots.Add(lot);
+                            //    }
+                            //}
 
+
+                            lots.Add(new LotModel() { Category = 0, Title = "Oleg" });
                             // Возвращаем список лотов и общее количество
                             return Ok(new { lots, totalCount });
                         }

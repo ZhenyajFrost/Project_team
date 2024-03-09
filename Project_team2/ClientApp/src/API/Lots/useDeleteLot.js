@@ -6,7 +6,7 @@ const useDeleteLot = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const deleteLot = async (url, lotId) => {
+    const deleteLot = async (lotId) => {
         setLoading(true);
         try {
             const response = await axios.delete(`${LOTS_ENDPOINT}/deleteLot/${lotId}`);
