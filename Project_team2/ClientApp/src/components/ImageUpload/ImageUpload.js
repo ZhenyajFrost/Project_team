@@ -71,7 +71,7 @@ const ImageUpload = () => {
 
       console.log(data.url); //LOGIC TO SERVER
       updateUser(token, { avatar: data.url });
-      window.location.reload();
+      //window.location.reload();
 
       alert("Image uploaded successfully.");
     } catch (error) {

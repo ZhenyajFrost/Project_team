@@ -9,21 +9,12 @@ const useGetLotsByUser = () => {
     const [lots, setLots] = useState([]);
     const [totalCount, setTotalCount] = useState();
 
-    const getLots = async (userId, pageNumber, pageSize, activeTab, filters) => { //FILTER
+    const getLots = async (token, page, pageSize) => { //FILTER
         setLoading(true);
         try {
-            const response = await axios.get(`${LOTS_ENDPOINT}/getLotsByUser`, {
-                params:
-                {
-                    userId: userId,
-                    pageNumber: pageNumber,
-                    pageSize: pageSize,
-                    activeTab: activeTab,
-                    filters: filters
-                }
-            }); //FILTER IS NEEDED
+            const response = await axios.post(`${LOTS_ENDPOINT}/getUserLikedLots`, {token, page, pageSize});
             console.log('Lots successfully retrieved: ', response.data);
-            setLots(response.data.lots);
+            setLots(response.data.likedLots);
             setTotalCount(response.data.totalCount)
         } catch (error) {
             console.error('Getting lots failed: ', error);

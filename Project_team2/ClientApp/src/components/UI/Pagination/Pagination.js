@@ -2,9 +2,8 @@
 import { getPagesArray } from '../../../utils/pages.js';
 import classes from './Pagination.module.css'
 
-const Pagination = ({totalPages, page, changePage }) => {
-    let pagesArray = getPagesArray(totalPages);
-    //console.log(getPagesArray(totalPages));
+const Pagination = ({totalCount, limit, page, changePage }) => {
+    let pagesArray = getPagesArray(totalCount, limit);
     return (
         <div className={classes.pagesNav}>
             {pagesArray.map(p =>

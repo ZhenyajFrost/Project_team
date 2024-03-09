@@ -3,6 +3,8 @@ import { useEffect } from "react";
 import svg from "../../../images/svgDef.svg";
 import { NavLink } from "react-router-dom";
 import { formatTime } from "../../../utils/formatTime";
+import css from "./LotSmall.module.css"
+import { useHistory } from "react-router-dom/cjs/react-router-dom";
 import css from "./LotSmall.module.css";
 import useDeleteLot from "../../../API/Lots/useDeleteLot";
 
@@ -15,6 +17,8 @@ function LotSmall({
   imageURL,
   location,
 }) {
+  const history = useHistory();
+  
   const [ttl, setTtl] = useState(timeTillEnd);
   const { deleteLot, isLoading, error } = useDeleteLot();
   useEffect(() => {
@@ -24,6 +28,7 @@ function LotSmall({
   }, [ttl]);
   const [dots, setDots] = useState(false);
   const [thing, setThing] = useState(false);
+
   return (
     <div className={css.lot} onMouseEnter={()=>setDots(true)} onMouseLeave={()=>setDots(false)}>
       {dots ? (
@@ -66,8 +71,6 @@ function LotSmall({
       <div className={css.info}>
         <div className={css.title}>{title}</div>
         <div className={css.desc}>{shortDescription}</div>
-
-        <div className={css.info}>
           <div className={css.text}>
             <svg>
               <use href={`${svg}#schedule`} />
@@ -79,7 +82,7 @@ function LotSmall({
               <svg>
                 <use href={`${svg}#attach_money`} />
               </svg>
-              {price}
+              {formatTime(ttl)}
             </div>
             <div className={css.text}>
               <svg>
@@ -90,7 +93,6 @@ function LotSmall({
           </div>
         </div>
       </div>
-    </div>
   );
 }
 

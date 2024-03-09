@@ -8,8 +8,17 @@ class ProfileLayout extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            selectedPage: 'settings',
+            selectedPage: window.location.href.split('/').pop(),
         };
+        console.log(this.state.selectedPage)
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.location !== prevProps.location) {
+            this.setState({
+                selectedPage: window.location.href.split('/').pop(),
+            });
+        }
     }
 
     onLots = () => {
@@ -19,17 +28,23 @@ class ProfileLayout extends Component {
 
     onSettings = () => {
         this.setState({ selectedPage: 'settings' });
+
         this.props.history.push('/profile/settings');
+
     }
 
     onFavorites = () => {
         this.setState({ selectedPage: 'favorites' });
+
         this.props.history.push('/profile/favorites');
+
     }
 
     onBids = () => {
         this.setState({ selectedPage: 'bids' });
+
         this.props.history.push('/profile/bids');
+
     }
 
     render() {
@@ -44,7 +59,7 @@ class ProfileLayout extends Component {
                     <Button onClick={this.onSettings} className={selectedPage === 'settings' ? '' : css.selectedPage}>Налаштування</Button>
                 </div>
 
-                <Container style={{padding: '0'}}>
+                <Container style={{ padding: '0' }}>
                     {this.props.children}
                 </Container>
             </div>
