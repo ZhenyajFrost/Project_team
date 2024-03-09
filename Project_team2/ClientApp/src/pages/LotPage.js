@@ -15,7 +15,14 @@ import LikeButton from '../components/UI/LikeButton/LikeButton.js'
 
 function LotPage() {
   const token = getLocalStorage('token');
-  const user = getLocalStorage('user');
+  
+  const user = {
+    name: "sigma mewing male",
+    since: "вересень 1939",
+    last: "10 січня",
+    avatar:
+      "https://i.kym-cdn.com/editorials/icons/original/000/006/374/looksmaxxing.jpg",
+  };
   
   const id = parseInt(window.location.href.split("/").pop(), 10);
   console.log(id);
@@ -52,6 +59,7 @@ function LotPage() {
     Місцезнаходження: "Волинь",
     Стан: "б/в",
   };
+
   return (
     <div>
       <LotPath path={[{name:lot.category, path:`/search?category=${lot.category}/`},{name:lot.title, path:""}]} />

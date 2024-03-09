@@ -59,6 +59,7 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
       setLocalStorage('token', result.data.token);
       setLocalStorage('isLoggined', true);
       setIsLoggined(true);
+      window.location.reload();
 
 
       console.log('Login successful:', result.data);

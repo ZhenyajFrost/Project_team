@@ -9,7 +9,10 @@ const LikeButton = ({ token, lotId }) => {
     const user =  getLocalStorage('user');
 
     const isLotLiked = () => {
-        return user.likedLotIds.some(id => lotId === id);
+        if(user)
+            return user.likedLotIds.some(id => lotId === id);
+        else
+            return false
     }
 
     const [likeLot, isLoading, error] = useLikeLot();
@@ -18,7 +21,7 @@ const LikeButton = ({ token, lotId }) => {
 
     useEffect(() => {
         setIsLiked(isLotLiked());
-    }, []);
+    }, [user]);
 
     const handleLike = async () => {
         if (token) {
