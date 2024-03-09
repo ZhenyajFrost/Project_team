@@ -18,6 +18,7 @@
     display: flex;
     flex-direction: column;
     gap: 30px;
+    min-height: 21vw;
 }
 
 .btn {
@@ -57,4 +58,8 @@
     color: white;
     border-radius: 43px;
     font-weight: 700;
+}
+
+.lots{
+    min-height: 10vh;
 }

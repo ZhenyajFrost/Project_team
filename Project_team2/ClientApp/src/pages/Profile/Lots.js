@@ -8,32 +8,45 @@ import LotContainer from '../../components/UI/LotContainer/LotContainer'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom';
 import useGetLotsByUser from '../../API/Lots/useGetLotsByUser';
 import { getLocalStorage } from '../../utils/localStorage';
+import { categoriesFromLots } from '../../utils/catedoriesFromLots';
+import Pagination from '../../components/UI/Pagination/Pagination.js';
 
 function Lots() {
     const user = getLocalStorage('user');
     const history = useHistory();
     const [activeTab, setActiveTab] = useState('Active');
-    const [filters, setFilters] = useState({});
-    const categories = [{ label: 'Антикваріат', value: 'antic', quantity: 10 },
-    { label: 'Дім', value: 'home', quantity: 12 }]; //WRITE LOGIC
 
-    const [getLots, lots, isLoading, error] = useGetLotsByUser(); //rewrite this part
+    const [filters, setFilters] = useState({});
+    const [categoryClicked, setCategoryClicked] = useState('');
+
+    const [getLots, lots, totalCount, isLoading, error] = useGetLotsByUser(); //rewrite this part
+
+    const categories = categoriesFromLots(lots);
+
     const [pagination, setPagination] = useState({
-        page: 1,
+        pageNumber: 1,
         pageSize: 6
     });
 
+    const handleChangePage = (page) => {
+        setPagination(prev => ({
+            ...prev,
+            pageNumber: page
+        }))
+    }
+
     const handleTabClick = async (tab) => {
         setActiveTab(tab);
+        setFilters({});
     };
 
-    useEffect(async() => { 
-        await getLots(user.id, pagination.page, pagination.pageSize, activeTab, filters);
-    }, [activeTab])
+    useEffect(async () => {
+        await getLots(user.id, pagination.pageNumber, pagination.pageSize, filters);
+    }, [activeTab, pagination])
 
-    useEffect(async() => { 
+    const handleButtonSearch = async () => {
         await getLots(user.id, pagination.page, pagination.pageSize, activeTab, filters);
-    }, [filters]) //REWRITE TO BUTTON AND DESIGNERS SUCK
+    }
 
     const handleAddButton = () => {
         history.push('/create');
@@ -79,17 +92,15 @@ function Lots() {
             </div>
 
             <FiltersWSearch onChange={onFilterChange} initial={filters} />
+            <Button onClick={handleButtonSearch}>Search</Button>
 
             <div className={css.body}>
-                <FilterCategory onChange={onFilterChange} categories={categories}/>
+                <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} />
 
                 <div className={css.lots}>
-                    {activeTab === 'Active' ? <LotContainer lots={lots} display="grid-3col" lotStyle="small" /> : <></>}
-                    {activeTab === 'Unactive' && <p>Showing Unactive items...</p>}
-                    {activeTab === 'Archive' && <p>Showing Archived items...</p>}
-
+                    {totalCount === 0 ? "No lots Found" : <LotContainer lots={lots} display="grid-3col" lotStyle="small" />}
+                    <Pagination totalCount={totalCount} page={pagination.pageNumber} limit={pagination.pageSize} changePage={handleChangePage} />
                 </div>
-
             </div>
 
         </div>

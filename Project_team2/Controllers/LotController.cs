@@ -139,8 +139,6 @@ namespace Project2.Controllers
             }
         }
 
-
-
         [HttpPost("getHotsLot")]
         public IActionResult GetHotLots(int page = 1, int pageSize = 10)
         {
@@ -265,7 +263,6 @@ namespace Project2.Controllers
         }
 
 
-
         [HttpGet("getLotsByCategory")]
         public IActionResult GetLotsByCategory(string category, int pageNumber = 1, int pageSize = 10)
         {
@@ -343,7 +340,6 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-
 
         [HttpGet("getLotsByUser")]
         public IActionResult GetLotsByUser(string userId, bool active = false, bool archive = false, bool unactive = false, bool isWaitingPayment = false, bool isWaitingDelivery = false, int pageNumber = 1, int pageSize = 10)
@@ -445,8 +441,6 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-
-
 
         [HttpPost("updateLot")]
         public IActionResult UpdateLot([FromBody] UpdateLotRequest request)
@@ -556,6 +550,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+        
         [HttpPost("toggleLike")]
         public IActionResult ToggleLike([FromBody] LikesLot likesLot)
         {
@@ -610,6 +605,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+       
         [HttpGet("getLotById/{id}")]
         public IActionResult GetLotById(int id)
         {
@@ -659,7 +655,6 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-
 
 
         [HttpPost("SearchLots")]

@@ -24,7 +24,7 @@ function PhotoItem({ photo, setPhoto, order }) {
         
         const cloudName = "ebayclone";
       const formData = new FormData();
-      formData.append("upload_preset", "lot");
+      formData.append("upload_preset", "lotPhoto");
       formData.append("file", content);
   
       try {

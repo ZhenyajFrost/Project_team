@@ -4,38 +4,31 @@ import Button from '../UI/Button/Button'
 import PostService from '../../API/PostService';
 import { useFetching } from '../../hooks/useFetching';
 
-export default function FilterCategory({ categories, onChange}) {
+export default function FilterCategory({ categories, onChange, setCategoryClicked }) {
     const [quantityOfLots, setQuantityOfLots] = useState(32);
-    const [activeCat, setActiveCat] = useState('all');
+    const [activeCat, setActiveCat] = useState('');
 
-    const handleCatClick = async (e) => {
+    const handleCatClick = (e) => {
         setActiveCat(e.target.value);
-        
-        //WRITE LOGIC
-        // const response = await PostService.getAll(7, 1);
-        // const data = await response.json();
-        // setActiveLots(data);
-
     };
 
     useEffect(() => {
-        console.log("Filters changed in FiltersSearch")
-
-        onChange({category: activeCat});
+        onChange({ category: activeCat });
+        setCategoryClicked(prev => !prev)
     }, [activeCat]);
 
     return (
         <div className={css.container}>
             <label>Категорії</label>
             <div className={css.btnContainer}>
-                <Button value='all'
-                    className={`${css.btn} ${activeCat === 'all' ? '' : css.activeCat}`}
+                <Button value=''
+                    className={`${css.btn} ${activeCat === '' ? '' : css.activeCat}`}
                     onClick={handleCatClick}>Усі категорії <div className={css.number}>{quantityOfLots}</div></Button>
                 {categories.map(category => (
                     <Button
                         value={category.value}
                         className={`${css.btn} ${activeCat === category.value ? '' : css.activeCat}`}
-                        onClick={handleCatClick}>{category.label} <div className={css.number}>{category.quantity}</div>
+                        onClick={handleCatClick}>{category.label} <div className={css.number}>{category.count}</div>
                     </Button>
                 ))}
             </div>
