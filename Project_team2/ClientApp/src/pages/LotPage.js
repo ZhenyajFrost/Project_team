@@ -52,7 +52,6 @@ function LotPage() {
   //   setLot(res);
   // }, [setLot]);
 
-  console.log(lot);
   const lotInfo = {
     "Технічний статус": "несправний",
     Наявність: "в наявності",
@@ -68,6 +67,7 @@ function LotPage() {
           <div className={css.sideThing}>
             <PictureCarousel
               images={[
+                
                 "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJh3CWYgD6Ef_xBzfGGAPLgyHxxi_vNEto993EyZITNQ&s",
                 "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_yoXVqQfcb5B9P1nv3tJUs1PBZ520YK0nYARL81kt9w&s",
                 "https://picsum.photos/200/300",

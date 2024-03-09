@@ -11,45 +11,35 @@ function PhotoItem({ photo, setPhoto, order }) {
   const addPhoto = () => {
     const input = document.createElement("input");
     input.type = "file";
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = e.target.files[0];
 
-      // setting up the reader
-      let reader = new FileReader();
-      reader.readAsArrayBuffer(file);
-
-      // here we tell the reader what to do when it's done reading...
-      reader.onload = async (readerEvent) => {
-        const content = new Buffer.from(readerEvent.target.result).toString("base64"); 
-        
-        const cloudName = "ebayclone";
+      const cloudName = "ebayclone";
       const formData = new FormData();
-      formData.append("upload_preset", "lot");
-      formData.append("file", content);
-  
+      formData.append("upload_preset", "lotPhoto");
+      formData.append("file", file);
+
       try {
-        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-          method: "POST",
-          body: formData,
-        });
-  
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
         if (!response.ok) {
-          throw new Error('HTTP error! status: ' + response.status);
+          throw new Error("HTTP error! status: " + response.status);
         }
-  
+
         const data = await response.json();
-  
-        console.log(data);
-  
+
+        console.log(data.secure_url);
+        setPhoto(data.secure_url)
         Notify.success("Зображення завантажено успішно!");
       } catch (error) {
-        Notify.failure("Щось пішло не так")
+        Notify.failure("Щось пішло не так");
       }
-      };
-
-
-      
-
     };
     input.click();
   };
@@ -59,7 +49,7 @@ function PhotoItem({ photo, setPhoto, order }) {
     else
       disp = (
         <img
-          src={"data:image/png;base64," + photo}
+          src={photo}
           alt="item"
           draggable="false"
         />
