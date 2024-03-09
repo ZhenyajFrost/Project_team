@@ -204,20 +204,22 @@ namespace Project2.Controllers
         {
             try
             {
+                if (page <= 0 || pageSize <= 0)
+                {
+                    return BadRequest("Page and pageSize values should be greater than zero.");
+                }
+
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
 
-                    // Вычисляем общее количество активных лотов
                     string countQuery = "SELECT COUNT(*) FROM Lots WHERE Active = true";
                     using (MySqlCommand countCommand = new MySqlCommand(countQuery, connection))
                     {
                         int totalCount = Convert.ToInt32(countCommand.ExecuteScalar());
 
-                        // Вычисляем смещение для пагинации
                         int offset = (page - 1) * pageSize;
 
-                        // Получаем указанное количество активных лотов из базы данных с учетом пагинации
                         string query = "SELECT * FROM Lots WHERE Active = true LIMIT @pageSize OFFSET @offset";
                         using (MySqlCommand command = new MySqlCommand(query, connection))
                         {
@@ -229,23 +231,23 @@ namespace Project2.Controllers
                                 List<LotModel> lots = new List<LotModel>();
                                 while (reader.Read())
                                 {
-                                    LotModel lot = new LotModel
-                                    {
-                                        Id = reader.GetInt32("id"),
-                                        Title = reader.GetString("title"),
-                                        Price = reader.GetDecimal("price"),
-                                        CurrentBid = Convert.ToDecimal(reader["CurrentBid"]),
-                                        ShortDescription = reader.GetString("shortDescription"),
-                                        Category = reader.GetInt16("category"),
-                                        TimeTillEnd = reader.GetDateTime("timeTillEnd").ToString(),
-                                        ImageURLs = reader["ImageURLs"].ToString().Split(','),
-                                        UserId = reader["UserId"].ToString(),
-                                        Region = reader["region"].ToString(), // Добавляем извлечение региона из базы данных
-                                        City = reader["city"].ToString(), // Добавляем извлечение города из базы данных
-                                        IsNew = Convert.ToBoolean(reader["isNew"]), // Добавляем извлечение IsNew из базы данных
-                                        MinPrice = reader.GetDecimal("minPrice"), // Добавляем извлечение MinPrice из базы данных
-                                        MinStepPrice = reader.GetDecimal("minStepPrice") // Добавляем извлечение MinStepPrice из базы данных
-                                    };
+                                    LotModel lot = new LotModel();
+                                    lot.Id = reader.GetInt32("id");
+                                    lot.Title = reader.GetString("title");
+                                    lot.Price = reader.GetDecimal("price");
+                                    lot.ShortDescription = reader.GetString("shortDescription");
+                                    lot.Category = int.Parse(reader.GetString("category"));
+                                    lot.TimeTillEnd = reader.GetDateTime("timeTillEnd").ToString();
+                                    lot.ImageURLs = reader["ImageURLs"].ToString().Split(',');
+                                    lot.UserId = reader.GetInt16("UserId");
+                                    lot.Region = reader["region"].ToString();
+                                    lot.City = reader["city"].ToString();
+                                    lot.IsNew = Convert.ToBoolean(reader["isNew"]);
+                                    lot.MinPrice = reader.GetDecimal("minPrice");
+                                    lot.MinStepPrice = reader.GetDecimal("minStepPrice");
+
+                                    // Handle null values and type conversion errors if needed
+
                                     lots.Add(lot);
                                 }
 
@@ -314,7 +316,7 @@ namespace Project2.Controllers
                                         TimeTillEnd = reader["TimeTillEnd"].ToString(),
                                         // Парсим строку ImageURLs в массив строк
                                         ImageURLs = reader["ImageURLs"].ToString().Split(','),
-                                        UserId = reader["UserId"].ToString(),
+                                        UserId = reader.GetInt16("UserId"),
                                         Region = reader["region"].ToString(), // Добавляем извлечение региона из базы данных
                                         City = reader["city"].ToString(), // Добавляем извлечение города из базы данных
                                         IsNew = Convert.ToBoolean(reader["isNew"]), // Добавляем извлечение IsNew из базы данных
@@ -342,11 +344,10 @@ namespace Project2.Controllers
         }
 
         [HttpGet("getLotsByUser")]
-        public IActionResult GetLotsByUser(string userId, bool active = false, bool archive = false, bool unactive = false, bool isWaitingPayment = false, bool isWaitingDelivery = false, int pageNumber = 1, int pageSize = 10)
+        public IActionResult GetLotsByUser(string userId, string searchQuery = "", decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, string sortBy = "", int category = 0, bool active = false, bool archive = false, bool unactive = false, bool isWaitingPayment = false, bool isWaitingDelivery = false, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                // Открываем соединение с базой данных
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
@@ -374,6 +375,28 @@ namespace Project2.Controllers
                         condition += " AND isWaitingDelivery = true";
                     }
 
+                    // Добавляем фильтры
+                    if (!string.IsNullOrEmpty(searchQuery))
+                    {
+                        condition += $" AND Title LIKE '%{searchQuery}%'";
+                    }
+                    if (minPrice.HasValue)
+                    {
+                        condition += $" AND Price >= {minPrice}";
+                    }
+                    if (maxPrice.HasValue)
+                    {
+                        condition += $" AND Price <= {maxPrice}";
+                    }
+                    if (timeTillEnd.HasValue)
+                    {
+                        condition += $" AND TimeTillEnd <= '{timeTillEnd.Value.ToString("yyyy-MM-dd HH:mm:ss")}'";
+                    }
+                    if (category > 0)
+                    {
+                        condition += $" AND Category = {category}";
+                    }
+
                     // Запрос на получение общего количества лотов, созданных выбранным пользователем
                     string countQuery = $"SELECT COUNT(*) FROM Lots WHERE UserId = @userId {condition}";
                     using (MySqlCommand countCommand = new MySqlCommand(countQuery, connection))
@@ -388,22 +411,18 @@ namespace Project2.Controllers
                         // Вычисляем смещение (offset) на основе номера страницы и размера страницы
                         int offset = (pageNumber - 1) * pageSize;
 
-                        // Выполняем запрос на выборку
                         using (MySqlCommand command = new MySqlCommand(query, connection))
                         {
                             command.Parameters.AddWithValue("@userId", userId);
                             command.Parameters.AddWithValue("@pageSize", pageSize);
                             command.Parameters.AddWithValue("@offset", offset);
 
-                            // Создаем список для хранения результатов выборки
                             List<LotModel> lots = new List<LotModel>();
 
-                            // Читаем результаты выборки
                             using (MySqlDataReader reader = command.ExecuteReader())
                             {
                                 while (reader.Read())
                                 {
-                                    // Создаем объект LotModel для каждой строки результата
                                     LotModel lot = new LotModel
                                     {
                                         Id = Convert.ToInt32(reader["Id"]),
@@ -413,33 +432,48 @@ namespace Project2.Controllers
                                         ShortDescription = reader["ShortDescription"].ToString(),
                                         Category = (int)reader["Category"],
                                         TimeTillEnd = reader["TimeTillEnd"].ToString(),
-                                        // Парсим строку ImageURLs в массив строк
                                         ImageURLs = reader["ImageURLs"].ToString().Split(','),
-                                        UserId = reader["UserId"].ToString(),
-                                        Region = reader["region"].ToString(), // Добавляем извлечение региона из базы данных
-                                        City = reader["city"].ToString(), // Добавляем извлечение города из базы данных
-                                        IsNew = Convert.ToBoolean(reader["isNew"]), // Добавляем извлечение IsNew из базы данных
-                                        MinPrice = reader.GetDecimal("minPrice"), // Добавляем извлечение MinPrice из базы данных
-                                        MinStepPrice = reader.GetDecimal("minStepPrice") // Добавляем извлечение MinStepPrice из базы данных
+                                        UserId = reader.GetInt16("UserId"),
+                                        Region = reader["region"].ToString(),
+                                        City = reader["city"].ToString(),
+                                        IsNew = Convert.ToBoolean(reader["isNew"]),
+                                        MinPrice = reader.GetDecimal("minPrice"),
+                                        MinStepPrice = reader.GetDecimal("minStepPrice")
                                     };
 
-                                    // Добавляем лот в список
                                     lots.Add(lot);
                                 }
                             }
-                            // Возвращаем список лотов и общее количество
-                            return Ok(new { lots, totalCount });
+
+                            // Получаем количество лотов в каждой категории
+                            Dictionary<int, int> categoryCounts = new Dictionary<int, int>();
+                            string categoryCountQuery = "SELECT Category, COUNT(*) AS Count FROM Lots GROUP BY Category";
+                            using (MySqlCommand categoryCountCommand = new MySqlCommand(categoryCountQuery, connection))
+                            {
+                                using (MySqlDataReader categoryReader = categoryCountCommand.ExecuteReader())
+                                {
+                                    while (categoryReader.Read())
+                                    {
+                                        int categoryValue = (int)categoryReader["Category"];
+                                        int count = Convert.ToInt32(categoryReader["Count"]);
+                                        categoryCounts.Add(categoryValue, count);
+                                    }
+                                }
+                            }
+
+                            // Возвращаем список лотов, общее количество и количество лотов в каждой категории
+                            return Ok(new { lots, totalCount, categoryCounts });
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                // В случае ошибки возвращаем статус 500 и сообщение об ошибке
                 Console.WriteLine($"Error getting lots by user: {ex.ToString()}");
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
 
         [HttpPost("updateLot")]
         public IActionResult UpdateLot([FromBody] UpdateLotRequest request)
@@ -505,12 +539,26 @@ namespace Project2.Controllers
                 {
                     connection.Open();
 
-                    // Удаляем лот из базы данных
-                    string query = "DELETE FROM Lots WHERE id = @id";
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    string deleteLikedLotsQuery = "DELETE FROM LikedLots WHERE LotId = @id";
+                    using (MySqlCommand deleteLikedLotsCommand = new MySqlCommand(deleteLikedLotsQuery, connection))
                     {
-                        command.Parameters.AddWithValue("@id", id);
-                        command.ExecuteNonQuery();
+                        deleteLikedLotsCommand.Parameters.AddWithValue("@id", id);
+                        deleteLikedLotsCommand.ExecuteNonQuery();
+                    }
+                    // Первый шаг: Удаляем связанные записи из таблицы Bids
+                    string deleteBidsQuery = "DELETE FROM Bids WHERE LotId = @id";
+                    using (MySqlCommand deleteBidsCommand = new MySqlCommand(deleteBidsQuery, connection))
+                    {
+                        deleteBidsCommand.Parameters.AddWithValue("@id", id);
+                        deleteBidsCommand.ExecuteNonQuery();
+                    }
+
+                    // Второй шаг: Удаляем лот из таблицы Lots
+                    string deleteLotQuery = "DELETE FROM Lots WHERE Id = @id";
+                    using (MySqlCommand deleteLotCommand = new MySqlCommand(deleteLotQuery, connection))
+                    {
+                        deleteLotCommand.Parameters.AddWithValue("@id", id);
+                        deleteLotCommand.ExecuteNonQuery();
                     }
 
                     return Ok(new { message = "Lot deleted successfully" });
@@ -522,9 +570,8 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-
-        [HttpPost("approveLot")]
-        public IActionResult ApproveLot(int id)
+        [HttpPost("UnactiveLot")]
+        public IActionResult UnactiveLot(int id)
         {
             try
             {
@@ -533,7 +580,7 @@ namespace Project2.Controllers
                     connection.Open();
 
                     // Утверждаем лот в базе данных
-                    string query = "UPDATE Lots SET approved = true, Unactive = false, Archive = false WHERE id = @id";
+                    string query = "UPDATE Lots SET active = false, unactive = true, archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@id", id);
@@ -549,7 +596,85 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-        
+        [HttpPost("ArchiveLot")]
+        public IActionResult ArchiveLot(int id)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    // Утверждаем лот в базе данных
+                    string query = "UPDATE Lots SET active = false, unactive = false, archive = true, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@id", id);
+                        command.ExecuteNonQuery();
+                    }
+
+                    return Ok(new { message = "Lot Archive successfully" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in ArchiveLot method: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+            }
+        }
+        [HttpPost("isWaitingPaymentLot")]
+        public IActionResult isWaitingPaymentLot(int id)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    // Утверждаем лот в базе данных
+                    string query = "UPDATE Lots SET Active = false, Unactive = false, Archive = false, isWaitingDelivery = false, isWaitingPayment = true WHERE id = @id";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@id", id);
+                        command.ExecuteNonQuery();
+                    }
+
+                    return Ok(new { message = "Lot approved successfully" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in ApproveLot method: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+            }
+        }
+        [HttpPost("approveLot")]
+        public IActionResult ApproveLot(int id)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    // Утверждаем лот в базе данных
+                    string query = "UPDATE Lots SET approved = true, Active = true, Unactive = false, Archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@id", id);
+                        command.ExecuteNonQuery();
+                    }
+
+                    return Ok(new { message = "Lot approved successfully" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in ApproveLot method: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+            }
+        }
+
         [HttpPost("toggleLike")]
         public IActionResult ToggleLike([FromBody] LikesLot likesLot)
         {
@@ -602,56 +727,6 @@ namespace Project2.Controllers
             {
                 Console.WriteLine($"Error in ToggleLike method: {ex.ToString()}");
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
-            }
-        }
-       
-        [HttpGet("getLotById/{id}")]
-        public IActionResult GetLotById(int id)
-        {
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(_connString))
-                {
-                    connection.Open();
-
-                    // Запрос к базе данных для получения лота по его идентификатору
-                    string query = "SELECT * FROM Lots WHERE id = @id";
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@id", id);
-
-                        using (MySqlDataReader reader = command.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                // Создание объекта лота на основе данных из базы данных
-                                Lot lot = new Lot(reader);
-
-                                // Увеличиваем значение Views на 1
-                                string updateViewsQuery = "UPDATE Lots SET Views = Views + 1 WHERE Id = @id";
-                                using (MySqlCommand updateCommand = new MySqlCommand(updateViewsQuery, connection))
-                                {
-                                    updateCommand.Parameters.AddWithValue("@id", id);
-                                    updateCommand.ExecuteNonQuery();
-                                }
-
-                                // Возвращаем найденный лот
-                                return Ok(lot);
-                            }
-                            else
-                            {
-                                // Если лот с указанным идентификатором не найден, возвращаем NotFound
-                                return NotFound(new { message = "Lot not found" });
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // В случае ошибки возвращаем статус 500 и сообщение об ошибке
-                Console.WriteLine($"Error getting lot by id: {ex.ToString()}");
-                return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
 
@@ -810,7 +885,7 @@ namespace Project2.Controllers
         [HttpPost("getUserLikedLots")]
         public IActionResult GetUserLikedLots([FromBody] getUserLikedLots model, int page = 1, int pageSize = 10)
         {
-            
+
             var UserId = ExtractUserIdFromToken(model.Token);
             try
             {
@@ -869,6 +944,62 @@ namespace Project2.Controllers
         }
 
 
+        [HttpGet("getLotById/{id}")]
+        public IActionResult GetLotById(int id)
+        {
+            try
+            {
+                // Открываем соединение с базой данных
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    // Запрос к базе данных для получения лота по его идентификатору
+                    // Увеличиваем значение Views на 1
+                    string updateViewsQuery = "UPDATE Lots SET Views = Views + 1 WHERE Id = @id";
+                    using (MySqlCommand updateCommand = new MySqlCommand(updateViewsQuery, connection))
+                    {
+                        updateCommand.Parameters.AddWithValue("@id", id);
+                        updateCommand.ExecuteNonQuery();
+                    }
+                    string query = "SELECT * FROM Lots WHERE id = @id";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@id", id);
+
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                // Создание объекта лота на основе данных из базы данных
+                                Lot lot = new Lot(reader);
+
+                               
+
+                                // Возвращаем найденный лот
+                                return Ok(lot);
+                            }
+                            else
+                            {
+                                // Если лот с указанным идентификатором не найден, возвращаем NotFound
+                                return NotFound(new { message = "Lot not found" });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // В случае ошибки возвращаем статус 500 и сообщение об ошибке
+                Console.WriteLine($"Error getting lot by id: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
+            }
+        }
+
+
+       
+
+
     }
     public class getUserLikedLots { 
     public string Token { get; set; }
@@ -892,7 +1023,7 @@ namespace Project2.Controllers
         public int Category { get; set; }
         public string TimeTillEnd { get; set; }
         public string[] ImageURLs { get; set; }
-        public string UserId { get; set; }
+        public int UserId { get; set; }
         public string Region { get; set; }
         public string City { get; set; }
         public bool IsNew { get; set; } // Новое свойство для флага "новый"
