@@ -6,7 +6,10 @@ import Notiflix from "notiflix";
 
 function Filters({ onChange, initial }) {
   console.log(initial);
-  const [categories, setCategories] = useState(cts);
+  const [categories, setCategories] = useState([
+    { title: "Будь-яка категорія", id:-1 },
+    ...cts,
+  ]);
   const [params, setParams] = useState({
     category: categories[0],
     minPrice: 1,
@@ -15,25 +18,8 @@ function Filters({ onChange, initial }) {
     region: regions[0],
     ...initial,
   });
-  console.log("d" + params);
   useEffect(() => {
-    //перевірка, чи не була категорія змінена інспект елементом
-    const catExists = (c) => {
-      if(c==="Будь-яка" || c==="any"){
-        return true;
-      }
-      let res = false;
-      categories.forEach((cat) => {
-        if (cat.imgId === c || cat.title === c) {
-          res = true;
-        }
-      });
-      return res;
-    };
-    if (!catExists(params.category)) {
-      Notiflix.Notify.failure("Будь ласка, оберіть нормальну категорію.");
-      return;
-    }
+
 
     //перевірка ціни
     const minPrice = Number(params.minPrice);
@@ -65,8 +51,9 @@ function Filters({ onChange, initial }) {
       );
       return;
     }
+
     onChange(params);
-  }, [params]);
+  }, [params, categories, onChange]);
 
   return (
     <div className={css.filterContainer}>
@@ -76,13 +63,11 @@ function Filters({ onChange, initial }) {
           className={css.inputEl}
           value={initial.category}
           onChange={(e) => {
-            setParams({ ...params, category: e.target.value });
+            setParams({ ...params, category: Number(e.target.value) });
           }}
         >
-            <option value={"any"}>Будь-яка</option>
-
           {categories.map((v) => (
-            <option value={v.imgId}>{v.title}</option>
+            <option key={v.id} value={v.id}>{v.title}</option>
           ))}
         </select>
       </div>

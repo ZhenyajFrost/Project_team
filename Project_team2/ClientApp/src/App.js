@@ -5,7 +5,7 @@ import { Home } from "./pages/Home";
 import LotPage from "./pages/LotPage.js";
 import CreateLot from "./pages/CreateLot.js";
 import "./custom.css";
-import SearchPage from "./pages/SearchPage.js";
+import SearchPage from "./pages/Search/SearchPage.js";
 import ProfileLots from "./pages/Profile/Lots.js";
 import ProfileSettings from "./pages/Profile/Settings.js";
 import ProfileLikedLots from "./pages/Profile/LikedLots.js";

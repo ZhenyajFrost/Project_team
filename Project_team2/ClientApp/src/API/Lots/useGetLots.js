@@ -9,16 +9,25 @@ const useGetLots = () => {
   const [lots, setLots] = useState([]);
   const [totalCount, setTotalCount] = useState();
 
-  const getLots = async (page, pageSize, filter={}) => {
+  const getLots = async (page, pageSize, filter) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${LOTS_ENDPOINT}/getAllLots`, {
-        params: {
+      let response;
+      if (!filter) {
+        response = await axios.get(`${LOTS_ENDPOINT}/getAllLots`, {
+          params: {
+            page: page,
+            pageSize: pageSize,
+          },
+        });
+      } else {
+        response = await axios.post(`${LOTS_ENDPOINT}/SearchLots`, {
+          ...filter,
           page: page,
           pageSize: pageSize,
-          ...filter
-        },
-      }); 
+        });
+      }
+
       //console.log("Lots successfully retrieved: ", response.data);
       setLots(response.data.lots);
       setTotalCount(response.data.totalCount);

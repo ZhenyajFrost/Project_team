@@ -1,12 +1,14 @@
 .filterContainer {
   display: flex;
+  justify-content: space-between;
   background-color: #f8f8f8;
   gap: 20px;
 }
 .filterItem {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+
   gap: 10px;
+  
 }
 input,
 select,
@@ -26,10 +28,15 @@ select:focus {
   border-radius: 50px;
   padding: 10px;
   max-height: 45px;
+  min-width: 100px;
 }
 select.inputEl{
     width: 250px;
 }
 .inputEl input{
     width: 50px;
+}
+
+select.inputEl, select.inputEl:focus{
+  width: 290px;
 }

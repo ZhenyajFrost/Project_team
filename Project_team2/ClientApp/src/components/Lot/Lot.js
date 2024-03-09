@@ -16,14 +16,15 @@ function Lot({
   imageURL,
   openModal,
 }) {
-  const [ttl, setTtl] = useState(timeTillEnd);
+  const [ttl, setTtl] = useState(new Date(timeTillEnd) - new Date());
   useEffect(() => {
-    setTimeout(() => {
-      setTtl(ttl - 1);
-    }, 1000);
+    if (ttl > 0)
+      setTimeout(() => {
+        setTtl(ttl - 1);
+      }, 1000);
   }, [ttl]);
   return (
-    <div className="lot">
+    <div className={`lot ${ttl>0?"active" : "inactive"}`}>
       <img
         src={
           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzj49rb70qayLcsE_g-Bl54iw3sMoJsZRfLbU-tQOqWQ&s"
@@ -48,10 +49,11 @@ function Lot({
             </svg>
             {formatTime(ttl)}
           </p>
-           <NavLink to={"/lot/" + id} className="arrow-outward"><svg>
-            <use href={`${MoneySvg}#arrow_outward`}/> 
-           </svg></NavLink>
-          
+          <NavLink to={"/lot/" + id} className="arrow-outward">
+            <svg>
+              <use href={`${MoneySvg}#arrow_outward`} />
+            </svg>
+          </NavLink>
         </div>
       </div>
     </div>

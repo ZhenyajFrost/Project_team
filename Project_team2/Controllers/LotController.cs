@@ -236,7 +236,7 @@ namespace Project2.Controllers
                                         Price = reader.GetDecimal("price"),
                                         CurrentBid = Convert.ToDecimal(reader["CurrentBid"]),
                                         ShortDescription = reader.GetString("shortDescription"),
-                                        Category = reader.GetString("category"),
+                                        Category = reader.GetInt16("category"),
                                         TimeTillEnd = reader.GetDateTime("timeTillEnd").ToString(),
                                         ImageURLs = reader["ImageURLs"].ToString().Split(','),
                                         UserId = reader["UserId"].ToString(),
@@ -310,7 +310,7 @@ namespace Project2.Controllers
                                         Price = Convert.ToDecimal(reader["Price"]),
                                         CurrentBid = Convert.ToDecimal(reader["CurrentBid"]),
                                         ShortDescription = reader["ShortDescription"].ToString(),
-                                        Category = reader["Category"].ToString(),
+                                        Category = (int)reader["Category"],
                                         TimeTillEnd = reader["TimeTillEnd"].ToString(),
                                         // Парсим строку ImageURLs в массив строк
                                         ImageURLs = reader["ImageURLs"].ToString().Split(','),
@@ -411,7 +411,7 @@ namespace Project2.Controllers
                                         Price = Convert.ToDecimal(reader["Price"]),
                                         CurrentBid = Convert.ToDecimal(reader["CurrentBid"]),
                                         ShortDescription = reader["ShortDescription"].ToString(),
-                                        Category = reader["Category"].ToString(),
+                                        Category = (int)reader["Category"],
                                         TimeTillEnd = reader["TimeTillEnd"].ToString(),
                                         // Парсим строку ImageURLs в массив строк
                                         ImageURLs = reader["ImageURLs"].ToString().Split(','),
@@ -427,7 +427,6 @@ namespace Project2.Controllers
                                     lots.Add(lot);
                                 }
                             }
-
                             // Возвращаем список лотов и общее количество
                             return Ok(new { lots, totalCount });
                         }
@@ -890,7 +889,7 @@ namespace Project2.Controllers
         public decimal Price { get; set; }
         public decimal CurrentBid { get; set; }
         public string ShortDescription { get; set; }
-        public string Category { get; set; }
+        public int Category { get; set; }
         public string TimeTillEnd { get; set; }
         public string[] ImageURLs { get; set; }
         public string UserId { get; set; }
