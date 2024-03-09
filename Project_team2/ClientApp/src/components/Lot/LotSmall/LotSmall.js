@@ -16,39 +16,46 @@ function LotSmall({
   location,
 }) {
   const [ttl, setTtl] = useState(timeTillEnd);
-  const {deleteLot, isLoading, error} = useDeleteLot();
+  const { deleteLot, isLoading, error } = useDeleteLot();
   useEffect(() => {
     setTimeout(() => {
       setTtl(ttl - 1);
     }, 1000);
   }, [ttl]);
+  const [dots, setDots] = useState(false);
   const [thing, setThing] = useState(false);
   return (
-    <div className={css.lot}>
-      <div className={css.dots} onClick={() => setThing(!thing)}>
-        <svg>
-          <use href={`${svg}#dots_vertical`} />
-        </svg>
-        {thing ? (
-          <div className={css.thing}>
-            <p>
-              <NavLink to={`/edit/${id}`}>Редагувати</NavLink>
-            </p>
-            <p onClick={() => console.log("arch")}>Перемістити в архів</p>
-            <p onClick={() => console.log("act")}>Перемістити в активні</p>
-            <hr />
-            <p
-              className={css.delete}
-              onClick={() => {
-                if (window.confirm("Ви точно хочете видалити " + title))
-                  deleteLot(id);
-              }}
-            >
-              Видалити
-            </p>
-          </div>
-        ) : <></>}
-      </div>
+    <div className={css.lot} onMouseEnter={()=>setDots(true)} onMouseLeave={()=>setDots(false)}>
+      {dots ? (
+        <div className={css.dots} onClick={() => setThing(!thing)}>
+          <svg>
+            <use href={`${svg}#dots_vertical`} />
+          </svg>
+          {thing ? (
+            <div className={css.thing}>
+              <p>
+                <NavLink to={`/edit/${id}`}>Редагувати</NavLink>
+              </p>
+              <p onClick={() => console.log("arch")}>Перемістити в архів</p>
+              <p onClick={() => console.log("act")}>Перемістити в активні</p>
+              <hr />
+              <p
+                className={css.delete}
+                onClick={() => {
+                  if (window.confirm("Ви точно хочете видалити " + title))
+                    deleteLot(id);
+                }}
+              >
+                Видалити
+              </p>
+            </div>
+          ) : (
+            <></>
+          )}
+        </div>
+      ) : (
+        <></>
+      )}
       <img
         src={
           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzj49rb70qayLcsE_g-Bl54iw3sMoJsZRfLbU-tQOqWQ&s"
