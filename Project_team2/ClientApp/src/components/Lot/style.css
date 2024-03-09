@@ -21,7 +21,7 @@
   line-height: 24px;
   gap: 12px;
 }
-.lot-title::after {
+.active .lot-title::after {
   padding: 8px 10px;
   align-items: center;
 
@@ -36,6 +36,7 @@
   line-height: 24px;
   content: "ACTIVE";
 }
+
 .lot-desc {
   color: #474747;
   font-family: Manrope;
