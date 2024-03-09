@@ -9,8 +9,9 @@ const useDeleteLot = () => {
     const deleteLot = async (lotId) => {
         setLoading(true);
         try {
-            const response = await axios.delete(`${LOTS_ENDPOINT}/deleteLot/${lotId}`);
+            const response = await axios.post(`${LOTS_ENDPOINT}/deleteLot`, lotId);
             console.log('Lot successfully deleted: ', response.data);
+            window.location.reload();
         } catch (error) {
             console.error('Deleting lot failed: ', error);
             setError(error);

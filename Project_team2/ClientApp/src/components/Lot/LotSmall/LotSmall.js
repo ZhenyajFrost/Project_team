@@ -5,7 +5,6 @@ import { NavLink } from "react-router-dom";
 import { formatTime } from "../../../utils/formatTime";
 import css from "./LotSmall.module.css"
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
-import css from "./LotSmall.module.css";
 import useDeleteLot from "../../../API/Lots/useDeleteLot";
 
 function LotSmall({
@@ -18,9 +17,9 @@ function LotSmall({
   location,
 }) {
   const history = useHistory();
-  
+
   const [ttl, setTtl] = useState(timeTillEnd);
-  const {deleteLot, isLoading, error} = useDeleteLot();
+  const { deleteLot, isLoading, error } = useDeleteLot();
   useEffect(() => {
     setTimeout(() => {
       setTtl(ttl - 1);
@@ -29,6 +28,7 @@ function LotSmall({
   const [thing, setThing] = useState(false);
 
   return (
+    // onClick={() => history.push(`/lot/${id}`)}
     <div className={css.lot}>
       <div className={css.dots} onClick={() => setThing(!thing)}>
         <svg>
@@ -64,28 +64,28 @@ function LotSmall({
       <div className={css.info}>
         <div className={css.title}>{title}</div>
         <div className={css.desc}>{shortDescription}</div>
+        <div className={css.text}>
+          <svg>
+            <use href={`${svg}#schedule`} />
+          </svg>
+          {formatTime(ttl)}
+        </div>
+        <div className={`${css.bottom}`}>
           <div className={css.text}>
             <svg>
-              <use href={`${svg}#schedule`} />
+              <use href={`${svg}#attach_money`} />
             </svg>
-            {formatTime(ttl)}
+            {price}
           </div>
-          <div className={`${css.bottom}`}>
-            <div className={css.text}>
-              <svg>
-                <use href={`${svg}#attach_money`} />
-              </svg>
-              {formatTime(ttl)}
-            </div>
-            <div className={css.text}>
-              <svg>
-                <use href={`${svg}#attach_money`} />
-              </svg>
-              {location ? location : "Location"}
-            </div>
+          <div className={css.text}>
+            <svg>
+              <use href={`${svg}#attach_money`} />
+            </svg>
+            {location ? location : "Location"}
           </div>
         </div>
       </div>
+    </div>
   );
 }
 

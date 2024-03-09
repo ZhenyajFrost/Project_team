@@ -25,7 +25,7 @@ function Lots() {
 
     const [pagination, setPagination] = useState({
         pageNumber: 1,
-        pageSize: 6
+        pageSize: 9
     });
 
     const handleChangePage = (page) => {
