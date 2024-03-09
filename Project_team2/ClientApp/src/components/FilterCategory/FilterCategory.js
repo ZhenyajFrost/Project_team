@@ -4,16 +4,16 @@ import Button from '../UI/Button/Button'
 import PostService from '../../API/PostService';
 import { useFetching } from '../../hooks/useFetching';
 
-export default function FilterCategory({ categories, onChange, setCategoryClicked }) {
+export default function FilterCategory({ totalCount,categories, onChange, setCategoryClicked }) {
     const [quantityOfLots, setQuantityOfLots] = useState(32);
-    const [activeCat, setActiveCat] = useState('');
+    const [activeCat, setActiveCat] = useState({value: ''});
 
     const handleCatClick = (e) => {
-        setActiveCat(e.target.value);
+        setActiveCat(e.target);
     };
 
     useEffect(() => {
-        onChange({ category: activeCat });
+        onChange( activeCat.id === '' ? {category : null} : { category: activeCat.id});
         setCategoryClicked(prev => !prev)
     }, [activeCat]);
 
@@ -22,12 +22,13 @@ export default function FilterCategory({ categories, onChange, setCategoryClicke
             <label>Категорії</label>
             <div className={css.btnContainer}>
                 <Button value=''
-                    className={`${css.btn} ${activeCat === '' ? '' : css.activeCat}`}
-                    onClick={handleCatClick}>Усі категорії <div className={css.number}>{quantityOfLots}</div></Button>
+                    className={`${css.btn} ${activeCat.value === '' ? '' : css.activeCat}`}
+                    onClick={handleCatClick}>Усі категорії <div className={css.number}>{totalCount}</div></Button>
                 {categories.map(category => (
                     <Button
                         value={category.value}
-                        className={`${css.btn} ${activeCat === category.value ? '' : css.activeCat}`}
+                        id={category.id}
+                        className={`${css.btn} ${activeCat.value === category.value ? '' : css.activeCat}`}
                         onClick={handleCatClick}>{category.label} <div className={css.number}>{category.count}</div>
                     </Button>
                 ))}

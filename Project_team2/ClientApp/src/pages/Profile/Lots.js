@@ -14,7 +14,7 @@ import Pagination from '../../components/UI/Pagination/Pagination.js';
 function Lots() {
     const user = getLocalStorage('user');
     const history = useHistory();
-    const [activeTab, setActiveTab] = useState('Active');
+    const [activeTab, setActiveTab] = useState('active');
 
     const [filters, setFilters] = useState({});
     const [categoryClicked, setCategoryClicked] = useState('');
@@ -22,6 +22,7 @@ function Lots() {
     const [getLots, lots, totalCount, isLoading, error] = useGetLotsByUser(); //rewrite this part
 
     const categories = categoriesFromLots(lots);
+    console.log(categories)
 
     const [pagination, setPagination] = useState({
         pageNumber: 1,
@@ -41,8 +42,8 @@ function Lots() {
     };
 
     useEffect(async () => {
-        await getLots(user.id, pagination.pageNumber, pagination.pageSize, filters);
-    }, [activeTab, pagination])
+        await getLots(user.id, pagination.pageNumber, pagination.pageSize, activeTab, filters);
+    }, [activeTab, pagination, categoryClicked]) //Filters 
 
     const handleButtonSearch = async () => {
         await getLots(user.id, pagination.page, pagination.pageSize, activeTab, filters);
@@ -64,20 +65,20 @@ function Lots() {
             <div className={css.header}>
                 <ul className={css.tabContainer}>
                     <li
-                        className={`${css.tab} ${activeTab === 'Active' ? css.activeTab : ''}`}
-                        onClick={() => handleTabClick('Active')}
+                        className={`${css.tab} ${activeTab === 'active' ? css.activeTab : ''}`}
+                        onClick={() => handleTabClick('active')}
                     >
                         Активні
                     </li>
                     <li
-                        className={`${css.tab} ${activeTab === 'Unactive' ? css.activeTab : ''}`}
-                        onClick={() => handleTabClick('Unactive')}
+                        className={`${css.tab} ${activeTab === 'unactive' ? css.activeTab : ''}`}
+                        onClick={() => handleTabClick('unactive')}
                     >
                         Неактивні
                     </li>
                     <li
-                        className={`${css.tab} ${activeTab === 'Archive' ? css.activeTab : ''}`}
-                        onClick={() => handleTabClick('Archive')}
+                        className={`${css.tab} ${activeTab === 'archive' ? css.activeTab : ''}`}
+                        onClick={() => handleTabClick('archive')}
                     >
                         Архів
                     </li>
@@ -95,7 +96,7 @@ function Lots() {
             <Button onClick={handleButtonSearch}>Search</Button>
 
             <div className={css.body}>
-                <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} />
+                <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={totalCount} />
 
                 <div className={css.lots}>
                     {totalCount === 0 ? "No lots Found" : <LotContainer lots={lots} display="grid-3col" lotStyle="small" />}

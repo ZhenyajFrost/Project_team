@@ -11,15 +11,30 @@ const useGetLotsByUser = () => {
 
     const getLots = async (userId, pageNumber, pageSize, activeTab, filters) => { //FILTER
         setLoading(true);
+
+        // let goodFilters = {};
+
+        // // Assuming `filters` is an object that might have various properties including `category`
+        // const { category, ...otherFilters } = filters;
+        
+        // if (category !== null) {
+        //     // If category is not null, include it in goodFilters
+        //     goodFilters = { category, ...otherFilters };
+        // } else {
+        //     // If category is null, exclude it from goodFilters
+        //     goodFilters = { ...otherFilters };
+        // }
+
         try {
             const response = await axios.get(`${LOTS_ENDPOINT}/getLotsByUser`, {
-                params:
-                {
+                params: {
                     userId: userId,
                     pageNumber: pageNumber,
                     pageSize: pageSize,
-                    activeTab: activeTab,
-                    filters: filters
+                    active: activeTab === 'active',
+                    unactive: activeTab === 'unactive',
+                    archive: activeTab === 'archive',
+                    ...filters
                 }
             }); //FILTER IS NEEDED
             console.log('Lots successfully retrieved: ', response.data);

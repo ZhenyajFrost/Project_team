@@ -8,7 +8,7 @@ function FiltersWSearch({ onChange, initial }) {
   const [filters, setFilters] = useState({
     searchQuery: "",
     minPrice: 1,
-    maxPrice: Infinity,
+    maxPrice: 100000000000,
     endTill: new Date(new Date().getDate() + 1),
     ...initial
   });
