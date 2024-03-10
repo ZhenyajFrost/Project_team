@@ -9,7 +9,7 @@ const useGetLots = () => {
   const [lots, setLots] = useState([]);
   const [totalCount, setTotalCount] = useState();
 
-  const getLots = async (page, pageSize, filter) => {
+  const getLots = async (page = 1, pageSize, filter) => {
     setLoading(true);
     try {
       let response;

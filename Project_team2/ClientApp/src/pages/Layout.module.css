@@ -1,4 +1,7 @@
 .container1{
     max-width: calc(100vw - 200px);
-    margin: auto;
+}
+
+.main{
+
 }
