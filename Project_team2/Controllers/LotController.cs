@@ -312,7 +312,7 @@ namespace Project2.Controllers
                                         Price = Convert.ToDecimal(reader["Price"]),
                                         CurrentBid = Convert.ToDecimal(reader["CurrentBid"]),
                                         ShortDescription = reader["ShortDescription"].ToString(),
-                                        Category = (int)reader["Category"],
+                                        Category = int.Parse(reader.GetString("category")),
                                         TimeTillEnd = reader["TimeTillEnd"].ToString(),
                                         // Парсим строку ImageURLs в массив строк
                                         ImageURLs = reader["ImageURLs"].ToString().Split(','),
@@ -344,7 +344,7 @@ namespace Project2.Controllers
         }
 
         [HttpGet("getLotsByUser")]
-        public IActionResult GetLotsByUser(int userId, string? searchQuery = "", decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, string? sortBy = "", int? category = null, bool active = false, bool archive = false, bool unactive = false, bool isWaitingPayment = false, bool isWaitingDelivery = false, int pageNumber = 1, int pageSize = 10)
+        public IActionResult GetLotsByUser(string userId, string? searchQuery = null, int? category = null, decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, bool active = false, bool archive = false, bool unactive = false, bool isWaitingPayment = false, bool isWaitingDelivery = false, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
@@ -376,7 +376,7 @@ namespace Project2.Controllers
                         condition += " AND isWaitingDelivery = true";
                     }
 
-                    // Формируем условие для поиска по запросу
+                    // Формируем условие для поиска по названию
                     string searchCondition = "";
                     if (!string.IsNullOrEmpty(searchQuery))
                     {
@@ -390,8 +390,26 @@ namespace Project2.Controllers
                         categoryCondition = " AND Category = @category";
                     }
 
+                    // Формируем условие для выборки по цене
+                    string priceCondition = "";
+                    if (minPrice != null)
+                    {
+                        priceCondition += " AND Price >= @minPrice";
+                    }
+                    if (maxPrice != null)
+                    {
+                        priceCondition += " AND Price <= @maxPrice";
+                    }
+
+                    // Формируем условие для выборки по времени окончания торгов
+                    string timeCondition = "";
+                    if (timeTillEnd != null)
+                    {
+                        timeCondition += " AND TimeTillEnd <= @timeTillEnd";
+                    }
+
                     // Запрос на получение общего количества лотов, созданных выбранным пользователем
-                    string countQuery = $"SELECT COUNT(*) FROM Lots WHERE UserId = @userId {condition}{searchCondition}{categoryCondition}";
+                    string countQuery = $"SELECT COUNT(*) FROM Lots WHERE UserId = @userId{condition}{searchCondition}{categoryCondition}{priceCondition}{timeCondition}";
                     using (MySqlCommand countCommand = new MySqlCommand(countQuery, connection))
                     {
                         countCommand.Parameters.AddWithValue("@userId", userId);
@@ -403,10 +421,22 @@ namespace Project2.Controllers
                         {
                             countCommand.Parameters.AddWithValue("@category", category);
                         }
+                        if (minPrice != null)
+                        {
+                            countCommand.Parameters.AddWithValue("@minPrice", minPrice);
+                        }
+                        if (maxPrice != null)
+                        {
+                            countCommand.Parameters.AddWithValue("@maxPrice", maxPrice);
+                        }
+                        if (timeTillEnd != null)
+                        {
+                            countCommand.Parameters.AddWithValue("@timeTillEnd", timeTillEnd);
+                        }
                         int totalCount = Convert.ToInt32(countCommand.ExecuteScalar());
 
                         // Строим запрос на выборку лотов, созданных пользователем, с учетом пагинации и фильтрации
-                        string query = $"SELECT * FROM Lots WHERE UserId = @userId {condition}{searchCondition}{categoryCondition} ORDER BY Id DESC LIMIT @pageSize OFFSET @offset";
+                        string query = $"SELECT * FROM Lots WHERE UserId = @userId{condition}{searchCondition}{categoryCondition}{priceCondition}{timeCondition} ORDER BY Id DESC LIMIT @pageSize OFFSET @offset";
 
                         // Вычисляем смещение (offset) на основе номера страницы и размера страницы
                         int offset = (pageNumber - 1) * pageSize;
@@ -422,6 +452,18 @@ namespace Project2.Controllers
                             if (category != null)
                             {
                                 command.Parameters.AddWithValue("@category", category);
+                            }
+                            if (minPrice != null)
+                            {
+                                command.Parameters.AddWithValue("@minPrice", minPrice);
+                            }
+                            if (maxPrice != null)
+                            {
+                                command.Parameters.AddWithValue("@maxPrice", maxPrice);
+                            }
+                            if (timeTillEnd != null)
+                            {
+                                command.Parameters.AddWithValue("@timeTillEnd", timeTillEnd);
                             }
                             command.Parameters.AddWithValue("@pageSize", pageSize);
                             command.Parameters.AddWithValue("@offset", offset);
@@ -442,7 +484,7 @@ namespace Project2.Controllers
                                         Price = Convert.ToDecimal(reader["Price"]),
                                         CurrentBid = Convert.ToDecimal(reader["CurrentBid"]),
                                         ShortDescription = reader["ShortDescription"].ToString(),
-                                        Category = (int)reader["Category"],
+                                        Category = int.Parse(reader.GetString("category")),
                                         TimeTillEnd = reader["TimeTillEnd"].ToString(),
                                         // Парсим строку ImageURLs в массив строк
                                         ImageURLs = reader["ImageURLs"].ToString().Split(','),
@@ -458,8 +500,8 @@ namespace Project2.Controllers
                                     lots.Add(lot);
                                 }
                             }
-                            // Возвращаем список лотов и общее количество
-                            return Ok(new { lots, totalCount });
+                            // Возвращаем список лотов, общее количество и номер страницы
+                            return Ok(new { lots, totalCount, pageNumber });
                         }
                     }
                 }
@@ -471,6 +513,12 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
+
+
+
+
+
 
 
 
