@@ -14,10 +14,6 @@ import useGetLots from "../API/Lots/useGetLots.js";
 import categories from "../Data/categories.json"
 
 export const Home = () => {
-    //const [lots, setLots] = useState([]);
-    //const [totalPages, setTotalPages] = useState();
-    //const [pagesToDisplay, setPagesToDisplay] = useState();
-    
     const [getLots, lots, totalCount, isLoading, error] = useGetLots();
     const [pagination, setPagination] = useState({
         page: 1,
@@ -34,6 +30,11 @@ export const Home = () => {
     useEffect(async () => {
         await getLots(pagination.page, pagination.pageSize);
     }, [])
+
+    useEffect(async () => {
+        console.log(pagination);
+        await getLots(1, pagination.pageSize /2 * pagination.page);
+    }, [pagination])
 
     const handleSearch = (newSearchQuery) => {
 
@@ -90,7 +91,10 @@ export const Home = () => {
                 <CategoryContainer categories={["Холодильники", "Іфон 13", "Картини", "Телевізор", "Іграшки", "Навушники", "Колеса)"]} onCategoryChange={onCategoryChange} selectedCategorie={selectedCat} />
 
                 <LotContainer lots={sortedLots} display="grid-2col"/>
-                <LoadMoreButton setLots={getLots} curPage={pagination.page} setCurPage={(newPage) => setPagination(prev => ({ ...prev, page: newPage }))} perPage={pagination.limit} />
+                <LoadMoreButton curPage={pagination.page} setCurPage={(newPage) => setPagination(prev => ({
+                    ...prev,
+                    page: newPage
+                }))} limit={pagination.limit} />
             </div>
 
             <div id="howItW" className={`${css.mainCont} ${css.borderRadius24}`}>
