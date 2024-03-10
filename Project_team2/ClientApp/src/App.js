@@ -9,6 +9,7 @@ import SearchPage from "./pages/Search/SearchPage.js";
 import ProfileLots from "./pages/Profile/Lots.js";
 import ProfileSettings from "./pages/Profile/Settings.js";
 import ProfileLikedLots from "./pages/Profile/LikedLots.js";
+import EditPage from "./pages/Edit/EditPage.js"
 
 import ProfileLayout from "./pages/Profile/ProfileLayout.js";
 import RestrictedPath from "./components/RestrictedPath/RestrictedPath.js";
@@ -33,7 +34,16 @@ export default class App extends Component {
             }}
             condition={user && user.login}
           />
-          {/* <Route exact path='/create' component={CreateLot} /> */}
+          <RestrictedPath
+            path="/edit/:id"
+            component={EditPage}
+            fallback={{
+              pathname: "",
+              search: "?modal=login",
+            }}
+            condition={user && user.login}
+          />
+
           <Route exact path="/" component={Home} />
           <Route
             path="/profile"
@@ -43,7 +53,10 @@ export default class App extends Component {
                   <Route path={`${url}/`} component={ProfileSettings} exact />
                   <Route path={`${url}/lots`} component={ProfileLots} />
                   <Route path={`${url}/settings`} component={ProfileSettings} />
-                  <Route path={`${url}/favorites`} component={ProfileLikedLots} />
+                  <Route
+                    path={`${url}/favorites`}
+                    component={ProfileLikedLots}
+                  />
                 </Switch>
               </ProfileLayout>
             )}

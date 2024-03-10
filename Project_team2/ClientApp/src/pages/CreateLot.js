@@ -10,22 +10,24 @@ import useCreateLot from "../API/Lots/useCreateLot";
 import { Notify } from "notiflix";
 import TimeSelector from "../components/Genesis/TimeSelector/TimeSelector";
 
-export default function CreateLot() {
+export default function CreateLot({data={}}) {
+  console.log(data);
   const initialState = {
     title: "",
     category: 0,
-    ShortDescription: "",
+    shortDescription: "",
     endOn: 0,
-    minimalBid: 0,
-    stepPrice: 0,
+    minPrice: 0,
+    minStepPrice: 0,
     sellOn: Infinity,
-    state: "Нове",
-    images: [],
+    isNew: true,
+    imageURLs: [],
     region: {},
     city: {},
+    ...data
   };
 
-  const [lot, setLot] = useState({});
+  const [lot, setLot] = useState(data);
   const [user, setUser] = useState({ firstName: "", lastName: "", email: "" });
   const create = useCreateLot();
 
@@ -45,7 +47,7 @@ export default function CreateLot() {
         return;
       }
     }
-    if (lot.ShortDescription.length < 40) {
+    if (lot.shortDescription.length < 40) {
       Notify.failure("Опис має бути щонайменше 40 символів");
     }
     if (lot.city) {
@@ -96,9 +98,9 @@ export default function CreateLot() {
             змінити порядок.
           </span>
           <MultiplePhotoSelector
-            photos={lot.images}
+            photos={lot.imageURLs}
             setPhotos={(e) => {
-              setLot({ ...lot, images: e });
+              setLot({ ...lot, imageURLs: e });
             }}
           />
         </div>
@@ -106,20 +108,20 @@ export default function CreateLot() {
           <h2>Деталі про товар</h2>
           <p>Опис</p>
           <textarea
-            name="ShortDescription"
+            name="shortDescription"
             onInput={onInput}
-            value={lot.ShortDescription}
+            value={lot.shortDescription}
             placeholder="Детальніше опишіть товар"
             className={css.desc}
           />
-          {lot.ShortDescription && lot.ShortDescription.length < 40 ? (
+          {lot.shortDescription && lot.shortDescription.length < 40 ? (
             <p>Введіть щонайменше 40 символів</p>
           ) : null}
 
           <p>Стан</p>
           <StatePicker
-            change={(e) => setLot({ ...lot, state: e })}
-            current={lot.state}
+            change={(e) => setLot({ ...lot, isNew:e==="Нове" })}
+            current={lot.isNew ? "Нове" : "Вживане"}
           />
         </div>
         <div className={css.createSection}>
@@ -130,9 +132,9 @@ export default function CreateLot() {
               <span>
                 <Input
                   className={css.priceInp}
-                  name="minimalBid"
+                  name="minPrice"
                   onInput={onInput}
-                  value={lot.minimalBid}
+                  value={lot.minPrice}
                   type="number"
                   placeHolder="1200"
                 />
@@ -144,9 +146,9 @@ export default function CreateLot() {
               <span>
                 <Input
                   className={css.priceInp}
-                  name="stepPrice"
+                  name="minStepPrice"
                   onInput={onInput}
-                  value={lot.stepPrice}
+                  value={lot.minStepPrice}
                   type="number"
                   placeHolder="500"
                 />
