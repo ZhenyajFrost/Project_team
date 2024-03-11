@@ -20,7 +20,7 @@ export default function CreateLot() {
     stepPrice: 0,
     sellOn: Infinity,
     state: "Нове",
-    images: [],
+    imageURLs: [],
     region: {},
     city: {},
   };
@@ -56,7 +56,7 @@ export default function CreateLot() {
     lot.timeTillEnd = lot.endOn;
     lot.category = lot.category.id;
     create.createLot(lot);
-    setLot({});
+    //setLot({});
   };
   return (
     <div>
@@ -87,6 +87,7 @@ export default function CreateLot() {
               );
               onInput({ name: "endOn", value: endDate });
             }}
+            value = {lot.endOn}
           />
         </div>
         <div className={css.createSection}>
@@ -96,9 +97,9 @@ export default function CreateLot() {
             змінити порядок.
           </span>
           <MultiplePhotoSelector
-            photos={lot.images}
+            photos={lot.imageURLs}
             setPhotos={(e) => {
-              setLot({ ...lot, images: e });
+              setLot({ ...lot, imageURLs: e });
             }}
           />
         </div>
