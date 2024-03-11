@@ -17,7 +17,7 @@ export const Home = () => {
     const [getLots, lots, totalCount, isLoading, error] = useGetLots();
     const [pagination, setPagination] = useState({
         page: 1,
-        pageSize: 6
+        pageSize: 4
     });
 
     const [sortedLots, setSortedLots] = useState(lots);
@@ -27,13 +27,13 @@ export const Home = () => {
         setSortedLots(lots);
     }, [lots]);
     
-    useEffect(async () => {
-        await getLots(pagination.page, pagination.pageSize);
-    }, [])
+    // useEffect(async () => {
+    //     await getLots(pagination.page, pagination.pageSize);
+    // }, [])
 
     useEffect(async () => {
         console.log(pagination);
-        await getLots(1, pagination.pageSize /2 * pagination.page);
+        await getLots(1, pagination.pageSize * pagination.page);
     }, [pagination])
 
     const handleSearch = (newSearchQuery) => {

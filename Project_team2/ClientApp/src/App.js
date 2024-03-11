@@ -1,19 +1,20 @@
 import React, { Component } from "react";
-import { Route, Switch } from "react-router";
+import { Route, Switch, Redirect } from "react-router";
 import { Layout } from "./pages/Layout";
 import { Home } from "./pages/Home";
 import LotPage from "./pages/LotPage.js";
 import CreateLot from "./pages/CreateLot.js";
 import "./custom.css";
 import SearchPage from "./pages/Search/SearchPage.js";
-import ProfileLots from "./pages/Profile/Lots.js";
-import ProfileSettings from "./pages/Profile/Settings.js";
+import ProfileLots from "./pages/Profile/Lots/Lots.js";
+import ProfileSettings from "./pages/Profile/Settings/Settings.js";
 import ProfileLikedLots from "./pages/Profile/LikedLots.js";
 import EditPage from "./pages/Edit/EditPage.js"
 
 import ProfileLayout from "./pages/Profile/ProfileLayout.js";
 import RestrictedPath from "./components/RestrictedPath/RestrictedPath.js";
 import { getLocalStorage } from "./utils/localStorage.js";
+import AdminPage from "./pages/AdminPage/AdminPage.js";
 
 export default class App extends Component {
   static displayName = App.name;
@@ -25,6 +26,12 @@ export default class App extends Component {
         <Switch>
           <Route path="/lot/:id" component={LotPage} />
           <Route path="/search" component={SearchPage} />
+          <Route
+            path="/admin"
+            render={(props) => (
+              user.isAdmin ? <AdminPage {...props} /> : <Redirect to="/" />
+            )}
+          />
           <RestrictedPath
             path="/create"
             component={CreateLot}

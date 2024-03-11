@@ -1,7 +1,6 @@
 ﻿.lotsContainer {
   display: flex;
   gap: 16px;
-
 }
 
 .grid-4col {
@@ -24,11 +23,3 @@
   height: auto;
   flex-direction: column;
 }
-
-/* .lotsContainer.grid div:has(img){
-  width: 612px;
-}
-
-.lotsContainer.list div:has(img){
-    width: 100%;
-} */

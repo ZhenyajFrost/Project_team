@@ -3,7 +3,7 @@ import Lot from "../../Lot/Lot.js";
 import LotSmall from "../../Lot/LotSmall/LotSmall.js"
 import classes from "./LotContainer.module.css";
 
-function LotContainer({ lots, display = "", lotStyle = "basic" }) {
+function LotContainer({ lots, display = "", lotStyle = "basic", isAdmin="false" }) {
   const displayClass = display ? classes[display] : '';
   const classString = `${classes.lotsContainer} ${displayClass}`;
 
@@ -21,6 +21,8 @@ function LotContainer({ lots, display = "", lotStyle = "basic" }) {
             timeTillEnd={lot.timeTillEnd}
             hot={lot.hot}
             imageURL={lot.imageURL}
+            isAdmin={isAdmin}
+            isApproved={lot.isApproved}
           />
         );
       case "small":

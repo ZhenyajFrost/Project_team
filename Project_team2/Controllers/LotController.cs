@@ -514,14 +514,6 @@ namespace Project2.Controllers
             }
         }
 
-
-
-
-
-
-
-
-
         [HttpPost("updateLot")]
         public IActionResult UpdateLot([FromBody] UpdateLotRequest request)
         {
@@ -1042,9 +1034,6 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-
-
-       
 
 
     }

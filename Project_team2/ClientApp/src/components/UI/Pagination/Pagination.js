@@ -16,6 +16,44 @@ const Pagination = ({ totalCount, limit, page, changePage }) => {
     startPage = Math.max(endPage - maxPageVisible + 1, 1);
   }
 
+  // Add previous page arrow if not on the first page
+  if (page > 1) {
+    pages.push(
+      <span
+        key="prev"
+        onClick={() => changePage(page - 1)}
+        className={classes.prevPage}
+      >
+        &lt;
+      </span>
+    );
+  }
+
+  // Condition to add first page and ellipsis at the beginning
+  if (startPage > 2) {
+    pages.push(
+      <span
+        key="1"
+        onClick={() => changePage(1)}
+        className={classes.page}
+      >
+        1
+      </span>
+    );
+    pages.push(<span key="startEllipsis" className={classes.ellipsis}>...</span>);
+  } else if (startPage === 2) {
+    // Just add the first page if startPage is 2
+    pages.push(
+      <span
+        key="1"
+        onClick={() => changePage(1)}
+        className={classes.page}
+      >
+        1
+      </span>
+    );
+  }
+
   // Generate page numbers
   for (let i = startPage; i <= endPage; i++) {
     pages.push(
@@ -29,9 +67,12 @@ const Pagination = ({ totalCount, limit, page, changePage }) => {
     );
   }
 
-  // Add ellipsis and last page if needed
+  // Add ellipsis and last page if needed and not immediately after current set
+  if (endPage < totalPages - 1) {
+    pages.push(<span key="endEllipsis" className={classes.ellipsis}>...</span>);
+  }
+
   if (endPage < totalPages) {
-    pages.push(<span key="ellipsis" className={classes.ellipsis}>...</span>);
     pages.push(
       <span
         key={totalPages}
@@ -43,7 +84,7 @@ const Pagination = ({ totalCount, limit, page, changePage }) => {
     );
   }
 
-  // Add next page arrow
+  // Add next page arrow if not on the last page
   if (page < totalPages) {
     pages.push(
       <span

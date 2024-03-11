@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import Button from '../../components/UI/Button/Button';
-import css from './Profile.module.css';
+import css from './ProfileLayout.module.css';
 import { Container } from 'reactstrap';
 
 class ProfileLayout extends Component {

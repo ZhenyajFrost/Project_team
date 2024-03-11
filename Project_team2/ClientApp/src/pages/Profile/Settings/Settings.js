@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import useRegistrationValidation from "../../hooks/useRegistrationValidation";
+import useRegistrationValidation from "../../../hooks/useRegistrationValidation.js";
 import css from './Settings.module.css';
 
 import { styled } from '@mui/system';
@@ -8,25 +8,25 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import LocationSelector from '../../components/LocationSelector/LocationSelector'
+import LocationSelector from '../../../components/LocationSelector/LocationSelector.js'
 import "react-country-state-city/dist/react-country-state-city.css";
 
-import Input from '../../components/UI/Input/Input';
-import Button from '../../components/UI/Button/Button';
-import PhoneInput from '../../components/UI/PhoneInput/PhoneInput';
-import Checkbox from '../../components/UI/Checkbox/Checkbox';
-import ModalWindow from "../../components/ModalWindow/ModalWindow.js";
+import Input from '../../../components/UI/Input/Input.js';
+import Button from '../../../components/UI/Button/Button.js';
+import PhoneInput from '../../../components/UI/PhoneInput/PhoneInput.js';
+import Checkbox from '../../../components/UI/Checkbox/Checkbox.js';
+import ModalWindow from "../../../components/ModalWindow/ModalWindow.js";
 
-import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
-import ImageUpload from '../../components/ImageUpload/ImageUpload';
-import useUpdateUser from '../../API/User/useUpdateUser';
-import useUpdatePasswordToken from '../../API/User/useUpdatePasswordToken.js';
-import useUpdateEmail from '../../API/User/useUpdateEmail';
-import useToggleNotification from '../../API/User/useToggleNotification';
+import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage.js';
+import ImageUpload from '../../../components/ImageUpload/ImageUpload.js';
+import useUpdateUser from '../../../API/User/useUpdateUser.js';
+import useUpdatePasswordToken from '../../../API/User/useUpdatePasswordToken.js';
+import useUpdateEmail from '../../../API/User/useUpdateEmail.js';
+import useToggleNotification from '../../../API/User/useToggleNotification.js';
 import { State, City } from 'country-state-city';
-import useDeleteUser from '../../API/User/useDeleteUser';
+import useDeleteUser from '../../../API/User/useDeleteUser.js';
 import { useHistory } from 'react-router-dom/cjs/react-router-dom';
-import EmailConfirm from '../../components/EmailConfirm/EmailConfirm.js';
+import EmailConfirm from '../../../components/EmailConfirm/EmailConfirm.js';
 
 const CustomAccordion = styled(Accordion)({
     '&&': {

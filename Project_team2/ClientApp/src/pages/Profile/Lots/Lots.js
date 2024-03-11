@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import Button from '../../components/UI/Button/Button';
+import Button from '../../../components/UI/Button/Button.js';
 import css from './Lots.module.css'
-import svg from "../../images/svgDef.svg";
-import FiltersWSearch from '../../components/FiltersWSearch/FiltersWSearch';
-import FilterCategory from '../../components/FilterCategory/FilterCategory';
-import LotContainer from '../../components/UI/LotContainer/LotContainer'
+import svg from "../../../images/svgDef.svg";
+import FiltersWSearch from '../../../components/FiltersWSearch/FiltersWSearch.js';
+import FilterCategory from '../../../components/FilterCategory/FilterCategory.js';
+import LotContainer from '../../../components/UI/LotContainer/LotContainer.js'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom';
-import useGetLotsByUser from '../../API/Lots/useGetLotsByUser';
-import { getLocalStorage } from '../../utils/localStorage';
-import { categoriesFromLots } from '../../utils/catedoriesFromLots';
-import Pagination from '../../components/UI/Pagination/Pagination.js';
+import useGetLotsByUser from '../../../API/Lots/useGetLotsByUser.js';
+import { getLocalStorage } from '../../../utils/localStorage.js';
+import { categoriesFromLots } from '../../../utils/catedoriesFromLots.js';
+import Pagination from '../../../components/UI/Pagination/Pagination.js';
 
 function Lots() {
     const user = getLocalStorage('user');

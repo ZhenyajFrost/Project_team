@@ -28,7 +28,7 @@ function NavMenu() {
 
   const [emailSent, setEmailSent] = useState(false);
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(getLocalStorage('user'));
   const [isLoggined, setIsLoggined] = useState(null);
   const [token, setToken] = useState(null);
 
@@ -91,6 +91,10 @@ function NavMenu() {
             <Nav.Link href="search">
               <img src={catalog} alt="catalog" /> Каталог
             </Nav.Link>
+            {user.isAdmin ? 
+            <Nav.Link href="admin">
+              Admin
+            </Nav.Link> : <></>}
           </Nav>
           <Nav className="nav-right">
             <Dropdown>
