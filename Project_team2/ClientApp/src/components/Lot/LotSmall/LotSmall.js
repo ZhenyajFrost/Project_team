@@ -6,6 +6,7 @@ import { formatTime } from "../../../utils/formatTime";
 import css from "./LotSmall.module.css"
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
 import useDeleteLot from "../../../API/Lots/useDeleteLot";
+import { getLocalStorage } from "../../../utils/localStorage";
 
 function LotSmall({
   id,
@@ -15,6 +16,7 @@ function LotSmall({
   timeTillEnd,
   imageURL,
   location,
+  userId
 }) {
   const history = useHistory();
 
@@ -27,9 +29,8 @@ function LotSmall({
   }, [ttl]);
   const [dots, setDots] = useState(false);
   const [thing, setThing] = useState(false);
-
   return (
-    <div className={css.lot} onMouseEnter={()=>setDots(true)} onMouseLeave={()=>setDots(false)}>
+    <div className={css.lot} onMouseEnter={()=>setDots(userId === getLocalStorage("user").id)} onMouseLeave={()=>setDots(false)}>
       {dots ? (
         <div className={css.dots} onClick={() => setThing(!thing)}>
           <svg>

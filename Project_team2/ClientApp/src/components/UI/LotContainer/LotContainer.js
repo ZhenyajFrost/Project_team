@@ -36,6 +36,7 @@ function LotContainer({ lots, display = "", lotStyle = "basic", isAdmin="false" 
             timeTillEnd={lot.timeTillEnd}
             imageURL={lot.imageURL}
             location={lot.location}
+            userId=  {lot.userId}
           />
         );
       default:
