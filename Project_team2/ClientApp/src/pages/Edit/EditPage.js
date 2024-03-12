@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import CreateLot from "../CreateLot";
-import useGetLotById from "../../API/Lots/useGetLotById";
+import useGetLotById from "../../API/Lots/Get/useGetLotById";
 import Loader from "../../components/Loader/Loader";
 
 function EditPage(props) {

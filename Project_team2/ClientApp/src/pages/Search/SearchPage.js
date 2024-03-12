@@ -6,7 +6,7 @@ import svg from "../../images/images.svg";
 import css from "./Serch.module.css";
 import LotContainer from "../../components/UI/LotContainer/LotContainer";
 import Loader from "../../components/Loader/Loader";
-import useGetLots from "../../API/Lots/useGetLots";
+import useGetLots from "../../API/Lots/Get/useGetLots";
 
 function SearchPage(props) {
   const [querry, setQuerry] = useState(

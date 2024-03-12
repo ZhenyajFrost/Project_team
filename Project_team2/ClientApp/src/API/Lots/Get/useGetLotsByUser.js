@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from 'axios';
-import { LOTS_ENDPOINT } from '../apiConstant';
+import { LOTS_ENDPOINT } from '../../apiConstant';
 
 const useGetLotsByUser = () => {
     const [isLoading, setLoading] = useState(false);

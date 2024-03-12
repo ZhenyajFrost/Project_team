@@ -30,7 +30,7 @@ function LotSmall({
   const [dots, setDots] = useState(false);
   const [thing, setThing] = useState(false);
   return (
-    <div className={css.lot} onMouseEnter={()=>setDots(userId === getLocalStorage("user").id)} onMouseLeave={()=>setDots(false)}>
+    <div className={css.lot} onMouseEnter={()=>setDots(Number(userId) === Number(getLocalStorage("user").id))} onMouseLeave={()=>setDots(false)}>
       {dots ? (
         <div className={css.dots} onClick={() => setThing(!thing)}>
           <svg>

@@ -360,7 +360,6 @@ namespace Project2.Controllers
         [HttpGet("getRecentBids/{lotId}")]
         public IActionResult GetRecentBids(int lotId)
         {
-           
             try
             {
                 List<BidHistoryModel> recentBids = new List<BidHistoryModel>();

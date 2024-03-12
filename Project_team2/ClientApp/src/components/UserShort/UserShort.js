@@ -1,12 +1,12 @@
 import React from "react";
 import css from "./style.module.css";
 
-function UserShort({ user: { avatar, name, since, last } }) {
+function UserShort({ user: { avatar,  login, since, last } }) {
   return (
     <div className={css.gUs}>
       <img src={avatar} alt="ures ava" />
       <div>
-        <span>{name}</span>
+        <span>{login  }</span>
         <div>
           На Exestick з <b>{since}</b>
         </div>

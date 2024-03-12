@@ -6,11 +6,16 @@ import Button from "../UI/Button/Button.js";
 import Input from "../UI/Input/Input.js";
 import useSendConfirmationEmail from "../../API/useSendConfirmationEmail.js";
 import { AUTH_ENDPOINT } from '../../API/apiConstant'
+import Notiflix from "notiflix";
 
 
 function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setEmailSet, setModalVisible, setModalLogVisible, onEmailConfirmed }) {
     const [code, setCode] = useState('');
     const { sendEmail, loading, error, confirmCode } = useSendConfirmationEmail();
+
+    Notiflix.Notify.init({
+        timeout: 7000,
+    });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -60,9 +65,13 @@ function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setEmailSet
             console.log(user);
             axios.post(`${AUTH_ENDPOINT}/register`, user).then((result) => {
                 console.log('Registration successful:', result.data);
+                Notiflix.Notify.success("Ви успішно зареєструвалися!")
                 onConfirm();
             }).catch((err) => {
                 console.error('Registration failed:', err);
+                Notiflix.Notify.failure(`Реєстрація пройшла з помилками! Клікніть для деталей`, () => {
+                    Notiflix.Notify.info(`${err.response.data.message}`);
+                })
             });;
         } else {
             alert("Code is incorrect try again!");

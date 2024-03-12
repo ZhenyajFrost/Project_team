@@ -3,17 +3,40 @@ import PhotoItem from "./PhotoItem";
 import css from "./style.module.css";
 function MultiplePhotoSelector({ photos, setPhotos }) {
   let disp = [];
-  if (photos) {
-  }
-  for (let i = 0; i < 10; i++) {
-    if (photos && photos[i]) {
-      disp.push(photos[i]);
-    } else {
-      if ((photos && photos[i - 1] && photos[i - 1] !== "+") || i === 0)
-        disp.push("+");
-      else disp.push(null);
+  const tidy = () => {
+    let lastEmpty = -1;
+    const cop = [...photos]
+    for (let i = 0; i < 10; i++) {
+      if (cop[i] === '+') {
+        cop[i] = " ";
+      }
+      if (!cop[i] || cop[i] === "+" && lastEmpty === -1) {
+        lastEmpty = i;
+      } else {
+        if (i !== 0 && (!cop[i] || cop[i] === "+")) {
+          cop[lastEmpty] = cop[i]
+          cop[i] = " ";
+          lastEmpty++;
+
+        }
+      }
     }
+    if (lastEmpty !== cop.length && !cop[lastEmpty])
+      cop[lastEmpty] = "+";
+    return cop
   }
+
+  if (photos) {
+    const cop=tidy();
+    for (let i = 0; i < 10; i++) {
+      if (cop[i]) {
+        disp.push(cop[i]);
+      }
+    }
+  } else {
+    setPhotos([])
+  }
+
 
   const dispFin = disp.map((v, i) => (
     <PhotoItem

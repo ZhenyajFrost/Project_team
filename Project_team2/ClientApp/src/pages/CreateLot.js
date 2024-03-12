@@ -15,7 +15,7 @@ export default function CreateLot() {
     title: "",
     category: 0,
     ShortDescription: "",
-    endOn: 0,
+    endOn: 1,
     minimalBid: 0,
     stepPrice: 0,
     sellOn: Infinity,
@@ -53,10 +53,12 @@ export default function CreateLot() {
       lot.city = lot.city.label;
     }
     lot.userId = user.id;
-    lot.timeTillEnd = lot.endOn;
+    lot.timeTillEnd = lot.endOn.toISOString().slice(0, 19).replace("T", " ");
     lot.category = lot.category.id;
-    create.createLot(lot);
-    //setLot({});
+    create.createLot(lot).then(v=>{
+      Notify.success("Лот створений успішно")
+      setLot({});
+    });
   };
   return (
     <div>

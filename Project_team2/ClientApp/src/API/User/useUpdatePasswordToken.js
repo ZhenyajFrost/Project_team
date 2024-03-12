@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { EDIT_USER_ENDPOINT } from '../apiConstant';
+import Notiflix from 'notiflix';
 
 const useUpdatePasswordToken = () => {
     const [isLoading, setLoading] = useState(false);
@@ -11,10 +12,11 @@ const useUpdatePasswordToken = () => {
 
         try {
             const response = await axios.post(`${EDIT_USER_ENDPOINT}/update-password-with-token`, {token, oldPassword, newPassword} );
-            console.log('Password successfully updated: ', response.data);
+            Notiflix.Notify.success('Пароль оновленно успішно')
         } catch (error) {
-            console.error('Updating lot failed: ', error);
-            setError(error);
+            Notiflix.Notify.failure(`Оновлення паролю з помилками! Тикніть для інформації`, () => {
+                Notiflix.Notify.info(`${error.response.data.message}`);
+            })
         } finally {
             setLoading(false);
         }

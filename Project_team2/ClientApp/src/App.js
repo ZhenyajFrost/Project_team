@@ -15,6 +15,7 @@ import ProfileLayout from "./pages/Profile/ProfileLayout.js";
 import RestrictedPath from "./components/RestrictedPath/RestrictedPath.js";
 import { getLocalStorage } from "./utils/localStorage.js";
 import AdminPage from "./pages/AdminPage/AdminPage.js";
+import { HowItWorks as HowItWorksPage } from "./pages/HowItWorks/HowItWorks.js";
 
 export default class App extends Component {
   static displayName = App.name;
@@ -26,11 +27,15 @@ export default class App extends Component {
         <Switch>
           <Route path="/lot/:id" component={LotPage} />
           <Route path="/search" component={SearchPage} />
-          <Route
+          <Route path="/howItWorks" component={HowItWorksPage}/>
+          <RestrictedPath
             path="/admin"
-            render={(props) => (
-              user.isAdmin ? <AdminPage {...props} /> : <Redirect to="/" />
-            )}
+            component={AdminPage}
+            fallback={{
+              pathname: "",
+              search: "?modal=login",
+            }}
+            condition={user && user.login && user.isAdmin}
           />
           <RestrictedPath
             path="/create"

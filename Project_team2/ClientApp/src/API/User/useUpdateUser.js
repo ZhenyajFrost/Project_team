@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { EDIT_USER_ENDPOINT } from '../apiConstant';
 import { setLocalStorage, getLocalStorage } from '../../utils/localStorage';
+import Notiflix from 'notiflix';
 
 const useUpdateUser = () => {
     const [isLoading, setLoading] = useState(false);
@@ -11,14 +12,15 @@ const useUpdateUser = () => {
         setLoading(true);
         try {
             const response = await axios.post(`${EDIT_USER_ENDPOINT}/update-user`, {token, fieldsToUpdate});
-            console.log('User successfully updated: ', response.data);
             setLocalStorage('user', {
                 ...getLocalStorage('user'),
                 ...fieldsToUpdate
             })
+            Notiflix.Notify.success('Юзера оновленно успішно')
         } catch (error) {
-            console.error('Updating lot failed: ', error);
-            setError(error);
+            Notiflix.Notify.failure(`Оновлення юзера з помилками! Тикніть для інформації`, () => {
+                Notiflix.Notify.info(`${error.response.data.message}`);
+            })
         } finally {
             setLoading(false);
         }

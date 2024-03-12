@@ -6,6 +6,7 @@ import classes from '../../styles/LoginAndRegistration.module.css'
 import { setLocalStorage } from '../../utils/localStorage.js';
 import axios from 'axios'
 import { AUTH_ENDPOINT } from '../../API/apiConstant.js'
+import Notiflix from 'notiflix';
 
 
 const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggined}) => {
@@ -64,7 +65,9 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
 
       console.log('Login successful:', result.data);
     }).catch((err) => {
-      console.error('Login failed:', err);
+      Notiflix.Notify.failure(`Оновлення паролю з помилками! Тикніть для інформації`, () => {
+        Notiflix.Notify.info(`${err.response.data.message}`);
+    })
     });;
 
     setModalVisible(false);

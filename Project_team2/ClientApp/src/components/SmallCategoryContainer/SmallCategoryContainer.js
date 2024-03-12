@@ -5,7 +5,7 @@ function CategoryContainer({categories, onCategoryChange, selectedCategorie}) {
     return (
         <div className='categoriesContainer'>
             {categories.map(v=>
-                <div className={((v===selectedCategorie)?"selected ":"")+"category-item-container"} onClick={()=>onCategoryChange(v)}>{v}</div>
+                <div className={((v===selectedCategorie)?"selected ":"")+"category-item-container"} onClick={()=>onCategoryChange(v)}>{v.title}</div>
             )}
         </div>
     );

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import css from "./FilterCategory.module.css"
 import Button from '../UI/Button/Button'
-import PostService from '../../API/PostService';
-import { useFetching } from '../../hooks/useFetching';
 
 export default function FilterCategory({ totalCount,categories, onChange, setCategoryClicked }) {
     const [quantityOfLots, setQuantityOfLots] = useState(32);

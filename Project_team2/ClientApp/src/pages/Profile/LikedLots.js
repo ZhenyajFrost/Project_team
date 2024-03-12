@@ -4,7 +4,7 @@ import css from './Lots/Lots.module.css'
 import FiltersWSearch from '../../components/FiltersWSearch/FiltersWSearch';
 import LotContainer from '../../components/UI/LotContainer/LotContainer'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom';
-import useGetUserLikedLots from '../../API/Lots/useGetUserLikedLots';
+import useGetUserLikedLots from '../../API/Lots/Get/useGetUserLikedLots';
 import { getLocalStorage } from '../../utils/localStorage';
 
 function LikedLots() {

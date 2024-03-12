@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { EDIT_USER_ENDPOINT } from '../apiConstant';
 import { setLocalStorage, getLocalStorage } from '../../utils/localStorage';
+import Notiflix from 'notiflix';
 
 const useUpdateEmail = () => {
     const [isLoading, setLoading] = useState(false);
@@ -18,8 +19,11 @@ const useUpdateEmail = () => {
                 ...getLocalStorage('user'),
                 email: fieldsToUpdate.newEmail
             })
+            Notiflix.Notify.success('Пошта успішно оновленна')
         } catch (error) {
-            console.error('Updating email failed: ', error);
+            Notiflix.Notify.failure(`Пошта не оновленна! Тикніть для інформації`, () => {
+                Notiflix.Notify.info(`${error.response.data.message}`);
+            })
             setError(error);
         } finally {
             setLoading(false);

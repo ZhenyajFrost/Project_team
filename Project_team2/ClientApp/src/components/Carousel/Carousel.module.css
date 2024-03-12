@@ -1,0 +1,39 @@
+/* Adjustments for 3.5 items visible */
+.carouselContainer {
+    max-width: 630px; /* Adjust based on your design */
+    margin: auto;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .carouselSlide {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .carouselItem {
+    flex: 0 0 calc(100% / 3.5); /* Adjust so 3.5 items are visible */
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+  
+  .prevBtn, .nextBtn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #fff;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 100;
+  }
+  
+  .prevBtn {
+    left: 10px;
+  }
+  
+  .nextBtn {
+    right: 10px;
+  }
+  

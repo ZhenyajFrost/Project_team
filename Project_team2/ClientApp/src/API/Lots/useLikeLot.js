@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { LOTS_ENDPOINT } from '../apiConstant';
 import { setLocalStorage, getLocalStorage } from '../../utils/localStorage';
+import Notiflix from 'notiflix';
 
 const useLikeLot = () => {
     const [isLoading, setLoading] = useState(false);
@@ -28,8 +29,11 @@ const useLikeLot = () => {
                 likedLotIds: updatedLikedLotIds
             });
 
+            Notiflix.Notify.success('Лот успішно вподобаєно')
         } catch (error) {
-            console.error('liking lot failed: ', error);
+            Notiflix.Notify.failure(`Лот не вподобаєно! Тикніть для інформації`, () => {
+                Notiflix.Notify.info(`${error.response.data.message}`);
+            })
             setError(error);
         } finally {
             setLoading(false);

@@ -10,7 +10,7 @@ import Button from "../components/UI/Button/Button.js";
 import howItWorksImg from "../images/howItWorks.svg"
 import svg from "../images/svgDef.svg";
 import BigCategoryContainer from "../components/BigCategoryContainer/BigCategoryContainer.js";
-import useGetLots from "../API/Lots/useGetLots.js";
+import useGetLots from "../API/Lots/Get/useGetLots.js";
 import categories from "../Data/categories.json"
 
 export const Home = () => {
@@ -37,36 +37,23 @@ export const Home = () => {
     }, [pagination])
 
     const handleSearch = (newSearchQuery) => {
-
         if (newSearchQuery) {
-            // setSortedLots(lots.filter(lot =>
-            //     lot.title.toLowerCase().includes(newSearchQuery.toLowerCase())
-            // ));
             history.push("search/" + newSearchQuery);
-        } else setSortedLots(lots);
+        } 
     };
 
     useEffect(() => {
         setSortedLots(lots);
     }, [lots]);
 
-    //  --Seacrh without button
-    // const sortedLots = useMemo(() => {
-    //     if (searchQuery) {
-    //         return lots.filter(lot => lot.title.toLowerCase().includes(searchQuery.toLowerCase()));
-    //     }
-    //     return lots;
-    // }, [searchQuery, lots]);
 
-    // const changePage = (_page) => {
-    //     setPage(_page);
-    // };
 
-    const [selectedCat, setSelectedCat] = useState("Холодильники");
+    const [selectedCat, setSelectedCat] = useState(categories[0]);
     const onCategoryChange = (cat) => {
         setSelectedCat(cat);
         setPagination({page: 1, limit: 10});
         //setLots([]);
+        ///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
     };
 
     return (
@@ -88,7 +75,7 @@ export const Home = () => {
 
             <div id="lots">
                 <h2 className={css.h2}>Популярні лоти</h2>
-                <CategoryContainer categories={["Холодильники", "Іфон 13", "Картини", "Телевізор", "Іграшки", "Навушники", "Колеса)"]} onCategoryChange={onCategoryChange} selectedCategorie={selectedCat} />
+                <CategoryContainer categories={categories} onCategoryChange={onCategoryChange} selectedCategorie={selectedCat} />
 
                 <LotContainer lots={sortedLots} display="grid-2col"/>
                 <LoadMoreButton curPage={pagination.page} setCurPage={(newPage) => setPagination(prev => ({
@@ -118,7 +105,7 @@ export const Home = () => {
                             Учасники подають заявки на участь у попередніх торгах, де вони можуть брати участь в електронних або закритих торгах.
                         </div>
                     </div>
-                    <Button className={css.button}>Детальніше</Button>
+                    <Button className={css.button} onClick={() => history.push('/howItWorks')}>Детальніше</Button>
                 </div>
                 <div className={`${css.img} ${css.borderRadius24}`}>
                     <img className={css.img} src={howItWorksImg} alt="How It Works" />

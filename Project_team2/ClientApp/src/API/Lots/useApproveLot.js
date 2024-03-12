@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { LOTS_ENDPOINT } from '../apiConstant';
+import Notiflix from 'notiflix';
 
 const useApproveLot = () => {
     const [isLoading, setLoading] = useState(false);
@@ -11,16 +12,18 @@ const useApproveLot = () => {
 
         try {
             const response = await axios.post(`${LOTS_ENDPOINT}/approveLot`, lotId);
-            console.log('Lot successfully approved: ', response.data);
+            Notiflix.Notify.success('Лот підтвердженно')
         } catch (error) {
-            console.error('approving lot failed: ', error);
+            Notiflix.Notify.failure(`Лот не підтвердженно! Тикніть для інформації`, () => {
+                Notiflix.Notify.info(`${error.response.data.message}`);
+            })
             setError(error);
         } finally {
             setLoading(false);
         }
     };
 
-    return [ approveLot, isLoading, error ];
+    return [approveLot, isLoading, error];
 };
 
 export default useApproveLot;

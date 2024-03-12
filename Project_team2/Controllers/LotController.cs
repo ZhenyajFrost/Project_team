@@ -334,7 +334,7 @@ namespace Project2.Controllers
         }
 
         [HttpGet("getLotsByUser")]
-        public IActionResult GetLotsByUser(string userId, string? searchQuery = null, int? category = null, decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, bool active = false, bool archive = false, bool unactive = false, bool isWaitingPayment = false, bool isWaitingDelivery = false, int pageNumber = 1, int pageSize = 10)
+        public IActionResult GetLotsByUser(int userId, string? searchQuery = null, int? category = null, decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, bool active = false, bool archive = false, bool unactive = false, bool isWaitingPayment = false, bool isWaitingDelivery = false, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
@@ -476,7 +476,7 @@ namespace Project2.Controllers
 
                             // Дополнительный запрос для подсчета количества лотов по каждой категории
                             string categoryCountQuery = $"SELECT Category, COUNT(*) as Count FROM Lots WHERE UserId = @userId GROUP BY Category";
-                            Dictionary<int, int> categoryCount = new Dictionary<int, int>();
+                            Dictionary<string, int> categoryCount = new Dictionary<string, int>(); // Изменено на string для ключа
                             using (MySqlCommand categoryCountCommand = new MySqlCommand(categoryCountQuery, connection))
                             {
                                 categoryCountCommand.Parameters.AddWithValue("@userId", userId);
@@ -484,12 +484,14 @@ namespace Project2.Controllers
                                 {
                                     while (categoryCountReader.Read())
                                     {
-                                        int categoryValue = categoryCountReader.GetInt32("Category");
+                                        string categoryValue = categoryCountReader.GetString("Category");
                                         int count = categoryCountReader.GetInt32("Count");
                                         categoryCount.Add(categoryValue, count);
                                     }
                                 }
                             }
+
+
 
                             // Возвращаем список лотов, общее количество, номер страницы и количество лотов по каждой категории
                             return Ok(new { lots, totalCount, pageNumber, categoryCount });
@@ -1326,7 +1328,7 @@ namespace Project2.Controllers
         }
 
 
-        [HttpGet("getUnapprovedLots")]
+        [HttpPost("getUnapprovedLots")]
         public IActionResult GetUnapprovedLots([FromBody] string token)
         {
             try
@@ -1418,13 +1420,13 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-        [HttpGet("getLotsWaitingDelivery")]
-        public IActionResult GetLotsWaitingDelivery([FromBody] string Token)
+        [HttpPost("getLotsWaitingDelivery")] // Используйте HttpPost вместо HttpGet
+        public IActionResult GetLotsWaitingDelivery([FromBody] string token) // Измените имя параметра на token
         {
             try
             {
                 // Извлечение userId из токена
-                string userId = ExtractUserIdFromToken(Token);
+                string userId = ExtractUserIdFromToken(token);
 
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
@@ -1464,7 +1466,38 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+        [HttpPost("ApproveLot")]
+        public IActionResult ApproveLot(int id, [FromBody] EditStatusLot request)
+        {
+            try
+            {
+                // Проверяем, является ли пользователь администратором
+                if (!CheckUserIsAdmin(ExtractUserIdFromToken(request.Token)))
+                {
+                    return BadRequest(new { message = "Only administrators can perform this action" });
+                }
 
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    // Обновляем состояние лота в базе данных
+                    string query = "UPDATE Lots SET Approved = true, active = true, AllowBids = true, unactive = false, archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@id", id);
+                        command.ExecuteNonQuery();
+                    }
+
+                    return Ok(new { message = "Lot approved successfully" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in ApproveLot method: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+            }
+        }
 
 
     }

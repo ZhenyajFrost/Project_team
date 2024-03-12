@@ -1,7 +1,7 @@
 import React from "react";
 import css from "./style.module.css";
 
-function TimeSelector({ value, onChange }) {
+function TimeSelector({ onChange, value }) {
   const time = [1, 2, 5, 7, 10, 15, 20, 30];
   
   const days = (date) => {
@@ -10,7 +10,7 @@ function TimeSelector({ value, onChange }) {
     return Math.round(Math.abs((date - new Date()) / oneDay));
   };
   if(!value){
-    onChange(6);
+    onChange(1);
   }
   if(!time.includes(days(value))){
     time.push(days(value))

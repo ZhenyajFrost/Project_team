@@ -91,7 +91,7 @@ function NavMenu() {
             <Nav.Link href="search">
               <img src={catalog} alt="catalog" /> Каталог
             </Nav.Link>
-            {user.isAdmin ? 
+            {user && user.isAdmin ? 
             <Nav.Link href="admin">
               Admin
             </Nav.Link> : <></>}
