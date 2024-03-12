@@ -10,6 +10,8 @@ using System.IdentityModel.Tokens.Jwt;
 using Newtonsoft.Json.Linq;
 using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
+using System.Net.Mail;
+using System.Net;
 
 namespace Project2.Controllers
 {
@@ -19,8 +21,16 @@ namespace Project2.Controllers
     {
         private readonly ILogger<LotSchedulingService> _logger;
         private readonly string _connString;
+        private readonly string _smtpServer;
+        private readonly int _smtpPort;
+        private readonly string _smtpUsername;
+        private readonly string _smtpPassword;
         public LotsController() {
             _connString = Config.MySqlConnection;
+            _smtpServer = Config.SmtpServer;
+            _smtpPort = Config.SmtpPort;
+            _smtpUsername = Config.SmtpUsername;
+            _smtpPassword = Config.SmtpPassword;
         }
         public string ExtractUserIdFromToken(string token)
         {
@@ -118,17 +128,27 @@ namespace Project2.Controllers
             {
                 await connection.OpenAsync();
 
-                // Обновление состояния лота в базе данных
-                string query = "UPDATE Lots SET Active = false, Unactive = true WHERE Id = @LotId";
-                using (MySqlCommand command = new MySqlCommand(query, connection))
+                // Получение идентификатора пользователя с самой большой ставкой на лот
+                string getUserIdQuery = "SELECT UserId FROM Bids WHERE LotId = @LotId ORDER BY BidAmount DESC LIMIT 1";
+                using (MySqlCommand getUserIdCommand = new MySqlCommand(getUserIdQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@LotId", lotId);
-                    await command.ExecuteNonQueryAsync();
+                    getUserIdCommand.Parameters.AddWithValue("@LotId", lotId);
+                    var winnerUserId = await getUserIdCommand.ExecuteScalarAsync();
+
+                    // Обновление состояния лота и поля WinnerUserId в базе данных
+                    string updateLotQuery = "UPDATE Lots SET Active = false, AllowBids = false, isWaitingPayment = true, WinnerUserId = @WinnerUserId WHERE Id = @LotId";
+                    using (MySqlCommand command = new MySqlCommand(updateLotQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@LotId", lotId);
+                        command.Parameters.AddWithValue("@WinnerUserId", winnerUserId);
+                        await command.ExecuteNonQueryAsync();
+                    }
                 }
             }
 
             _logger.LogInformation($"Lot {lotId} has been deactivated.");
         }
+
 
         private int GetCreatedLotId(MySqlConnection connection)
         {
@@ -228,23 +248,10 @@ namespace Project2.Controllers
 
                             using (MySqlDataReader reader = command.ExecuteReader())
                             {
-                                List<LotModel> lots = new List<LotModel>();
+                                List<Lot> lots = new List<Lot>();
                                 while (reader.Read())
                                 {
-                                    LotModel lot = new LotModel();
-                                    lot.Id = reader.GetInt32("id");
-                                    lot.Title = reader.GetString("title");
-                                    lot.Price = reader.GetDecimal("price");
-                                    lot.ShortDescription = reader.GetString("shortDescription");
-                                    lot.Category = int.Parse(reader.GetString("category"));
-                                    lot.TimeTillEnd = reader.GetDateTime("timeTillEnd").ToString();
-                                    lot.ImageURLs = reader["ImageURLs"].ToString().Split(',');
-                                    lot.UserId = reader.GetInt16("UserId");
-                                    lot.Region = reader["region"].ToString();
-                                    lot.City = reader["city"].ToString();
-                                    lot.IsNew = Convert.ToBoolean(reader["isNew"]);
-                                    lot.MinPrice = reader.GetDecimal("minPrice");
-                                    lot.MinStepPrice = reader.GetDecimal("minStepPrice");
+                                    Lot lot = new Lot(reader);
 
                                     // Handle null values and type conversion errors if needed
 
@@ -297,7 +304,7 @@ namespace Project2.Controllers
                             command.Parameters.AddWithValue("@offset", offset);
 
                             // Создаем список для хранения результатов выборки
-                            List<LotModel> lots = new List<LotModel>();
+                            List<Lot> lots = new List<Lot>();
 
                             // Читаем результаты выборки
                             using (MySqlDataReader reader = command.ExecuteReader())
@@ -305,24 +312,7 @@ namespace Project2.Controllers
                                 while (reader.Read())
                                 {
                                     // Создаем объект LotModel для каждой строки результата
-                                    LotModel lot = new LotModel
-                                    {
-                                        Id = Convert.ToInt32(reader["Id"]),
-                                        Title = reader["Title"].ToString(),
-                                        Price = Convert.ToDecimal(reader["Price"]),
-                                        CurrentBid = Convert.ToDecimal(reader["CurrentBid"]),
-                                        ShortDescription = reader["ShortDescription"].ToString(),
-                                        Category = int.Parse(reader.GetString("category")),
-                                        TimeTillEnd = reader["TimeTillEnd"].ToString(),
-                                        // Парсим строку ImageURLs в массив строк
-                                        ImageURLs = reader["ImageURLs"].ToString().Split(','),
-                                        UserId = reader.GetInt16("UserId"),
-                                        Region = reader["region"].ToString(), // Добавляем извлечение региона из базы данных
-                                        City = reader["city"].ToString(), // Добавляем извлечение города из базы данных
-                                        IsNew = Convert.ToBoolean(reader["isNew"]), // Добавляем извлечение IsNew из базы данных
-                                        MinPrice = reader.GetDecimal("minPrice"), // Добавляем извлечение MinPrice из базы данных
-                                        MinStepPrice = reader.GetDecimal("minStepPrice") // Добавляем извлечение MinStepPrice из базы данных
-                                    };
+                                    Lot lot = new Lot(reader);
 
                                     // Добавляем лот в список
                                     lots.Add(lot);
@@ -469,7 +459,7 @@ namespace Project2.Controllers
                             command.Parameters.AddWithValue("@offset", offset);
 
                             // Создаем список для хранения результатов выборки
-                            List<LotModel> lots = new List<LotModel>();
+                            List<Lot> lots = new List<Lot>();
 
                             // Читаем результаты выборки
                             using (MySqlDataReader reader = command.ExecuteReader())
@@ -477,31 +467,32 @@ namespace Project2.Controllers
                                 while (reader.Read())
                                 {
                                     // Создаем объект LotModel для каждой строки результата
-                                    LotModel lot = new LotModel
-                                    {
-                                        Id = Convert.ToInt32(reader["Id"]),
-                                        Title = reader["Title"].ToString(),
-                                        Price = Convert.ToDecimal(reader["Price"]),
-                                        CurrentBid = Convert.ToDecimal(reader["CurrentBid"]),
-                                        ShortDescription = reader["ShortDescription"].ToString(),
-                                        Category = int.Parse(reader.GetString("category")),
-                                        TimeTillEnd = reader["TimeTillEnd"].ToString(),
-                                        // Парсим строку ImageURLs в массив строк
-                                        ImageURLs = reader["ImageURLs"].ToString().Split(','),
-                                        UserId = reader.GetInt16("UserId"),
-                                        Region = reader["region"].ToString(), // Добавляем извлечение региона из базы данных
-                                        City = reader["city"].ToString(), // Добавляем извлечение города из базы данных
-                                        IsNew = Convert.ToBoolean(reader["isNew"]), // Добавляем извлечение IsNew из базы данных
-                                        MinPrice = reader.GetDecimal("minPrice"), // Добавляем извлечение MinPrice из базы данных
-                                        MinStepPrice = reader.GetDecimal("minStepPrice") // Добавляем извлечение MinStepPrice из базы данных
-                                    };
+                                    Lot lot = new Lot(reader);
 
                                     // Добавляем лот в список
                                     lots.Add(lot);
                                 }
                             }
-                            // Возвращаем список лотов, общее количество и номер страницы
-                            return Ok(new { lots, totalCount, pageNumber });
+
+                            // Дополнительный запрос для подсчета количества лотов по каждой категории
+                            string categoryCountQuery = $"SELECT Category, COUNT(*) as Count FROM Lots WHERE UserId = @userId GROUP BY Category";
+                            Dictionary<int, int> categoryCount = new Dictionary<int, int>();
+                            using (MySqlCommand categoryCountCommand = new MySqlCommand(categoryCountQuery, connection))
+                            {
+                                categoryCountCommand.Parameters.AddWithValue("@userId", userId);
+                                using (MySqlDataReader categoryCountReader = categoryCountCommand.ExecuteReader())
+                                {
+                                    while (categoryCountReader.Read())
+                                    {
+                                        int categoryValue = categoryCountReader.GetInt32("Category");
+                                        int count = categoryCountReader.GetInt32("Count");
+                                        categoryCount.Add(categoryValue, count);
+                                    }
+                                }
+                            }
+
+                            // Возвращаем список лотов, общее количество, номер страницы и количество лотов по каждой категории
+                            return Ok(new { lots, totalCount, pageNumber, categoryCount });
                         }
                     }
                 }
@@ -519,6 +510,31 @@ namespace Project2.Controllers
         {
             try
             {
+                // Проверяем, существует ли токен в запросе
+                if (string.IsNullOrEmpty(request.Token))
+                {
+                    return BadRequest(new { message = "Token is required" });
+                }
+
+                // Извлекаем идентификатор пользователя из токена
+                string userId = ExtractUserIdFromToken(request.Token);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return BadRequest(new { message = "Invalid token" });
+                }
+
+                // Проверяем, является ли пользователь администратором
+                bool isAdmin = CheckUserIsAdmin(userId);
+                if (!isAdmin)
+                {
+                    // Проверяем, является ли пользователь владельцем лота
+                    bool isOwner = CheckUserIsOwnerOfLot(userId, request.LotId);
+                    if (!isOwner)
+                    {
+                        return BadRequest(new { message = "User is not authorized to update this lot" });
+                    }
+                }
+
                 // Открываем соединение с базой данных
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
@@ -568,12 +584,187 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+        private bool CheckUserIsAdmin(string userId)
+        {
+            using (MySqlConnection connection = new MySqlConnection(_connString))
+            {
+                connection.Open();
 
-        [HttpPost("deleteLot")]
-        public IActionResult DeleteLot(int id)
+                string query = $"SELECT IsAdmin FROM Users WHERE Id = {userId}";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    object result = command.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        return Convert.ToBoolean(result);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool CheckUserIsOwnerOfLot(string userId, int lotId)
+        {
+            using (MySqlConnection connection = new MySqlConnection(_connString))
+            {
+                connection.Open();
+
+                string query = $"SELECT COUNT(*) FROM Lots WHERE Id = {lotId} AND UserID = {userId}";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
+            }
+        }
+
+
+        private void SendEmail(string toEmail, string subject, string body)
+        {
+            using (SmtpClient smtpClient = new SmtpClient(_smtpServer, _smtpPort))
+            {
+                smtpClient.UseDefaultCredentials = false;
+                smtpClient.Credentials = new NetworkCredential(_smtpUsername, _smtpPassword);
+                smtpClient.EnableSsl = true;
+
+                using (MailMessage mailMessage = new MailMessage())
+                {
+                    mailMessage.From = new MailAddress(_smtpUsername);
+                    mailMessage.To.Add(toEmail);
+                    mailMessage.Subject = subject;
+                    mailMessage.Body = body;
+                    mailMessage.IsBodyHtml = false;
+
+                    smtpClient.Send(mailMessage);
+                }
+            }
+        }
+
+        private void SendEmailToUser(string userId, string explanation)
+        {
+            // Получить email пользователя из базы данных по его userId
+            string userEmail = GetUserEmailById(userId); // Предполагается, что такой метод существует
+
+            // Отправить письмо пользователю с объяснением
+            string subject = "Your lot has been denied";
+            string body = $"Dear User,\n\nYour lot has been denied for the following reason:\n\n{explanation}\n\nRegards,\nThe Admin";
+            SendEmail(userEmail, subject, body);
+        }
+        private string GetUserEmailById(string userId)
+        {
+            string userEmail = null;
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    string query = "SELECT Email FROM Users WHERE Id = @userId";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@userId", userId);
+                        userEmail = command.ExecuteScalar()?.ToString();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetUserEmailById method: {ex.ToString()}");
+                // Здесь нужно обработать ошибку, например, записать в лог или вернуть пустую строку
+            }
+
+            return userEmail;
+        }
+        [HttpPost("denyLot")]
+        public IActionResult DenyLot([FromBody] DenyLotRequest request)
         {
             try
             {
+                string adminUserId = ExtractUserIdFromToken(request.Token);
+
+                // Проверяем, является ли пользователь администратором
+                bool isAdmin = CheckUserIsAdmin(adminUserId);
+
+                // Если пользователь не является администратором, возвращаем ошибку
+                if (!isAdmin)
+                {
+                    return BadRequest(new { message = "Only administrators can perform this action" });
+                }
+
+                // Получаем идентификатор пользователя по идентификатору лота
+                string userId;
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    string getUserIdQuery = "SELECT UserID FROM Lots WHERE Id = @lotId";
+                    using (MySqlCommand getUserIdCommand = new MySqlCommand(getUserIdQuery, connection))
+                    {
+                        getUserIdCommand.Parameters.AddWithValue("@lotId", request.LotId);
+                        userId = getUserIdCommand.ExecuteScalar()?.ToString();
+                    }
+                }
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return BadRequest(new { message = "Lot not found or user does not exist" });
+                }
+
+                // Отправляем письмо пользователю с объяснением
+                string userEmail = GetUserEmailById(userId);
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    return BadRequest(new { message = "User email not found" });
+                }
+
+                SendEmail(userEmail, "Your lot has been denied", request.Explanation);
+
+                // Обновляем статус лота в базе данных
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    string query = "UPDATE Lots SET unactive = true, active = false, approved = false, archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@id", request.LotId);
+                        command.ExecuteNonQuery();
+                    }
+
+                    return Ok(new { message = "Lot denied successfully" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in DenyLot method: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+            }
+        }
+
+
+        [HttpPost("deleteLot")]
+        public IActionResult DeleteLot([FromBody] DeleteLot request)
+        {
+            try
+            {
+                string userId = ExtractUserIdFromToken(request.Token);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return BadRequest(new { message = "Invalid token" });
+                }
+
+                if (!CheckUserIsAdmin(userId))
+                {
+                    if (!CheckUserIsOwnerOfLot(userId, request.LotId))
+                    {
+                        return BadRequest(new { message = "User is not authorized to delete this lot" });
+                    }
+                }
+
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
@@ -581,22 +772,21 @@ namespace Project2.Controllers
                     string deleteLikedLotsQuery = "DELETE FROM LikedLots WHERE LotId = @id";
                     using (MySqlCommand deleteLikedLotsCommand = new MySqlCommand(deleteLikedLotsQuery, connection))
                     {
-                        deleteLikedLotsCommand.Parameters.AddWithValue("@id", id);
+                        deleteLikedLotsCommand.Parameters.AddWithValue("@id", request.LotId);
                         deleteLikedLotsCommand.ExecuteNonQuery();
                     }
-                    // Первый шаг: Удаляем связанные записи из таблицы Bids
+
                     string deleteBidsQuery = "DELETE FROM Bids WHERE LotId = @id";
                     using (MySqlCommand deleteBidsCommand = new MySqlCommand(deleteBidsQuery, connection))
                     {
-                        deleteBidsCommand.Parameters.AddWithValue("@id", id);
+                        deleteBidsCommand.Parameters.AddWithValue("@id", request.LotId);
                         deleteBidsCommand.ExecuteNonQuery();
                     }
 
-                    // Второй шаг: Удаляем лот из таблицы Lots
                     string deleteLotQuery = "DELETE FROM Lots WHERE Id = @id";
                     using (MySqlCommand deleteLotCommand = new MySqlCommand(deleteLotQuery, connection))
                     {
-                        deleteLotCommand.Parameters.AddWithValue("@id", id);
+                        deleteLotCommand.Parameters.AddWithValue("@id", request.LotId);
                         deleteLotCommand.ExecuteNonQuery();
                     }
 
@@ -609,50 +799,60 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
         [HttpPost("UnactiveLot")]
-        public IActionResult UnactiveLot(int id)
+        public IActionResult UnactiveLot(int id, [FromBody] EditStatusLot request)
         {
             try
             {
+                if (!CheckUserIsAdmin(ExtractUserIdFromToken(request.Token)))
+                {
+                    return BadRequest(new { message = "Only administrators can perform this action" });
+                }
+
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
 
-                    // Утверждаем лот в базе данных
-                    string query = "UPDATE Lots SET active = false, unactive = true, archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
+                    string query = "UPDATE Lots SET active = false, AllowBids = false, unactive = true, archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@id", id);
                         command.ExecuteNonQuery();
                     }
 
-                    return Ok(new { message = "Lot approved successfully" });
+                    return Ok(new { message = "Lot unactive successfully" });
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in ApproveLot method: {ex.ToString()}");
+                Console.WriteLine($"Error in UnactiveLot method: {ex.ToString()}");
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
         [HttpPost("ArchiveLot")]
-        public IActionResult ArchiveLot(int id)
+        public IActionResult ArchiveLot(int id, [FromBody] EditStatusLot request)
         {
             try
             {
+                if (!CheckUserIsAdmin(ExtractUserIdFromToken(request.Token)))
+                {
+                    return BadRequest(new { message = "Only administrators can perform this action" });
+                }
+
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
 
-                    // Утверждаем лот в базе данных
-                    string query = "UPDATE Lots SET active = false, unactive = false, archive = true, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
+                    string query = "UPDATE Lots SET active = false, unactive = false, archive = true, AllowBids = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@id", id);
                         command.ExecuteNonQuery();
                     }
 
-                    return Ok(new { message = "Lot Archive successfully" });
+                    return Ok(new { message = "Lot archived successfully" });
                 }
             }
             catch (Exception ex)
@@ -661,55 +861,89 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-        [HttpPost("isWaitingPaymentLot")]
-        public IActionResult isWaitingPaymentLot(int id)
+        [HttpPost("SetAllowBids")]
+        public IActionResult SetAllowBids(int id, [FromBody] EditStatusLot request)
         {
             try
             {
+                string userId = ExtractUserIdFromToken(request.Token);
+
+                // Проверяем, является ли пользователь администратором
+                bool isAdmin = CheckUserIsAdmin(userId);
+
+                // Проверяем, является ли пользователь владельцем лота
+                bool isOwner = CheckUserIsOwnerOfLot(userId, id);
+
+                // Если пользователь не является администратором и не владельцем лота, возвращаем ошибку
+                if (!isAdmin && !isOwner)
+                {
+                    return BadRequest(new { message = "Only administrators or lot owners can perform this action" });
+                }
+
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
 
-                    // Утверждаем лот в базе данных
-                    string query = "UPDATE Lots SET Active = false, Unactive = false, Archive = false, isWaitingDelivery = false, isWaitingPayment = true WHERE id = @id";
+                    // Проверяем, имеет ли лот статус approved = true
+                    string checkApprovedQuery = "SELECT Approved FROM Lots WHERE id = @id";
+                    bool isApproved;
+                    using (MySqlCommand checkApprovedCommand = new MySqlCommand(checkApprovedQuery, connection))
+                    {
+                        checkApprovedCommand.Parameters.AddWithValue("@id", id);
+                        isApproved = Convert.ToBoolean(checkApprovedCommand.ExecuteScalar());
+                    }
+
+                    // Если лот не имеет статус approved = true, возвращаем ошибку
+                    if (!isApproved)
+                    {
+                        return BadRequest(new { message = "Lot is not approved" });
+                    }
+
+                    // Обновляем статус AllowBids = true
+                    string query = "UPDATE Lots SET AllowBids = true WHERE id = @id";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@id", id);
                         command.ExecuteNonQuery();
                     }
 
-                    return Ok(new { message = "Lot approved successfully" });
+                    return Ok(new { message = "AllowBids set successfully" });
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in ApproveLot method: {ex.ToString()}");
+                Console.WriteLine($"Error in SetAllowBids method: {ex.ToString()}");
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-        [HttpPost("approveLot")]
-        public IActionResult ApproveLot(int id)
+
+        [HttpPost("isWaitingPaymentLot")]
+        public IActionResult isWaitingPaymentLot(int id, [FromBody] EditStatusLot request)
         {
             try
             {
+                if (!CheckUserIsAdmin(ExtractUserIdFromToken(request.Token)))
+                {
+                    return BadRequest(new { message = "Only administrators can perform this action" });
+                }
+
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
 
-                    // Утверждаем лот в базе данных
-                    string query = "UPDATE Lots SET approved = true, Active = true, Unactive = false, Archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
+                    string query = "UPDATE Lots SET Active = false, Unactive = false, AllowBids = false, Archive = false, isWaitingDelivery = false, isWaitingPayment = true WHERE id = @id";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@id", id);
                         command.ExecuteNonQuery();
                     }
 
-                    return Ok(new { message = "Lot approved successfully" });
+                    return Ok(new { message = "Lot set as waiting payment successfully" });
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in ApproveLot method: {ex.ToString()}");
+                Console.WriteLine($"Error in isWaitingPaymentLot method: {ex.ToString()}");
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
@@ -988,20 +1222,48 @@ namespace Project2.Controllers
         {
             try
             {
-                // Открываем соединение с базой данных
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
 
-                    // Запрос к базе данных для получения лота по его идентификатору
-                    // Увеличиваем значение Views на 1
-                    string updateViewsQuery = "UPDATE Lots SET Views = Views + 1 WHERE Id = @id";
-                    using (MySqlCommand updateCommand = new MySqlCommand(updateViewsQuery, connection))
-                    {
-                        updateCommand.Parameters.AddWithValue("@id", id);
-                        updateCommand.ExecuteNonQuery();
-                    }
-                    string query = "SELECT * FROM Lots WHERE id = @id";
+                    string query = @"
+                SELECT 
+                    l.*, 
+                    u1.LastLogin AS OwnersLastLogin, 
+                    u1.RegistrationTime AS OwnersRegistrationTime, 
+                    u1.Avatar AS OwnersAvatar, 
+                    u1.Id AS OwnersUserId,
+                    u1.FirstName AS OwnersFirstName,
+                    u1.LastName AS OwnersLastName,
+                    u1.Login AS OwnersLogin,
+                    u1.Email AS OwnersEmail,
+                    u2.LastLogin AS MaxBidsLastLogin, 
+                    u2.RegistrationTime AS MaxBidsRegistrationTime, 
+                    u2.Avatar AS MaxBidsAvatar, 
+                    u2.Id AS MaxBidsUserId,
+                    u2.FirstName AS MaxBidsFirstName,
+                    u2.LastName AS MaxBidsLastName,
+                    u2.Login AS MaxBidsLogin,
+                    u2.Email AS MaxBidsEmail,
+                    b.MaxPrice AS MaxBidPrice
+                FROM 
+                    Lots l
+                LEFT JOIN Users u1 ON l.UserId = u1.Id
+                LEFT JOIN 
+                    (
+                        SELECT 
+                            LotId, 
+                            MAX(Price) AS MaxPrice 
+                        FROM 
+                            Bids 
+                        GROUP BY 
+                            LotId
+                    ) b ON l.Id = b.LotId
+                LEFT JOIN 
+                    Users u2 ON b.UserId = u2.Id
+                WHERE 
+                    l.Id = @id";
+
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@id", id);
@@ -1010,17 +1272,46 @@ namespace Project2.Controllers
                         {
                             if (reader.Read())
                             {
-                                // Создание объекта лота на основе данных из базы данных
                                 Lot lot = new Lot(reader);
 
-                               
+                                User owner = new User
+                                {
+                                    LastLogin = reader["OwnersLastLogin"].ToString(),
+                                    RegistrationTime = reader["OwnersRegistrationTime"].ToString(),
+                                    Avatar = reader["OwnersAvatar"].ToString(),
+                                    Id = reader["OwnersUserId"].ToString(),
+                                    FirstName = reader["OwnersFirstName"].ToString(),
+                                    LastName = reader["OwnersLastName"].ToString(),
+                                    Login = reader["OwnersLogin"].ToString(),
+                                    Email = reader["OwnersEmail"].ToString()
+                                };
 
-                                // Возвращаем найденный лот
-                                return Ok(lot);
+                                User maxBidsUser = null;
+                                if (!reader.IsDBNull(reader.GetOrdinal("MaxBidsLastLogin")))
+                                {
+                                    maxBidsUser = new User
+                                    {
+                                        LastLogin = reader["MaxBidsLastLogin"].ToString(),
+                                        RegistrationTime = reader["MaxBidsRegistrationTime"].ToString(),
+                                        Avatar = reader["MaxBidsAvatar"].ToString(),
+                                        Id = reader["MaxBidsUserId"].ToString(),
+                                        FirstName = reader["MaxBidsFirstName"].ToString(),
+                                        LastName = reader["MaxBidsLastName"].ToString(),
+                                        Login = reader["MaxBidsLogin"].ToString(),
+                                        Email = reader["MaxBidsEmail"].ToString()
+                                    };
+                                }
+
+                                decimal maxBidPrice = 0;
+                                if (!reader.IsDBNull(reader.GetOrdinal("MaxBidPrice")))
+                                {
+                                    maxBidPrice = Convert.ToDecimal(reader["MaxBidPrice"]);
+                                }
+
+                                return Ok(new { Lot = lot, Owner = owner, MaxBidsUser = maxBidsUser, MaxBidPrice = maxBidPrice });
                             }
                             else
                             {
-                                // Если лот с указанным идентификатором не найден, возвращаем NotFound
                                 return NotFound(new { message = "Lot not found" });
                             }
                         }
@@ -1029,12 +1320,166 @@ namespace Project2.Controllers
             }
             catch (Exception ex)
             {
-                // В случае ошибки возвращаем статус 500 и сообщение об ошибке
                 Console.WriteLine($"Error getting lot by id: {ex.ToString()}");
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
 
+
+        [HttpGet("getUnapprovedLots")]
+        public IActionResult GetUnapprovedLots([FromBody] string token)
+        {
+            try
+            {
+                // Извлекаем идентификатор пользователя из токена
+                string userId = ExtractUserIdFromToken(token);
+
+                // Проверяем, является ли пользователь администратором
+                bool isAdmin = CheckUserIsAdmin(userId);
+
+                // Если пользователь не является администратором, возвращаем ошибку
+                if (!isAdmin)
+                {
+                    return BadRequest(new { message = "Only administrators can perform this action" });
+                }
+
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    string query = "SELECT * FROM Lots WHERE Approved = false";
+
+                    List<Lot> unapprovedLots = new List<Lot>();
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Lot lot = new Lot(reader);
+                                unapprovedLots.Add(lot);
+                            }
+                        }
+                    }
+
+                    return Ok(unapprovedLots);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting unapproved lots: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
+            }
+        }
+        [HttpGet("getLotsWaitingPayment")]
+        public IActionResult GetLotsWaitingPayment([FromBody] string Token)
+        {
+            try
+            {
+                // Извлечение userId из токена
+                string userId = ExtractUserIdFromToken(Token);
+
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    // Запрос к базе данных для получения лотов со статусом "isWaitingPayment" для конкретного пользователя
+                    string query = @"
+                SELECT 
+                    l.* 
+                FROM 
+                    Lots l
+                WHERE 
+                    l.Status = 'isWaitingPayment' AND l.UserId = @UserId";
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserId", userId);
+
+                        List<Lot> lots = new List<Lot>();
+
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Lot lot = new Lot(reader);
+                                lots.Add(lot);
+                            }
+                        }
+
+                        return Ok(lots);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting lots waiting payment: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
+            }
+        }
+        [HttpGet("getLotsWaitingDelivery")]
+        public IActionResult GetLotsWaitingDelivery([FromBody] string Token)
+        {
+            try
+            {
+                // Извлечение userId из токена
+                string userId = ExtractUserIdFromToken(Token);
+
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    // Запрос к базе данных для получения лотов со статусом "isWaitingDelivery" для конкретного пользователя
+                    string query = @"
+                SELECT 
+                    l.* 
+                FROM 
+                    Lots l
+                WHERE 
+                    l.Status = 'isWaitingDelivery' AND l.UserId = @UserId";
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserId", userId);
+
+                        List<Lot> lots = new List<Lot>();
+
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Lot lot = new Lot(reader);
+                                lots.Add(lot);
+                            }
+                        }
+
+                        return Ok(lots);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting lots waiting delivery: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
+            }
+        }
+
+
+
+    }
+
+    public class DenyLotRequest
+    {
+        public string Token { get; set; }
+        public int LotId { get; set; }
+        public string Explanation { get; set; }
+    }
+    public class EditStatusLot
+    { 
+    
+        public string Token { get; set; }
+        public int LotId { get; set; }  
 
     }
     public class getUserLikedLots { 
@@ -1044,8 +1489,14 @@ namespace Project2.Controllers
     public string Token { get; set; }
     public int LotId { get; set; }
     }
+    public class DeleteLot
+    {
+        public string Token { get; set; }
+        public int LotId { get; set; }
+    }
     public class UpdateLotRequest
     {
+        public string Token { get; set; }
         public int LotId { get; set; }
         public Dictionary<string, string> FieldsToUpdate { get; set; }
     }
@@ -1066,5 +1517,20 @@ namespace Project2.Controllers
         public decimal MinPrice { get; set; } // Новое свойство для минимальной цены
         public decimal MinStepPrice { get; set; } // Новое свойство для минимального шага цены
     }
+    public class User
+    {
+        public string LastLogin { get; set; }
+        public string RegistrationTime { get; set; }
+        public string Avatar { get; set; }
+        public string Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Login { get; set; }
+        public string Email { get; set; }
+    }
 
+    public class Bidder : User
+    {
+        public decimal MaxBidPrice { get; set; }
+    }
 }

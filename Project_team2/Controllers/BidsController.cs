@@ -72,7 +72,6 @@ namespace Project2.Controllers
             }
         }
 
-
         [HttpPost("placeBid")]
         public IActionResult PlaceBid([FromBody] BidModel model)
         {
@@ -89,89 +88,88 @@ namespace Project2.Controllers
                     {
                         try
                         {
-                            // Получаем текущую максимальную ставку для лота
-                            decimal currentMaxBid = 0;
-                            string getMaxBidQuery = "SELECT MAX(BidAmount) FROM Bids WHERE LotId = @LotId";
-                            using (MySqlCommand getMaxBidCommand = new MySqlCommand(getMaxBidQuery, connection, transaction))
+                            // Получаем информацию о лоте
+                            string getLotInfoQuery = "SELECT MinPrice, MinStepPrice FROM Lots WHERE Id = @LotId";
+                            using (MySqlCommand getLotInfoCommand = new MySqlCommand(getLotInfoQuery, connection, transaction))
                             {
-                                getMaxBidCommand.Parameters.AddWithValue("@LotId", model.LotId);
-                                object maxBidObj = getMaxBidCommand.ExecuteScalar();
-                                if (maxBidObj != null && maxBidObj != DBNull.Value)
+                                getLotInfoCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                using (MySqlDataReader reader = getLotInfoCommand.ExecuteReader())
                                 {
-                                    currentMaxBid = Convert.ToDecimal(maxBidObj);
-                                }
-                            }
-
-                            // Проверяем, является ли новая ставка выше текущей максимальной
-                            if (model.BidAmount > currentMaxBid)
-                            {
-                                // Обновляем максимальную ставку в таблице Lots
-                                string updateLotQuery = "UPDATE Lots SET Price = @Price WHERE Id = @LotId";
-                                using (MySqlCommand updateLotCommand = new MySqlCommand(updateLotQuery, connection, transaction))
-                                {
-                                    updateLotCommand.Parameters.AddWithValue("@LotId", model.LotId);
-                                    updateLotCommand.Parameters.AddWithValue("@Price", model.BidAmount);
-                                    updateLotCommand.ExecuteNonQuery();
-                                }
-
-                                if (currentMaxBid > 0)
-                                {
-                                    string getPreviousMaxBidderQuery = "SELECT UserId FROM Bids WHERE LotId = @LotId AND BidAmount = @MaxBid";
-
-                                    using (MySqlCommand getPreviousMaxBidderCommand = new MySqlCommand(getPreviousMaxBidderQuery, connection, transaction))
+                                    if (reader.Read())
                                     {
-                                        getPreviousMaxBidderCommand.Parameters.AddWithValue("@LotId", model.LotId);
-                                        getPreviousMaxBidderCommand.Parameters.AddWithValue("@MaxBid", currentMaxBid);
-                                        object previousMaxBidderObj = getPreviousMaxBidderCommand.ExecuteScalar();
-                                        if (previousMaxBidderObj != null && previousMaxBidderObj != DBNull.Value)
+                                        decimal minPrice = Convert.ToDecimal(reader["MinPrice"]);
+                                        decimal minStepPrice = Convert.ToDecimal(reader["MinStepPrice"]);
+
+                                        // Проверяем, является ли это первая ставка на лот
+                                        string getBidsCountQuery = "SELECT COUNT(*) FROM Bids WHERE LotId = @LotId";
+                                        using (MySqlCommand getBidsCountCommand = new MySqlCommand(getBidsCountQuery, connection, transaction))
                                         {
-                                            int previousMaxBidderUserId = Convert.ToInt32(previousMaxBidderObj);
-                                            string getUserEmailQuery = "SELECT Email, NotificationsHelp FROM Users WHERE Id = @UserId";
+                                            getBidsCountCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                            int bidsCount = Convert.ToInt32(getBidsCountCommand.ExecuteScalar());
 
-                                            using (MySqlCommand getUserEmailCommand = new MySqlCommand(getUserEmailQuery, connection, transaction))
+                                            if (bidsCount == 0) // Если это первая ставка
                                             {
-                                                getUserEmailCommand.Parameters.AddWithValue("@UserId", previousMaxBidderUserId);
-                                                using (MySqlDataReader reader = getUserEmailCommand.ExecuteReader())
+                                                if (model.BidAmount >= minPrice)
                                                 {
-                                                    if (reader.Read())
+                                                    // Добавляем ставку в таблицу Bids
+                                                    string insertBidQuery = "INSERT INTO Bids (LotId, UserId, BidAmount, BidTime) VALUES (@LotId, @UserId, @BidAmount, NOW())";
+                                                    using (MySqlCommand insertBidCommand = new MySqlCommand(insertBidQuery, connection, transaction))
                                                     {
-                                                        string previousMaxBidderEmail = reader["Email"].ToString();
-                                                        bool notificationsHelp = Convert.ToBoolean(reader["NotificationsHelp"]);
-
-                                                        // Если у пользователя стоит флаг NotificationsHelp, отправляем письмо
-                                                        if (notificationsHelp)
-                                                        {
-                                                            // Здесь ваш код для отправки электронной почты
-                                                            // Например, вызов метода SendEmail
-                                                            SendEmail(previousMaxBidderEmail, "Ваша ставка перебита", $"Your bid for lot {model.LotId} has been surpassed.");
-                                                        }
+                                                        insertBidCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                                        insertBidCommand.Parameters.AddWithValue("@UserId", userId);
+                                                        insertBidCommand.Parameters.AddWithValue("@BidAmount", model.BidAmount);
+                                                        insertBidCommand.ExecuteNonQuery();
                                                     }
+                                                }
+                                                else
+                                                {
+                                                    return BadRequest(new { message = "The bid must be equal to or higher than the minimum price" });
+                                                }
+                                            }
+                                            else // Если это не первая ставка
+                                            {
+                                                decimal currentMaxBid = 0;
+                                                string getCurrentMaxBidQuery = "SELECT MAX(BidAmount) FROM Bids WHERE LotId = @LotId";
+                                                using (MySqlCommand getCurrentMaxBidCommand = new MySqlCommand(getCurrentMaxBidQuery, connection, transaction))
+                                                {
+                                                    getCurrentMaxBidCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                                    object maxBidObj = getCurrentMaxBidCommand.ExecuteScalar();
+                                                    if (maxBidObj != null && maxBidObj != DBNull.Value)
+                                                    {
+                                                        currentMaxBid = Convert.ToDecimal(maxBidObj);
+                                                    }
+                                                }
+
+                                                if (model.BidAmount >= currentMaxBid + minStepPrice)
+                                                {
+                                                    // Добавляем ставку в таблицу Bids
+                                                    string insertBidQuery = "INSERT INTO Bids (LotId, UserId, BidAmount, BidTime) VALUES (@LotId, @UserId, @BidAmount, NOW())";
+                                                    using (MySqlCommand insertBidCommand = new MySqlCommand(insertBidQuery, connection, transaction))
+                                                    {
+                                                        insertBidCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                                        insertBidCommand.Parameters.AddWithValue("@UserId", userId);
+                                                        insertBidCommand.Parameters.AddWithValue("@BidAmount", model.BidAmount);
+                                                        insertBidCommand.ExecuteNonQuery();
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    return BadRequest(new { message = "The bid must be higher than the current maximum bid plus the minimum step price" });
                                                 }
                                             }
                                         }
                                     }
+                                    else
+                                    {
+                                        return BadRequest(new { message = "Lot not found" });
+                                    }
                                 }
-
-                                // Добавляем ставку в таблицу Bids
-                                
-                                string insertBidQuery = "INSERT INTO Bids (LotId, UserId, BidAmount, BidTime) VALUES (@LotId, @UserId, @BidAmount, NOW())";
-                                using (MySqlCommand insertBidCommand = new MySqlCommand(insertBidQuery, connection, transaction))
-                                {
-                                    insertBidCommand.Parameters.AddWithValue("@LotId", model.LotId);
-                                    insertBidCommand.Parameters.AddWithValue("@UserId", userId);
-                                    insertBidCommand.Parameters.AddWithValue("@BidAmount", model.BidAmount);
-                                    insertBidCommand.ExecuteNonQuery();
-                                }
-
-                                // Фиксируем транзакцию
-                                transaction.Commit();
-
-                                return Ok(new { message = "Bid placed successfully" });
                             }
-                            else
-                            {
-                                return BadRequest(new { message = "New bid must be higher than current max bid" });
-                            }
+
+                            // Фиксируем транзакцию
+                            transaction.Commit();
+
+                            return Ok(new { message = "Bid placed successfully" });
                         }
                         catch (Exception ex)
                         {
@@ -189,6 +187,8 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
+
         [HttpGet("getUserBids/{userId}")]
         public IActionResult GetUserBids(int userId, int page = 1, int pageSize = 10)
         {
@@ -269,6 +269,93 @@ namespace Project2.Controllers
             }
         }
 
+        [HttpPost("fastBuy")]
+        public IActionResult FastBuy([FromBody] BidModel model)
+        {
+            string tok = model.Token;
+            var userId = ExtractUserIdFromToken(tok);
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    // Начинаем транзакцию
+                    using (MySqlTransaction transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            // Получаем информацию о лоте
+                            string getLotInfoQuery = "SELECT Price, AllowBids FROM Lots WHERE Id = @LotId";
+                            using (MySqlCommand getLotInfoCommand = new MySqlCommand(getLotInfoQuery, connection, transaction))
+                            {
+                                getLotInfoCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                using (MySqlDataReader lotReader = getLotInfoCommand.ExecuteReader())
+                                {
+                                    if (lotReader.Read())
+                                    {
+                                        decimal price = Convert.ToDecimal(lotReader["Price"]);
+                                        bool allowBids = Convert.ToBoolean(lotReader["AllowBids"]);
+
+                                        // Проверяем, что AllowBids равно false
+                                        if (allowBids)
+                                        {
+                                            return BadRequest(new { message = "You cannot buy this item after the auction has started" });
+                                        }
+
+                                        // Проверяем, что BidAmount равен Price
+                                        if (model.BidAmount != price)
+                                        {
+                                            return BadRequest(new { message = "Bid amount must be equal to the price of the item" });
+                                        }
+                                    }
+                                    else
+                                    {
+                                        return BadRequest(new { message = "Lot not found" });
+                                    }
+                                }
+                            }
+
+                            // Добавляем ставку в таблицу Bids
+                            string insertBidQuery = "INSERT INTO Bids (LotId, UserId, BidAmount, BidTime) VALUES (@LotId, @UserId, @BidAmount, NOW())";
+                            using (MySqlCommand insertBidCommand = new MySqlCommand(insertBidQuery, connection, transaction))
+                            {
+                                insertBidCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                insertBidCommand.Parameters.AddWithValue("@UserId", userId);
+                                insertBidCommand.Parameters.AddWithValue("@BidAmount", model.BidAmount);
+                                insertBidCommand.ExecuteNonQuery();
+                            }
+
+                            // Обновляем лот
+                            string updateLotQuery = "UPDATE Lots SET WinnerUserId = @WinnerUserId, Active = false, AllowBids = false, isWaitingPayment = true WHERE Id = @LotId";
+                            using (MySqlCommand updateLotCommand = new MySqlCommand(updateLotQuery, connection, transaction))
+                            {
+                                updateLotCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                updateLotCommand.Parameters.AddWithValue("@WinnerUserId", userId);
+                                updateLotCommand.ExecuteNonQuery();
+                            }
+
+                            // Фиксируем транзакцию
+                            transaction.Commit();
+
+                            return Ok(new { message = "Bid placed successfully and lot updated" });
+                        }
+                        catch (Exception ex)
+                        {
+                            // Откатываем транзакцию в случае ошибки
+                            transaction.Rollback();
+                            Console.WriteLine($"Error in FastBuy method: {ex.ToString()}");
+                            return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in FastBuy method: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+            }
+        }
 
         [HttpGet("getRecentBids/{lotId}")]
         public IActionResult GetRecentBids(int lotId)
@@ -321,7 +408,7 @@ namespace Project2.Controllers
         public int LotId { get; set; }
        
         public decimal BidAmount { get; set; }
-        public DateTime BidTime { get; set; }
+       
         public string Token { get; set; } // Добавлено поле Token для хранения токена
     }
     public class BidHistoryModel
