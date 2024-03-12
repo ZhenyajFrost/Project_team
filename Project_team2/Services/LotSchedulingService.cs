@@ -93,15 +93,25 @@ public class LotSchedulingService : BackgroundService
         {
             await connection.OpenAsync();
 
-            // Обновление состояния лота в базе данных
-            string query = "UPDATE Lots SET Active = false, Unactive = true WHERE Id = @LotId";
-            using (MySqlCommand command = new MySqlCommand(query, connection))
+            // Получение идентификатора пользователя с самой большой ставкой на лот
+            string getUserIdQuery = "SELECT UserId FROM Bids WHERE LotId = @LotId ORDER BY BidAmount DESC LIMIT 1";
+            using (MySqlCommand getUserIdCommand = new MySqlCommand(getUserIdQuery, connection))
             {
-                command.Parameters.AddWithValue("@LotId", lotId);
-                await command.ExecuteNonQueryAsync();
+                getUserIdCommand.Parameters.AddWithValue("@LotId", lotId);
+                var winnerUserId = await getUserIdCommand.ExecuteScalarAsync();
+
+                // Обновление состояния лота и поля WinnerUserId в базе данных
+                string updateLotQuery = "UPDATE Lots SET Active = false, AllowBids = false, isWaitingPayment = true, WinnerUserId = @WinnerUserId WHERE Id = @LotId";
+                using (MySqlCommand command = new MySqlCommand(updateLotQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@LotId", lotId);
+                    command.Parameters.AddWithValue("@WinnerUserId", winnerUserId);
+                    await command.ExecuteNonQueryAsync();
+                }
             }
         }
 
         _logger.LogInformation($"Lot {lotId} has been deactivated.");
     }
+
 }
