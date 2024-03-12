@@ -7,6 +7,8 @@ import { formatTime } from "../../utils/formatTime";
 import Button from '../UI/Button/Button';
 import ModalWindow from '../ModalWindow/ModalWindow.js'
 import useApproveLot from "../../API/Lots/useApproveLot.js";
+import useDenyLot from "../../API/Lots/useDenyLot.js";
+import { getLocalStorage } from "../../utils/localStorage.js";
 
 function Lot({
   id,
@@ -23,11 +25,15 @@ function Lot({
 }) {
   const [ttl, setTtl] = useState(new Date(timeTillEnd) - new Date());
 
+  const token = getLocalStorage('token');
+
   const [modalVisible, setModalVisible] = useState(false)
   const [explanation, setExplanation] = useState("");
   const _isApproved = isApproved === undefined ? true : isApproved;
 
   const [approveLot, isLoading, error] = useApproveLot();
+  const [denyLot, isLoadingDeny, errorDen] = useDenyLot();
+  const [isChecked, setIsChecked] = useState(false);
 
   useEffect(() => {
     if (ttl > 0)
@@ -36,22 +42,30 @@ function Lot({
       }, 1000);
   }, [ttl]);
 
-  const handleSendClick = async() => {
+  const handleSendClick = async () => {
     const data = {
+      token: token,
       lotId: id,
-      explanation: explanation
+      explanation: `${explanation} \tЛот переведено до Архіву`
     }
+
+    await denyLot(data);
+    setIsChecked(true);
 
     console.log(`Send data: id ${data.lotId} explanation ${data.explanation}`) //TO SERVER 
   }
 
   const handleApproveClick = async () => {
     await approveLot(id);
+
+    if (!error.length)
+      setIsChecked(true);
+
     console.log(`Lot ${id} applroved`); //LOGIC TO SERVER
   }
 
   return (
-    <div className={`${css.lot} ${ttl > 0 ? css.active : css.inactive}`}>
+    <div className={`${css.lot} ${ttl > 0 ? css.active : css.inactive} ${isChecked ? css.checked : ""}`}>
       <img
         src={
           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzj49rb70qayLcsE_g-Bl54iw3sMoJsZRfLbU-tQOqWQ&s"
@@ -60,7 +74,7 @@ function Lot({
         alt="oleg"
       />
       <div className={css.lotText}>
-        <h3 className={css.lotTitle}>{title}</h3>
+        <h3 className={`${css.lotTitle}`}>{title}</h3>
         <p className={css.lotDesc}>{shortDescription}</p>
 
         <div className={css.lotInfo}>
@@ -83,7 +97,7 @@ function Lot({
           </NavLink>
         </div>
       </div>
-      {isAdmin  && !_isApproved ?
+      {isAdmin && !_isApproved ?
         <div className={css.adminPanel}>
           <Button className={css.approve} onClick={handleApproveClick}>Approve</Button>
           <Button className={css.deny} onClick={() => setModalVisible(true)}>Deny</Button>

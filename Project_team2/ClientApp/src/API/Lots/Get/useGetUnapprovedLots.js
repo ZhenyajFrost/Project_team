@@ -12,7 +12,7 @@ const useGetUnapprovedLots = () => {
     const getLots = async (token) => {
         setLoading(true);
         try {
-            const response = await axios.post(`${LOTS_ENDPOINT}/getUnapprovedLots`, { token: token });
+            const response = await axios.post(`${LOTS_ENDPOINT}/getUnapprovedLots?token=${token}`);
 
             console.log('Lots successfully retrieved: ', response.data);
             setLots(response.data);

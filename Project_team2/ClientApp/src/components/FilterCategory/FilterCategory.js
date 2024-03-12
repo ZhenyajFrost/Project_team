@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react'
 import css from "./FilterCategory.module.css"
 import Button from '../UI/Button/Button'
 
-export default function FilterCategory({ totalCount,categories, onChange, setCategoryClicked }) {
-    const [quantityOfLots, setQuantityOfLots] = useState(32);
+export default function FilterCategory({ totalCount, categories, onChange, setCategoryClicked }) {
     const [activeCat, setActiveCat] = useState({value: ''});
 
     const handleCatClick = (e) => {

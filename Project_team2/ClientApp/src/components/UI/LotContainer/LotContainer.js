@@ -22,7 +22,7 @@ function LotContainer({ lots, display = "", lotStyle = "basic", isAdmin="false" 
             hot={lot.hot}
             imageURL={lot.imageURL}
             isAdmin={isAdmin}
-            isApproved={lot.isApproved}
+            isApproved={lot.approved}
           />
         );
       case "small":

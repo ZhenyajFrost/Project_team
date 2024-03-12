@@ -8,26 +8,36 @@ import LotContainer from '../../../components/UI/LotContainer/LotContainer.js'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom';
 import useGetLotsByUser from '../../../API/Lots/Get/useGetLotsByUser.js';
 import { getLocalStorage } from '../../../utils/localStorage.js';
-import { categoriesFromLots } from '../../../utils/catedoriesFromLots.js';
+import { categoriesFromCategoriesCount } from '../../../utils/categoriesFromCategoriesCount.js';
 import Pagination from '../../../components/UI/Pagination/Pagination.js';
+import { Category } from '@mui/icons-material';
 
-function Lots() {
+function Lots () {
     const user = getLocalStorage('user');
     const history = useHistory();
     const [activeTab, setActiveTab] = useState('active');
 
     const [filters, setFilters] = useState({});
-    const [categoryClicked, setCategoryClicked] = useState('');
+    const [categoryClicked, setCategoryClicked] = useState({value: ''});
 
-    const [getLots, lots, totalCount, isLoading, error] = useGetLotsByUser(); //rewrite this part
+    const [getLots, lots, _totalCount, categoriesCount, isLoading, error] = useGetLotsByUser(); //rewrite this part
+    const categories = categoriesFromCategoriesCount(categoriesCount);
 
-    const categories = categoriesFromLots(lots);
-    console.log(categories)
+    const totalCount = categories.reduce((accumulator, currentCategory) => {
+        return accumulator + currentCategory.count;
+    }, 0);
+    
+
+    console.log(totalCount)
 
     const [pagination, setPagination] = useState({
         pageNumber: 1,
         pageSize: 9
     });
+
+    useEffect(async () => {
+        await getLots(user.id, pagination.pageNumber, pagination.pageSize, activeTab, filters);
+    }, [activeTab, pagination, categoryClicked]) //Filters 
 
     const handleChangePage = (page) => {
         setPagination(prev => ({
@@ -40,10 +50,6 @@ function Lots() {
         setActiveTab(tab);
         setFilters({});
     };
-
-    useEffect(async () => {
-        await getLots(user.id, pagination.pageNumber, pagination.pageSize, activeTab, filters);
-    }, [activeTab, pagination, categoryClicked]) //Filters 
 
     const handleButtonSearch = async () => {
         await getLots(user.id, pagination.page, pagination.pageSize, activeTab, filters);
@@ -99,8 +105,8 @@ function Lots() {
                 <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={totalCount} />
 
                 <div className={css.lots}>
-                    {totalCount === 0 ? "No lots Found" : <LotContainer lots={lots} display="grid-3col" lotStyle="small" />}
-                    <Pagination totalCount={totalCount} page={pagination.pageNumber} limit={pagination.pageSize} changePage={handleChangePage} />
+                    {_totalCount === 0 ? "No lots Found" : <LotContainer lots={lots} display="grid-3col" lotStyle="small" />}
+                    <Pagination totalCount={_totalCount} page={pagination.pageNumber} limit={pagination.pageSize} changePage={handleChangePage} />
                 </div>
             </div>
 

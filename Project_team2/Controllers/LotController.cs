@@ -1329,7 +1329,7 @@ namespace Project2.Controllers
 
 
         [HttpPost("getUnapprovedLots")]
-        public IActionResult GetUnapprovedLots([FromBody] string token)
+        public IActionResult GetUnapprovedLots(string token)
         {
             try
             {
@@ -1374,6 +1374,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+        
         [HttpGet("getLotsWaitingPayment")]
         public IActionResult GetLotsWaitingPayment([FromBody] string Token)
         {
