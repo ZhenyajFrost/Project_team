@@ -417,6 +417,162 @@ namespace Project2.Controllers
                 }
             }
         }
+        [HttpPost("toggleSubscription")]
+        public IActionResult ToggleSubscription([FromBody] SubscriptionRequest subscriptionRequest)
+        {
+            var subscriberId = ExtractUserIdFromToken(subscriptionRequest.Token);
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    // Проверяем, существует ли запись о подписке для данного подписчика и пользователя
+                    string checkQuery = "SELECT COUNT(*) FROM UsersSubscribe WHERE SubscriberId = @subscriberId AND SubscribedToId = @subscribedToId";
+                    using (MySqlCommand checkCommand = new MySqlCommand(checkQuery, connection))
+                    {
+                        checkCommand.Parameters.AddWithValue("@subscriberId", subscriberId);
+                        checkCommand.Parameters.AddWithValue("@subscribedToId", subscriptionRequest.SubscribedToId);
+                        int count = Convert.ToInt32(checkCommand.ExecuteScalar());
+
+                        // Переключаем подписку
+                        if (count > 0)
+                        {
+                            // Если запись о подписке уже существует, удаляем ее
+                            string deleteQuery = "DELETE FROM UsersSubscribe WHERE SubscriberId = @subscriberId AND SubscribedToId = @subscribedToId";
+                            using (MySqlCommand deleteCommand = new MySqlCommand(deleteQuery, connection))
+                            {
+                                deleteCommand.Parameters.AddWithValue("@subscriberId", subscriberId);
+                                deleteCommand.Parameters.AddWithValue("@subscribedToId", subscriptionRequest.SubscribedToId);
+                                deleteCommand.ExecuteNonQuery();
+                            }
+
+                            return Ok(new { message = "Subscription removed successfully" });
+                        }
+                        else
+                        {
+                            // Если запись о подписке не существует, добавляем ее
+                            string insertQuery = "INSERT INTO UsersSubscribe (SubscriberId, SubscribedToId) VALUES (@subscriberId, @subscribedToId)";
+                            using (MySqlCommand insertCommand = new MySqlCommand(insertQuery, connection))
+                            {
+                                insertCommand.Parameters.AddWithValue("@subscriberId", subscriberId);
+                                insertCommand.Parameters.AddWithValue("@subscribedToId", subscriptionRequest.SubscribedToId);
+                                insertCommand.ExecuteNonQuery();
+                            }
+
+                            return Ok(new { message = "Subscription added successfully" });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in ToggleSubscription method: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+            }
+        }
+        [HttpGet("getSubscriptions")]
+        public IActionResult GetSubscriptions(string token)
+        {
+            try
+            {
+                // Извлекаем идентификатор пользователя из токена
+                string userId = ExtractUserIdFromToken(token);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return BadRequest(new { message = "Invalid token" });
+                }
+
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    // Получаем профили всех пользователей, на которых подписан текущий пользователь
+                    string query = @"
+                SELECT Users.*
+                FROM Users
+                JOIN UsersSubscribe ON Users.Id = UsersSubscribe.SubscribedToId
+                WHERE UsersSubscribe.SubscriberId = @userId";
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@userId", userId);
+
+                        List<UserProfile> subscribedProfiles = new List<UserProfile>();
+
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                UserProfile userProfile = new UserProfile(reader);
+                                subscribedProfiles.Add(userProfile);
+                            }
+                        }
+
+                        return Ok(subscribedProfiles);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting subscriptions: {ex}");
+                return StatusCode(500, new { message = "Internal Server Error" });
+            }
+        }
+        [HttpGet("getUserProfile")]
+        public IActionResult GetUserProfile(int userId)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    // Запрос для получения профиля пользователя по его идентификатору
+                    string query = @"
+                SELECT *
+                FROM Users
+                WHERE Id = @userId";
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@userId", userId);
+
+                        // Профиль пользователя
+                        UserProfile userProfile = null;
+
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                userProfile = new UserProfile(reader);
+                            }
+                        }
+
+                        if (userProfile != null)
+                        {
+                            return Ok(userProfile);
+                        }
+                        else
+                        {
+                            return NotFound(new { message = "User profile not found" });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting user profile: {ex}");
+                return StatusCode(500, new { message = "Internal Server Error" });
+            }
+        }
+
+    }
+    public class SubscriptionRequest
+    {
+        public string Token { get; set; }  // Токен пользователя
+        public int SubscribedToId { get; set; }  // Идентификатор пользователя, на которого подписываемся или отписываемся
     }
     public class ToggleNotificationsModel
     {

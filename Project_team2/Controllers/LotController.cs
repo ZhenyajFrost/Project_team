@@ -240,7 +240,7 @@ namespace Project2.Controllers
 
                         int offset = (page - 1) * pageSize;
 
-                        string query = "SELECT * FROM Lots WHERE Active = true LIMIT @pageSize OFFSET @offset";
+                        string query = "SELECT * FROM Lots WHERE Active = true AND Approved = true LIMIT @pageSize OFFSET @offset";
                         using (MySqlCommand command = new MySqlCommand(query, connection))
                         {
                             command.Parameters.AddWithValue("@pageSize", pageSize);
@@ -537,6 +537,38 @@ namespace Project2.Controllers
                     }
                 }
 
+                // Получаем информацию о лоте из базы данных
+                Lot lot;
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    string query = "SELECT * FROM Lots WHERE Id = @id";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@id", request.LotId);
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (!reader.Read())
+                            {
+                                return NotFound(new { message = "Lot not found" });
+                            }
+                            lot = new Lot(reader);
+                        }
+                    }
+                }
+
+                // Проверяем статусы лота
+                if (lot.IsWaitingPayment || lot.AllowBids || lot.IsWaitingDelivery)
+                {
+                    return BadRequest(new { message = "Lot cannot be updated because it has a pending status" });
+                }
+
+                // Добавляем поля Approved и Active в запрос на обновление лота
+                request.FieldsToUpdate.Add("Approved", "false");
+                request.FieldsToUpdate.Add("Active", "false");
+                request.FieldsToUpdate.Add("Unactive", "true");
+
                 // Открываем соединение с базой данных
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
@@ -586,6 +618,8 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
+
         private bool CheckUserIsAdmin(string userId)
         {
             using (MySqlConnection connection = new MySqlConnection(_connString))
@@ -1020,7 +1054,7 @@ namespace Project2.Controllers
                     connection.Open();
 
                     // Начало запроса для выборки лотов
-                    string query = "SELECT * FROM Lots WHERE Active = true AND ";
+                    string query = "SELECT * FROM Lots WHERE Active = true AND Approved = true";
 
                     // Динамическое формирование условий запроса в зависимости от переданных параметров
                     List<string> conditions = new List<string>();
@@ -1060,8 +1094,12 @@ namespace Project2.Controllers
                         conditions.Add("IsNew = @IsNew");
                     }
 
-                    // Объединяем все условия с помощью оператора AND
-                    query += string.Join(" AND ", conditions);
+                    // Добавляем оператор WHERE и объединяем все условия с помощью оператора AND
+                    if (conditions.Count > 0)
+                    {
+                        query += " AND " + string.Join(" AND ", conditions);
+                    }
+
 
                     // Получаем общее количество найденных лотов
                     string countQuery = $"SELECT COUNT(*) FROM ({query}) AS TotalRecords";
@@ -1229,42 +1267,44 @@ namespace Project2.Controllers
                     connection.Open();
 
                     string query = @"
-                SELECT 
-                    l.*, 
-                    u1.LastLogin AS OwnersLastLogin, 
-                    u1.RegistrationTime AS OwnersRegistrationTime, 
-                    u1.Avatar AS OwnersAvatar, 
-                    u1.Id AS OwnersUserId,
-                    u1.FirstName AS OwnersFirstName,
-                    u1.LastName AS OwnersLastName,
-                    u1.Login AS OwnersLogin,
-                    u1.Email AS OwnersEmail,
-                    u2.LastLogin AS MaxBidsLastLogin, 
-                    u2.RegistrationTime AS MaxBidsRegistrationTime, 
-                    u2.Avatar AS MaxBidsAvatar, 
-                    u2.Id AS MaxBidsUserId,
-                    u2.FirstName AS MaxBidsFirstName,
-                    u2.LastName AS MaxBidsLastName,
-                    u2.Login AS MaxBidsLogin,
-                    u2.Email AS MaxBidsEmail,
-                    b.MaxPrice AS MaxBidPrice
-                FROM 
-                    Lots l
-                LEFT JOIN Users u1 ON l.UserId = u1.Id
-                LEFT JOIN 
-                    (
-                        SELECT 
-                            LotId, 
-                            MAX(Price) AS MaxPrice 
-                        FROM 
-                            Bids 
-                        GROUP BY 
-                            LotId
-                    ) b ON l.Id = b.LotId
-                LEFT JOIN 
-                    Users u2 ON b.UserId = u2.Id
-                WHERE 
-                    l.Id = @id";
+      SELECT 
+    l.*, 
+    u1.LastLogin AS OwnersLastLogin, 
+    u1.RegistrationTime AS OwnersRegistrationTime, 
+    u1.Avatar AS OwnersAvatar, 
+    u1.Id AS OwnersUserId,
+    u1.FirstName AS OwnersFirstName,
+    u1.LastName AS OwnersLastName,
+    u1.Login AS OwnersLogin,
+    u1.Email AS OwnersEmail,
+    u2.LastLogin AS MaxBidsLastLogin, 
+    u2.RegistrationTime AS MaxBidsRegistrationTime, 
+    u2.Avatar AS MaxBidsAvatar, 
+    u2.Id AS MaxBidsUserId,
+    u2.FirstName AS MaxBidsFirstName,
+    u2.LastName AS MaxBidsLastName,
+    u2.Login AS MaxBidsLogin,
+    u2.Email AS MaxBidsEmail,
+    b.MaxPrice AS MaxBidPrice
+FROM 
+    Lots l
+LEFT JOIN Users u1 ON l.UserId = u1.Id
+LEFT JOIN 
+    (
+        SELECT 
+            LotId, 
+            MAX(BidAmount) AS MaxPrice 
+        FROM 
+            Bids 
+        GROUP BY 
+            LotId
+    ) b ON l.Id = b.LotId
+LEFT JOIN 
+    Bids b2 ON l.Id = b2.LotId AND b.MaxPrice = b2.BidAmount
+LEFT JOIN 
+    Users u2 ON b2.UserId = u2.Id
+WHERE 
+    l.Id = @id";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
@@ -1324,6 +1364,70 @@ namespace Project2.Controllers
             {
                 Console.WriteLine($"Error getting lot by id: {ex.ToString()}");
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
+            }
+        }
+        [HttpGet("getUserLots")]
+        public IActionResult GetUserLots(int userId)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    // Запрос для получения всех лотов пользователя, у которых установлены флаги Approve и Active в true
+                    string query = @"
+                SELECT *
+                FROM Lots
+                WHERE UserId = @userId AND Approved = true AND Active = true";
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@userId", userId);
+
+                        List<Lot> userLots = new List<Lot>();
+
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Lot lot = new Lot(reader);
+                                userLots.Add(lot);
+                            }
+                        }
+
+                        // Дополнительный запрос для подсчета количества лотов по каждой категории
+                        string categoryCountQuery = @"
+                    SELECT Category, COUNT(*) as Count
+                    FROM Lots
+                    WHERE UserId = @userId AND Approved = true AND Active = true
+                    GROUP BY Category";
+
+                        Dictionary<string, int> categoryCount = new Dictionary<string, int>();
+
+                        using (MySqlCommand categoryCountCommand = new MySqlCommand(categoryCountQuery, connection))
+                        {
+                            categoryCountCommand.Parameters.AddWithValue("@userId", userId);
+
+                            using (MySqlDataReader categoryCountReader = categoryCountCommand.ExecuteReader())
+                            {
+                                while (categoryCountReader.Read())
+                                {
+                                    string categoryValue = categoryCountReader.GetString("Category");
+                                    int count = categoryCountReader.GetInt32("Count");
+                                    categoryCount.Add(categoryValue, count);
+                                }
+                            }
+                        }
+
+                        return Ok(new { userLots, categoryCount });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting user lots: {ex}");
+                return StatusCode(500, new { message = "Internal Server Error" });
             }
         }
 
