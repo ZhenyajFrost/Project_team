@@ -7,10 +7,11 @@ import LocationSelector from "../components/LocationSelector/LocationSelector";
 import { getLocalStorage } from "../utils/localStorage";
 import css from "../styles/Create.module.css";
 import useCreateLot from "../API/Lots/useCreateLot";
+import useUpdateLot from "../API/Lots/useUpdateLot";
 import { Notify } from "notiflix";
 import TimeSelector from "../components/Genesis/TimeSelector/TimeSelector";
 
-export default function CreateLot() {
+export default function CreateLot({data={}}) {
   const initialState = {
     title: "",
     category: 0,
@@ -23,11 +24,14 @@ export default function CreateLot() {
     imageURLs: [],
     region: {},
     city: {},
+    ...data
   };
 
-  const [lot, setLot] = useState({});
+  const [lot, setLot] = useState({...data});
   const [user, setUser] = useState({ firstName: "", lastName: "", email: "" });
-  const create = useCreateLot();
+  const create =  useCreateLot().createLot;
+  const update = useUpdateLot().updateLot ;
+
 
   useEffect(() => {
     const svd = getLocalStorage("user");
@@ -39,6 +43,7 @@ export default function CreateLot() {
   };
   const onSubmit = (e) => {
     e.preventDefault();
+    console.log(lot)
     for (let a of Object.keys(initialState)) {
       if (!lot[a]) {
         Notify.failure(`поле ${a} не заповнене`);
@@ -47,6 +52,11 @@ export default function CreateLot() {
     }
     if (lot.ShortDescription.length < 40) {
       Notify.failure("Опис має бути щонайменше 40 символів");
+      return;
+    }
+    if (lot.imageURLs.length ===0) {
+      Notify.failure("В лота має бути щонайменше 1 зображення");
+      return;
     }
     if (lot.city) {
       lot.region = lot.region.label;
@@ -55,15 +65,24 @@ export default function CreateLot() {
     lot.userId = user.id;
     lot.timeTillEnd = lot.endOn.toISOString().slice(0, 19).replace("T", " ");
     lot.category = lot.category.id;
-    create.createLot(lot).then(v=>{
-      Notify.success("Лот створений успішно")
-      setLot({});
-    });
+
+    if(data.id){
+      update(lot).then(v=>{
+        Notify.success("Лот оновлено успішно")
+        setLot({});
+      });
+    }else{
+      create(lot).then(v=>{
+        Notify.success("Лот створено успішно")
+        setLot({});
+      });
+    }
+
   };
   return (
     <div>
       <h1>Створити оголошення</h1>
-      <form onSubmit={onSubmit} className={css.createForm}>
+      <form  className={css.createForm} onSubmit={onSubmit}>
         <div className={css.createSection}>
           <h2>Опишіть у подробицях</h2>
           <p>Вкажіть назву</p>
@@ -199,7 +218,7 @@ export default function CreateLot() {
         </div>
         <div className={css.createSection}>
           <div className={css.fincont}>
-            <button className={css.final} type="submit">
+            <button className={css.final} type="submit" >
               Опублікувати
             </button>
           </div>

@@ -36,6 +36,7 @@ function Lots () {
     });
 
     useEffect(async () => {
+        console.log(categoryClicked)
         await getLots(user.id, pagination.pageNumber, pagination.pageSize, activeTab, filters);
     }, [activeTab, pagination, categoryClicked]) //Filters 
 
@@ -102,7 +103,7 @@ function Lots () {
             <Button onClick={handleButtonSearch}>Search</Button>
 
             <div className={css.body}>
-                <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={totalCount} />
+                <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={_totalCount} />
 
                 <div className={css.lots}>
                     {_totalCount === 0 ? "No lots Found" : <LotContainer lots={lots} display="grid-3col" lotStyle="small" />}

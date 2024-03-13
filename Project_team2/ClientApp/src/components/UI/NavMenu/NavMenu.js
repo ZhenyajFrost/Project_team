@@ -69,7 +69,7 @@ function NavMenu() {
         user: {},
         token: "",
       }
-      
+
     );
 
     setIsLoggined(false);
@@ -91,17 +91,17 @@ function NavMenu() {
             <Nav.Link href="search">
               <img src={catalog} alt="catalog" /> Каталог
             </Nav.Link>
-            {user && user.isAdmin ? 
-            <Nav.Link href="admin">
-              Admin
-            </Nav.Link> : <></>}
+            {user && user.isAdmin ?
+              <Nav.Link href="admin">
+                Admin
+              </Nav.Link> : <></>}
           </Nav>
           <Nav className="nav-right">
             <Dropdown>
               <Dropdown.Toggle
                 as="a"
                 bsPrefix="p-0"
-                style={{ boxShadow: "none" }}
+                style={{ boxShadow: "none", cursor: "pointer" }}
               >
                 <img src={profile} alt="Profile" />
               </Dropdown.Toggle>

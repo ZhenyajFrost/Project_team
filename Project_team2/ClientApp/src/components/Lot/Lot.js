@@ -18,12 +18,12 @@ function Lot({
   category,
   timeTillEnd,
   hot,
-  imageURL,
+  imageURLs,
   openModal,
   isAdmin,
   isApproved
 }) {
-  const [ttl, setTtl] = useState(new Date(timeTillEnd) - new Date());
+  const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date())/10000);
 
   const token = getLocalStorage('token');
 
@@ -56,9 +56,9 @@ function Lot({
   }
 
   const handleApproveClick = async () => {
-    await approveLot(id);
+    await approveLot(id, token);
 
-    if (!error.length)
+    if (!error)
       setIsChecked(true);
 
     console.log(`Lot ${id} applroved`); //LOGIC TO SERVER
@@ -68,7 +68,7 @@ function Lot({
     <div className={`${css.lot} ${ttl > 0 ? css.active : css.inactive} ${isChecked ? css.checked : ""}`}>
       <img
         src={
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzj49rb70qayLcsE_g-Bl54iw3sMoJsZRfLbU-tQOqWQ&s"
+          imageURLs[0]
         }
         className={css.lotImage}
         alt="oleg"

@@ -1007,7 +1007,7 @@ namespace Project2.Controllers
 
 
         [HttpPost("SearchLots")]
-        public IActionResult SearchLots(string searchString, string category, decimal? minPrice, decimal? maxPrice, string region, string city, bool? isNew, string sortBy, int page = 1, int pageSize = 10)
+        public IActionResult SearchLots(string? searchString, string? category, decimal? minPrice, decimal? maxPrice, string? region, string? city, bool? isNew, string? sortBy, int page = 1, int pageSize = 10)
         {
             try
             {
@@ -1487,6 +1487,7 @@ namespace Project2.Controllers
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@id", id);
+                        Console.WriteLine("@id", id);
                         command.ExecuteNonQuery();
                     }
 

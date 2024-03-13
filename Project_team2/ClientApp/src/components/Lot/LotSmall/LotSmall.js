@@ -14,13 +14,13 @@ function LotSmall({
   price,
   shortDescription,
   timeTillEnd,
-  imageURL,
+  imageURLs,
   location,
   userId
 }) {
   const history = useHistory();
 
-  const [ttl, setTtl] = useState(timeTillEnd);
+  const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date())/10000);
   const { deleteLot, isLoading, error } = useDeleteLot();
   useEffect(() => {
     setTimeout(() => {
@@ -63,7 +63,7 @@ function LotSmall({
       )}
       <img
         src={
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzj49rb70qayLcsE_g-Bl54iw3sMoJsZRfLbU-tQOqWQ&s"
+          imageURLs[0]
         }
         className={css.image}
         alt="oleg"

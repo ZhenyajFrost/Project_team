@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from './Carousel.module.css'; // Import the CSS module
 
-const Carousel = ({ items }) => {
+const Carousel = ({ items, title }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const visibleItems = 3;
 
@@ -16,22 +16,30 @@ const Carousel = ({ items }) => {
   };
 
   return (
-    <div className={styles.carouselContainer}>
-      <div
-        className={styles.carouselSlide}
-        style={{ transform: `translateX(-${currentIndex * (100 / visibleItems)}%)` }}
-      >
-        {items.map((item, index) => (
-          <div key={index} className={styles.carouselItem}>
-            {item}
-          </div>
-        ))}
+    <div>
+      <div className={styles.header}>
+        <h2>{title}</h2>
+        <div>
+          <button className={styles.prevBtn} onClick={prev}>&#10094;</button>
+          <button className={styles.nextBtn} onClick={next}>&#10095;</button>
+        </div>
+
       </div>
-      {currentIndex > 0 && <button className={styles.prevBtn} onClick={prev}>&#10094;</button>}
-      {currentIndex < items.length - visibleItems && (
-        <button className={styles.nextBtn} onClick={next}>&#10095;</button>
-      )}
+      <div className={styles.carouselContainer}>
+        <div
+          className={styles.carouselSlide}
+          style={{ transform: `translateX(-${currentIndex * (100 / visibleItems)}%)` }}
+        >
+          {items.map((item, index) => (
+            <div key={index} className={styles.carouselItem}>
+              {item}
+            </div>
+          ))}
+        </div>
+
+      </div>
     </div>
+
   );
 };
 

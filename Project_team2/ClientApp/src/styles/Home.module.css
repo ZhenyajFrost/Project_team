@@ -38,11 +38,10 @@ p.search {
 }
 
 div.search {
-    background-color: white;
+   background-color: white;
     position: absolute;
-    top: 75%;
+    bottom: -56.5px;
     left: 10%;
-    display: grid;
     width: 80%;
     margin: auto;
     padding: 20px;

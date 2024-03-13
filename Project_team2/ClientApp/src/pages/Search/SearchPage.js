@@ -3,10 +3,13 @@ import InputSearch from "../../components/UI/Input/InputSearch";
 import Filters from "../../components/Filters/Filters";
 import { NavLink } from "react-bootstrap";
 import svg from "../../images/images.svg";
+import categories from "../../Data/categories.json"
 import css from "./Serch.module.css";
 import LotContainer from "../../components/UI/LotContainer/LotContainer";
 import Loader from "../../components/Loader/Loader";
 import useGetLots from "../../API/Lots/Get/useGetLots";
+import { Notify } from "notiflix";
+
 
 function SearchPage(props) {
   const [querry, setQuerry] = useState(
@@ -48,11 +51,13 @@ function SearchPage(props) {
     }
   }, []);
   const onFilterChange = (e) => {
+    Notify.failure(JSON.stringify(e))
     if (e.category === -1) {
       e.category = undefined;
     }
     setFilter(e);
   };
+  console.log(filter)
   return (
     <>
       <div className={css.searchContainer}>

@@ -8,7 +8,8 @@ function PhotoItem({ photo, setPhoto, order }) {
   const [drag, setDrag] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [positionStart, setPositionStart] = useState({ top: 0, left: 0 });
-  const addPhoto = () => {
+  const addPhoto = (e) => {
+    e.preventDefault();
     const input = document.createElement("input");
     input.type = "file";
     input.onchange = async (e) => {
@@ -45,7 +46,7 @@ function PhotoItem({ photo, setPhoto, order }) {
   };
 
   if (photo) {
-    if (photo === "+") disp = <button onClick={addPhoto}>Додати</button>;
+    if (photo === "+") disp = <button type="sex" onClick={addPhoto}>Додати</button>;
     else
       disp = (
         <img

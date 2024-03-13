@@ -20,7 +20,7 @@ function LotContainer({ lots, display = "", lotStyle = "basic", isAdmin="false" 
             category={lot.category}
             timeTillEnd={lot.timeTillEnd}
             hot={lot.hot}
-            imageURL={lot.imageURL}
+            imageURLs={lot.imageURLs}
             isAdmin={isAdmin}
             isApproved={lot.approved}
           />
@@ -34,7 +34,7 @@ function LotContainer({ lots, display = "", lotStyle = "basic", isAdmin="false" 
             price={lot.price}
             shortDescription={lot.shortDescription}
             timeTillEnd={lot.timeTillEnd}
-            imageURL={lot.imageURL}
+            imageURLs={lot.imageURLs}
             location={lot.location}
             userId=  {lot.userId}
           />

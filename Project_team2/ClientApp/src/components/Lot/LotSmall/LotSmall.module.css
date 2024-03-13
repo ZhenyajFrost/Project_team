@@ -27,6 +27,7 @@
   flex-direction: row;
   gap: 2vw;
 }
+
 .title {
   font-size: 16px;
   font-weight: 700;
@@ -34,6 +35,19 @@
 }
 
 .desc {
+  color: #474747;
+  font-family: Manrope;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  width: 269px;
+  height: 48px;
+  margin-top: 8.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+
   font-size: 14px;
   font-weight: 400;
   line-height: 24px;
@@ -54,10 +68,12 @@
 
   color: var(--textColor);
 }
+
 .dots {
   position: absolute;
   right: 30px;
 }
+
 .thing {
   position: absolute;
   right: 0px;
@@ -69,7 +85,9 @@
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-.thing p, .thing a {
+
+.thing p,
+.thing a {
   font-family: Manrope;
   font-size: 14px;
   font-weight: 600;
@@ -79,6 +97,7 @@
   color: var(--textColor);
   text-decoration: none;
 }
-.thing p.delete{
-    color: var(--red);
+
+.thing p.delete {
+  color: var(--red);
 }

@@ -2,16 +2,17 @@ import React, { useEffect, useState } from "react";
 import regions from "./regions.json";
 import cts from "../../Data/categories.json";
 import css from "./styles.module.css";
-import Notiflix from "notiflix";
+import Notiflix, {Notify} from "notiflix";
 
 function Filters({ onChange, initial }) {
   console.log(initial);
+  Notify.failure(`${initial.category}`)
   const [categories, setCategories] = useState([
-    { title: "Будь-яка категорія", id:-1 },
+    { title: "Будь-яка категорія", id: -1 },
     ...cts,
   ]);
   const [params, setParams] = useState({
-    category: categories[0],
+    category:-1,
     minPrice: 1,
     maxPrice: Infinity,
     endTill: new Date(new Date().getDate() + 1),
@@ -51,8 +52,14 @@ function Filters({ onChange, initial }) {
       );
       return;
     }
+    for (let a in params) {
+      if (params[a] != initial[a]) {
+        onChange(params);
+        return;
+      }
+    }
 
-    onChange(params);
+
   }, [params, categories, onChange]);
 
   return (

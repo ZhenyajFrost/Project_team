@@ -7,8 +7,11 @@ function MultiplePhotoSelector({ photos, setPhotos }) {
     let lastEmpty = -1;
     const cop = [...photos]
     for (let i = 0; i < 10; i++) {
+      if (cop.slice(0, i).includes(cop[i])) {
+        cop[i] = "";
+      }
       if (cop[i] === '+') {
-        cop[i] = " ";
+        cop[i] = "";
       }
       if (!cop[i] || cop[i] === "+" && lastEmpty === -1) {
         lastEmpty = i;
@@ -27,7 +30,7 @@ function MultiplePhotoSelector({ photos, setPhotos }) {
   }
 
   if (photos) {
-    const cop=tidy();
+    const cop = tidy();
     for (let i = 0; i < 10; i++) {
       if (cop[i]) {
         disp.push(cop[i]);

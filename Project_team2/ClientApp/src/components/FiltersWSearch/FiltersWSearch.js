@@ -6,10 +6,10 @@ import InputSearch from '../UI/Input/InputSearch'
 function FiltersWSearch({ onChange, initial }) {
   console.log(initial)
   const [filters, setFilters] = useState({
-    searchQuery: "",
-    minPrice: 1,
-    maxPrice: 100000000000,
-    endTill: new Date(new Date().getDate() + 1),
+    searchQuery: null,
+    minPrice: null,
+    maxPrice: null,
+    endTill: null,
     ...initial
   });
 

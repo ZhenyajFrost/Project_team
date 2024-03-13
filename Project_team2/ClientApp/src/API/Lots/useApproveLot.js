@@ -7,11 +7,11 @@ const useApproveLot = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const approveLot = async (lotId) => {
+    const approveLot = async (lotId, token) => {
         setLoading(true);
 
         try {
-            const response = await axios.post(`${LOTS_ENDPOINT}/approveLot`, lotId);
+            const response = await axios.post(`${LOTS_ENDPOINT}/ApproveLot?id=${lotId}`, {lotId, token});
             Notiflix.Notify.success('Лот підтвердженно')
         } catch (error) {
             Notiflix.Notify.failure(`Лот не підтвердженно! Тикніть для інформації`, () => {

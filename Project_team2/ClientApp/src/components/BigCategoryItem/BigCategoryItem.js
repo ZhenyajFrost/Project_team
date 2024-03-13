@@ -3,9 +3,9 @@ import classes from './BigCategoryItem.module.css'
 import svg from '../../images/svgDef.svg'
 import { NavLink } from 'reactstrap'
 
-export default function BigCategoryItem({ title, imgId }) {
+export default function BigCategoryItem({ title, imgId, id }) {
     return (
-        <NavLink className={classes.item} href={`/search?category=${imgId}/`}>
+        <NavLink className={classes.item} href={`/search?category=${id}/`}>
                 <svg>
                     <use href={`${svg}#${imgId}`}/>
                     </svg>

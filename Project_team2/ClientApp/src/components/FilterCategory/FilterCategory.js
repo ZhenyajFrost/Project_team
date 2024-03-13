@@ -11,7 +11,7 @@ export default function FilterCategory({ totalCount, categories, onChange, setCa
 
     useEffect(() => {
         onChange( activeCat.id === '' ? {category : null} : { category: activeCat.id});
-        setCategoryClicked(prev => !prev)
+        setCategoryClicked( activeCat.id === '' ? {category : null} : { category: activeCat.id});
     }, [activeCat]);
 
     return (
