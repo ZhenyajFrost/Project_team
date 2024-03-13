@@ -345,17 +345,25 @@ namespace Project2.Controllers
 
                     // Формируем условие для фильтрации по состоянию лотов
                     string condition = "";
+                    string isApproved = "";
+                    string lotState = "";
                     if (active)
                     {
                         condition += " AND Active = true";
+                        lotState = "Active";
+                        isApproved = "true";
                     }
                     if (archive)
                     {
                         condition += " AND Archive = true";
+                        lotState += "Archive";
+                        isApproved = "false";
                     }
                     if (unactive)
                     {
                         condition += " AND Unactive = true";
+                        lotState += "Unactive";
+                        isApproved = "false";
                     }
                     if (isWaitingPayment)
                     {
@@ -475,7 +483,7 @@ namespace Project2.Controllers
                             }
 
                             // Дополнительный запрос для подсчета количества лотов по каждой категории
-                            string categoryCountQuery = $"SELECT Category, COUNT(*) as Count FROM Lots WHERE UserId = @userId GROUP BY Category";
+                            string categoryCountQuery = $"SELECT Category, COUNT(*) as Count FROM Lots WHERE UserId = @userId AND {lotState} = true AND Approved = {isApproved} GROUP BY Category";
                             Dictionary<string, int> categoryCount = new Dictionary<string, int>(); // Изменено на string для ключа
                             using (MySqlCommand categoryCountCommand = new MySqlCommand(categoryCountQuery, connection))
                             {
