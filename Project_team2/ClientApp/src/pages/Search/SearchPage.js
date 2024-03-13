@@ -15,7 +15,7 @@ function SearchPage(props) {
   const [querry, setQuerry] = useState(
     decodeURI(
       window.location.href.split("/")[
-        window.location.href.split("/").length - 1
+      window.location.href.split("/").length - 1
       ]
     )
   );
@@ -51,13 +51,20 @@ function SearchPage(props) {
     }
   }, []);
   const onFilterChange = (e) => {
-    Notify.failure(JSON.stringify(e))
-    if (e.category === -1) {
-      e.category = undefined;
-    }
+    Notify.info(e.category)
+
+    if (e.category) {
+      if (isNaN(Number(e.category))) {
+        return
+      }else{
+        e.category = Number(e.category)
+
+      }
+    } 
+
     setFilter(e);
   };
-  console.log(filter)
+  // Notify.success(filter.category.toString());
   return (
     <>
       <div className={css.searchContainer}>

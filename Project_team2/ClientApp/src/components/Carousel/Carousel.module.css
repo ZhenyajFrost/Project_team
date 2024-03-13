@@ -1,6 +1,5 @@
 /* Adjustments for 3.5 items visible */
 .carouselContainer {
-  max-width: 1200px;
   /* Adjust based on your design */
   margin: auto;
   overflow: hidden;
@@ -24,21 +23,27 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  padding: 0 20px;
+  align-items: center;
 }
 
 .prevBtn,
 .nextBtn {
-  /* position: absolute;
-  top: 50%;
-  transform: translateY(-50%); */
   background-color: #fff;
   border: none;
   cursor: pointer;
   padding: 10px;
 
   z-index: 100; 
+
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  border-radius: 40px;
 }
 
-.prevBtn {}
-
-.nextBtn {}
+.buttons{
+  display: flex;
+  flex-direction: row;
+  gap: 1vw
+}

@@ -5,10 +5,10 @@ import css from "./styles.module.css";
 import Notiflix, {Notify} from "notiflix";
 
 function Filters({ onChange, initial }) {
-  console.log(initial);
+
   Notify.failure(`${initial.category}`)
   const [categories, setCategories] = useState([
-    { title: "Будь-яка категорія", id: -1 },
+    { title: "Будь-яка категорія", id: -1, imgId:"any" },
     ...cts,
   ]);
   const [params, setParams] = useState({
@@ -61,7 +61,8 @@ function Filters({ onChange, initial }) {
 
 
   }, [params, categories, onChange]);
-
+  const selCat = categories.find(v=>Number(v.id)==Number(initial.category))
+  Notify.warning(JSON.stringify(selCat))
   return (
     <div className={css.filterContainer}>
       <div className={css.filterItem}>
@@ -73,6 +74,7 @@ function Filters({ onChange, initial }) {
             setParams({ ...params, category: Number(e.target.value) });
           }}
         >
+          {selCat ? <option value={initial.category}>{selCat.title}</option> : ""}
           {categories.map((v) => (
             <option key={v.id} value={v.id}>{v.title}</option>
           ))}

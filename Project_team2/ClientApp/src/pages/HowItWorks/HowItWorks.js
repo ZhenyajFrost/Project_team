@@ -12,7 +12,7 @@ export const HowItWorks = () => {
     return (
         <div style={{display: "flex", flexDirection: "column", gap: "8vw"}}>
             <img src="..." className={css.img}></img>
-            <Carousel items={items}>
+            <Carousel items={items} title="Як це працює?">
 
             </Carousel>
         </div>

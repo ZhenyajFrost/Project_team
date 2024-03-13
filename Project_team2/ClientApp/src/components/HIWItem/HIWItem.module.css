@@ -1,4 +1,4 @@
-.item{
+.item {
     display: flex;
     flex-direction: column;
     gap: 42px;
@@ -7,18 +7,23 @@
     width: 320px;
     height: 338px;
 
-    background-color: var(--textColor); 
+    background-color: var(--textColor);
     border-radius: 20px;
     color: white
 }
 
-.header{
+.header {
     display: flex;
     gap: 12px;
     align-items: center;
+    text-align: start;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 24px;
+
 }
 
-.round{
+.round {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -31,13 +36,22 @@
     height: 32px;
 }
 
-.points{
+.points {
+    display: flex;
+    flex-direction: column;
+    gap: 1vw;
     list-style: disc;
     margin-bottom: 10px;
-    margin-left:0 ;
+    margin-left: 0;
+    font-family: Manrope;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 24px;
+    letter-spacing: 0em;
+    
 }
 
-.point{
+.point {
     text-align: start;
 
 }

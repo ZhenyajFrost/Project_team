@@ -19,7 +19,7 @@ const Carousel = ({ items, title }) => {
     <div>
       <div className={styles.header}>
         <h2>{title}</h2>
-        <div>
+        <div className={styles.buttons}>
           <button className={styles.prevBtn} onClick={prev}>&#10094;</button>
           <button className={styles.nextBtn} onClick={next}>&#10095;</button>
         </div>
