@@ -10,14 +10,12 @@ import UserShort from "../components/UserShort/UserShort.js";
 import { nanoid } from "nanoid";
 import useGetLotById from "../API/Lots/Get/useGetLotById.js";
 import useGetLotsHistory from "../API/Lots/Get/useGetLotsHistory.js";
-import { getLocalStorage } from "../utils/localStorage.js";
 import LikeButton from "../components/UI/LikeButton/LikeButton.js";
 import categories from "../Data/categories.json";
 import ModalWindow from  "../components/ModalWindow/ModalWindow"
 import BuyLotModal from "../components/BuyLotModal/BuyLotModal.js";
 
 function LotPage() {
-  const token = getLocalStorage("token");
   const id = parseInt(window.location.href.split("/").pop(), 10);
 
   const [modal, setModal] = useState(false);
@@ -103,7 +101,7 @@ function LotPage() {
                   <div className={css.buyBtn} onClick={()=>setModal(true)}>Залишити ставку</div>
                 </div>
 
-                <LikeButton token={token} lotId={id} />
+                <LikeButton lotId={id} />
               </div>
             </div>
 

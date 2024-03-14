@@ -4,17 +4,19 @@
   margin: auto;
   overflow: hidden;
   position: relative;
+  display: flex;
+  flex-direction: row;
 }
 
 .carouselSlide {
   display: flex;
   transition: transform 0.5s ease-in-out;
+  gap: 1.5vw;
+
 }
 
 .carouselItem {
-  flex: 0 0 calc(100% / 3.5);
   /* Adjust so 3.5 items are visible */
-  padding: 20px;
   box-sizing: border-box;
   text-align: center;
 }

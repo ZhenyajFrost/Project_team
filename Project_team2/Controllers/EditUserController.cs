@@ -417,6 +417,7 @@ namespace Project2.Controllers
                 }
             }
         }
+        
         [HttpPost("toggleSubscription")]
         public IActionResult ToggleSubscription([FromBody] SubscriptionRequest subscriptionRequest)
         {
@@ -472,13 +473,14 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-        [HttpPost("likedUsers")]
-        public IActionResult GetSubscriptions([FromBody] TokenRequest tokenRequest)
+        
+        [HttpGet("getSubscriptions")]
+        public IActionResult GetSubscriptions(string token)
         {
             try
             {
                 // Извлекаем идентификатор пользователя из токена
-                string userId = ExtractUserIdFromToken(tokenRequest.Token);
+                string userId = ExtractUserIdFromToken(token);
                 if (string.IsNullOrEmpty(userId))
                 {
                     return BadRequest(new { message = "Invalid token" });
@@ -488,28 +490,29 @@ namespace Project2.Controllers
                 {
                     connection.Open();
 
-                    // Получаем идентификаторы всех пользователей, на которых подписан текущий пользователь
+                    // Получаем профили всех пользователей, на которых подписан текущий пользователь
                     string query = @"
-            SELECT SubscribedToId
-            FROM UsersSubscribe
-            WHERE SubscriberId = @userId";
+                SELECT Users.*
+                FROM Users
+                JOIN UsersSubscribe ON Users.Id = UsersSubscribe.SubscribedToId
+                WHERE UsersSubscribe.SubscriberId = @userId";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@userId", userId);
 
-                        List<int> subscribedUserIds = new List<int>();
+                        List<UserProfile> subscribedProfiles = new List<UserProfile>();
 
                         using (MySqlDataReader reader = command.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                int subscribedUserId = reader.GetInt32("SubscribedToId");
-                                subscribedUserIds.Add(subscribedUserId);
+                                UserProfile userProfile = new UserProfile(reader);
+                                subscribedProfiles.Add(userProfile);
                             }
                         }
 
-                        return Ok(subscribedUserIds);
+                        return Ok(subscribedProfiles);
                     }
                 }
             }
@@ -519,8 +522,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = "Internal Server Error" });
             }
         }
-
-
+        
         [HttpGet("getUserProfile")]
         public IActionResult GetUserProfile(int userId)
         {
@@ -570,11 +572,6 @@ namespace Project2.Controllers
         }
 
     }
-    public class TokenRequest
-    {
-        public string Token { get; set; }
-    }
-
     public class SubscriptionRequest
     {
         public string Token { get; set; }  // Токен пользователя

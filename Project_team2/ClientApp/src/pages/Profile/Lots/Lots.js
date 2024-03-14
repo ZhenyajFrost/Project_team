@@ -40,6 +40,10 @@ function Lots () {
         await getLots(user.id, pagination.pageNumber, pagination.pageSize, activeTab, filters);
     }, [activeTab, pagination, categoryClicked]) //Filters 
 
+    useEffect(async () => {
+        setPagination({pageNumber: 1, pageSize: 9})
+    }, [activeTab, categoryClicked]) //Filters 
+
     const handleChangePage = (page) => {
         setPagination(prev => ({
             ...prev,
