@@ -26,6 +26,16 @@ svg {
   border-radius: 24px;
   margin-bottom: 30px;
 }
+
+.splitContainer p {
+  font-family: Manrope;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 22px;
+  letter-spacing: 0em;
+  text-align: left;
+}
+
 .splitContainer hr {
   color: var(--gray);
   border: 2px solid var(--gray);
@@ -33,13 +43,28 @@ svg {
   margin-right: -20px;
 }
 .lotChars {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-column-gap: 360px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  width: 40vw;
+}
+.lotChars div {
+  display: flex;
+  width: inherit;
+  justify-content: space-between;
 }
 
 .lotChars span {
   width: 100px;
+  font-family: Manrope;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 19px;
+  letter-spacing: 0em;
+  text-align: left;
+}
+.lotChars span:nth-child(2n) {
+  font-weight: bold;
 }
 .buyBtn {
   width: 168px;
@@ -55,4 +80,28 @@ svg {
   line-height: 24px;
   letter-spacing: 0em;
   text-align: left;
+}
+
+.price {
+  font-family: Lato;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 38px;
+  letter-spacing: 0em;
+  text-align: left;
+}
+.priceTag {
+  font-family: Manrope;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 19px;
+  letter-spacing: 0em;
+  text-align: left;
+  color: var(--borderSecondary);
+}
+.priceCont {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  cursor: pointer;
 }

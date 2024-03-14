@@ -13,11 +13,14 @@ import useGetLotsHistory from "../API/Lots/Get/useGetLotsHistory.js";
 import { getLocalStorage } from "../utils/localStorage.js";
 import LikeButton from "../components/UI/LikeButton/LikeButton.js";
 import categories from "../Data/categories.json";
+import ModalWindow from  "../components/ModalWindow/ModalWindow"
+import BuyLotModal from "../components/BuyLotModal/BuyLotModal.js";
 
 function LotPage() {
   const token = getLocalStorage("token");
   const id = parseInt(window.location.href.split("/").pop(), 10);
 
+  const [modal, setModal] = useState(false);
   let [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
   let [getHistory, history] = useGetLotsHistory();
   const cat = categories.find(
@@ -92,12 +95,12 @@ function LotPage() {
               </div>
               <hr />
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div style={{ display: "flex" }}>
+                <div className={css.priceCont}>
                   <div>
-                    <p>Поточна ставка</p>
-                    <p></p>{maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
+                    <p className={css.priceTag}>Поточна ставка</p>
+                    <p className={css.price}>{maxBid.price === 0 ? lot.minPrice : maxBid.price}₴</p>
                   </div>
-                  <div className={css.buyBtn}>Залишити ставку</div>
+                  <div className={css.buyBtn} onClick={()=>setModal(true)}>Залишити ставку</div>
                 </div>
 
                 <LikeButton token={token} lotId={id} />
@@ -108,10 +111,10 @@ function LotPage() {
               <p>Детальніше про лот:</p>
               <div className={css.lotChars}>
                 {Object.keys(lotInfo).map((v) => (
-                  <>
+                  <div>
                     <span key={nanoid()}>{v}:</span>
                     <span key={nanoid()}>{lotInfo[v]}</span>
-                  </>
+                  </div>
                 ))}
               </div>
             </div>
@@ -152,6 +155,7 @@ function LotPage() {
             </div>
           </div>
         </div>
+        <ModalWindow visible={modal} setVisible={setModal} children={<BuyLotModal maxBid={maxBid} minStep={lot.minStepPrice} minPrice={lot.minPrice}/>}/>
       </div>
     );
   } else return <Loader />;
