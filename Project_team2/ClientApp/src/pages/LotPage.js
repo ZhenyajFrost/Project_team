@@ -12,7 +12,7 @@ import useGetLotById from "../API/Lots/Get/useGetLotById.js";
 import useGetLotsHistory from "../API/Lots/Get/useGetLotsHistory.js";
 import LikeButton from "../components/UI/LikeButton/LikeButton.js";
 import categories from "../Data/categories.json";
-import ModalWindow from  "../components/ModalWindow/ModalWindow"
+import ModalWindow from "../components/ModalWindow/ModalWindow";
 import BuyLotModal from "../components/BuyLotModal/BuyLotModal.js";
 
 function LotPage() {
@@ -30,7 +30,6 @@ function LotPage() {
     getLotById(id);
   }, []);
 
-  console.log(history);
   if (!isLoading && !error) {
     const lotInfo = {
       Область: lot.region ? lot.region : "Невідоме",
@@ -96,9 +95,13 @@ function LotPage() {
                 <div className={css.priceCont}>
                   <div>
                     <p className={css.priceTag}>Поточна ставка</p>
-                    <p className={css.price}>{maxBid.price === 0 ? lot.minPrice : maxBid.price}₴</p>
+                    <p className={css.price}>
+                      {maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
+                    </p>
                   </div>
-                  <div className={css.buyBtn} onClick={()=>setModal(true)}>Залишити ставку</div>
+                  <div className={css.buyBtn} onClick={() => setModal(true)}>
+                    Залишити ставку
+                  </div>
                 </div>
 
                 <LikeButton lotId={id} />
@@ -153,7 +156,20 @@ function LotPage() {
             </div>
           </div>
         </div>
-        <ModalWindow visible={modal} setVisible={setModal} children={<BuyLotModal maxBid={maxBid} minStep={lot.minStepPrice} minPrice={lot.minPrice}/>}/>
+        {modal ? (
+          <ModalWindow
+            visible={modal}
+            setVisible={setModal}
+            children={
+              <BuyLotModal
+                maxBid={maxBid}
+                minStep={lot.minStepPrice}
+                minPrice={lot.minPrice}
+                lotId={lot.id}
+              />
+            }
+          />
+        ) : null}
       </div>
     );
   } else return <Loader />;

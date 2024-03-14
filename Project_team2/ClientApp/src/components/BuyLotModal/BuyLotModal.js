@@ -1,7 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import css from "./style.module.css";
+import { Notify } from "notiflix";
+import useAddBid from "../../API/Lots/useAddBid";
+import { getLocalStorage } from "../../utils/localStorage";
 
-function BuyLotModal({ maxBid, minStep, minPrice }) {
+function BuyLotModal({lotId,  maxBid, minStep, minPrice }) {
+  const token = getLocalStorage("token");
+  const [price, setPrice] = useState(
+    Math.max(minPrice, maxBid.price) + minStep
+  );
+  const [addBid, isLoading] = useAddBid();
+  const buy = () => {
+    if (price < Math.max(minPrice, maxBid.price) + minStep) {
+      Notify.failure(
+        `Ціна має бути вищою за теперішню(${Math.max(
+          minPrice,
+          maxBid.price
+        )}) ціну щонайменше на мінімальну ціну кроку(${minStep})`
+      );
+    } else {
+      addBid({lotId,bidAmount:price, token});
+    }
+  };
   return (
     <div>
       <h1>Купити лот</h1>
@@ -16,8 +36,18 @@ function BuyLotModal({ maxBid, minStep, minPrice }) {
       </p>
       <hr />
       <p>Ставка</p>
-      <input />
-      <div className={css.buyBtn} onClick={() => {} }>
+      <input
+        value={price}
+        onInput={(e) => {
+          const num = Number(e.target.value);
+          if (isNaN(num)) {
+            Notify.warning("Будь ласка, введіть число");
+          } else {
+            setPrice(num);
+          }
+        }}
+      />
+      <div className={css.buyBtn} onClick={buy}>
         Залишити ставку
       </div>
     </div>
