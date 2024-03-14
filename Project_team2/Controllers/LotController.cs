@@ -334,8 +334,9 @@ namespace Project2.Controllers
         }
 
         [HttpGet("getLotsByUser")]
-        public IActionResult GetLotsByUser(int userId, string? searchQuery = null, int? category = null, decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, bool active = false, bool archive = false, bool unactive = false, bool isWaitingPayment = false, bool isWaitingDelivery = false, int pageNumber = 1, int pageSize = 10)
+        public IActionResult GetLotsByUser(string Token, string? searchQuery = null, int? category = null, decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, bool active = false, bool archive = false, bool unactive = false, bool isWaitingPayment = false, bool isWaitingDelivery = false, int pageNumber = 1, int pageSize = 10)
         {
+            int userId = (int)Convert.ToInt64(ExtractUserIdFromToken(Token));
             try
             {
                 // Открываем соединение с базой данных
@@ -1377,7 +1378,7 @@ WHERE
         }
 
         [HttpGet("getUserLots")]
-        public IActionResult GetUserLots(int userId)
+        public IActionResult GetUserLots(int userId, string? searchQuery = null, int? category = null, decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, bool active = false, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
@@ -1385,15 +1386,76 @@ WHERE
                 {
                     connection.Open();
 
-                    // Запрос для получения всех лотов пользователя, у которых установлены флаги Approve и Active в true
-                    string query = @"
+                    // Формируем условие для поиска по названию
+                    string searchCondition = "";
+                    if (!string.IsNullOrEmpty(searchQuery))
+                    {
+                        searchCondition = " AND Title LIKE @searchQuery";
+                    }
+
+                    // Формируем условие для выборки по категории
+                    string categoryCondition = "";
+                    if (category != null)
+                    {
+                        categoryCondition = " AND Category = @category";
+                    }
+
+                    // Формируем условие для выборки по цене
+                    string priceCondition = "";
+                    if (minPrice != null)
+                    {
+                        priceCondition += " AND Price >= @minPrice";
+                    }
+                    if (maxPrice != null)
+                    {
+                        priceCondition += " AND Price <= @maxPrice";
+                    }
+
+                    // Формируем условие для выборки по времени окончания торгов
+                    string timeCondition = "";
+                    if (timeTillEnd != null)
+                    {
+                        timeCondition += " AND TimeTillEnd <= @timeTillEnd";
+                    }
+
+                    // Запрос для получения всех активных лотов пользователя, у которых установлены флаги Approve и Active в true
+                    string query = $@"
                 SELECT *
                 FROM Lots
-                WHERE UserId = @userId AND Approved = true AND Active = true";
+                WHERE UserId = @userId AND Approved = true AND Active = true
+                {searchCondition}
+                {categoryCondition}
+                {priceCondition}
+                {timeCondition}
+                ORDER BY Id DESC
+                LIMIT @pageSize
+                OFFSET @offset";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@userId", userId);
+                        if (!string.IsNullOrEmpty(searchQuery))
+                        {
+                            command.Parameters.AddWithValue("@searchQuery", $"%{searchQuery}%");
+                        }
+                        if (category != null)
+                        {
+                            command.Parameters.AddWithValue("@category", category);
+                        }
+                        if (minPrice != null)
+                        {
+                            command.Parameters.AddWithValue("@minPrice", minPrice);
+                        }
+                        if (maxPrice != null)
+                        {
+                            command.Parameters.AddWithValue("@maxPrice", maxPrice);
+                        }
+                        if (timeTillEnd != null)
+                        {
+                            command.Parameters.AddWithValue("@timeTillEnd", timeTillEnd);
+                        }
+                        command.Parameters.AddWithValue("@pageSize", pageSize);
+                        command.Parameters.AddWithValue("@offset", (pageNumber - 1) * pageSize);
 
                         List<Lot> userLots = new List<Lot>();
 
@@ -1407,7 +1469,7 @@ WHERE
                         }
 
                         // Дополнительный запрос для подсчета количества лотов по каждой категории
-                        string categoryCountQuery = @"
+                        string categoryCountQuery = $@"
                     SELECT Category, COUNT(*) as Count
                     FROM Lots
                     WHERE UserId = @userId AND Approved = true AND Active = true
@@ -1440,6 +1502,7 @@ WHERE
                 return StatusCode(500, new { message = "Internal Server Error" });
             }
         }
+
 
 
         [HttpPost("getUnapprovedLots")]

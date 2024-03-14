@@ -10,46 +10,25 @@ import UserShort from "../components/UserShort/UserShort.js";
 import { nanoid } from "nanoid";
 import useGetLotById from "../API/Lots/Get/useGetLotById.js";
 import useGetLotsHistory from "../API/Lots/Get/useGetLotsHistory.js";
-import LikeButton from '../components/UI/LikeButton/LikeButton.js'
-import categories from "../Data/categories.json"
+import LikeButton from "../components/UI/LikeButton/LikeButton.js";
+import categories from "../Data/categories.json";
 
 function LotPage() {
-
-
   const id = parseInt(window.location.href.split("/").pop(), 10);
-  console.log(id);
 
+  let [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
+  let [getHistory, history] = useGetLotsHistory();
+  const cat = categories.find(
+    (categ) => Number(categ.id) === Number(lot.category)
+  );
+  useState(() => {
+    getHistory(id);
 
-  // const [lot, setLot] = useState({
-  //   id: "",
-  //   title: null,
-  //   price: 0,
-  //   timeTillEnd: 0,
-  //   hot: false,
-  // });
-  const user = {
-    login: "Oleg vynik",
-    avatar: "https://www.volyn24.com/img/modules/news/4/5f/71d9c98fa1e796fd64ce9b947f1a85f4/original-photo.jpg"
-  }
-
-  
-  let [getLotById, lot, /*user,*/ isLoading, error] = useGetLotById();
-  let [getHistory, history] = useGetLotById();
-  useState(async () => {
-    //change to data.lot
-    await getHistory(id);
-
-    await getLotById(id);
-
+    getLotById(id);
   }, []);
 
-  useState(() => {
-    console.log(lot);
-  }, [lot]);
-
-
-  console.log(lot)
-  if (lot.id) {
+  console.log(history);
+  if (!isLoading && !error) {
     const lotInfo = {
       Область: lot.region ? lot.region : "Невідоме",
       Місто: lot.city ? lot.city : "Невідоме",
@@ -57,13 +36,19 @@ function LotPage() {
     };
     return (
       <div>
-        <LotPath path={[{ name: categories.find(categ => Number(categ.id) === Number(lot.category)).title, path: `/search?category=${lot.category}/` }, { name: lot.title, path: "" }]} />
+        <LotPath
+          path={[
+            {
+              name: cat ? cat.title : "Категорія",
+              path: `/search?category=${lot.category}/`,
+            },
+            { name: lot.title, path: "" },
+          ]}
+        />
         <div className={css.cont}>
           <div className={css.left}>
             <div className={css.sideThing}>
-              <PictureCarousel
-                images={lot.imageURLs}
-              />
+              <PictureCarousel images={lot.imageURLs} />
               <h3>Description</h3>
               {lot.shortDescription}
               <hr />
@@ -74,16 +59,28 @@ function LotPage() {
             </div>
             <div className={css.splitContainer}>
               <h2>Історія ставок</h2>
-              {!history? history.map(v=><div>{JSON.stringify(v)}</div>):<h1>dd</h1>}
+              {history ? (
+                history.length ? (
+                  history.map((v) => <div>{JSON.stringify(v)}</div>)
+                ) : (
+                  "Тут поки пусто, будьте першими, хто зробить ставку :)"
+                )
+              ) : (
+                <h1>dd</h1>
+              )}
             </div>
-            <UserShort user={user} />
           </div>
 
           <div>
             <h2>{lot.title}</h2>
             <div className={css.splitContainer}>
               <div className={css.sides}>
-                <p>Продавець: {user.login}</p>
+                <p>
+                  Наразі{" "}
+                  {maxBid.user
+                    ? `користувач: ${maxBid.user}`
+                    : "переможця немає"}
+                </p>
                 <p>
                   <svg>
                     <use href={`${svg}#schedule`} />
@@ -92,9 +89,15 @@ function LotPage() {
                 </p>
               </div>
               <hr />
-              <div>
-                {" "}
-                {lot.price} <div className={css.buyBtn}>Купити</div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div style={{ display: "flex" }}>
+                  <div>
+                    <p>Поточна ставка</p>
+                    <p></p>{maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
+                  </div>
+                  <div className={css.buyBtn}>Залишити ставку</div>
+                </div>
+
                 <LikeButton lotId={id} />
               </div>
             </div>
@@ -110,6 +113,7 @@ function LotPage() {
                 ))}
               </div>
             </div>
+            {/* пошта */}
             <div className={css.splitContainer}>
               <p>Способи доставки:</p>
               <PostServiceComponent
@@ -148,10 +152,7 @@ function LotPage() {
         </div>
       </div>
     );
-  } else
-    return <Loader />
-
-
+  } else return <Loader />;
 }
 
 export default LotPage;
