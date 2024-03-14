@@ -409,7 +409,6 @@ namespace Project2.Controllers
 
                     // Запрос на получение общего количества лотов, созданных выбранным пользователем
                     string countQuery = $"SELECT COUNT(*) FROM Lots WHERE UserId = @userId{condition}{searchCondition}{categoryCondition}{priceCondition}{timeCondition}";
-                    
                     using (MySqlCommand countCommand = new MySqlCommand(countQuery, connection))
                     {
                         countCommand.Parameters.AddWithValue("@userId", userId);
@@ -1376,7 +1375,6 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-
         [HttpGet("getUserLots")]
         public IActionResult GetUserLots(int userId, string? searchQuery = null, int? category = null, decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, bool active = false, int pageNumber = 1, int pageSize = 10)
         {

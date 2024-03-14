@@ -1,33 +1,57 @@
 import React, { useEffect, useState } from 'react'
-import Button from '../../components/UI/Button/Button';
 import css from './Lots/Lots.module.css'
-import FiltersWSearch from '../../components/FiltersWSearch/FiltersWSearch';
 import LotContainer from '../../components/UI/LotContainer/LotContainer'
-import { useHistory } from 'react-router-dom/cjs/react-router-dom';
 import useGetUserLikedLots from '../../API/Lots/Get/useGetUserLikedLots';
-import { getLocalStorage } from '../../utils/localStorage';
+import useGetUserSubscriptions from '../../API/User/Get/useGetUserSubscriptions';
 
 function LikedLots() {
-    const token = getLocalStorage('token');
-    const history = useHistory();
+    const [activeTab, setActiveTab] = useState('lots');
 
-    const [getLots, lots, totalCount, isLoading, error] = useGetUserLikedLots(); //rewrite this part
+    const [getLots, lots, totalCount, isLoading, error] = useGetUserLikedLots();
+    const [getUserSubscriptions, likedUsers, isLoadingUS, errorUs] = useGetUserSubscriptions();
 
     const [pagination, setPagination] = useState({
         page: 1,
         pageSize: 6
     });
 
-    useEffect(async ()=> {
-        await getLots(token, pagination.page, pagination.pageSize);
-    }, [])
+    useEffect(async () => {
+        if (activeTab === 'lots')
+            await getLots(pagination.page, pagination.pageSize);
+        if(activeTab === 'users')
+            await getUserSubscriptions();
+    }, [activeTab])
+
+    const handleTabClick = (tab) => {
+        setActiveTab(tab);
+    };
 
     return (
         <div className={css.container} style={{ padding: '0' }}>
-            <div className={css.body}>
+            <ul className={css.tabContainer}>
+                <li
+                    className={`${css.tab} ${activeTab === 'lots' ? css.activeTab : ''}`}
+                    onClick={() => handleTabClick('lots')}
+                >
+                    Лоти
+                </li>
+                <li
+                    className={`${css.tab} ${activeTab === 'users' ? css.activeTab : ''}`}
+                    onClick={() => handleTabClick('users')}
+                >
+                    Автори
+                </li>
+            </ul>
 
+            <div className={css.body}>
                 <div className={css.lots}>
-                    <LotContainer lots={lots} display="grid-4col" lotStyle="small" />
+                    {activeTab === 'lots' && <LotContainer lots={lots} display="grid-4col" lotStyle="small" />}
+                    {activeTab === 'users' &&
+                        <div className={css.userContainer}>
+                            
+
+                        </div>
+                    }
                 </div>
             </div>
 

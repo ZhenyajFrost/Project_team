@@ -10,7 +10,6 @@ import useGetLotsByUser from '../../../API/Lots/Get/useGetLotsByUser.js';
 import { getLocalStorage } from '../../../utils/localStorage.js';
 import { categoriesFromCategoriesCount } from '../../../utils/categoriesFromCategoriesCount.js';
 import Pagination from '../../../components/UI/Pagination/Pagination.js';
-import { Category } from '@mui/icons-material';
 
 function Lots () {
     const user = getLocalStorage('user');
@@ -37,7 +36,7 @@ function Lots () {
 
     useEffect(async () => {
         console.log(categoryClicked)
-        await getLots(user.id, pagination.pageNumber, pagination.pageSize, activeTab, filters);
+        await getLots(pagination.pageNumber, pagination.pageSize, activeTab, filters);
     }, [activeTab, pagination, categoryClicked]) //Filters 
 
     useEffect(async () => {

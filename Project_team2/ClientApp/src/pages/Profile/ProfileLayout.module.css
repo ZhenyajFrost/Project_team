@@ -7,4 +7,5 @@
 .selectedPage{
     background-color: white;
     color: black;
+    border-color: var(--borderColor);
 }

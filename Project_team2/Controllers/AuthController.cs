@@ -76,7 +76,25 @@ namespace Project2.Controllers
                                     // Получаем информацию об уведомлениях из базы данных
 
                                 }
+                                var getSubscribedUsersQuery = @"
+            SELECT SubscribedToId
+            FROM UsersSubscribe
+            WHERE SubscriberId = @userId";
 
+                                var subscribedUserIds = new List<int>();
+
+                                await using (var getSubscribedUsersCommand = new MySqlCommand(getSubscribedUsersQuery, connection))
+                                {
+                                    getSubscribedUsersCommand.Parameters.AddWithValue("@userId", userId);
+                                    await using (var subscribedUsersReader = await getSubscribedUsersCommand.ExecuteReaderAsync())
+                                    {
+                                        while (await subscribedUsersReader.ReadAsync())
+                                        {
+                                            var subscribedUserId = subscribedUsersReader.GetInt32("SubscribedToId");
+                                            subscribedUserIds.Add(subscribedUserId);
+                                        }
+                                    }
+                                }
                                 // Запрос на получение идентификаторов лотов, на которые пользователь поставил лайк
                                 var getLikedLotsQuery = "SELECT LotId FROM LikedLots WHERE UserId = @UserId";
                                 await using (var getLikedLotsCommand = new MySqlCommand(getLikedLotsQuery, connection))
@@ -99,7 +117,8 @@ namespace Project2.Controllers
                                     message = "Authentication successful",
                                     user = userProfile,
                                     token = GenerateJwtToken(userId),
-                                    likedLotIds, // Включаем массив идентификаторов лотов, на которые пользователь поставил лайк, в ответ
+                                    likedLotIds,
+                                    subscribedUserIds,
                                     notifications = new
                                     {
                                         advices = notificationsAdvices,

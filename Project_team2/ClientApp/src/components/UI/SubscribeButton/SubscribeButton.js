@@ -8,13 +8,15 @@ import Notiflix from 'notiflix';
 import Button from '../Button/Button';
 
 const SubscribeButton = ({ userId }) => {
-    const user = {likedUsers: [1, 4, 56, 7, 12]}
-    //const user = getLocalStorage('user');
+    //const likedUsers = {likedUsers: [1, 4, 56, 7, 12]}
+    const user = getLocalStorage('user');
+    const likedUsers = user ? user.likedUsers : null;
+    
     const token = getLocalStorage('token');
 
     const isLotLiked = () => {
-        if (user)
-            return user.likedUsers.some(id => userId === id);
+        if (likedUsers)
+            return likedUsers.some(id => userId === id);
         else
             return false
     }
@@ -25,7 +27,7 @@ const SubscribeButton = ({ userId }) => {
 
     useEffect(() => {
         setIsLiked(isLotLiked());
-    }, [user]);
+    }, [likedUsers]);
 
     const handleLike = async () => {
         if (token) {
@@ -39,7 +41,7 @@ const SubscribeButton = ({ userId }) => {
 
     return (
         <>
-            {isLiked ? '' : <Button onClick={handleLike} className={css.btn}>Підписатись +</Button>}
+            {isLiked ? <Button onClick={handleLike} className={css.btn}>Відписатись </Button> : <Button onClick={handleLike} className={css.btn}>Підписатись +</Button>}
         </>
     );
 };

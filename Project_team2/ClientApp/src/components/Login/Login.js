@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Button from '../UI/Button/Button.js'
 import Input from '../UI/Input/Input.js'
 import LoginSocMed from '../LoginSocMed/LoginSocMed.js'
@@ -7,7 +7,6 @@ import { setLocalStorage } from '../../utils/localStorage.js';
 import axios from 'axios'
 import { AUTH_ENDPOINT } from '../../API/apiConstant.js'
 import Notiflix from 'notiflix';
-
 
 const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggined}) => {
   const [loginVal, setLoginVal] = useState('');
@@ -45,7 +44,7 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
       login: user.login,
       email: user.email,
       password: user.password
-    }).then((result) => {
+    }).then(async (result) => {
 
       const user = {
         ...result.data.user,
@@ -53,17 +52,15 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
           ...result.data.notifications,
         },
         likedLotIds: result.data.likedLotIds,
+        likedUsers: result.data.subscribedUserIds,
       }
 
       setLocalStorage('user',user);
-      console.log(result.data.user);
       setLocalStorage('token', result.data.token);
       setLocalStorage('isLoggined', true);
       setIsLoggined(true);
-      window.location.reload();
+      //window.location.reload();
 
-
-      console.log('Login successful:', result.data);
     }).catch((err) => {
       Notiflix.Notify.failure(`Оновлення паролю з помилками! Тикніть для інформації`, () => {
         Notiflix.Notify.info(`${err.response.data.message}`);

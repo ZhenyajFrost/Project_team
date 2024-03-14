@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import axios from 'axios';
 import { LOTS_ENDPOINT } from '../../apiConstant';
-import { getLocalStorage } from "../../../utils/localStorage";
 
-const useGetLotsByUser = () => {
-    const token = getLocalStorage('token');
+const useGetUserLots = () => {
     const [isLoading, setLoading] = useState(false);
 
     const [error, setError] = useState(null);
@@ -12,23 +10,20 @@ const useGetLotsByUser = () => {
     const [totalCount, setTotalCount] = useState();
     const [categoriesCount, setCategories] = useState();
 
-    const getLots = async (pageNumber, pageSize, activeTab, filters) => { //FILTER
+    const getLots = async (userId, pageNumber, pageSize, filters) => { //FILTER
         setLoading(true);
 
         try {
-            const response = await axios.get(`${LOTS_ENDPOINT}/getLotsByUser`, {
+            const response = await axios.get(`${LOTS_ENDPOINT}/getUserLots`, {
                 params: {
-                    token : token,
+                    userId: userId,
                     pageNumber: pageNumber,
                     pageSize: pageSize,
-                    active: activeTab === 'active',
-                    unactive: activeTab === 'unactive',
-                    archive: activeTab === 'archive',
                     ...filters
                 }
             }); //FILTER IS NEEDED
             console.log('Lots successfully retrieved: ', response.data);
-            setLots(response.data.lots);
+            setLots(response.data.userLots);
             setTotalCount(response.data.totalCount)
             setCategories(response.data.categoryCount)
         } catch (error) {
@@ -42,4 +37,4 @@ const useGetLotsByUser = () => {
     return [getLots, lots, totalCount, categoriesCount, isLoading, error];
 };
 
-export default useGetLotsByUser;
+export default useGetUserLots;
