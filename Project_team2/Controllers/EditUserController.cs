@@ -472,13 +472,13 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-        [HttpGet("getSubscriptions")]
-        public IActionResult GetSubscriptions(string token)
+        [HttpPost("likedUsers")]
+        public IActionResult GetSubscriptions([FromBody] TokenRequest tokenRequest)
         {
             try
             {
                 // Извлекаем идентификатор пользователя из токена
-                string userId = ExtractUserIdFromToken(token);
+                string userId = ExtractUserIdFromToken(tokenRequest.Token);
                 if (string.IsNullOrEmpty(userId))
                 {
                     return BadRequest(new { message = "Invalid token" });
@@ -488,29 +488,28 @@ namespace Project2.Controllers
                 {
                     connection.Open();
 
-                    // Получаем профили всех пользователей, на которых подписан текущий пользователь
+                    // Получаем идентификаторы всех пользователей, на которых подписан текущий пользователь
                     string query = @"
-                SELECT Users.*
-                FROM Users
-                JOIN UsersSubscribe ON Users.Id = UsersSubscribe.SubscribedToId
-                WHERE UsersSubscribe.SubscriberId = @userId";
+            SELECT SubscribedToId
+            FROM UsersSubscribe
+            WHERE SubscriberId = @userId";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@userId", userId);
 
-                        List<UserProfile> subscribedProfiles = new List<UserProfile>();
+                        List<int> subscribedUserIds = new List<int>();
 
                         using (MySqlDataReader reader = command.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                UserProfile userProfile = new UserProfile(reader);
-                                subscribedProfiles.Add(userProfile);
+                                int subscribedUserId = reader.GetInt32("SubscribedToId");
+                                subscribedUserIds.Add(subscribedUserId);
                             }
                         }
 
-                        return Ok(subscribedProfiles);
+                        return Ok(subscribedUserIds);
                     }
                 }
             }
@@ -520,6 +519,8 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = "Internal Server Error" });
             }
         }
+
+
         [HttpGet("getUserProfile")]
         public IActionResult GetUserProfile(int userId)
         {
@@ -569,6 +570,11 @@ namespace Project2.Controllers
         }
 
     }
+    public class TokenRequest
+    {
+        public string Token { get; set; }
+    }
+
     public class SubscriptionRequest
     {
         public string Token { get; set; }  // Токен пользователя
