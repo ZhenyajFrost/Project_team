@@ -53,37 +53,44 @@ const ImageUpload = () => {
     const cloudName = "ebayclone";
     const uploadPreset = "avatar";
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", uploadPreset);
 
-    try {
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-        method: "POST",
-        body: formData,
-      });
+    if (file !== null) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", uploadPreset);
 
-      if (!response.ok) {
-        throw new Error('HTTP error! status: ' + response.status);
+      try {
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('HTTP error! status: ' + response.status);
+        }
+
+        const data = await response.json();
+
+        console.log(data.url); //LOGIC TO SERVER
+        updateUser(token, { avatar: data.url });
+        //window.location.reload();
+
+        alert("Image uploaded successfully.");
+      } catch (error) {
+        console.error(error);
+        alert(error.message);
       }
-
-      const data = await response.json();
-
-      console.log(data.url); //LOGIC TO SERVER
-      updateUser(token, { avatar: data.url });
-      //window.location.reload();
-
-      alert("Image uploaded successfully.");
-    } catch (error) {
-      console.error(error);
-      alert(error.message);
+    } else {
+      updateUser(token, { avatar: "http://res.cloudinary.com/ebayclone/image/upload/v1710431831/userAvatars/profile_png_w2cxsi.png" });
+      setPreviewUrl("http://res.cloudinary.com/ebayclone/image/upload/v1710431831/userAvatars/profile_png_w2cxsi.png");
     }
+
   };
 
   return (
     <div className={css.containerB}>
       <div className={css.container}>
-        <div className={css.image}>{!previewUrl ? "Your logo" : <img src={previewUrl} className={css.image}/>}</div>
+        <div className={css.image}>{!previewUrl ? "Your logo" : <img src={previewUrl} className={css.image} />}</div>
 
         <input
           ref={inputRef}
@@ -93,11 +100,9 @@ const ImageUpload = () => {
         />
 
         <Button className="file-btn" onClick={onChooseFile}> Завантажити нове зображення</Button>
-        {selectedFile && (
-          <Button onClick={onDelete} className={css.delete}>Видалити</Button>
-        )}
+        <Button onClick={onDelete} className={css.delete}>Видалити</Button>
       </div>
-      {selectedFile && <Button onClick={onFileUpload}>Зберегти</Button>}
+      <Button onClick={onFileUpload}>Зберегти</Button>
     </div>
   );
 }

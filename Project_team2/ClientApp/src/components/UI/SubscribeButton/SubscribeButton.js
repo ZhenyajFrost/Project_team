@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import css from './LikeButton.module.css';
+import css from './SubscribeButton.module.css';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage';
 import svg from '../../../images/svgDef.svg';
 import useLikeLot from '../../../API/Lots/useLikeLot';
+import useSubscribeUser from '../../../API/User/useSubscribeUser';
 import Notiflix from 'notiflix';
+import Button from '../Button/Button';
 
-
-const LikeButton = ({ lotId }) => {
-    const user =  getLocalStorage('user');
+const SubscribeButton = ({ userId }) => {
+    const user = {likedUsers: [1, 4, 56, 7, 12]}
+    //const user = getLocalStorage('user');
     const token = getLocalStorage('token');
 
     const isLotLiked = () => {
-        if(user)
-            return user.likedLotIds.some(id => lotId === id);
+        if (user)
+            return user.likedUsers.some(id => userId === id);
         else
             return false
     }
 
-    const [likeLot, isLoading, error] = useLikeLot();
+    const [subscribeUser, isLoading, error] = useSubscribeUser();
 
     const [isLiked, setIsLiked] = useState(false);
 
@@ -28,7 +30,7 @@ const LikeButton = ({ lotId }) => {
     const handleLike = async () => {
         if (token) {
             setIsLiked(prev => !prev)
-            await likeLot(token, lotId)
+            await subscribeUser(token, userId)
         }
         else {
             Notiflix.Notify.info("Увійдіть у профіль спочатку");
@@ -36,12 +38,10 @@ const LikeButton = ({ lotId }) => {
     }
 
     return (
-        <div className={css.btn} onClick={handleLike}>
-            <svg>
-                <use href={`${svg}#${isLiked ? 'liked' : 'unliked'}`} />
-            </svg>
-        </div>
+        <>
+            {isLiked ? '' : <Button onClick={handleLike} className={css.btn}>Підписатись +</Button>}
+        </>
     );
 };
 
-export default LikeButton;
+export default SubscribeButton;

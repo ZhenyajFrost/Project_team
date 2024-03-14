@@ -417,6 +417,7 @@ namespace Project2.Controllers
                 }
             }
         }
+        
         [HttpPost("toggleSubscription")]
         public IActionResult ToggleSubscription([FromBody] SubscriptionRequest subscriptionRequest)
         {
@@ -472,6 +473,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+        
         [HttpGet("getSubscriptions")]
         public IActionResult GetSubscriptions(string token)
         {
@@ -520,6 +522,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = "Internal Server Error" });
             }
         }
+        
         [HttpGet("getUserProfile")]
         public IActionResult GetUserProfile(int userId)
         {

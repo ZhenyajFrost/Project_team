@@ -42,7 +42,7 @@
     gap: 1vw;
     list-style: disc;
     margin-bottom: 10px;
-    margin-left: 0;
+    margin-left: -10px;
     font-family: Manrope;
     font-size: 14px;
     font-weight: 400;

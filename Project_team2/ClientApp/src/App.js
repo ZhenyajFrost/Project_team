@@ -16,6 +16,7 @@ import RestrictedPath from "./components/RestrictedPath/RestrictedPath.js";
 import { getLocalStorage } from "./utils/localStorage.js";
 import AdminPage from "./pages/AdminPage/AdminPage.js";
 import { HowItWorks as HowItWorksPage } from "./pages/HowItWorks/HowItWorks.js";
+import UserPage from "./pages/UserPage/UserPage.js";
 
 export default class App extends Component {
   static displayName = App.name;
@@ -26,6 +27,7 @@ export default class App extends Component {
       <Layout>
         <Switch>
           <Route path="/lot/:id" component={LotPage} />
+          <Route path="/user/:id" component={UserPage}/>
           <Route path="/search" component={SearchPage} />
           <Route path="/howItWorks" component={HowItWorksPage}/>
           <RestrictedPath
@@ -37,6 +39,7 @@ export default class App extends Component {
             }}
             condition={user && user.login && user.isAdmin}
           />
+
           <RestrictedPath
             path="/create"
             component={CreateLot}

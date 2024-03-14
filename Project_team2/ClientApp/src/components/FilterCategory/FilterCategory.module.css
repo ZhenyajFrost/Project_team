@@ -26,9 +26,14 @@
 }
 
 .number{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: var(--gray);
     color: var(--textColor);
     border-radius: 60px;
+    min-width: 25px;
+    max-height: 26px;
     padding: 8px;
     line-height: 14px;    
 }
