@@ -23,10 +23,9 @@ function LotPage() {
   let [getHistory, history] = useGetLotById();
   const cat = categories.find(categ => Number(categ.id) === Number(lot.category))
   useState(() => {
-    // //change to data.lot
-    // await getHistory(id);
+    getHistory(id);
 
-    getLotById(id).then(v=>console.log(v));
+    getLotById(id)
 
   }, []);
 
