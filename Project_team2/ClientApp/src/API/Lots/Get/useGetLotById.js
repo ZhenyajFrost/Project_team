@@ -6,15 +6,19 @@ const useGetLotById = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [lot, setLot] = useState({});
+    const [maxBid, setMaxBid] = useState({});
     const [user, setUser] = useState({});
 
     const getLotById = async (lotId) => {
         setLoading(true);
         try {
             const response = await axios.get(`${LOTS_ENDPOINT}/getLotById/${lotId}`);
-            console.log('Lot successfully retrieved: ', response.data.lot);
-            setLot(response.data.lot);
-            setUser(response.data.owner)
+
+            const {data:{lot, owner, maxBidPrice, maxBidUser}} = response;
+            console.log('Lot successfully retrieved: ', response.data);
+            setLot(lot);
+            setUser(owner)
+            setMaxBid({price:maxBidPrice, user:maxBidUser})
         } catch (error) {
             console.error('Getting lot failed: ', error);
             setError(error);
@@ -23,7 +27,7 @@ const useGetLotById = () => {
         }
     };
 
-    return  [getLotById, lot, user, isLoading, error ];
+    return  [getLotById, lot, user, maxBid, isLoading, error ];
 };
 
 export default useGetLotById;
