@@ -12,9 +12,9 @@ const useGetLotById = () => {
         setLoading(true);
         try {
             const response = await axios.get(`${LOTS_ENDPOINT}/getLotById/${lotId}`);
-            console.log('Lot successfully retrieved: ', response.data);
-            setLot(response.data); //CHANGE TO data.lot
-            setUser(response.data.user)
+            console.log('Lot successfully retrieved: ', response.data.lot);
+            setLot(response.data.lot);
+            setUser(response.data.owner)
         } catch (error) {
             console.error('Getting lot failed: ', error);
             setError(error);

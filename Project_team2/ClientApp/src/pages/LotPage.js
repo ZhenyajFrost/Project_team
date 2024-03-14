@@ -16,42 +16,22 @@ import categories from "../Data/categories.json"
 
 function LotPage() {
   const token = getLocalStorage('token');
-
-
   const id = parseInt(window.location.href.split("/").pop(), 10);
-  console.log(id);
-
-
-  // const [lot, setLot] = useState({
-  //   id: "",
-  //   title: null,
-  //   price: 0,
-  //   timeTillEnd: 0,
-  //   hot: false,
-  // });
-  const user = {
-    login: "Oleg vynik",
-    avatar: "https://www.volyn24.com/img/modules/news/4/5f/71d9c98fa1e796fd64ce9b947f1a85f4/original-photo.jpg"
-  }
 
   
-  let [getLotById, lot, /*user,*/ isLoading, error] = useGetLotById();
+  let [getLotById, lot, user, isLoading, error,  ] = useGetLotById();
   let [getHistory, history] = useGetLotById();
-  useState(async () => {
-    //change to data.lot
-    await getHistory(id);
+  const cat = categories.find(categ => Number(categ.id) === Number(lot.category))
+  useState(() => {
+    // //change to data.lot
+    // await getHistory(id);
 
-    await getLotById(id);
+    getLotById(id).then(v=>console.log(v));
 
   }, []);
 
-  useState(() => {
-    console.log(lot);
-  }, [lot]);
-
-
-  console.log(lot)
-  if (lot.id) {
+  console.log(lot.title)
+  if (!isLoading && !error) {
     const lotInfo = {
       Область: lot.region ? lot.region : "Невідоме",
       Місто: lot.city ? lot.city : "Невідоме",
@@ -59,7 +39,7 @@ function LotPage() {
     };
     return (
       <div>
-        <LotPath path={[{ name: categories.find(categ => Number(categ.id) === Number(lot.category)).title, path: `/search?category=${lot.category}/` }, { name: lot.title, path: "" }]} />
+        <LotPath path={[{ name: cat ? cat.title : "Категорія", path: `/search?category=${lot.category}/` }, { name: lot.title, path: "" }]} />
         <div className={css.cont}>
           <div className={css.left}>
             <div className={css.sideThing}>
