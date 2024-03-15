@@ -44,7 +44,7 @@ export default function CreateLot({ data = {} }) {
     console.log(lot);
 
     for (let a of Object.keys(initialState)) {
-      if (!lot[a]) {
+      if (!lot[a] && a!="isNew") {
         Notify.failure(`поле ${a} не заповнене`);
         return;
       }
@@ -74,7 +74,7 @@ export default function CreateLot({ data = {} }) {
       }
       update(lot.id, answ).then((v) => {
         Notify.success("Лот оновлено успішно");
-        setLot({});
+        // setLot({});
       });
     } else {
       create(lot).then((v) => {
