@@ -31,7 +31,7 @@ const useGetLots = () => {
       }
 
       console.log("Lots successfully retrieved: ", response.data);
-      setLots(filter ? response.data.searchResults :  response.data.lots);
+      //setLots(filter ? response.data.searchResults :  response.data.lots);
       setTotalCount(response.data.totalCount);
     } catch (error) {
       //console.error("Getting lots failed: ", error);

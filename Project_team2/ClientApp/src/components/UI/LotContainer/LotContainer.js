@@ -6,6 +6,7 @@ import classes from "./LotContainer.module.css";
 function LotContainer({ lots, display = "", lotStyle = "basic", isAdmin="false" }) {
   const displayClass = display ? classes[display] : '';
   const classString = `${classes.lotsContainer} ${displayClass}`;
+  console.log("lots", lots)
 
   const renderLot = (lot, style) => {
     switch (style) {

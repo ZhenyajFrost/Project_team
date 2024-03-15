@@ -4,12 +4,14 @@ import Carousel from "../../components/Carousel/Carousel";
 import hiv from '../../Data/hiv.json'
 import questions from '../../Data/questions.json'
 import HIWItem from "../../components/HIWItem/HIWItem";
+import video from '../../video/hiwVideo.mp4'
 
 import { styled } from '@mui/system';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ReactPlayer from "react-player";
 
 const CustomAccordion = styled(Accordion)({
     '&&': {
@@ -65,11 +67,16 @@ export const HowItWorks = () => {
         return <HIWItem item={item} />
     })
 
-    //const questions = [{title: "bla bla bla", text: "bal aalslaskaklsalks"}];
-
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+    
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "5vw" }}>
-            <img src="..." className={css.img}></img>
+            <video className={css.img} controls autoPlay auto preload="auto">
+                <source src={video} type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
             <Carousel items={items} title="Як це працює?" />
 
             <div>

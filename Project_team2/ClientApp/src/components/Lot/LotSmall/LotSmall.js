@@ -20,7 +20,7 @@ function LotSmall({
   imageURLs,
   location,
   userId,
-  status,
+  status
 }) {
   const history = useHistory();
   const token = getLocalStorage('token');

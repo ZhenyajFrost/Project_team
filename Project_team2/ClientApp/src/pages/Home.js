@@ -16,24 +16,15 @@ import Loader from "../components/Loader/Loader.js";
 
 export const Home = () => {
     const [getLots, lots, totalCount, isLoading, error] = useGetLots();
+
     const [pagination, setPagination] = useState({
         page: 1,
         pageSize: 4
     });
 
-    const [sortedLots, setSortedLots] = useState(lots);
     let history = useHistory();
 
-    useEffect(() => {
-        setSortedLots(lots);
-    }, [lots]);
-    
-    // useEffect(async () => {
-    //     await getLots(pagination.page, pagination.pageSize);
-    // }, [])
-
     useEffect(async () => {
-        console.log(pagination);
         await getLots(1, pagination.pageSize * pagination.page);
     }, [pagination])
 
@@ -43,17 +34,11 @@ export const Home = () => {
         } 
     };
 
-    useEffect(() => {
-        setSortedLots(lots);
-    }, [lots]);
-
-
-
     const [selectedCat, setSelectedCat] = useState(categories[0]);
+
     const onCategoryChange = (cat) => {
         setSelectedCat(cat);
         setPagination({page: 1, limit: 10});
-        //setLots([]);
         ///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1///TODO: MAKE THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
     };
 
@@ -73,12 +58,11 @@ export const Home = () => {
                 <BigCategoryContainer categories={categories} />
             </div>
 
-
             <div id="lots">
                 <h2 className={css.h2}>Популярні лоти</h2>
                 <CategoryContainer categories={categories} onCategoryChange={onCategoryChange} selectedCategorie={selectedCat} />
 
-                {isLoading ? <Loader/> :<LotContainer lots={sortedLots} display="grid-2col"/>}
+                {isLoading ? <Loader/> :<LotContainer lots={lots} display="grid-2col"/>}
                 {isLoading ? '' :<LoadMoreButton curPage={pagination.page} setCurPage={(newPage) => setPagination(prev => ({
                     ...prev,
                     page: newPage
