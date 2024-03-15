@@ -11,7 +11,7 @@ import useUpdateLot from "../API/Lots/useUpdateLot";
 import { Notify } from "notiflix";
 import TimeSelector from "../components/Genesis/TimeSelector/TimeSelector";
 
-export default function CreateLot({data={}}) {
+export default function CreateLot({ data = {} }) {
   const initialState = {
     title: "",
     category: 0,
@@ -23,13 +23,12 @@ export default function CreateLot({data={}}) {
     imageURLs: [],
     region: {},
     city: {},
-    ...data
   };
 
-  const [lot, setLot] = useState(initialState);
+  const [lot, setLot] = useState({ ...initialState, ...data });
   const [user, setUser] = useState({ firstName: "", lastName: "", email: "" });
-  const create =  useCreateLot().createLot;
-  const update = useUpdateLot().updateLot ;
+  const create = useCreateLot().createLot;
+  const update = useUpdateLot().updateLot;
   console.log(lot);
 
   useEffect(() => {
@@ -42,9 +41,10 @@ export default function CreateLot({data={}}) {
   };
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log(lot)
+    console.log(lot);
+
     for (let a of Object.keys(initialState)) {
-      if (!lot[a]) {
+      if (!lot[a] && a!="isNew") {
         Notify.failure(`поле ${a} не заповнене`);
         return;
       }
@@ -53,7 +53,7 @@ export default function CreateLot({data={}}) {
       Notify.failure("Опис має бути щонайменше 40 символів");
       return;
     }
-    if (lot.imageURLs.length ===0) {
+    if (lot.imageURLs.length === 0) {
       Notify.failure("В лота має бути щонайменше 1 зображення");
       return;
     }
@@ -62,26 +62,31 @@ export default function CreateLot({data={}}) {
       lot.city = lot.city.label;
     }
     lot.userId = user.id;
-    lot.timeTillEnd = lot.endOn.toISOString().slice(0, 19).replace("T", " ");
+    lot.timeTillEnd = new Date().setDate(new Date().getDate() + lot.endOn);
     lot.category = lot.category.id;
 
-    if(data.id){
-      update(lot).then(v=>{
-        Notify.success("Лот оновлено успішно")
-        setLot({});
+    if (data.id) {
+      const answ = {}
+      for (let a of Object.keys(lot)) {
+        if (lot[a]!==data[a]) {
+          answ[a] = lot[a];
+        }
+      }
+      update(lot.id, answ).then((v) => {
+        Notify.success("Лот оновлено успішно");
+        // setLot({});
       });
-    }else{
-      create(lot).then(v=>{
-        Notify.success("Лот створено успішно")
+    } else {
+      create(lot).then((v) => {
+        Notify.success("Лот створено успішно");
         setLot({});
       });
     }
-
   };
   return (
     <div>
-      <h1>Створити оголошення</h1>
-      <form  className={css.createForm} onSubmit={onSubmit}>
+      <h1>{data.id ? "Змінити оголошення" : "Створити оголошення"}</h1>
+      <form className={css.createForm} onSubmit={onSubmit}>
         <div className={css.createSection}>
           <h2>Опишіть у подробицях</h2>
           <p>Вкажіть назву</p>
@@ -107,7 +112,7 @@ export default function CreateLot({data={}}) {
               );
               onInput({ name: "endOn", value: endDate });
             }}
-            value = {lot.endOn}
+            value={lot.endOn}
           />
         </div>
         <div className={css.createSection}>
@@ -217,7 +222,7 @@ export default function CreateLot({data={}}) {
         </div>
         <div className={css.createSection}>
           <div className={css.fincont}>
-            <button className={css.final} type="submit" >
+            <button className={css.final} type="submit">
               {data.id ? "Змінити" : "Опублікувати"}
             </button>
           </div>
