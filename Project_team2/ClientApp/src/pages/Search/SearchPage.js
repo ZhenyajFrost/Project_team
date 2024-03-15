@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import InputSearch from "../../components/UI/Input/InputSearch";
 import Filters from "../../components/Filters/Filters";
 import { NavLink } from "react-bootstrap";
-import svg from "../../images/images.svg";
-import categories from "../../Data/categories.json"
+import svg from '../../images/svgDef.svg';
 import css from "./Serch.module.css";
 import LotContainer from "../../components/UI/LotContainer/LotContainer";
 import Loader from "../../components/Loader/Loader";
 import useGetLots from "../../API/Lots/Get/useGetLots";
 import { Notify } from "notiflix";
+import DisplayChoose from "../../components/UI/DisplayChoose/DisplayChoose";
 
 
 function SearchPage(props) {
@@ -84,12 +84,13 @@ function SearchPage(props) {
                 <option>Як ми це зробимо?</option>
               </select>
             </div>
-            <svg onClick={() => setLotDisplay("grid-2col")}>
-              <use href={`${svg}#gridView`} />
+            {/* <svg onClick={() => setLotDisplay("grid-2col")}>
+              <use href={ lotDisplay === 'grid-2col' ? `${svg}#gridView` : `${svg}#gridViewUn` }  />
             </svg>
             <svg onClick={() => setLotDisplay("list")}>
-              <use href={`${svg}#listView`} />
-            </svg>
+              <use href={lotDisplay === 'list'? `${svg}#listView` : `${svg}#listViewUn`} />
+            </svg> */}
+            <DisplayChoose setLotDisplay={setLotDisplay} lotDisplay={lotDisplay}/>
           </div>
         </div>
         {isLoading ? (

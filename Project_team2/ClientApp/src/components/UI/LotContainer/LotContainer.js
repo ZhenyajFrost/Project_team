@@ -37,6 +37,7 @@ function LotContainer({ lots, display = "", lotStyle = "basic", isAdmin="false" 
             imageURLs={lot.imageURLs}
             location={lot.city}
             userId=  {lot.userId}
+            status={ lot.active ? 'active' : lot.unactive ? 'unactive' : lot.archive ? 'archive' : ''}
           />
         );
       default:

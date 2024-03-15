@@ -9,10 +9,10 @@ const useUpdateLot = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const updateLot = async (lot) => {
+    const updateLot = async (lotId, fieldsToUpdate) => {
         setLoading(true);
         try {
-            const response = await axios.post(`${LOTS_ENDPOINT}/updateLot`, {token, lot});
+            const response = await axios.post(`${LOTS_ENDPOINT}/updateLot`, {token, lotId, fieldsToUpdate});
 
             Notiflix.Notify.success('Лот успішно оновленно')
         } catch (error) {

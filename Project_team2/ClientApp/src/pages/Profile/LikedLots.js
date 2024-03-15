@@ -3,6 +3,7 @@ import css from './Lots/Lots.module.css'
 import LotContainer from '../../components/UI/LotContainer/LotContainer'
 import useGetUserLikedLots from '../../API/Lots/Get/useGetUserLikedLots';
 import useGetUserSubscriptions from '../../API/User/Get/useGetUserSubscriptions';
+import Loader from '../../components/Loader/Loader';
 
 function LikedLots() {
     const [activeTab, setActiveTab] = useState('lots');
@@ -45,7 +46,7 @@ function LikedLots() {
 
             <div className={css.body}>
                 <div className={css.lots}>
-                    {activeTab === 'lots' && <LotContainer lots={lots} display="grid-4col" lotStyle="small" />}
+                    {activeTab === 'lots' && isLoading ? <Loader/> :<LotContainer lots={lots} display="grid-4col" lotStyle="small" />}
                     {activeTab === 'users' &&
                         <div className={css.userContainer}>
                             

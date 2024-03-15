@@ -12,6 +12,7 @@ import svg from "../images/svgDef.svg";
 import BigCategoryContainer from "../components/BigCategoryContainer/BigCategoryContainer.js";
 import useGetLots from "../API/Lots/Get/useGetLots.js";
 import categories from "../Data/categories.json"
+import Loader from "../components/Loader/Loader.js";
 
 export const Home = () => {
     const [getLots, lots, totalCount, isLoading, error] = useGetLots();
@@ -77,11 +78,11 @@ export const Home = () => {
                 <h2 className={css.h2}>Популярні лоти</h2>
                 <CategoryContainer categories={categories} onCategoryChange={onCategoryChange} selectedCategorie={selectedCat} />
 
-                <LotContainer lots={sortedLots} display="grid-2col"/>
-                <LoadMoreButton curPage={pagination.page} setCurPage={(newPage) => setPagination(prev => ({
+                {isLoading ? <Loader/> :<LotContainer lots={sortedLots} display="grid-2col"/>}
+                {isLoading ? '' :<LoadMoreButton curPage={pagination.page} setCurPage={(newPage) => setPagination(prev => ({
                     ...prev,
                     page: newPage
-                }))} limit={pagination.limit} />
+                }))} limit={pagination.limit} />}
             </div>
 
             <div id="howItW" className={`${css.mainCont} ${css.borderRadius24}`}>

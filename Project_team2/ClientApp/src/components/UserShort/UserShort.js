@@ -1,7 +1,10 @@
 import React from "react";
 import css from "./style.module.css";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
-function UserShort({ user: { avatar, login, registrationTime, lastLogin } }) {
+function UserShort({ user: { id, avatar, login, registrationTime, lastLogin } }) {
+  const history = useHistory();
+  
   const ukrainianMonths = [
     "січня",
     "лютого",
@@ -31,7 +34,7 @@ function UserShort({ user: { avatar, login, registrationTime, lastLogin } }) {
   }
 
   return (
-    <div className={css.gUs}>
+    <div className={css.gUs} onClick={() => history.push(`/user/${id}`)}>
       <img src={avatar} alt="ures ava" />
       <div>
         <span>{login}</span>

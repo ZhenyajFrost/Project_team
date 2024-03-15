@@ -150,9 +150,6 @@ function LotPage() {
             <div className={css.splitContainer}>
               <p>Користувач</p>
               <UserShort user={user} />
-              <svg>
-                <use href={`${svg}#deliveryTruck`} />
-              </svg>
             </div>
           </div>
         </div>

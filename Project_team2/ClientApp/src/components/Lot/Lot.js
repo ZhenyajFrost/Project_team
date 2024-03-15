@@ -56,7 +56,7 @@ function Lot({
   }
 
   const handleApproveClick = async () => {
-    await approveLot(id, token);
+    await approveLot(token, id);
 
     if (!error)
       setIsChecked(true);

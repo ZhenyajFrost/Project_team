@@ -875,7 +875,6 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-
         [HttpPost("ArchiveLot")]
         public IActionResult ArchiveLot(int id, [FromBody] EditStatusLot request)
         {
@@ -906,6 +905,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+        
         [HttpPost("SetAllowBids")]
         public IActionResult SetAllowBids(int id, [FromBody] EditStatusLot request)
         {
@@ -1375,6 +1375,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
         [HttpGet("getUserLots")]
         public IActionResult GetUserLots(int userId, string? searchQuery = null, int? category = null, decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, bool active = false, int pageNumber = 1, int pageSize = 10)
         {

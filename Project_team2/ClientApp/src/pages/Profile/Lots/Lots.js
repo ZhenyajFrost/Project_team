@@ -10,6 +10,7 @@ import useGetLotsByUser from '../../../API/Lots/Get/useGetLotsByUser.js';
 import { getLocalStorage } from '../../../utils/localStorage.js';
 import { categoriesFromCategoriesCount } from '../../../utils/categoriesFromCategoriesCount.js';
 import Pagination from '../../../components/UI/Pagination/Pagination.js';
+import Loader from '../../../components/Loader/Loader.js'
 
 function Lots () {
     const user = getLocalStorage('user');
@@ -109,8 +110,8 @@ function Lots () {
                 <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={totalCount} />
 
                 <div className={css.lots}>
-                    {_totalCount === 0 ? "No lots Found" : <LotContainer lots={lots} display="grid-3col" lotStyle="small" />}
-                    <Pagination totalCount={_totalCount} page={pagination.pageNumber} limit={pagination.pageSize} changePage={handleChangePage} />
+                    {_totalCount === 0 ? "No lots Found" : isLoading ? <Loader/> : <LotContainer lots={lots} display="grid-3col" lotStyle="small" isLoading={isLoading}/>}
+                    {isLoading ? '' : <Pagination totalCount={_totalCount} page={pagination.pageNumber} limit={pagination.pageSize} changePage={handleChangePage} />}
                 </div>
             </div>
 

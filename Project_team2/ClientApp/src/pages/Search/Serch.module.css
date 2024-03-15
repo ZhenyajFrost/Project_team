@@ -5,15 +5,12 @@
   align-items: center;
 
 }
-.upThing div {
+.upThing div{
   display: flex;
   gap:20px;
   align-items: center;
 }
-.upThing svg {
-  width: 24px;
-  height: 24px;
-}
+
 .upThing select{
     background-color: var(--white);
     display: flex;

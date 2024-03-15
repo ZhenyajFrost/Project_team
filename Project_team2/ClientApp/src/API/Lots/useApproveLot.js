@@ -7,7 +7,7 @@ const useApproveLot = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const approveLot = async (lotId, token) => {
+    const approveLot = async (token, lotId) => {
         setLoading(true);
 
         try {
