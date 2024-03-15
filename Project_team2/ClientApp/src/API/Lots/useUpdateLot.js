@@ -14,7 +14,7 @@ const useUpdateLot = () => {
     try {
       const response = await axios
         .post(`${LOTS_ENDPOINT}/updateLot`, {
-          request: { token, lotId, fieldsToUpdate },
+          token, lotId, fieldsToUpdate
         })
         .then((V) => {
           Notiflix.Notify.success("Лот успішно оновленно");

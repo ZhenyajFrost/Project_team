@@ -44,6 +44,13 @@ function Lots () {
         setPagination({pageNumber: 1, pageSize: 9})
     }, [activeTab, categoryClicked]) //Filters 
 
+    useEffect(() => {
+        setCategoryClicked({value: ''});
+        setFilters({});
+        setPagination({pageNumber: 1, pageSize: 9})
+    }, [activeTab])
+
+
     const handleChangePage = (page) => {
         setPagination(prev => ({
             ...prev,
@@ -51,9 +58,11 @@ function Lots () {
         }))
     }
 
-    const handleTabClick = async (tab) => {
+    const handleTabClick = (tab) => {
         setActiveTab(tab);
+        setCategoryClicked({value: ''});
         setFilters({});
+
     };
 
     const handleButtonSearch = async () => {
@@ -107,7 +116,7 @@ function Lots () {
             <Button onClick={handleButtonSearch}>Search</Button>
 
             <div className={css.body}>
-                <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={totalCount} />
+                <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={totalCount} categoryClicked={categoryClicked}/>
 
                 <div className={css.lots}>
                     {_totalCount === 0 ? "No lots Found" : isLoading ? <Loader/> : <LotContainer lots={lots} display="grid-3col" lotStyle="small" isLoading={isLoading}/>}

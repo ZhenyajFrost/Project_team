@@ -70,7 +70,7 @@ function LotSmall({
 
               {status === 'archive' ?
                 <>
-                  <p onClick={() => updateLot(id)}>Перемістити в активні</p>
+                  <p onClick={() => updateLot(id, {})}>Перемістити в активні</p>
                 </> :
                 <></>
               }
