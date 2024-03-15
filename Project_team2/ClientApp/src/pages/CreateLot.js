@@ -15,23 +15,22 @@ export default function CreateLot({data={}}) {
   const initialState = {
     title: "",
     category: 0,
-    ShortDescription: "",
     endOn: 1,
     minimalBid: 0,
-    stepPrice: 0,
+    minStepPrice: 0,
     sellOn: Infinity,
-    state: "Нове",
+    isNew: true,
     imageURLs: [],
     region: {},
     city: {},
     ...data
   };
 
-  const [lot, setLot] = useState({...data});
+  const [lot, setLot] = useState(initialState);
   const [user, setUser] = useState({ firstName: "", lastName: "", email: "" });
   const create =  useCreateLot().createLot;
   const update = useUpdateLot().updateLot ;
-
+  console.log(lot);
 
   useEffect(() => {
     const svd = getLocalStorage("user");
@@ -50,7 +49,7 @@ export default function CreateLot({data={}}) {
         return;
       }
     }
-    if (lot.ShortDescription.length < 40) {
+    if (lot.shortDescription.length < 40) {
       Notify.failure("Опис має бути щонайменше 40 символів");
       return;
     }
@@ -128,20 +127,20 @@ export default function CreateLot({data={}}) {
           <h2>Деталі про товар</h2>
           <p>Опис</p>
           <textarea
-            name="ShortDescription"
+            name="shortDescription"
             onInput={onInput}
-            value={lot.ShortDescription}
+            value={lot.shortDescription}
             placeholder="Детальніше опишіть товар"
             className={css.desc}
           />
-          {lot.ShortDescription && lot.ShortDescription.length < 40 ? (
+          {lot.shortDescription && lot.shortDescription.length < 40 ? (
             <p>Введіть щонайменше 40 символів</p>
           ) : null}
 
           <p>Стан</p>
           <StatePicker
-            change={(e) => setLot({ ...lot, state: e })}
-            current={lot.state}
+            change={(e) => setLot({ ...lot, isNew: e })}
+            current={lot.isNew}
           />
         </div>
         <div className={css.createSection}>
@@ -166,9 +165,9 @@ export default function CreateLot({data={}}) {
               <span>
                 <Input
                   className={css.priceInp}
-                  name="stepPrice"
+                  name="minStepPrice"
                   onInput={onInput}
-                  value={lot.stepPrice}
+                  value={lot.minStepPrice}
                   type="number"
                   placeHolder="500"
                 />
@@ -219,7 +218,7 @@ export default function CreateLot({data={}}) {
         <div className={css.createSection}>
           <div className={css.fincont}>
             <button className={css.final} type="submit" >
-              Опублікувати
+              {data.id ? "Змінити" : "Опублікувати"}
             </button>
           </div>
         </div>

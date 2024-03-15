@@ -3,8 +3,11 @@ import css from "./style.module.css";
 
 function TimeSelector({ onChange, value }) {
   const time = [1, 2, 5, 7, 10, 15, 20, 30];
-  
+  console.log(value);
   const days = (date) => {
+    if(date<100){
+      return date
+    }
     const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
 
     return Math.round(Math.abs((date - new Date()) / oneDay));

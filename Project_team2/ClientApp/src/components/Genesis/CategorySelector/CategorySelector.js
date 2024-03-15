@@ -6,11 +6,16 @@ import css from "./style.module.css"
 import CategoryModal from "../CategoryModal/CategoryModal";
 
 function CategorySelector({ selectedCat, onCatChange }) {
+  console.log(selectedCat);
   const [modal, setModal] = useState(false);
+
   if (!selectedCat) {
     onCatChange(categories[0]);
     return null;
   } else {
+    if(!selectedCat.title){
+      selectedCat = categories.find(v=>Number(v.id)===Number(selectedCat))
+    }
     return (
       <>
         <div className={css.mainCont}>
