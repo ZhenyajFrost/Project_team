@@ -3,19 +3,18 @@ import InputSearch from "../../components/UI/Input/InputSearch";
 import Filters from "../../components/Filters/Filters";
 import { NavLink } from "react-bootstrap";
 import svg from "../../images/images.svg";
-import categories from "../../Data/categories.json"
+import categories from "../../Data/categories.json";
 import css from "./Serch.module.css";
 import LotContainer from "../../components/UI/LotContainer/LotContainer";
 import Loader from "../../components/Loader/Loader";
 import useGetLots from "../../API/Lots/Get/useGetLots";
 import { Notify } from "notiflix";
 
-
 function SearchPage(props) {
   const [querry, setQuerry] = useState(
     decodeURI(
       window.location.href.split("/")[
-      window.location.href.split("/").length - 1
+        window.location.href.split("/").length - 1
       ]
     )
   );
@@ -26,7 +25,7 @@ function SearchPage(props) {
   const perPage = 7;
   const [lotDisplay, setLotDisplay] = useState("list");
   const [getLots, lots, totalCount, isLoading, error] = useGetLots();
-
+  console.log(lots);
   //fetch data
   useEffect(() => {
     const doFetching = () => {
@@ -46,25 +45,23 @@ function SearchPage(props) {
       const obj = {};
       args.split("&").forEach((v) => {
         obj[v.split("=")[0]] = v.split("=")[1];
+        console.log(v);
       });
       setFilter(obj);
     }
   }, []);
   const onFilterChange = (e) => {
-    Notify.info(e.category)
 
-    if (e.category) {
-      if (isNaN(Number(e.category))) {
-        return
-      }else{
-        e.category = Number(e.category)
-
-      }
-    } 
-
-    setFilter(e);
+    // if (e.category) {
+    //   if (isNaN(Number(e.category))) {
+    //     return;
+    //   } else {
+    //     e.category = Number(e.category);
+    //   }
+    // }
+    console.log("зміна фільртра на", e)
+    setFilter({...filter, ...e});
   };
-  // Notify.success(filter.category.toString());
   return (
     <>
       <div className={css.searchContainer}>
@@ -92,7 +89,7 @@ function SearchPage(props) {
             </svg>
           </div>
         </div>
-        {isLoading ? (
+        {isLoading && lots ? (
           <Loader />
         ) : (
           <LotContainer display={lotDisplay} lots={lots} />

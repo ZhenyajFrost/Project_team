@@ -28,8 +28,8 @@ const useGetLots = () => {
         });
       }
 
-      //console.log("Lots successfully retrieved: ", response.data);
-      setLots(response.data.lots);
+      console.log("Lots successfully retrieved: ", response.data);
+      setLots(response.data.searchResults );
       setTotalCount(response.data.totalCount);
     } catch (error) {
       //console.error("Getting lots failed: ", error);

@@ -5,14 +5,11 @@ import css from "./styles.module.css";
 import Notiflix, {Notify} from "notiflix";
 
 function Filters({ onChange, initial }) {
-
-  Notify.failure(`${initial.category}`)
   const [categories, setCategories] = useState([
     { title: "Будь-яка категорія", id: -1, imgId:"any" },
     ...cts,
   ]);
   const [params, setParams] = useState({
-    category:-1,
     minPrice: 1,
     maxPrice: Infinity,
     endTill: new Date(new Date().getDate() + 1),
@@ -21,7 +18,7 @@ function Filters({ onChange, initial }) {
   });
   useEffect(() => {
 
-
+    console.log("dk");
     //перевірка ціни
     const minPrice = Number(params.minPrice);
     const maxPrice = Number(params.maxPrice);
@@ -48,12 +45,12 @@ function Filters({ onChange, initial }) {
     //регіон чек
     if (!regions.includes(params.region)) {
       Notiflix.Notify.failure(
-        "Будь ласка, не вийобуйтесь і оберіть нормальну облсть."
+        "Будь ласка, оберіть нормальну облaсть."
       );
       return;
     }
     for (let a in params) {
-      if (params[a] != initial[a]) {
+      if (params[a] !== initial[a]) {
         onChange(params);
         return;
       }
@@ -61,8 +58,8 @@ function Filters({ onChange, initial }) {
 
 
   }, [params, categories, onChange]);
-  const selCat = categories.find(v=>Number(v.id)==Number(initial.category))
-  Notify.warning(JSON.stringify(selCat))
+  const selCat = categories.find(v=>Number(v.id)===Number(initial.category))
+  console.log(initial.category);
   return (
     <div className={css.filterContainer}>
       <div className={css.filterItem}>
