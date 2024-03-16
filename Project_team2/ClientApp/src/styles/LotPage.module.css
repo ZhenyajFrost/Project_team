@@ -13,14 +13,18 @@
   display: flex;
   justify-content: space-between;
 }
-
+.shortDesc{
+  width: auto;
+  text-overflow: clip;
+  overflow: hidden;
+}
 svg {
   width: 24px;
   height: 24px;
 }
 
 .splitContainer {
-  width: 600px;
+  width: auto;
   background-color: var(--white);
   padding: 20px;
   border-radius: 24px;
