@@ -8,6 +8,9 @@ function TimeSelector({ onChange, value }) {
     if(date<100){
       return date
     }
+    if(typeof date === "string"){
+      date=new Date(date)
+    }
     const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
 
     return Math.round(Math.abs((date - new Date()) / oneDay));
