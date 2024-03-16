@@ -14,12 +14,17 @@ import LikeButton from "../components/UI/LikeButton/LikeButton.js";
 import categories from "../Data/categories.json";
 import ModalWindow from "../components/ModalWindow/ModalWindow";
 import BuyLotModal from "../components/BuyLotModal/BuyLotModal.js";
+import Bid from "../components/Bid/Bid.js";
+import useGetUserLots from "../API/Lots/Get/useGetUserLots.js";
+import Carousel from "../components/Carousel/Carousel.js";
+import Lot from "../components/Lot/Lot.js";
 
 function LotPage() {
   const id = parseInt(window.location.href.split("/").pop(), 10);
 
   const [modal, setModal] = useState(false);
-  let [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
+  const [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
+  const [getLotsUser, lots] = useGetUserLots();
   let [getHistory, history] = useGetLotsHistory();
   const cat = categories.find(
     (categ) => Number(categ.id) === Number(lot.category)
@@ -27,7 +32,9 @@ function LotPage() {
   useState(() => {
     getHistory(id);
 
-    getLotById(id);
+    getLotById(id).then((v) => {
+      getLotsUser((v.userId, 1, 10));
+    });
   }, []);
 
   if (!isLoading && !error) {
@@ -63,7 +70,13 @@ function LotPage() {
               <h2>Історія ставок</h2>
               {history ? (
                 history.length ? (
-                  history.map((v) => <div>{JSON.stringify(v)}</div>)
+                  history.map((v) => (
+                    <Bid
+                      userId={v.userId}
+                      amount={v.bidAmount}
+                      time={v.bidTime}
+                    />
+                  ))
                 ) : (
                   "Тут поки пусто, будьте першими, хто зробить ставку :)"
                 )
@@ -153,13 +166,33 @@ function LotPage() {
             </div>
           </div>
         </div>
+        <div>
+          <Carousel
+            title={"Усі оголошення автора"}
+            items={lots.map((lot) => (
+              <Lot
+                key={lot.id}
+                id={lot.id}
+                title={lot.title}
+                price={lot.price}
+                shortDescription={lot.shortDescription}
+                category={lot.category}
+                timeTillEnd={lot.timeTillEnd}
+                hot={lot.hot}
+                imageURLs={lot.imageURLs}
+                isAdmin={false}
+                isApproved={lot.approved}
+              />
+            ))}
+          />
+        </div>
         {modal ? (
           <ModalWindow
             visible={modal}
             setVisible={setModal}
             children={
               <BuyLotModal
-              killMyself={()=>setModal(false)}
+                killMyself={() => setModal(false)}
                 maxBid={maxBid}
                 minStep={lot.minStepPrice}
                 minPrice={lot.minPrice}
