@@ -574,10 +574,11 @@ namespace Project2.Controllers
                 }
 
                 // Добавляем поля Approved и Active в запрос на обновление лота
-                request.FieldsToUpdate.Add("Approved", "false");
-                request.FieldsToUpdate.Add("Active", "false");
-                request.FieldsToUpdate.Add("Unactive", "true");
 
+                request.FieldsToUpdate.Add("Approved", "0"); // Используем числовое представление логического значения false
+                request.FieldsToUpdate.Add("Active", "0"); // Аналогично для поля Active
+                request.FieldsToUpdate.Add("Unactive", "1"); // Если нужно, аналогично для Unactive
+                request.FieldsToUpdate.Add("Archive", "1");
                 // Открываем соединение с базой данных
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
@@ -598,10 +599,19 @@ namespace Project2.Controllers
                         return BadRequest(new { message = "Fields to update are required" });
                     }
 
+                    // Проверяем, нужно ли обновлять список изображений
+                    bool updateImages = request.ImageURLs != null && request.ImageURLs.Any();
+
                     // Добавляем каждое поле из запроса к запросу на обновление
                     foreach (var field in request.FieldsToUpdate)
                     {
                         query += $"{field.Key} = '{field.Value}', ";
+                    }
+
+                    // Если нужно обновлять список изображений, добавляем его в запрос
+                    if (updateImages)
+                    {
+                        query += "ImageURLs = @ImageURLs, ";
                     }
 
                     // Удаляем последнюю запятую и пробел из запроса
@@ -613,6 +623,12 @@ namespace Project2.Controllers
                     // Выполняем запрос на обновление
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
+                        // Если нужно обновлять список изображений, добавляем параметр
+                        if (updateImages)
+                        {
+                            command.Parameters.AddWithValue("@ImageURLs", string.Join(",", request.ImageURLs));
+                        }
+
                         command.ExecuteNonQuery();
                     }
 
@@ -1709,7 +1725,9 @@ WHERE
         public string Token { get; set; }
         public int LotId { get; set; }
         public Dictionary<string, string> FieldsToUpdate { get; set; }
+        public List<string> ImageURLs { get; set; } = new List<string>();
     }
+
     public class LotModel
     {
         public int Id { get; set; }
