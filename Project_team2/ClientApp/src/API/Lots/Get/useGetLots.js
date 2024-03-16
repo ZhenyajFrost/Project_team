@@ -21,6 +21,7 @@ const useGetLots = () => {
           },
         });
         setLots(response.data.lots);
+        setTotalCount(response.data.totalCount);
       } else {
         response = await axios.post(`${LOTS_ENDPOINT}/SearchLots`, {
           ...filter,
@@ -28,11 +29,11 @@ const useGetLots = () => {
           pageSize: pageSize,
         });
         setLots(response.data.searchResults);
+        setTotalCount(response.data.totalRecords);
       }
 
       console.log("Lots successfully retrieved: ", response.data);
       //setLots(filter ? response.data.searchResults :  response.data.lots);
-      setTotalCount(response.data.totalCount);
     } catch (error) {
       //console.error("Getting lots failed: ", error);
       setError(error);

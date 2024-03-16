@@ -12,17 +12,18 @@ const LocationSelector = ({
   const [statesOptions, setStatesOptions] = useState([]);
   const [citiesOptions, setCitiesOptions] = useState([]);
   if (selectedRegion && !selectedRegion.label) {
-    console.log(selectedRegion);
     const {name, isoCode} = State.getStatesOfCountry("UA").find((s) => s.name === selectedRegion)
     onRegionChange(
       {label:name, value:isoCode}
     );
   }
-  if (selectedRegion && selectedCity && !selectedCity.label) {
+  if (selectedRegion && selectedRegion.value && selectedCity && !selectedCity.label) {
     console.log(selectedCity);
-    const v = City.getCitiesOfState("UA", selectedRegion.value).find((s) => s.name === selectedCity)
-    onRegionChange(
-      v
+    console.log(City.getCitiesOfState("UA", selectedRegion.value).find((s) => s.name === "Cherkasy"));
+    const {name} = City.getCitiesOfState("UA", selectedRegion.value).find((s) => s.name === selectedCity)
+
+    onCityChange(
+      {label:name, value:name}
     );
   }
   useEffect(() => {

@@ -109,7 +109,7 @@ function Filters({ onChange, initial }) {
         <select
           className={css.inputEl}
           onChange={(e) => {
-            setParams({ ...params, endTill: e.target.value });
+            setParams({ ...params, timeTillEnd: e.target.value });
           }}
         >
           <option>Всі оголошення</option>

@@ -9,7 +9,7 @@ import LotContainer from "../../components/UI/LotContainer/LotContainer";
 import Loader from "../../components/Loader/Loader";
 import useGetLots from "../../API/Lots/Get/useGetLots";
 import { Notify } from "notiflix";
-import Pagination from "../../components/UI/Pagination/Pagination"
+import Pagination from "../../components/UI/Pagination/Pagination";
 import DisplayChoose from "../../components/UI/DisplayChoose/DisplayChoose";
 
 function SearchPage(props) {
@@ -20,23 +20,45 @@ function SearchPage(props) {
       ]
     )
   );
+  const initial = {
+    category: -1,
+    minPrice: 1,
+    maxPrice: null,
+    region: "Будь-який",
+    isNew: undefined,
+    sortBy: "",
+  };
+
   const [oldQuerry, setOldQuerry] = useState("");
   const [oldFilter, setOldFilter] = useState({});
-  const [filter, setFilter] = useState({});
+  const [filter, setFilter] = useState({ ...initial });
   const [curPage, setCurPage] = useState(1);
   const perPage = 7;
   const [lotDisplay, setLotDisplay] = useState("list");
   const [getLots, lots, totalCount, isLoading, error] = useGetLots();
+  const [changed, setChanged] = useState({});
+
+  useEffect(() => {
+    const res = {};
+    for (let a in filter) {
+      if (filter[a] !== initial[a]) {
+        res[a] = filter[a];
+      }
+    }
+    setChanged(res);
+    console.log("d");
+  }, [filter]);
+
   //fetch data
   useEffect(() => {
     const doFetching = () => {
       setCurPage(1);
-      getLots(curPage, perPage, filter);
+      getLots(curPage, perPage, changed);
       setOldQuerry(querry);
-      setOldFilter(filter);
+      setOldFilter(changed);
     };
-    if (oldQuerry !== querry || oldFilter !== filter) doFetching();
-  }, [querry, filter, oldQuerry, getLots, curPage, oldFilter]);
+    if (oldQuerry !== querry || oldFilter !== changed) doFetching();
+  }, [querry, oldQuerry, getLots, curPage, oldFilter, changed]);
 
   //get data from url
   useEffect(() => {
@@ -51,8 +73,13 @@ function SearchPage(props) {
     }
   }, []);
   const onFilterChange = (e) => {
-    setFilter({...filter, ...e});
+    setFilter({ ...filter, ...e });
   };
+  if (isLoading) {
+    return <Loader />;
+  }
+  console.log(totalCount, perPage, curPage);
+
   return (
     <>
       <div className={css.searchContainer}>
@@ -72,7 +99,10 @@ function SearchPage(props) {
                 <option>Як ми це зробимо?</option>
               </select>
             </div>
-            <DisplayChoose setLotDisplay={setLotDisplay} lotDisplay={lotDisplay}/>
+            <DisplayChoose
+              setLotDisplay={setLotDisplay}
+              lotDisplay={lotDisplay}
+            />
           </div>
         </div>
         {isLoading && lots ? (
@@ -80,7 +110,15 @@ function SearchPage(props) {
         ) : (
           <LotContainer display={lotDisplay} lots={lots} />
         )}
-        <Pagination totalCount={totalCount} limit={perPage} page={curPage} changePage={setCurPage}/>
+        <Pagination
+          totalCount={totalCount}
+          limit={perPage}
+          page={curPage}
+          changePage={(e) => {
+            setCurPage(e);
+            getLots(e, perPage, changed);
+          }}
+        />
       </div>
     </>
   );

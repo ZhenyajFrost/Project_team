@@ -37,6 +37,11 @@ export default function CreateLot({ data = {} }) {
   }, []);
   const onInput = (e) => {
     const { name, value } = e.target ? e.target : e;
+
+    if (!isNaN(Number(value)) && value.toString().length > 10) {
+      Notify.failure("число не може перевищувати 10000000000");
+    }
+
     setLot({ ...lot, [name]: value });
   };
   const onSubmit = (e) => {
@@ -62,13 +67,16 @@ export default function CreateLot({ data = {} }) {
       lot.city = lot.city.label;
     }
     lot.userId = user.id;
-    lot.timeTillEnd = new Date().setDate(new Date().getDate() + lot.timeTillEnd);
+    lot.timeTillEnd = new Date().setDate(
+      new Date().getDate() + lot.timeTillEnd
+    );
     lot.category = lot.category.id;
 
     if (data.id) {
       const answ = {};
       for (let a of Object.keys(lot)) {
-        if (lot[a] !== data[a]) {
+        if (lot[a] !== data[a] && lot[a] !== null && lot[a] !== undefined) {
+          console.log(lot[a]);
           answ[a] = lot[a];
         }
       }

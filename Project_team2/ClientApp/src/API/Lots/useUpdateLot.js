@@ -11,27 +11,28 @@ const useUpdateLot = () => {
 
   const updateLot = async (lotId, fieldsToUpdate) => {
     setLoading(true);
-    try {
-      const response = await axios
-        .post(`${LOTS_ENDPOINT}/updateLot`, {
-          request: {
-            token,
-            lotId,
-            fieldsToUpdate,
-          },
-        } )
-        .then((V) => {
-          Notiflix.Notify.success("Лот успішно оновленно");
-        });
 
-      Notiflix.Notify.success("Лот успішно оновленно. Очікуйте підтвердження адміністратором!");
-    } catch (error) {
-      Notiflix.Notify.failure(
-        `Лот не оновленно! Тикніть для інформації`,
-        () => {
-          Notiflix.Notify.info(`${error.response.data}`);
-        }
+    const { imageURLs } = fieldsToUpdate;
+    fieldsToUpdate.imageURLs = undefined;
+    if (!fieldsToUpdate.timeTillEnd) {
+      fieldsToUpdate.timeTillEnd = undefined;
+    }
+    if(fieldsToUpdate.category){
+      fieldsToUpdate.category = fieldsToUpdate.category.toString()
+    }
+    try {
+      const response = await axios.post(`${LOTS_ENDPOINT}/updateLot`, {
+        token,
+        lotId,
+        fieldsToUpdate,
+        imageURLs,
+      });
+
+      Notiflix.Notify.success(
+        "Лот успішно оновленно. Очікуйте підтвердження адміністратором!"
       );
+    } catch (error) {
+      Notiflix.Notify.failure(`Лот не оновленно! Відбулась помилка.`);
       setError(error);
     } finally {
       setLoading(false);
