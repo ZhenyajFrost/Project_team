@@ -9,7 +9,7 @@ import LotContainer from "../../components/UI/LotContainer/LotContainer";
 import Loader from "../../components/Loader/Loader";
 import useGetLots from "../../API/Lots/Get/useGetLots";
 import { Notify } from "notiflix";
-import Pagination from "../../components/UI/Pagination/Pagination"
+import Pagination from "../../components/UI/Pagination/Pagination";
 import DisplayChoose from "../../components/UI/DisplayChoose/DisplayChoose";
 
 function SearchPage(props) {
@@ -51,8 +51,13 @@ function SearchPage(props) {
     }
   }, []);
   const onFilterChange = (e) => {
-    setFilter({...filter, ...e});
+    setFilter({ ...filter, ...e });
   };
+  if (isLoading) {
+    return <Loader />;
+  }
+  console.log(totalCount, perPage, curPage);
+
   return (
     <>
       <div className={css.searchContainer}>
@@ -72,7 +77,10 @@ function SearchPage(props) {
                 <option>Як ми це зробимо?</option>
               </select>
             </div>
-            <DisplayChoose setLotDisplay={setLotDisplay} lotDisplay={lotDisplay}/>
+            <DisplayChoose
+              setLotDisplay={setLotDisplay}
+              lotDisplay={lotDisplay}
+            />
           </div>
         </div>
         {isLoading && lots ? (
@@ -80,7 +88,12 @@ function SearchPage(props) {
         ) : (
           <LotContainer display={lotDisplay} lots={lots} />
         )}
-        <Pagination totalCount={totalCount} limit={perPage} page={curPage} changePage={setCurPage}/>
+        <Pagination
+          totalCount={totalCount}
+          limit={perPage}
+          page={curPage}
+          changePage={(e)=>{setCurPage(e); getLots(e, perPage, filter);}}
+        />
       </div>
     </>
   );
