@@ -1345,7 +1345,7 @@ WHERE
                 {
                     connection.Open();
 
-                    string query = "SELECT * FROM Lots WHERE Approved = false";
+                    string query = "SELECT * FROM Lots WHERE Approved = false AND Unactive = true";
 
                     List<Lot> unapprovedLots = new List<Lot>();
 
