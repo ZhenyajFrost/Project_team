@@ -18,6 +18,7 @@ import Bid from "../components/Bid/Bid.js";
 import useGetUserLots from "../API/Lots/Get/useGetUserLots.js";
 import Carousel from "../components/Carousel/Carousel.js";
 import Lot from "../components/Lot/Lot.js";
+import { getLocalStorage } from "../utils/localStorage.js";
 
 function LotPage() {
   const id = parseInt(window.location.href.split("/").pop(), 10);
@@ -192,7 +193,7 @@ function LotPage() {
             setVisible={setModal}
             children={
               <BuyLotModal
-                userId={user.id}
+                userId={getLocalStorage('user').id}
                 lotUserId={lot.userId}
                 killMyself={() => setModal(false)}
                 maxBid={maxBid}
