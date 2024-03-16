@@ -8,7 +8,7 @@ import "./custom.css";
 import SearchPage from "./pages/Search/SearchPage.js";
 import ProfileLots from "./pages/Profile/Lots/Lots.js";
 import ProfileSettings from "./pages/Profile/Settings/Settings.js";
-import ProfileLikedLots from "./pages/Profile/LikedLots.js";
+import ProfileLikedItems from "./pages/Profile/LikedItems.js";
 import EditPage from "./pages/Edit/EditPage.js"
 
 import ProfileLayout from "./pages/Profile/ProfileLayout.js";
@@ -70,7 +70,7 @@ export default class App extends Component {
                   <Route path={`${url}/settings`} component={ProfileSettings} />
                   <Route
                     path={`${url}/favorites`}
-                    component={ProfileLikedLots}
+                    component={ProfileLikedItems}
                   />
                 </Switch>
               </ProfileLayout>

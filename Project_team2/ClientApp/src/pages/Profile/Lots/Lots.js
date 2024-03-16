@@ -15,7 +15,7 @@ import Loader from '../../../components/Loader/Loader.js'
 function Lots () {
     const user = getLocalStorage('user');
     const history = useHistory();
-    const [activeTab, setActiveTab] = useState('active');
+    const [activeTab, setActiveTab] = useState(sessionStorage.getItem('activeTab') || 'active');
 
     const [filters, setFilters] = useState({});
     const [categoryClicked, setCategoryClicked] = useState({value: ''});
@@ -47,7 +47,6 @@ function Lots () {
     useEffect(() => {
         setCategoryClicked({value: ''});
         setFilters({});
-        setPagination({pageNumber: 1, pageSize: 9})
     }, [activeTab])
 
 
@@ -60,6 +59,7 @@ function Lots () {
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
+        sessionStorage.setItem('activeTab', tab);
         setCategoryClicked({value: ''});
         setFilters({});
 
@@ -119,7 +119,7 @@ function Lots () {
                 <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={totalCount} categoryClicked={categoryClicked}/>
 
                 <div className={css.lots}>
-                    {_totalCount === 0 ? "No lots Found" : isLoading ? <Loader/> : <LotContainer lots={lots} display="grid-3col" lotStyle="small" isLoading={isLoading}/>}
+                    {_totalCount === 0 ? "No lots Found" : isLoading ? <Loader/> : <LotContainer lots={lots} display="listWrap" lotStyle="small" isLoading={isLoading}/>}
                     {isLoading ? '' : <Pagination totalCount={_totalCount} page={pagination.pageNumber} limit={pagination.pageSize} changePage={handleChangePage} />}
                 </div>
             </div>
