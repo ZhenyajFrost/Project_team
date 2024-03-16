@@ -574,10 +574,11 @@ namespace Project2.Controllers
                 }
 
                 // Добавляем поля Approved и Active в запрос на обновление лота
-                request.FieldsToUpdate.Add("Approved", "false");
-                request.FieldsToUpdate.Add("Active", "false");
-                request.FieldsToUpdate.Add("Unactive", "true");
 
+                request.FieldsToUpdate.Add("Approved", "0"); // Используем числовое представление логического значения false
+                request.FieldsToUpdate.Add("Active", "0"); // Аналогично для поля Active
+                request.FieldsToUpdate.Add("Unactive", "1"); // Если нужно, аналогично для Unactive
+                request.FieldsToUpdate.Add("Archive", "1");
                 // Открываем соединение с базой данных
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
@@ -598,10 +599,19 @@ namespace Project2.Controllers
                         return BadRequest(new { message = "Fields to update are required" });
                     }
 
+                    // Проверяем, нужно ли обновлять список изображений
+                    bool updateImages = request.ImageURLs != null && request.ImageURLs.Any();
+
                     // Добавляем каждое поле из запроса к запросу на обновление
                     foreach (var field in request.FieldsToUpdate)
                     {
                         query += $"{field.Key} = '{field.Value}', ";
+                    }
+
+                    // Если нужно обновлять список изображений, добавляем его в запрос
+                    if (updateImages)
+                    {
+                        query += "ImageURLs = @ImageURLs, ";
                     }
 
                     // Удаляем последнюю запятую и пробел из запроса
@@ -613,6 +623,12 @@ namespace Project2.Controllers
                     // Выполняем запрос на обновление
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
+                        // Если нужно обновлять список изображений, добавляем параметр
+                        if (updateImages)
+                        {
+                            command.Parameters.AddWithValue("@ImageURLs", string.Join(",", request.ImageURLs));
+                        }
+
                         command.ExecuteNonQuery();
                     }
 
@@ -846,7 +862,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("UnactiveLot")]
-        public IActionResult UnactiveLot(int id, [FromBody] EditStatusLot request)
+        public IActionResult UnactiveLot( [FromBody] EditStatusLot request)
         {
             try
             {
@@ -859,10 +875,10 @@ namespace Project2.Controllers
                 {
                     connection.Open();
 
-                    string query = "UPDATE Lots SET active = false, AllowBids = false, unactive = true, archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
+                    string query = "UPDATE Lots SET approved = false, active = false, AllowBids = false, unactive = true, archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@id", id);
+                        command.Parameters.AddWithValue("@id", request.LotId);
                         command.ExecuteNonQuery();
                     }
 
@@ -875,8 +891,9 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
         [HttpPost("ArchiveLot")]
-        public IActionResult ArchiveLot(int id, [FromBody] EditStatusLot request)
+        public IActionResult ArchiveLot( [FromBody] EditStatusLot request)
         {
             try
             {
@@ -892,7 +909,7 @@ namespace Project2.Controllers
                     string query = "UPDATE Lots SET active = false, unactive = false, archive = true, AllowBids = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@id", id);
+                        command.Parameters.AddWithValue("@id", request.LotId);
                         command.ExecuteNonQuery();
                     }
 
@@ -905,9 +922,8 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-        
         [HttpPost("SetAllowBids")]
-        public IActionResult SetAllowBids(int id, [FromBody] EditStatusLot request)
+        public IActionResult SetAllowBids( [FromBody] EditStatusLot request)
         {
             try
             {
@@ -917,7 +933,7 @@ namespace Project2.Controllers
                 bool isAdmin = CheckUserIsAdmin(userId);
 
                 // Проверяем, является ли пользователь владельцем лота
-                bool isOwner = CheckUserIsOwnerOfLot(userId, id);
+                bool isOwner = CheckUserIsOwnerOfLot(userId, request.LotId);
 
                 // Если пользователь не является администратором и не владельцем лота, возвращаем ошибку
                 if (!isAdmin && !isOwner)
@@ -934,7 +950,7 @@ namespace Project2.Controllers
                     bool isApproved;
                     using (MySqlCommand checkApprovedCommand = new MySqlCommand(checkApprovedQuery, connection))
                     {
-                        checkApprovedCommand.Parameters.AddWithValue("@id", id);
+                        checkApprovedCommand.Parameters.AddWithValue("@id", request.LotId);
                         isApproved = Convert.ToBoolean(checkApprovedCommand.ExecuteScalar());
                     }
 
@@ -948,7 +964,7 @@ namespace Project2.Controllers
                     string query = "UPDATE Lots SET AllowBids = true WHERE id = @id";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@id", id);
+                        command.Parameters.AddWithValue("@id", request.LotId);
                         command.ExecuteNonQuery();
                     }
 
@@ -963,7 +979,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("isWaitingPaymentLot")]
-        public IActionResult isWaitingPaymentLot(int id, [FromBody] EditStatusLot request)
+        public IActionResult isWaitingPaymentLot([FromBody] EditStatusLot request)
         {
             try
             {
@@ -979,7 +995,7 @@ namespace Project2.Controllers
                     string query = "UPDATE Lots SET Active = false, Unactive = false, AllowBids = false, Archive = false, isWaitingDelivery = false, isWaitingPayment = true WHERE id = @id";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@id", id);
+                        command.Parameters.AddWithValue("@id", request.LotId);
                         command.ExecuteNonQuery();
                     }
 
@@ -1375,7 +1391,6 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-
         [HttpGet("getUserLots")]
         public IActionResult GetUserLots(int userId, string? searchQuery = null, int? category = null, decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, bool active = false, int pageNumber = 1, int pageSize = 10)
         {
@@ -1644,7 +1659,7 @@ WHERE
             }
         }
         [HttpPost("ApproveLot")]
-        public IActionResult ApproveLot(int id, [FromBody] EditStatusLot request)
+        public IActionResult ApproveLot([FromBody] EditStatusLot request)
         {
             try
             {
@@ -1659,11 +1674,11 @@ WHERE
                     connection.Open();
 
                     // Обновляем состояние лота в базе данных
-                    string query = "UPDATE Lots SET Approved = true, active = true, AllowBids = true, unactive = false, archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
+                    string query = "UPDATE Lots SET Approved = true, Active = true, AllowBids = false, unactive = false, archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@id", id);
-                        Console.WriteLine("@id", id);
+                        command.Parameters.AddWithValue("@id", request.LotId);
+                        Console.WriteLine("@id", request.LotId);
                         command.ExecuteNonQuery();
                     }
 
@@ -1710,7 +1725,9 @@ WHERE
         public string Token { get; set; }
         public int LotId { get; set; }
         public Dictionary<string, string> FieldsToUpdate { get; set; }
+        public List<string> ImageURLs { get; set; } = new List<string>();
     }
+
     public class LotModel
     {
         public int Id { get; set; }
