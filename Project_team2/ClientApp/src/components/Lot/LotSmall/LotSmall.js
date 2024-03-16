@@ -10,6 +10,8 @@ import { getLocalStorage } from "../../../utils/localStorage";
 import useUnactiveLot from "../../../API/Lots/Status/useUnactiveLot";
 import useArchiveLot from "../../../API/Lots/Status/useArchiveLot";
 import useUpdateLot from '../../../API/Lots/useUpdateLot';
+import useLikeLot from '../../../API/Lots/useLikeLot';
+import LikeButton from '../../UI/LikeButton/LikeButton' 
 
 function LotSmall({
   id,
@@ -25,12 +27,13 @@ function LotSmall({
   const history = useHistory();
   const token = getLocalStorage('token');
 
+  const isLiked = getLocalStorage('user').likedLotIds.includes(id);
+
   const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date()) / 10000);
   const { deleteLot, isLoading, error } = useDeleteLot();
-
   const [unactiveLot, isLoadingUn, errorUn] = useUnactiveLot();
   const [archiveLot, isLoadingAr, errorAr] = useArchiveLot();
-  const {updateLot, isLoadingAc, errorAc} = useUpdateLot();
+  const { updateLot, isLoadingAc, errorAc } = useUpdateLot();
 
 
   useEffect(() => {
@@ -40,59 +43,99 @@ function LotSmall({
   }, [ttl]);
   const [dots, setDots] = useState(false);
   const [thing, setThing] = useState(false);
+
+  const handleStatusClick = (_status) => {
+
+    switch (_status) {
+      case 'unactive': {
+        unactiveLot(token, id);
+        break;
+      }
+      case 'active': {
+        updateLot(id, {});
+        break;
+      }
+      case 'archive': {
+        archiveLot(token, id)
+        break;
+      }
+    }
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+
+  }
+
   return (
     <div className={css.lot} onMouseEnter={() => setDots(Number(userId) === Number(getLocalStorage("user").id))} onMouseLeave={() => setDots(false)}>
-      {dots ? (
-        <div className={css.dots} onClick={() => setThing(!thing)}>
-          <svg>
-            <use href={`${svg}#dots_vertical`} />
-          </svg>
-          {thing ? (
-            <div className={css.thing}>
-              <p>
-                <NavLink to={`/edit/${id}`}>Редагувати</NavLink>
-              </p>
-              {status === 'unactive' ?
-                <>
-                  <p onClick={() => archiveLot(token, id)}>Перемістити в архів</p>
-                  <p onClick={() => updateLot(id, {})}>Перемістити в активні</p>
-                </> :
-                <></>
-              }
 
-              {status === 'active' ?
-                <>
-                  <p onClick={() => archiveLot(token, id)}>Перемістити в архів</p>
-                  <p onClick={() => unactiveLot(token, id)}>Перемістити в неактивні</p>
-                </> :
-                <></>
-              }
+      {
+        isLiked ? (
+          <div className={`${css.dots}`} onClick={() => setTimeout(() => {
+            window.location.reload();
+          }, 1000)}>
+            <LikeButton lotId={id}/>
+          </div>
 
-              {status === 'archive' ?
-                <>
-                  <p onClick={() => updateLot(id, {})}>Перемістити в активні</p>
-                </> :
-                <></>
-              }
+        ) : (
+          <></>
+        )
+      }
 
-              <hr />
-              <p
-                className={css.delete}
-                onClick={() => {
-                  if (window.confirm("Ви точно хочете видалити " + title))
-                    deleteLot(id);
-                }}
-              >
-                Видалити
-              </p>
-            </div>
-          ) : (
-            <></>
-          )}
-        </div>
-      ) : (
-        <></>
-      )}
+      {
+        dots && !isLiked ? (
+          <div className={css.dots} onClick={() => setThing(!thing)}>
+            <svg>
+              <use href={`${svg}#dots_vertical`} />
+            </svg>
+            {thing ? (
+              <div className={css.thing}>
+                <p>
+                  <NavLink to={`/edit/${id}`}>Редагувати</NavLink>
+                </p>
+                {status === 'unactive' ?
+                  <>
+                    <p onClick={() => handleStatusClick('archive')}>Перемістити в архів</p>
+                    <p onClick={() => handleStatusClick('active')}>Перемістити в активні</p>
+                  </> :
+                  <></>
+                }
+
+                {status === 'active' ?
+                  <>
+                    <p onClick={() => handleStatusClick('archive')}>Перемістити в архів</p>
+                    <p onClick={() => handleStatusClick('unactive')}>Перемістити в неактивні</p>
+                  </> :
+                  <></>
+                }
+
+                {status === 'archive' ?
+                  <>
+                    <p onClick={() => handleStatusClick('active')}>Перемістити в активні</p>
+                  </> :
+                  <></>
+                }
+
+                <hr />
+                <p
+                  className={css.delete}
+                  onClick={() => {
+                    if (window.confirm("Ви точно хочете видалити " + title))
+                      deleteLot(id);
+                  }}
+                >
+                  Видалити
+                </p>
+              </div>
+            ) : (
+              <></>
+            )}
+          </div>
+        ) : (
+          <></>
+        )
+      }
       <img
         src={
           imageURLs[0]
@@ -121,11 +164,11 @@ function LotSmall({
             <svg >
               <use href={`${svg}#location`} />
             </svg>
-            {location ?  `м. ${location}` : "Location"}
+            {location ? `м. ${location}` : "Location"}
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

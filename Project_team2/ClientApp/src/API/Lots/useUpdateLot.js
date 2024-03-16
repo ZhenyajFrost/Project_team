@@ -15,10 +15,9 @@ const useUpdateLot = () => {
       const response = await axios
         .post(`${LOTS_ENDPOINT}/updateLot`, {
           token, lotId, fieldsToUpdate
-        })
-        .then((V) => {
-          Notiflix.Notify.success("Лот успішно оновленно");
         });
+
+      Notiflix.Notify.success("Лот успішно оновленно. Очікуйте підтвердження адміністратором!");
     } catch (error) {
       Notiflix.Notify.failure(
         `Лот не оновленно! Тикніть для інформації`,

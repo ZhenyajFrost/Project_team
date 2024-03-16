@@ -578,7 +578,7 @@ namespace Project2.Controllers
                 request.FieldsToUpdate.Add("Approved", "0"); // Используем числовое представление логического значения false
                 request.FieldsToUpdate.Add("Active", "0"); // Аналогично для поля Active
                 request.FieldsToUpdate.Add("Unactive", "1"); // Если нужно, аналогично для Unactive
-                request.FieldsToUpdate.Add("Archive", "1");
+                request.FieldsToUpdate.Add("Archive", "0");
                 // Открываем соединение с базой данных
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {

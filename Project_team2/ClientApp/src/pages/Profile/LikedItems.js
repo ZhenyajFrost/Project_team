@@ -4,8 +4,9 @@ import LotContainer from '../../components/UI/LotContainer/LotContainer'
 import useGetUserLikedLots from '../../API/Lots/Get/useGetUserLikedLots';
 import useGetUserSubscriptions from '../../API/User/Get/useGetUserSubscriptions';
 import Loader from '../../components/Loader/Loader';
+import UserContainer from '../../components/UI/UserContainer/UserContainer';
 
-function LikedLots() {
+function LikedItems() {
     const [activeTab, setActiveTab] = useState('lots');
 
     const [getLots, lots, totalCount, isLoading, error] = useGetUserLikedLots();
@@ -44,15 +45,11 @@ function LikedLots() {
                 </li>
             </ul>
 
-            <div className={css.body}>
+            <div className={`${css.body}Liked`}>
                 <div className={css.lots}>
-                    {activeTab === 'lots' && isLoading ? <Loader/> :<LotContainer lots={lots} display="grid-4col" lotStyle="small" />}
-                    {activeTab === 'users' &&
-                        <div className={css.userContainer}>
-                            
-
-                        </div>
-                    }
+                {console.log(activeTab, isLoadingUS, likedUsers)}
+                    {activeTab === 'lots' && isLoading ? <Loader/> :<LotContainer lots={lots} display="listWrap" lotStyle="small" />}
+                    {activeTab === 'users' ? <Loader/> : <UserContainer users={likedUsers}/>}
                 </div>
             </div>
 
@@ -61,4 +58,4 @@ function LikedLots() {
 
 }
 
-export default LikedLots;
+export default LikedItems;
