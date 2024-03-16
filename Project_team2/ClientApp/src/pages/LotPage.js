@@ -159,10 +159,12 @@ function LotPage() {
             setVisible={setModal}
             children={
               <BuyLotModal
+              killMyself={()=>setModal(false)}
                 maxBid={maxBid}
                 minStep={lot.minStepPrice}
                 minPrice={lot.minPrice}
                 lotId={lot.id}
+                sellOn={lot.price}
               />
             }
           />

@@ -98,6 +98,7 @@ svg {
   letter-spacing: 0em;
   text-align: left;
   color: var(--borderSecondary);
+  margin-bottom: 0;
 }
 .priceCont {
   display: flex;

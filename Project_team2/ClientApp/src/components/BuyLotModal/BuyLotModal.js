@@ -1,14 +1,18 @@
 import React, { useState } from "react";
-import css from "./style.module.css";
+import css from "../../styles/LotPage.module.css";
+import style from "./style.module.css";
 import { Notify } from "notiflix";
 import useAddBid from "../../API/Lots/useAddBid";
 import { getLocalStorage } from "../../utils/localStorage";
 
-function BuyLotModal({lotId,  maxBid, minStep, minPrice }) {
+function BuyLotModal({ lotId, maxBid, minStep, minPrice, sellOn, killMyself }) {
   const token = getLocalStorage("token");
   const [price, setPrice] = useState(
     Math.max(minPrice, maxBid.price) + minStep
   );
+  const handeBidOpt = (e)=>{
+    setPrice(price+Number(e))
+  }
   const [addBid, isLoading] = useAddBid();
   const buy = () => {
     if (price < Math.max(minPrice, maxBid.price) + minStep) {
@@ -19,12 +23,13 @@ function BuyLotModal({lotId,  maxBid, minStep, minPrice }) {
         )}) ціну щонайменше на мінімальну ціну кроку(${minStep})`
       );
     } else {
-      addBid({lotId,bidAmount:price, token});
+      addBid({ lotId, bidAmount: price, token });
     }
   };
+  const bids = [minStep, minStep*5, minStep*10, minStep*50, minStep*100]
   return (
-    <div>
-      <h1>Купити лот</h1>
+    <div className={style.main}>
+      <h1 className={style.head}>Купити лот</h1>
       <div>
         <p className={css.priceTag}>Поточна ставка</p>
         <p className={css.price}>
@@ -36,20 +41,29 @@ function BuyLotModal({lotId,  maxBid, minStep, minPrice }) {
       </p>
       <hr />
       <p>Ставка</p>
-      <input
-        value={price}
-        onInput={(e) => {
-          const num = Number(e.target.value);
-          if (isNaN(num)) {
-            Notify.warning("Будь ласка, введіть число");
-          } else {
-            setPrice(num);
-          }
-        }}
-      />
-      <div className={css.buyBtn} onClick={buy}>
-        Залишити ставку
+
+      <div className={style.bidCont}>
+        <input
+          value={price}
+          onInput={(e) => {
+            const num = Number(e.target.value);
+            if (isNaN(num)) {
+              Notify.warning("Будь ласка, введіть число");
+            } else {
+              setPrice(num);
+            }
+          }}
+        />
+
+        <div className={css.buyBtn} onClick={buy}>
+          Залишити ставку
+        </div>
       </div>
+      <div className={style.bidCont}>
+          {bids.map(v=><div  className={style.bidOpt} onClick={()=>handeBidOpt(v)}>{v}</div>)}
+          <div className={style.bidOpt +" "+style.noPlus} onClick={()=>setPrice(sellOn)}>Купити одразу</div>
+      </div>
+      <div className={style.suicide} onClick={killMyself}>x</div>
     </div>
   );
 }
