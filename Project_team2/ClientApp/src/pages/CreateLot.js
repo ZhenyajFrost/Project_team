@@ -68,7 +68,8 @@ export default function CreateLot({ data = {} }) {
     if (data.id) {
       const answ = {};
       for (let a of Object.keys(lot)) {
-        if (lot[a] !== data[a]) {
+        if (lot[a] !== data[a] && lot[a]!==null && lot[a]!==undefined) {
+          console.log(lot[a]);
           answ[a] = lot[a];
         }
       }

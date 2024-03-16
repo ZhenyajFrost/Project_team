@@ -11,15 +11,20 @@ const useUpdateLot = () => {
 
   const updateLot = async (lotId, fieldsToUpdate) => {
     setLoading(true);
+
+    const { imageURLs } = fieldsToUpdate;
+    fieldsToUpdate.imageURLs = undefined;
+    if (!fieldsToUpdate.timeTillEnd) {
+      fieldsToUpdate.timeTillEnd = undefined;
+    }
     try {
       const response = await axios
         .post(`${LOTS_ENDPOINT}/updateLot`, {
-          request: {
-            token,
-            lotId,
-            fieldsToUpdate,
-          },
-        } )
+          token,
+          lotId,
+          fieldsToUpdate,
+          imageURLs,
+        })
         .then((V) => {
           Notiflix.Notify.success("Лот успішно оновленно");
         });
