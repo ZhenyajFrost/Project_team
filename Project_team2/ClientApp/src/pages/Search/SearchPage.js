@@ -9,6 +9,7 @@ import LotContainer from "../../components/UI/LotContainer/LotContainer";
 import Loader from "../../components/Loader/Loader";
 import useGetLots from "../../API/Lots/Get/useGetLots";
 import { Notify } from "notiflix";
+import Pagination from "../../components/UI/Pagination/Pagination"
 import DisplayChoose from "../../components/UI/DisplayChoose/DisplayChoose";
 
 function SearchPage(props) {
@@ -26,7 +27,6 @@ function SearchPage(props) {
   const perPage = 7;
   const [lotDisplay, setLotDisplay] = useState("list");
   const [getLots, lots, totalCount, isLoading, error] = useGetLots();
-  console.log(lots);
   //fetch data
   useEffect(() => {
     const doFetching = () => {
@@ -46,21 +46,11 @@ function SearchPage(props) {
       const obj = {};
       args.split("&").forEach((v) => {
         obj[v.split("=")[0]] = v.split("=")[1];
-        console.log(v);
       });
       setFilter(obj);
     }
   }, []);
   const onFilterChange = (e) => {
-
-    // if (e.category) {
-    //   if (isNaN(Number(e.category))) {
-    //     return;
-    //   } else {
-    //     e.category = Number(e.category);
-    //   }
-    // }
-    console.log("зміна фільртра на", e)
     setFilter({...filter, ...e});
   };
   return (
@@ -82,12 +72,6 @@ function SearchPage(props) {
                 <option>Як ми це зробимо?</option>
               </select>
             </div>
-            {/* <svg onClick={() => setLotDisplay("grid-2col")}>
-              <use href={ lotDisplay === 'grid-2col' ? `${svg}#gridView` : `${svg}#gridViewUn` }  />
-            </svg>
-            <svg onClick={() => setLotDisplay("list")}>
-              <use href={lotDisplay === 'list'? `${svg}#listView` : `${svg}#listViewUn`} />
-            </svg> */}
             <DisplayChoose setLotDisplay={setLotDisplay} lotDisplay={lotDisplay}/>
           </div>
         </div>
@@ -96,6 +80,7 @@ function SearchPage(props) {
         ) : (
           <LotContainer display={lotDisplay} lots={lots} />
         )}
+        <Pagination totalCount={totalCount} limit={perPage} page={curPage} changePage={setCurPage}/>
       </div>
     </>
   );

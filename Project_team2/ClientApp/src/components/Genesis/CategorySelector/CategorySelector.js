@@ -6,7 +6,6 @@ import css from "./style.module.css"
 import CategoryModal from "../CategoryModal/CategoryModal";
 
 function CategorySelector({ selectedCat, onCatChange }) {
-  console.log(selectedCat);
   const [modal, setModal] = useState(false);
 
   if (!selectedCat) {

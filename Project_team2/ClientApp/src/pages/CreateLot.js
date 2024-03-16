@@ -15,10 +15,10 @@ export default function CreateLot({ data = {} }) {
   const initialState = {
     title: "",
     category: 0,
-    endOn: 1,
-    minimalBid: 0,
+    timeTillEnd: 1,
+    minPrice: 0,
     minStepPrice: 0,
-    sellOn: Infinity,
+    price: 1000000000000000000000000000000000,
     isNew: true,
     imageURLs: [],
     region: {},
@@ -44,7 +44,7 @@ export default function CreateLot({ data = {} }) {
     console.log(lot);
 
     for (let a of Object.keys(initialState)) {
-      if (!lot[a] && a!="isNew") {
+      if (!lot[a] && a != "isNew") {
         Notify.failure(`поле ${a} не заповнене`);
         return;
       }
@@ -62,13 +62,13 @@ export default function CreateLot({ data = {} }) {
       lot.city = lot.city.label;
     }
     lot.userId = user.id;
-    lot.timeTillEnd = new Date().setDate(new Date().getDate() + lot.endOn);
+    lot.timeTillEnd = new Date().setDate(new Date().getDate() + lot.timeTillEnd);
     lot.category = lot.category.id;
 
     if (data.id) {
-      const answ = {}
+      const answ = {};
       for (let a of Object.keys(lot)) {
-        if (lot[a]!==data[a]) {
+        if (lot[a] !== data[a]) {
           answ[a] = lot[a];
         }
       }
@@ -110,9 +110,9 @@ export default function CreateLot({ data = {} }) {
               const endDate = new Date(
                 today.setDate(today.getDate() + Number(t))
               );
-              onInput({ name: "endOn", value: endDate });
+              onInput({ name: "timeTillEnd", value: endDate });
             }}
-            value={lot.endOn}
+            value={lot.timeTillEnd}
           />
         </div>
         <div className={css.createSection}>
@@ -156,9 +156,9 @@ export default function CreateLot({ data = {} }) {
               <span>
                 <Input
                   className={css.priceInp}
-                  name="minimalBid"
+                  name="minPrice"
                   onInput={onInput}
-                  value={lot.minimalBid}
+                  value={lot.minPrice}
                   type="number"
                   placeHolder="1200"
                 />
@@ -184,9 +184,9 @@ export default function CreateLot({ data = {} }) {
               <span>
                 <Input
                   className={css.priceInp}
-                  name="sellOn"
+                  name="price"
                   onInput={onInput}
-                  value={lot.sellOn}
+                  value={lot.price}
                   type="number"
                   placeHolder="1200"
                 />
@@ -202,6 +202,7 @@ export default function CreateLot({ data = {} }) {
             onRegionChange={(e) => onInput({ name: "region", value: e })}
             onCityChange={(e) => onInput({ name: "city", value: e })}
             selectedRegion={lot.region}
+            selectedCity={lot.city}
           />
         </div>
         <div className={css.createSection}>
