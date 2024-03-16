@@ -7,7 +7,7 @@ import Loader from '../../components/Loader/Loader';
 import UserContainer from '../../components/UI/UserContainer/UserContainer';
 
 function LikedItems() {
-    const [activeTab, setActiveTab] = useState('lots');
+    const [activeTab, setActiveTab] = useState(sessionStorage.getItem('activeTab') || 'lots');
 
     const [getLots, lots, totalCount, isLoading, error] = useGetUserLikedLots();
     const [getUserSubscriptions, likedUsers, isLoadingUS, errorUs] = useGetUserSubscriptions();
@@ -20,12 +20,14 @@ function LikedItems() {
     useEffect(async () => {
         if (activeTab === 'lots')
             await getLots(pagination.page, pagination.pageSize);
-        if(activeTab === 'users')
+        if (activeTab === 'users')
             await getUserSubscriptions();
     }, [activeTab])
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
+        sessionStorage.setItem('activeTab', tab);
+
     };
 
     return (
@@ -47,9 +49,12 @@ function LikedItems() {
 
             <div className={`${css.body}Liked`}>
                 <div className={css.lots}>
-                {console.log(activeTab, isLoadingUS, likedUsers)}
-                    {activeTab === 'lots' && isLoading ? <Loader/> :<LotContainer lots={lots} display="listWrap" lotStyle="small" />}
-                    {activeTab === 'users' ? <Loader/> : <UserContainer users={likedUsers}/>}
+                    {activeTab === 'lots' ?
+                        (isLoading ? <Loader /> : <LotContainer lots={lots} display="listWrap" lotStyle="small" />) :
+                        activeTab === 'users' ?
+                            (isLoadingUS ? <Loader /> : <UserContainer users={likedUsers} />) :
+                            "Оберіть вкладку"
+                    }
                 </div>
             </div>
 

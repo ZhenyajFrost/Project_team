@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import css from './SubscribeButton.module.css';
+import css from './LikeButton.module.css';
 import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage';
 import svg from '../../../images/svgDef.svg';
-import useLikeLot from '../../../API/Lots/useLikeLot';
-import useSubscribeUser from '../../../API/User/useSubscribeUser';
+import useSubscribeUser from '../../../API/User/useSubscribeUser'
 import Notiflix from 'notiflix';
-import Button from '../Button/Button';
+import { timeout } from 'workbox-core/_private';
 
-const SubscribeButton = ({ userId }) => {
+
+const UserLikeButton = ({ userId, className }) => {
+    const combinedClasses = `${css.btn} ${className || ''}`;
     const user = getLocalStorage('user');
     const likedUsers = user ? user.likedUsers : null;
     
@@ -15,12 +16,12 @@ const SubscribeButton = ({ userId }) => {
 
     const isUserLiked = () => {
         if (likedUsers)
-            return likedUsers.some(id => userId === id);
+            return likedUsers.some(id => Number(userId) === Number(id));
         else
             return false
     }
 
-    const [subscribeUser, isLoading, error] = useSubscribeUser();
+    const [likeUser, isLoading, error] = useSubscribeUser();
 
     const [isLiked, setIsLiked] = useState(false);
 
@@ -31,18 +32,24 @@ const SubscribeButton = ({ userId }) => {
     const handleLike = async () => {
         if (token) {
             setIsLiked(prev => !prev)
-            await subscribeUser(token, userId)
+            await likeUser(token, userId)
         }
         else {
             Notiflix.Notify.info("Увійдіть у профіль спочатку");
         }
+
+        timeout((
+            window.location.reload()
+        ), 1000)
     }
 
     return (
-        <>
-            {isLiked ? <Button onClick={handleLike} className={css.btn}>Відписатись </Button> : <Button onClick={handleLike} className={css.btn}>Підписатись +</Button>}
-        </>
+        <div className={combinedClasses} onClick={handleLike}>
+            <svg>
+                <use href={`${svg}#${isLiked ? 'liked' : 'unliked'}`} />
+            </svg>
+        </div>
     );
 };
 
-export default SubscribeButton;
+export default UserLikeButton;

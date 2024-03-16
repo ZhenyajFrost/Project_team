@@ -91,7 +91,7 @@ function UserPage() {
             <Button onClick={handleButtonSearch}>Search</Button>
 
             <div className={css.body}>
-                <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={totalCount} />
+                <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={totalCount} categoryClicked={categoryClicked} />
 
                 <div className={css.lots}>
                     {_totalCount === 0 ? "No lots Found" : <LotContainer lots={lots} display="grid-3col" lotStyle="small" />}

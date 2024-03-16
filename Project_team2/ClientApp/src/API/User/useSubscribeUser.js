@@ -17,10 +17,10 @@ const useSubscribeUser = () => {
             const user = getLocalStorage('user');
             let updatedLikedUsers = [];
 
-            if (user.likedUsers.includes(userId)) {
-                updatedLikedUsers = user.likedUsers.filter(id => id !== userId);
+            if (user.likedUsers.includes(Number(userId))) {
+                updatedLikedUsers = user.likedUsers.filter(id => Number(id) !== Number(userId));
             } else {
-                updatedLikedUsers = [...user.likedUsers, userId];
+                updatedLikedUsers = [...user.likedUsers, Number(userId)];
             }
 
             setLocalStorage('user', {
