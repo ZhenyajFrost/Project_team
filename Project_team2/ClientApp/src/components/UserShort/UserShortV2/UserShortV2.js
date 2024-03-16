@@ -12,7 +12,7 @@ function UserShortV2({ user: { id, avatar, login, city, region, status = { imgId
         <div className={css.container} >
             <div className={css.info} onClick={() => history.push(`/user/${id}`)}>
                 <img src={avatar} alt="user avatar" className={css.avatar} />
-                <div>
+                <div className={css.header}>
                     <div className={css.login}>{login}</div>
                     <div className={css.location}>
                         <svg >

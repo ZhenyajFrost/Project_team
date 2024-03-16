@@ -5,7 +5,7 @@
     padding: 20px;
     border-radius: 24px;
     gap: 1vw;
-    min-width: 33%;
+    min-width: 30%;
     position: relative;
 }
 
@@ -67,4 +67,10 @@
 .like{
     position: absolute;
     right: 10px !important;
+}
+
+.header{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5vw;
 }

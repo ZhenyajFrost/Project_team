@@ -52,7 +52,7 @@ function LikedItems() {
                     {activeTab === 'lots' ?
                         (isLoading ? <Loader /> : <LotContainer lots={lots} display="listWrap" lotStyle="small" />) :
                         activeTab === 'users' ?
-                            (isLoadingUS ? <Loader /> : <UserContainer users={likedUsers} />) :
+                            (isLoadingUS ? <Loader /> : <UserContainer users={likedUsers} display="listWrap" />) :
                             "Оберіть вкладку"
                     }
                 </div>
