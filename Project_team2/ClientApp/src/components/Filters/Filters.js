@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import regions from "./regions.json";
 import cts from "../../Data/categories.json";
 import css from "./styles.module.css";
-import Notiflix, {Notify} from "notiflix";
+import Notiflix, { Notify } from "notiflix";
 
 function Filters({ onChange, initial }) {
   const [categories, setCategories] = useState([
-    { title: "Будь-яка категорія", id: -1, imgId:"any" },
+    { title: "Будь-яка категорія", id: -1, imgId: "any" },
     ...cts,
   ]);
   const [params, setParams] = useState({
@@ -17,8 +17,6 @@ function Filters({ onChange, initial }) {
     ...initial,
   });
   useEffect(() => {
-
-    console.log("dk");
     //перевірка ціни
     const minPrice = Number(params.minPrice);
     const maxPrice = Number(params.maxPrice);
@@ -44,9 +42,7 @@ function Filters({ onChange, initial }) {
 
     //регіон чек
     if (!regions.includes(params.region)) {
-      Notiflix.Notify.failure(
-        "Будь ласка, оберіть нормальну облaсть."
-      );
+      Notiflix.Notify.failure("Будь ласка, оберіть нормальну облaсть.");
       return;
     }
     for (let a in params) {
@@ -55,11 +51,10 @@ function Filters({ onChange, initial }) {
         return;
       }
     }
-
-
   }, [params, categories, onChange]);
-  const selCat = categories.find(v=>Number(v.id)===Number(initial.category))
-  console.log(initial.category);
+  const selCat = categories.find(
+    (v) => Number(v.id) === Number(initial.category)
+  );
   return (
     <div className={css.filterContainer}>
       <div className={css.filterItem}>
@@ -71,9 +66,15 @@ function Filters({ onChange, initial }) {
             setParams({ ...params, category: Number(e.target.value) });
           }}
         >
-          {selCat ? <option value={initial.category}>{selCat.title}</option> : ""}
+          {selCat ? (
+            <option value={initial.category}>{selCat.title}</option>
+          ) : (
+            ""
+          )}
           {categories.map((v) => (
-            <option key={v.id} value={v.id}>{v.title}</option>
+            <option key={v.id} value={v.id}>
+              {v.title}
+            </option>
           ))}
         </select>
       </div>

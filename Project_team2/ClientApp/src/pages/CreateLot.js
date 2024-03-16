@@ -44,7 +44,7 @@ export default function CreateLot({ data = {} }) {
     console.log(lot);
 
     for (let a of Object.keys(initialState)) {
-      if (!lot[a] && a!="isNew") {
+      if (!lot[a] && a != "isNew") {
         Notify.failure(`поле ${a} не заповнене`);
         return;
       }
@@ -66,9 +66,9 @@ export default function CreateLot({ data = {} }) {
     lot.category = lot.category.id;
 
     if (data.id) {
-      const answ = {}
+      const answ = {};
       for (let a of Object.keys(lot)) {
-        if (lot[a]!==data[a]) {
+        if (lot[a] !== data[a]) {
           answ[a] = lot[a];
         }
       }
@@ -201,7 +201,8 @@ export default function CreateLot({ data = {} }) {
           <LocationSelector
             onRegionChange={(e) => onInput({ name: "region", value: e })}
             onCityChange={(e) => onInput({ name: "city", value: e })}
-            selectedRegion={lot.region}
+            selectedRegion={{ label: lot.region, value: lot.region }}
+            selectedCity={{ label: lot.city, value: lot.city }}
           />
         </div>
         <div className={css.createSection}>

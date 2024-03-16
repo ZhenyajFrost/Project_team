@@ -9,7 +9,7 @@ const LocationSelector = ({ onRegionChange, onCityChange, selectedRegion, select
 
     useEffect(() => {
         const statesData = State.getStatesOfCountry("UA").map((state) => ({
-            value: state.isoCode,
+            value: state.name,
             label: state.name,
         }));
         setStatesOptions(statesData);
