@@ -5,7 +5,7 @@ import { Notify } from "notiflix";
 import useAddBid from "../../API/Lots/useAddBid";
 import { getLocalStorage } from "../../utils/localStorage";
 
-function BuyLotModal({ lotId, maxBid, minStep, minPrice, sellOn, killMyself }) {
+function BuyLotModal({ userId, lotUserId, lotId, maxBid, minStep, minPrice, sellOn, killMyself }) {
   const token = getLocalStorage("token");
   const [price, setPrice] = useState(
     Math.max(minPrice, maxBid.price) + minStep
@@ -15,6 +15,11 @@ function BuyLotModal({ lotId, maxBid, minStep, minPrice, sellOn, killMyself }) {
   }
   const [addBid, isLoading] = useAddBid();
   const buy = () => {
+
+    if(userId === lotUserId){
+      Notify.failure('Ви не можете ставити ставку на свій лот((((')
+      return;
+    }
     if (price < Math.max(minPrice, maxBid.price) + minStep) {
       Notify.failure(
         `Ціна має бути вищою за теперішню(${Math.max(

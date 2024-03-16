@@ -192,6 +192,8 @@ function LotPage() {
             setVisible={setModal}
             children={
               <BuyLotModal
+                userId={user.id}
+                lotUserId={lot.userId}
                 killMyself={() => setModal(false)}
                 maxBid={maxBid}
                 minStep={lot.minStepPrice}
