@@ -24,7 +24,7 @@ const useGetUserLots = () => {
             }); //FILTER IS NEEDED
             console.log('Lots successfully retrieved: ', response.data);
             setLots(response.data.userLots);
-            setTotalCount(response.data.totalCount)
+            setTotalCount(response.data.totalLotCount)
             setCategories(response.data.categoryCount)
         } catch (error) {
             console.error('Getting lots failed: ', error);

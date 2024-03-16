@@ -18,8 +18,6 @@ function UserPage() {
 
     const userId = parseInt(window.location.href.split("/").pop(), 10);
 
-
-
     const [getUserProfile, user, isLoadingUs, errorUs]= useGetUserProfile();
 
     const [filters, setFilters] = useState({});
@@ -94,7 +92,7 @@ function UserPage() {
                 <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={totalCount} categoryClicked={categoryClicked} />
 
                 <div className={css.lots}>
-                    {_totalCount === 0 ? "No lots Found" : <LotContainer lots={lots} display="grid-3col" lotStyle="small" />}
+                    {_totalCount === 0 ? "No lots Found" : <LotContainer lots={lots} display="listWrap" lotStyle="small" />}
                     <Pagination totalCount={_totalCount} page={pagination.pageNumber} limit={pagination.pageSize} changePage={handleChangePage} />
                 </div>
             </div>

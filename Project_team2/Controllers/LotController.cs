@@ -25,7 +25,8 @@ namespace Project2.Controllers
         private readonly int _smtpPort;
         private readonly string _smtpUsername;
         private readonly string _smtpPassword;
-        public LotsController() {
+        public LotsController()
+        {
             _connString = Config.MySqlConnection;
             _smtpServer = Config.SmtpServer;
             _smtpPort = Config.SmtpPort;
@@ -334,186 +335,171 @@ namespace Project2.Controllers
         }
 
         [HttpGet("getLotsByUser")]
-        public IActionResult GetLotsByUser(string Token, string? searchQuery = null, int? category = null, decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, bool active = false, bool archive = false, bool unactive = false, bool isWaitingPayment = false, bool isWaitingDelivery = false, int pageNumber = 1, int pageSize = 10)
+        public IActionResult GetLotsByUser([FromQuery] GetLotsByUserRequest request)
         {
-            int userId = (int)Convert.ToInt64(ExtractUserIdFromToken(Token));
+            int userId = (int)Convert.ToInt64(ExtractUserIdFromToken(request.Token));
+            int totalCount = 0;
+            int pageNumber = request.PageNumber;
+
             try
             {
-                // Открываем соединение с базой данных
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
 
-                    // Формируем условие для фильтрации по состоянию лотов
                     string condition = "";
-                    string isApproved = "";
-                    string lotState = "";
-                    if (active)
+                    if (request.Active)
                     {
                         condition += " AND Active = true";
-                        lotState = "Active";
-                        isApproved = "true";
                     }
-                    if (archive)
+                    if (request.Archive)
                     {
                         condition += " AND Archive = true";
-                        lotState += "Archive";
-                        isApproved = "false";
                     }
-                    if (unactive)
+                    if (request.Unactive)
                     {
                         condition += " AND Unactive = true";
-                        lotState += "Unactive";
-                        isApproved = "false";
                     }
-                    if (isWaitingPayment)
+                    if (request.IsWaitingPayment)
                     {
-                        condition += " AND isWaitingPayment = true";
+                        condition += " AND IsWaitingPayment = true";
                     }
-                    if (isWaitingDelivery)
+                    if (request.IsWaitingDelivery)
                     {
-                        condition += " AND isWaitingDelivery = true";
+                        condition += " AND IsWaitingDelivery = true";
                     }
 
-                    // Формируем условие для поиска по названию
-                    string searchCondition = "";
-                    if (!string.IsNullOrEmpty(searchQuery))
-                    {
-                        searchCondition = " AND Title LIKE @searchQuery";
-                    }
-
-                    // Формируем условие для выборки по категории
-                    string categoryCondition = "";
-                    if (category != null)
-                    {
-                        categoryCondition = " AND Category = @category";
-                    }
-
-                    // Формируем условие для выборки по цене
+                    string searchCondition = !string.IsNullOrEmpty(request.SearchQuery) ? " AND Title LIKE @SearchQuery" : "";
+                    string categoryCondition = request.Category.HasValue ? " AND Category = @Category" : "";
                     string priceCondition = "";
-                    if (minPrice != null)
+                    if (request.MinPrice.HasValue)
                     {
-                        priceCondition += " AND Price >= @minPrice";
+                        priceCondition += " AND Price >= @MinPrice";
                     }
-                    if (maxPrice != null)
+                    if (request.MaxPrice.HasValue)
                     {
-                        priceCondition += " AND Price <= @maxPrice";
+                        priceCondition += " AND Price <= @MaxPrice";
                     }
+                    string timeCondition = request.TimeTillEnd.HasValue ? " AND TimeTillEnd <= @TimeTillEnd" : "";
 
-                    // Формируем условие для выборки по времени окончания торгов
-                    string timeCondition = "";
-                    if (timeTillEnd != null)
+                    string query = $@"
+                SELECT *
+                FROM Lots
+                WHERE UserId = @UserId {condition} {searchCondition} {categoryCondition} {priceCondition} {timeCondition}
+                ORDER BY Id DESC
+                LIMIT @PageSize OFFSET @Offset";
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
-                        timeCondition += " AND TimeTillEnd <= @timeTillEnd";
-                    }
+                        command.Parameters.AddWithValue("@UserId", userId);
+                        command.Parameters.AddWithValue("@PageSize", request.PageSize);
+                        command.Parameters.AddWithValue("@Offset", (request.PageNumber - 1) * request.PageSize);
 
-                    // Запрос на получение общего количества лотов, созданных выбранным пользователем
-                    string countQuery = $"SELECT COUNT(*) FROM Lots WHERE UserId = @userId{condition}{searchCondition}{categoryCondition}{priceCondition}{timeCondition}";
-                    using (MySqlCommand countCommand = new MySqlCommand(countQuery, connection))
-                    {
-                        countCommand.Parameters.AddWithValue("@userId", userId);
-                        if (!string.IsNullOrEmpty(searchQuery))
+                        if (!string.IsNullOrEmpty(request.SearchQuery))
                         {
-                            countCommand.Parameters.AddWithValue("@searchQuery", $"%{searchQuery}%");
+                            command.Parameters.AddWithValue("@SearchQuery", $"%{request.SearchQuery}%");
                         }
-                        if (category != null)
+                        if (request.Category.HasValue)
                         {
-                            countCommand.Parameters.AddWithValue("@category", category);
+                            command.Parameters.AddWithValue("@Category", request.Category);
                         }
-                        if (minPrice != null)
+                        if (request.MinPrice.HasValue)
                         {
-                            countCommand.Parameters.AddWithValue("@minPrice", minPrice);
+                            command.Parameters.AddWithValue("@MinPrice", request.MinPrice);
                         }
-                        if (maxPrice != null)
+                        if (request.MaxPrice.HasValue)
                         {
-                            countCommand.Parameters.AddWithValue("@maxPrice", maxPrice);
+                            command.Parameters.AddWithValue("@MaxPrice", request.MaxPrice);
                         }
-                        if (timeTillEnd != null)
+                        if (request.TimeTillEnd.HasValue)
                         {
-                            countCommand.Parameters.AddWithValue("@timeTillEnd", timeTillEnd);
+                            command.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
                         }
-                        int totalCount = Convert.ToInt32(countCommand.ExecuteScalar());
 
-                        // Строим запрос на выборку лотов, созданных пользователем, с учетом пагинации и фильтрации
-                        string query = $"SELECT * FROM Lots WHERE UserId = @userId{condition}{searchCondition}{categoryCondition}{priceCondition}{timeCondition} ORDER BY Id DESC LIMIT @pageSize OFFSET @offset";
+                        List<Lot> lots = new List<Lot>();
 
-                        // Вычисляем смещение (offset) на основе номера страницы и размера страницы
-                        int offset = (pageNumber - 1) * pageSize;
-
-                        // Выполняем запрос на выборку
-                        using (MySqlCommand command = new MySqlCommand(query, connection))
+                        using (MySqlDataReader reader = command.ExecuteReader())
                         {
-                            command.Parameters.AddWithValue("@userId", userId);
-                            if (!string.IsNullOrEmpty(searchQuery))
+                            while (reader.Read())
                             {
-                                command.Parameters.AddWithValue("@searchQuery", $"%{searchQuery}%");
+                                Lot lot = new Lot(reader);
+                                lots.Add(lot);
                             }
-                            if (category != null)
-                            {
-                                command.Parameters.AddWithValue("@category", category);
-                            }
-                            if (minPrice != null)
-                            {
-                                command.Parameters.AddWithValue("@minPrice", minPrice);
-                            }
-                            if (maxPrice != null)
-                            {
-                                command.Parameters.AddWithValue("@maxPrice", maxPrice);
-                            }
-                            if (timeTillEnd != null)
-                            {
-                                command.Parameters.AddWithValue("@timeTillEnd", timeTillEnd);
-                            }
-                            command.Parameters.AddWithValue("@pageSize", pageSize);
-                            command.Parameters.AddWithValue("@offset", offset);
-
-                            // Создаем список для хранения результатов выборки
-                            List<Lot> lots = new List<Lot>();
-
-                            // Читаем результаты выборки
-                            using (MySqlDataReader reader = command.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-                                    // Создаем объект LotModel для каждой строки результата
-                                    Lot lot = new Lot(reader);
-
-                                    // Добавляем лот в список
-                                    lots.Add(lot);
-                                }
-                            }
-
-                            // Дополнительный запрос для подсчета количества лотов по каждой категории
-                            string categoryCountQuery = $"SELECT Category, COUNT(*) as Count FROM Lots WHERE UserId = @userId AND {lotState} = true AND Approved = {isApproved} GROUP BY Category";
-                            Dictionary<string, int> categoryCount = new Dictionary<string, int>(); // Изменено на string для ключа
-                            using (MySqlCommand categoryCountCommand = new MySqlCommand(categoryCountQuery, connection))
-                            {
-                                categoryCountCommand.Parameters.AddWithValue("@userId", userId);
-                                using (MySqlDataReader categoryCountReader = categoryCountCommand.ExecuteReader())
-                                {
-                                    while (categoryCountReader.Read())
-                                    {
-                                        string categoryValue = categoryCountReader.GetString("Category");
-                                        int count = categoryCountReader.GetInt32("Count");
-                                        categoryCount.Add(categoryValue, count);
-                                    }
-                                }
-                            }
-
-
-
-                            // Возвращаем список лотов, общее количество, номер страницы и количество лотов по каждой категории
-                            return Ok(new { lots, totalCount, pageNumber, categoryCount });
                         }
+
+                        // Дополнительный запрос для подсчета общего количества лотов
+                        string totalCountQuery = $@"
+                    SELECT COUNT(*) as TotalCount
+                    FROM Lots
+                    WHERE UserId = @UserId {condition} {searchCondition} {categoryCondition} {priceCondition} {timeCondition}";
+
+                        using (MySqlCommand totalCountCommand = new MySqlCommand(totalCountQuery, connection))
+                        {
+                            totalCountCommand.Parameters.AddWithValue("@UserId", userId);
+
+                            if (!string.IsNullOrEmpty(request.SearchQuery))
+                            {
+                                totalCountCommand.Parameters.AddWithValue("@SearchQuery", $"%{request.SearchQuery}%");
+                            }
+                            if (request.Category.HasValue)
+                            {
+                                totalCountCommand.Parameters.AddWithValue("@Category", request.Category);
+                            }
+                            if (request.MinPrice.HasValue)
+                            {
+                                totalCountCommand.Parameters.AddWithValue("@MinPrice", request.MinPrice);
+                            }
+                            if (request.MaxPrice.HasValue)
+                            {
+                                totalCountCommand.Parameters.AddWithValue("@MaxPrice", request.MaxPrice);
+                            }
+                            if (request.TimeTillEnd.HasValue)
+                            {
+                                totalCountCommand.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
+                            }
+
+                            totalCount = Convert.ToInt32(totalCountCommand.ExecuteScalar());
+                        }
+
+                        Dictionary<string, int> categoryCount = GetCategoryCount(userId, condition, connection);
+
+                        return Ok(new { lots, totalCount, pageNumber, categoryCount });
                     }
                 }
             }
             catch (Exception ex)
             {
-                // В случае ошибки возвращаем статус 500 и сообщение об ошибке
-                Console.WriteLine($"Error getting lots by user: {ex.ToString()}");
-                return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
+                Console.WriteLine($"Error getting lots by user: {ex}");
+                return StatusCode(500, new { message = "Internal Server Error" });
             }
+        }
+
+        private Dictionary<string, int> GetCategoryCount(int userId, string condition, MySqlConnection connection)
+        {
+            Dictionary<string, int> categoryCount = new Dictionary<string, int>();
+
+            string categoryCountQuery = $@"
+        SELECT Category, COUNT(*) as Count
+        FROM Lots
+        WHERE UserId = @UserId {condition}
+        GROUP BY Category";
+
+            using (MySqlCommand categoryCountCommand = new MySqlCommand(categoryCountQuery, connection))
+            {
+                categoryCountCommand.Parameters.AddWithValue("@UserId", userId);
+
+                using (MySqlDataReader categoryCountReader = categoryCountCommand.ExecuteReader())
+                {
+                    while (categoryCountReader.Read())
+                    {
+                        string categoryValue = categoryCountReader.GetString("Category");
+                        int count = categoryCountReader.GetInt32("Count");
+                        categoryCount.Add(categoryValue, count);
+                    }
+                }
+            }
+
+            return categoryCount;
         }
 
         [HttpPost("updateLot")]
@@ -1064,9 +1050,8 @@ namespace Project2.Controllers
             }
         }
 
-
         [HttpPost("SearchLots")]
-        public IActionResult SearchLots(string? searchString, string? category, decimal? minPrice, decimal? maxPrice, string? region, string? city, bool? isNew, string? sortBy, int page = 1, int pageSize = 10)
+        public IActionResult SearchLots([FromBody] SearchLotsRequest request)
         {
             try
             {
@@ -1078,107 +1063,79 @@ namespace Project2.Controllers
                 {
                     connection.Open();
 
-                    // Начало запроса для выборки лотов
+                    MySqlCommand command = new MySqlCommand();
+                    command.Connection = connection;
+
                     string query = "SELECT * FROM Lots WHERE Active = true AND Approved = true";
 
-                    // Динамическое формирование условий запроса в зависимости от переданных параметров
-                    List<string> conditions = new List<string>();
-
-                    if (!string.IsNullOrWhiteSpace(searchString))
+                    if (!string.IsNullOrWhiteSpace(request.SearchString))
                     {
-                        conditions.Add("(Title LIKE @SearchString OR ShortDescription LIKE @SearchString)");
+                        query += " AND (Title LIKE @SearchString OR ShortDescription LIKE @SearchString)";
+                        command.Parameters.AddWithValue("@SearchString", $"%{request.SearchString}%");
                     }
 
-                    if (!string.IsNullOrWhiteSpace(category))
+                    if (!string.IsNullOrWhiteSpace(request.Category))
                     {
-                        conditions.Add("Category = @Category");
+                        query += " AND Category = @Category";
+                        command.Parameters.AddWithValue("@Category", request.Category);
                     }
 
-                    if (minPrice.HasValue)
+                    if (request.MinPrice.HasValue)
                     {
-                        conditions.Add("Price >= @MinPrice");
+                        query += " AND Price >= @MinPrice";
+                        command.Parameters.AddWithValue("@MinPrice", request.MinPrice);
                     }
 
-                    if (maxPrice.HasValue)
+                    if (request.MaxPrice.HasValue)
                     {
-                        conditions.Add("Price <= @MaxPrice");
+                        query += " AND Price <= @MaxPrice";
+                        command.Parameters.AddWithValue("@MaxPrice", request.MaxPrice);
                     }
 
-                    if (!string.IsNullOrWhiteSpace(region))
+                    if (!string.IsNullOrWhiteSpace(request.Region))
                     {
-                        conditions.Add("Region = @Region");
+                        query += " AND Region = @Region";
+                        command.Parameters.AddWithValue("@Region", request.Region);
                     }
 
-                    if (!string.IsNullOrWhiteSpace(city))
+                    if (!string.IsNullOrWhiteSpace(request.City))
                     {
-                        conditions.Add("City = @City");
+                        query += " AND City = @City";
+                        command.Parameters.AddWithValue("@City", request.City);
                     }
 
-                    if (isNew.HasValue)
+                    if (request.IsNew.HasValue)
                     {
-                        conditions.Add("IsNew = @IsNew");
+                        query += " AND IsNew = @IsNew";
+                        command.Parameters.AddWithValue("@IsNew", request.IsNew);
                     }
 
-                    // Добавляем оператор WHERE и объединяем все условия с помощью оператора AND
-                    if (conditions.Count > 0)
+                    if (request.TimeTillEnd.HasValue)
                     {
-                        query += " AND " + string.Join(" AND ", conditions);
+                        query += " AND TimeTillEnd <= @TimeTillEnd";
+                        command.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
                     }
 
+                    Console.WriteLine("Query: " + query); // Добавим вывод запроса для отладки
 
-                    // Получаем общее количество найденных лотов
-                    string countQuery = $"SELECT COUNT(*) FROM ({query}) AS TotalRecords";
-                    using (MySqlCommand countCommand = new MySqlCommand(countQuery, connection))
+                    command.CommandText = query;
+
+                    using (MySqlDataReader reader = command.ExecuteReader())
                     {
-                        // Добавляем параметры запроса
-                        AddQueryParameters(countCommand, searchString, category, minPrice, maxPrice, region, city, isNew);
-
-                        totalRecords = Convert.ToInt32(countCommand.ExecuteScalar());
-                        totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-                    }
-
-                    // Добавляем условие сортировки
-                    switch (sortBy)
-                    {
-                        case "name":
-                            query += " ORDER BY Title";
-                            break;
-                        case "price":
-                            query += " ORDER BY Price";
-                            break;
-                        case "expiration":
-                            query += " ORDER BY TimeTillEnd";
-                            break;
-                        default:
-                            break;
-                    }
-
-                    // Добавляем условие для пагинации
-                    query += $" LIMIT @StartIndex, @PageSize";
-
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
-                    {
-                        // Добавляем параметры запроса
-                        AddQueryParameters(command, searchString, category, minPrice, maxPrice, region, city, isNew);
-
-                        // Добавляем параметры для пагинации
-                        int startIndex = (page - 1) * pageSize;
-                        command.Parameters.AddWithValue("@StartIndex", startIndex);
-                        command.Parameters.AddWithValue("@PageSize", pageSize);
-
-                        using (MySqlDataReader reader = command.ExecuteReader())
+                        while (reader.Read())
                         {
-                            while (reader.Read())
-                            {
-                                // Создаем объекты лотов из результатов запроса и добавляем их в список результатов
-                                Lot lot = new Lot(reader);
-                                searchResults.Add(lot);
-                            }
+                            Lot lot = new Lot(reader); // Предполагается, что у вас есть конструктор Lot, принимающий MySqlDataReader
+                            searchResults.Add(lot);
                         }
                     }
+
+                    // Получаем общее количество записей
+                    command.CommandText = $"SELECT COUNT(*) FROM ({query}) AS TotalRecords";
+                    totalRecords = Convert.ToInt32(command.ExecuteScalar());
+                    totalPages = (int)Math.Ceiling((double)totalRecords / request.PageSize);
                 }
 
-                return Ok(new { searchResults, totalRecords, totalPages, currentPage = page });
+                return Ok(new { searchResults, totalRecords, totalPages, currentPage = request.Page });
             }
             catch (Exception ex)
             {
@@ -1186,41 +1143,13 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-
-        private void AddQueryParameters(MySqlCommand command, string searchString, string category, decimal? minPrice, decimal? maxPrice, string region, string city, bool? isNew)
-        {
-            if (!string.IsNullOrWhiteSpace(searchString))
-            {
-                command.Parameters.AddWithValue("@SearchString", "%" + searchString + "%");
-            }
-            if (!string.IsNullOrWhiteSpace(category))
-            {
-                command.Parameters.AddWithValue("@Category", category);
-            }
-            if (minPrice.HasValue)
-            {
-                command.Parameters.AddWithValue("@MinPrice", minPrice.Value);
-            }
-            if (maxPrice.HasValue)
-            {
-                command.Parameters.AddWithValue("@MaxPrice", maxPrice.Value);
-            }
-            if (!string.IsNullOrWhiteSpace(region))
-            {
-                command.Parameters.AddWithValue("@Region", region);
-            }
-            if (!string.IsNullOrWhiteSpace(city))
-            {
-                command.Parameters.AddWithValue("@City", city);
-            }
-            if (isNew.HasValue)
-            {
-                command.Parameters.AddWithValue("@IsNew", isNew.Value);
-            }
-        }
+    
 
 
-        [HttpPost("getUserLikedLots")]
+
+
+
+    [HttpPost("getUserLikedLots")]
         public IActionResult GetUserLikedLots([FromBody] getUserLikedLots model, int page = 1, int pageSize = 10)
         {
 
@@ -1391,131 +1320,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-        [HttpGet("getUserLots")]
-        public IActionResult GetUserLots(int userId, string? searchQuery = null, int? category = null, decimal? minPrice = null, decimal? maxPrice = null, DateTime? timeTillEnd = null, bool active = false, int pageNumber = 1, int pageSize = 10)
-        {
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(_connString))
-                {
-                    connection.Open();
-
-                    // Формируем условие для поиска по названию
-                    string searchCondition = "";
-                    if (!string.IsNullOrEmpty(searchQuery))
-                    {
-                        searchCondition = " AND Title LIKE @searchQuery";
-                    }
-
-                    // Формируем условие для выборки по категории
-                    string categoryCondition = "";
-                    if (category != null)
-                    {
-                        categoryCondition = " AND Category = @category";
-                    }
-
-                    // Формируем условие для выборки по цене
-                    string priceCondition = "";
-                    if (minPrice != null)
-                    {
-                        priceCondition += " AND Price >= @minPrice";
-                    }
-                    if (maxPrice != null)
-                    {
-                        priceCondition += " AND Price <= @maxPrice";
-                    }
-
-                    // Формируем условие для выборки по времени окончания торгов
-                    string timeCondition = "";
-                    if (timeTillEnd != null)
-                    {
-                        timeCondition += " AND TimeTillEnd <= @timeTillEnd";
-                    }
-
-                    // Запрос для получения всех активных лотов пользователя, у которых установлены флаги Approve и Active в true
-                    string query = $@"
-                SELECT *
-                FROM Lots
-                WHERE UserId = @userId AND Approved = true AND Active = true
-                {searchCondition}
-                {categoryCondition}
-                {priceCondition}
-                {timeCondition}
-                ORDER BY Id DESC
-                LIMIT @pageSize
-                OFFSET @offset";
-
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@userId", userId);
-                        if (!string.IsNullOrEmpty(searchQuery))
-                        {
-                            command.Parameters.AddWithValue("@searchQuery", $"%{searchQuery}%");
-                        }
-                        if (category != null)
-                        {
-                            command.Parameters.AddWithValue("@category", category);
-                        }
-                        if (minPrice != null)
-                        {
-                            command.Parameters.AddWithValue("@minPrice", minPrice);
-                        }
-                        if (maxPrice != null)
-                        {
-                            command.Parameters.AddWithValue("@maxPrice", maxPrice);
-                        }
-                        if (timeTillEnd != null)
-                        {
-                            command.Parameters.AddWithValue("@timeTillEnd", timeTillEnd);
-                        }
-                        command.Parameters.AddWithValue("@pageSize", pageSize);
-                        command.Parameters.AddWithValue("@offset", (pageNumber - 1) * pageSize);
-
-                        List<Lot> userLots = new List<Lot>();
-
-                        using (MySqlDataReader reader = command.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                Lot lot = new Lot(reader);
-                                userLots.Add(lot);
-                            }
-                        }
-
-                        // Дополнительный запрос для подсчета количества лотов по каждой категории
-                        string categoryCountQuery = $@"
-                    SELECT Category, COUNT(*) as Count
-                    FROM Lots
-                    WHERE UserId = @userId AND Approved = true AND Active = true
-                    GROUP BY Category";
-
-                        Dictionary<string, int> categoryCount = new Dictionary<string, int>();
-
-                        using (MySqlCommand categoryCountCommand = new MySqlCommand(categoryCountQuery, connection))
-                        {
-                            categoryCountCommand.Parameters.AddWithValue("@userId", userId);
-
-                            using (MySqlDataReader categoryCountReader = categoryCountCommand.ExecuteReader())
-                            {
-                                while (categoryCountReader.Read())
-                                {
-                                    string categoryValue = categoryCountReader.GetString("Category");
-                                    int count = categoryCountReader.GetInt32("Count");
-                                    categoryCount.Add(categoryValue, count);
-                                }
-                            }
-                        }
-
-                        return Ok(new { userLots, categoryCount });
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting user lots: {ex}");
-                return StatusCode(500, new { message = "Internal Server Error" });
-            }
-        }
+       
 
 
 
@@ -1658,6 +1463,156 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+        [HttpGet("getUserLots")]
+        public IActionResult GetUserLots(int userId, [FromQuery] GetUserLotsRequest request)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    string searchCondition = !string.IsNullOrEmpty(request.SearchQuery) ? " AND Title LIKE @SearchQuery" : "";
+                    string categoryCondition = request.Category.HasValue ? " AND Category = @Category" : "";
+                    string priceCondition = "";
+                    if (request.MinPrice.HasValue)
+                    {
+                        priceCondition += " AND Price >= @MinPrice";
+                    }
+                    if (request.MaxPrice.HasValue)
+                    {
+                        priceCondition += " AND Price <= @MaxPrice";
+                    }
+                    string timeCondition = request.TimeTillEnd.HasValue ? " AND TimeTillEnd <= @TimeTillEnd" : "";
+
+                    // Дополнительный запрос для подсчета общего количества лотов
+                    string totalCountQuery = $@"
+                SELECT COUNT(*) as TotalCount
+                FROM Lots
+                WHERE UserId = @UserId {searchCondition} {categoryCondition} {priceCondition} {timeCondition}";
+
+                    using (MySqlCommand totalCountCommand = new MySqlCommand(totalCountQuery, connection))
+                    {
+                        totalCountCommand.Parameters.AddWithValue("@UserId", userId);
+
+                        if (!string.IsNullOrEmpty(request.SearchQuery))
+                        {
+                            totalCountCommand.Parameters.AddWithValue("@SearchQuery", $"%{request.SearchQuery}%");
+                        }
+                        if (request.Category.HasValue)
+                        {
+                            totalCountCommand.Parameters.AddWithValue("@Category", request.Category);
+                        }
+                        if (request.MinPrice.HasValue)
+                        {
+                            totalCountCommand.Parameters.AddWithValue("@MinPrice", request.MinPrice);
+                        }
+                        if (request.MaxPrice.HasValue)
+                        {
+                            totalCountCommand.Parameters.AddWithValue("@MaxPrice", request.MaxPrice);
+                        }
+                        if (request.TimeTillEnd.HasValue)
+                        {
+                            totalCountCommand.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
+                        }
+
+                        int totalLotCount = Convert.ToInt32(totalCountCommand.ExecuteScalar());
+
+                        // Теперь выполните ваш исходный запрос для получения пагинированных лотов пользователя
+                        string query = $@"
+                    SELECT *
+                    FROM Lots
+                    WHERE UserId = @UserId AND Approved = true AND Active = true
+                    {searchCondition}
+                    {categoryCondition}
+                    {priceCondition}
+                    {timeCondition}
+                    ORDER BY Id DESC
+                    LIMIT @PageSize
+                    OFFSET @Offset";
+
+                        using (MySqlCommand command = new MySqlCommand(query, connection))
+                        {
+                            command.Parameters.AddWithValue("@UserId", userId);
+                            command.Parameters.AddWithValue("@PageSize", request.PageSize);
+                            command.Parameters.AddWithValue("@Offset", (request.PageNumber - 1) * request.PageSize);
+
+                            if (!string.IsNullOrEmpty(request.SearchQuery))
+                            {
+                                command.Parameters.AddWithValue("@SearchQuery", $"%{request.SearchQuery}%");
+                            }
+                            if (request.Category.HasValue)
+                            {
+                                command.Parameters.AddWithValue("@Category", request.Category);
+                            }
+                            if (request.MinPrice.HasValue)
+                            {
+                                command.Parameters.AddWithValue("@MinPrice", request.MinPrice);
+                            }
+                            if (request.MaxPrice.HasValue)
+                            {
+                                command.Parameters.AddWithValue("@MaxPrice", request.MaxPrice);
+                            }
+                            if (request.TimeTillEnd.HasValue)
+                            {
+                                command.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
+                            }
+
+                            List<Lot> userLots = new List<Lot>();
+
+                            using (MySqlDataReader reader = command.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    Lot lot = new Lot(reader); // Предполагается, что у вас есть конструктор Lot, принимающий MySqlDataReader
+                                    userLots.Add(lot);
+                                }
+                            }
+
+                            Dictionary<string, int> categoryCount = GetCategoryCount(userId, connection); // Получаем количество лотов по категориям
+
+                            return Ok(new { userLots, categoryCount, totalLotCount });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting user lots: {ex}");
+                return StatusCode(500, new { message = "Internal Server Error" });
+            }
+        }
+
+        private Dictionary<string, int> GetCategoryCount(int userId, MySqlConnection connection)
+        {
+            Dictionary<string, int> categoryCount = new Dictionary<string, int>();
+
+            string categoryCountQuery = @"
+        SELECT Category, COUNT(*) as Count
+        FROM Lots
+        WHERE UserId = @UserId AND Approved = true AND Active = true
+        GROUP BY Category";
+
+            using (MySqlCommand categoryCountCommand = new MySqlCommand(categoryCountQuery, connection))
+            {
+                categoryCountCommand.Parameters.AddWithValue("@UserId", userId);
+
+                using (MySqlDataReader categoryCountReader = categoryCountCommand.ExecuteReader())
+                {
+                    while (categoryCountReader.Read())
+                    {
+                        string categoryValue = categoryCountReader.GetString("Category");
+                        int count = categoryCountReader.GetInt32("Count");
+                        categoryCount.Add(categoryValue, count);
+                    }
+                }
+            }
+
+            return categoryCount;
+        }
+
+      
+
         [HttpPost("ApproveLot")]
         public IActionResult ApproveLot([FromBody] EditStatusLot request)
         {
@@ -1756,7 +1711,45 @@ WHERE
         public string Login { get; set; }
         public string Email { get; set; }
     }
-
+    public class GetLotsByUserRequest
+    {
+        public string Token { get; set; }
+        public string? SearchQuery { get; set; }
+        public int? Category { get; set; }
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
+        public DateTime? TimeTillEnd { get; set; }
+        public bool Active { get; set; } = false;
+        public bool Archive { get; set; } = false;
+        public bool Unactive { get; set; } = false;
+        public bool IsWaitingPayment { get; set; } = false;
+        public bool IsWaitingDelivery { get; set; } = false;
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+    public class GetUserLotsRequest
+    {
+        public string? SearchQuery { get; set; }
+        public int? Category { get; set; }
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
+        public DateTime? TimeTillEnd { get; set; }
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+    public class SearchLotsRequest
+    {
+        public string? SearchString { get; set; }
+        public string? Category { get; set; }
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
+        public string? Region { get; set; }
+        public string? City { get; set; }
+        public bool? IsNew { get; set; }
+        public DateTime? TimeTillEnd { get; set; }
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
     public class Bidder : User
     {
         public decimal MaxBidPrice { get; set; }
