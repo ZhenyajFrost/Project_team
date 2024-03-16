@@ -14,7 +14,7 @@ import Button from "../Button/Button";
 //     );
 // });
 
-const InputSearch = ({ onSearch, placeholder = "", value = "", nobutton }) => {
+const InputSearch = ({ onSearch, placeholder = "", value = null, nobutton }) => {
   const [inputValue, setInputValue] = useState(value);
 
   const handleInputChange = (e) => {

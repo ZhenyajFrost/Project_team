@@ -13,8 +13,6 @@ function FiltersWSearch({ onChange, initial }) {
     ...initial
   });
 
-  console.log("d" + filters)
-
   useEffect(() => {
     //перевірка ціни
     const minPrice = Number(filters.minPrice);

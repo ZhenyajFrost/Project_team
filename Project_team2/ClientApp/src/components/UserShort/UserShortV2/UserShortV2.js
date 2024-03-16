@@ -1,19 +1,35 @@
 import React from "react";
 import css from "./UserShortV2.module.css";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import svgStat from '../../../images/status.svg'
+import svg from '../../../images/svgDef.svg'
+import UserLikeButton from "../../UI/LikeButton/UserLikeButton";
 
-function UserShortV2({ user: { id, avatar, login, location, status } }) {
-  const history = useHistory();
+function UserShortV2({ user: { id, avatar, login, city, region, status = { imgId: 'norm', value: 'Нормальний' } } }) { //STATUS
+    const history = useHistory();
 
-  return (
-    <div className={css.gUs} onClick={() => history.push(`/user/${id}`)}>
-      <img src={avatar} alt="ures ava" />
-      <div>
-        <span>{login}</span>
-        <div>Онлайн</div>
-      </div>
-    </div>
-  );
+    return (
+        <div className={css.container} >
+            <div className={css.info} onClick={() => history.push(`/user/${id}`)}>
+                <img src={avatar} alt="user avatar" className={css.avatar} />
+                <div className={css.header}>
+                    <div className={css.login}>{login}</div>
+                    <div className={css.location}>
+                        <svg >
+                            <use href={`${svg}#location`} />
+                        </svg> {`${region}  м.${city ? city : "Місто"}`}
+                    </div>
+                </div>
+            </div>
+            <UserLikeButton className={css.like} userId={id}/>
+
+            <div className={css.status}>
+                <svg >
+                    <use href={`${svgStat}#${status.imgId}`} />
+                </svg> {`${status.value}`} ДОРОБИТИ СТАТУС
+            </div>
+        </div>
+    );
 }
 
 export default UserShortV2;

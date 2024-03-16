@@ -14,7 +14,7 @@ function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setEmailSet
     const { sendEmail, loading, error, confirmCode } = useSendConfirmationEmail();
 
     Notiflix.Notify.init({
-        timeout: 7000,
+        timeout: 4000,
     });
 
     useEffect(() => {

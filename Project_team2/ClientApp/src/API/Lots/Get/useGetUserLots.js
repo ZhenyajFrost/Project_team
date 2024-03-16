@@ -10,7 +10,7 @@ const useGetUserLots = () => {
     const [totalCount, setTotalCount] = useState();
     const [categoriesCount, setCategories] = useState();
 
-    const getLots = async (userId, pageNumber, pageSize, filters) => { //FILTER
+    const getLots = async (userId, pageNumber, pageSize, filters) => {
         setLoading(true);
 
         try {
@@ -21,10 +21,10 @@ const useGetUserLots = () => {
                     pageSize: pageSize,
                     ...filters
                 }
-            }); //FILTER IS NEEDED
+            });
             console.log('Lots successfully retrieved: ', response.data);
             setLots(response.data.userLots);
-            setTotalCount(response.data.totalCount)
+            setTotalCount(response.data.totalLotCount)
             setCategories(response.data.categoryCount)
         } catch (error) {
             console.error('Getting lots failed: ', error);

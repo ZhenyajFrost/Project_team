@@ -472,13 +472,13 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-        [HttpPost("likedUsers")]
-        public IActionResult GetSubscriptions([FromBody] TokenRequest tokenRequest)
+        [HttpGet("likedUsers")]
+        public IActionResult GetSubscriptions( string token)
         {
             try
             {
-                // Извлекаем идентификатор пользователя из токена
-                string userId = ExtractUserIdFromToken(tokenRequest.Token);
+                // Extract user ID from the token
+                string userId = ExtractUserIdFromToken(token);
                 if (string.IsNullOrEmpty(userId))
                 {
                     return BadRequest(new { message = "Invalid token" });
@@ -488,7 +488,7 @@ namespace Project2.Controllers
                 {
                     connection.Open();
 
-                    // Получаем идентификаторы всех пользователей, на которых подписан текущий пользователь
+                    // Query to get subscribed user IDs
                     string query = @"
                 SELECT SubscribedToId
                 FROM UsersSubscribe
@@ -505,7 +505,12 @@ namespace Project2.Controllers
                             while (reader.Read())
                             {
                                 int subscribedUserId = reader.GetInt32("SubscribedToId");
-                                subscribedUserProfiles.Add(GetUserProfileById(subscribedUserId, connection));
+                                // Get user profile by ID
+                                UserProfile userProfile = GetUserProfileById(subscribedUserId);
+                                if (userProfile != null)
+                                {
+                                    subscribedUserProfiles.Add(userProfile);
+                                }
                             }
                         }
 
@@ -520,27 +525,31 @@ namespace Project2.Controllers
             }
         }
 
-        private UserProfile GetUserProfileById(int userId, MySqlConnection connection)
+        private UserProfile GetUserProfileById(int userId)
         {
-            string query = @"
-        SELECT *
-        FROM Users
-        WHERE Id = @userId";
-
-            using (MySqlCommand command = new MySqlCommand(query, connection))
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
             {
-                command.Parameters.AddWithValue("@userId", userId);
+                connection.Open();
+                string query = @"
+            SELECT *
+            FROM Users
+            WHERE Id = @userId";
 
-                using (MySqlDataReader reader = command.ExecuteReader())
+                using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    if (reader.Read())
+                    command.Parameters.AddWithValue("@userId", userId);
+
+                    using (MySqlDataReader reader = command.ExecuteReader())
                     {
-                        return new UserProfile(reader);
+                        if (reader.Read())
+                        {
+                            return new UserProfile(reader);
+                        }
                     }
                 }
             }
 
-            return null; // если профиль не найден
+            return null;
         }
 
 

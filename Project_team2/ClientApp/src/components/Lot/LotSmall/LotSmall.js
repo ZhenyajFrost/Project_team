@@ -63,7 +63,7 @@ function LotSmall({
 
     setTimeout(() => {
       window.location.reload();
-    }, 1500);
+    }, 1000);
 
   }
 

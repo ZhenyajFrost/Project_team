@@ -59,7 +59,7 @@ class ProfileLayout extends Component {
                     <Button onClick={this.onSettings} className={selectedPage === 'settings' ? '' : css.selectedPage}>Налаштування</Button>
                 </div>
 
-                <Container style={{ padding: '0' }}>
+                <Container style={{ padding: '0', maxWidth: "100%" }}>
                     {this.props.children}
                 </Container>
             </div>
