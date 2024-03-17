@@ -73,7 +73,7 @@ function LotPage() {
                 history.length ? (
                   history.map((v) => (
                     <Bid
-                      userId={v.userId}
+                      user={v.user}
                       amount={v.bidAmount}
                       time={v.bidTime}
                     />

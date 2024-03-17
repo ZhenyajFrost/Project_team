@@ -3,11 +3,8 @@ import useGetUserProfile from "../../API/User/Get/useGetUserProfile";
 import Loader from "../Loader/Loader";
 import css from "./style.module.css";
 
-function Bid({ time, userId, amount }) {
-  const [get, user, isLoading] = useGetUserProfile();
-  useEffect(() => {
-    if (!user.id) get(userId);
-  }, [userId, get, user]);
+function Bid({ time, user, amount }) {
+
 
   const ukrainianMonths = [
     "січня",
@@ -31,7 +28,7 @@ function Bid({ time, userId, amount }) {
     return `${day} ${ukrainianMonth}`;
   }
 
-  const userDisp = isLoading ? <Loader /> : <p>{user.login}</p>;
+  const userDisp =<p>{user.login}</p>;
 
   return (
     <div>
