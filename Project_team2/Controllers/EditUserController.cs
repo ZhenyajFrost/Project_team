@@ -472,13 +472,13 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-        [HttpGet("likedUsers")]
-        public IActionResult GetSubscriptions( string token)
+        [HttpPost("likedUsers")]
+        public IActionResult GetSubscriptions([FromBody] TokenRequest tokenRequest)
         {
             try
             {
                 // Extract user ID from the token
-                string userId = ExtractUserIdFromToken(token);
+                string userId = ExtractUserIdFromToken(tokenRequest.Token);
                 if (string.IsNullOrEmpty(userId))
                 {
                     return BadRequest(new { message = "Invalid token" });

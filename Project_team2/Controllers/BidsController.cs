@@ -208,77 +208,131 @@ namespace Project2.Controllers
             }
         }
 
-        [HttpGet("getUserBids/{userId}")]
-        public IActionResult GetUserBids(int userId, int page = 1, int pageSize = 10)
+
+
+
+
+
+
+        [HttpPost("getUserBids")]
+        public IActionResult GetUserBids([FromBody] UserBidsRequestModel model)
         {
+            var userId = ExtractUserIdFromToken(model.Token);
+            int page = model.Page;
+            int pageSize = model.PageSize;
             try
             {
-                List<int> uniqueLotIds = new List<int>();
+                List<int> userBidsCount = new List<int>();
+                List<Lot> userLots = new List<Lot>();
+                List<decimal> maxBidAmounts = new List<decimal>();
+                List<UserProfile> bidProfiles = new List<UserProfile>(); // Список профилей пользователей для каждой ставки
 
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
 
-                    // Запрос на получение уникальных идентификаторов лотов, на которые делал ставки указанный пользователь
-                    string countQuery = "SELECT COUNT(DISTINCT LotId) FROM Bids WHERE UserId = @UserId";
-                    using (MySqlCommand countCommand = new MySqlCommand(countQuery, connection))
+                    MySqlCommand command = new MySqlCommand();
+                    command.Connection = connection;
+
+                    string query = "SELECT l.*, b.BidAmount, u.* FROM Lots l " +
+                                   "INNER JOIN Bids b ON l.Id = b.LotId " +
+                                   "INNER JOIN Users u ON b.UserId = u.Id " +
+                                   "WHERE (l.Approved = true AND b.UserId = @UserId) " + // Добавлены скобки для группировки условий
+                                   "OR (l.IsWaitingPayment = true AND l.WinnerUserId = @UserId) " + // Лоты ожидающие оплату
+                                   "OR (l.IsWaitingDelivery = true AND l.WinnerUserId = @UserId)"; // Лоты ожидающие доставку
+
+                    command.Parameters.AddWithValue("@UserId", userId);
+
+                    // Добавляем фильтрацию
+                    if (!string.IsNullOrWhiteSpace(model.SearchString))
                     {
-                        countCommand.Parameters.AddWithValue("@UserId", userId);
-                        int totalRecords = Convert.ToInt32(countCommand.ExecuteScalar());
-
-                        // Вычисляем общее количество страниц
-                        int totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-
-                        // Проверяем валидность номера страницы
-                        if (page < 1)
-                        {
-                            page = 1;
-                        }
-                        else if (page > totalPages)
-                        {
-                            page = totalPages;
-                        }
-
-                        // Запрос на получение уникальных идентификаторов лотов с учетом пагинации
-                        string query = "SELECT DISTINCT LotId FROM Bids WHERE UserId = @UserId LIMIT @Offset, @PageSize";
-                        int offset = (page - 1) * pageSize;
-                        using (MySqlCommand command = new MySqlCommand(query, connection))
-                        {
-                            command.Parameters.AddWithValue("@UserId", userId);
-                            command.Parameters.AddWithValue("@Offset", offset);
-                            command.Parameters.AddWithValue("@PageSize", pageSize);
-                            using (MySqlDataReader reader = command.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-                                    uniqueLotIds.Add(Convert.ToInt32(reader["LotId"]));
-                                }
-                            }
-                        }
-
-                        List<Lot> userBids = new List<Lot>();
-
-                        // Запрос на получение информации о лотах на основе полученных уникальных идентификаторов
-                        foreach (int lotId in uniqueLotIds)
-                        {
-                            string lotQuery = "SELECT * FROM Lots WHERE Id = @LotId";
-                            using (MySqlCommand lotCommand = new MySqlCommand(lotQuery, connection))
-                            {
-                                lotCommand.Parameters.AddWithValue("@LotId", lotId);
-                                using (MySqlDataReader lotReader = lotCommand.ExecuteReader())
-                                {
-                                    if (lotReader.Read())
-                                    {
-                                        Lot lot = new Lot(lotReader);
-                                        userBids.Add(lot);
-                                    }
-                                }
-                            }
-                        }
-
-                        // Возвращаем результат с пагинацией и общим количеством найденных лотов
-                        return Ok(new { totalPages, totalRecords, userBids });
+                        query += " AND (l.Title LIKE @SearchString OR l.ShortDescription LIKE @SearchString)";
+                        command.Parameters.AddWithValue("@SearchString", $"%{model.SearchString}%");
                     }
+
+                    if (!string.IsNullOrWhiteSpace(model.Category))
+                    {
+                        query += " AND l.Category = @Category";
+                        command.Parameters.AddWithValue("@Category", model.Category);
+                    }
+
+                    if (model.MinPrice.HasValue)
+                    {
+                        query += " AND l.Price >= @MinPrice";
+                        command.Parameters.AddWithValue("@MinPrice", model.MinPrice);
+                    }
+
+                    if (model.MaxPrice.HasValue)
+                    {
+                        query += " AND l.Price <= @MaxPrice";
+                        command.Parameters.AddWithValue("@MaxPrice", model.MaxPrice);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(model.Region))
+                    {
+                        query += " AND l.Region = @Region";
+                        command.Parameters.AddWithValue("@Region", model.Region);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(model.City))
+                    {
+                        query += " AND l.City = @City";
+                        command.Parameters.AddWithValue("@City", model.City);
+                    }
+
+                    if (model.IsNew.HasValue)
+                    {
+                        query += " AND l.IsNew = @IsNew";
+                        command.Parameters.AddWithValue("@IsNew", model.IsNew);
+                    }
+
+                    if (model.TimeTillEnd.HasValue)
+                    {
+                        query += " AND l.TimeTillEnd <= @TimeTillEnd";
+                        command.Parameters.AddWithValue("@TimeTillEnd", model.TimeTillEnd);
+                    }
+
+                    // Добавляем сортировку
+                    if (!string.IsNullOrWhiteSpace(model.OrderBy) && model.Ascending.HasValue)
+                    {
+                        string sortOrder = model.Ascending.Value ? "ASC" : "DESC";
+                        query += $" ORDER BY {model.OrderBy} {sortOrder}";
+                    }
+
+                    // Применение пагинации
+                    query += " LIMIT @Offset, @PageSize";
+                    command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                    command.CommandText = query;
+
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            userLots.Add(new Lot(reader));
+                            maxBidAmounts.Add(Convert.ToDecimal(reader["BidAmount"]));
+                            bidProfiles.Add(new UserProfile(reader));
+                        }
+                    }
+
+                    // Получаем общее количество записей (без учета пагинации)
+                    command.CommandText = "SELECT COUNT(DISTINCT LotId) FROM Bids WHERE UserId = @UserId";
+                    int totalRecords = Convert.ToInt32(command.ExecuteScalar());
+                    int totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+                    // Проверяем валидность номера страницы
+                    if (page < 1)
+                    {
+                        page = 1;
+                    }
+                    else if (page > totalPages)
+                    {
+                        page = totalPages;
+                    }
+
+                    // Возвращаем результат с пагинацией и общим количеством найденных лотов
+                    return Ok(new { totalPages, totalRecords, userBids = userLots.Select((lot, index) => new LotWithMaxBid(lot, maxBidAmounts[index], bidProfiles[index])) });
                 }
             }
             catch (Exception ex)
@@ -287,6 +341,10 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
+
+
+
 
         [HttpPost("fastBuy")]
         public IActionResult FastBuy([FromBody] BidModel model)
@@ -388,7 +446,9 @@ namespace Project2.Controllers
                     connection.Open();
 
                     // Запрос на получение 5 последних ставок для указанного лота
-                    string query = "SELECT * FROM Bids WHERE LotId = @LotId ORDER BY BidTime DESC LIMIT 5";
+                    string query = "SELECT b.*, u.* FROM Bids b " +
+                                   "INNER JOIN Users u ON b.UserId = u.Id " +
+                                   "WHERE b.LotId = @LotId ORDER BY b.BidTime DESC LIMIT 5";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@LotId", lotId);
@@ -396,11 +456,11 @@ namespace Project2.Controllers
                         {
                             while (reader.Read())
                             {
+                                UserProfile userProfile = new UserProfile(reader);
                                 BidHistoryModel bid = new BidHistoryModel
                                 {
-
                                     LotId = Convert.ToInt32(reader["LotId"]),
-                                    UserId = Convert.ToInt32(reader["UserId"]),
+                                    UserId = userProfile, // Здесь сохраняем профиль пользователя вместо идентификатора
                                     BidAmount = Convert.ToDecimal(reader["BidAmount"]),
                                     BidTime = Convert.ToDateTime(reader["BidTime"])
                                 };
@@ -418,6 +478,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
     }
 
     public class BidModel
@@ -433,9 +494,40 @@ namespace Project2.Controllers
     {
 
         public int LotId { get; set; }
-        public int UserId { get; set; }
+        public UserProfile UserId { get; set; } // Изменили тип с int на UserProfile
         public decimal BidAmount { get; set; }
         public DateTime BidTime { get; set; }
         
     }
+    public class LotWithMaxBid
+    {
+        public Lot Lot { get; set; }
+        public decimal MaxBidAmount { get; set; }
+        public UserProfile BidProfile { get; set; } // Добавлено свойство для профиля пользователя
+
+        public LotWithMaxBid(Lot lot, decimal maxBidAmount, UserProfile bidProfile) // Добавлен третий параметр для профиля пользователя
+        {
+            Lot = lot;
+            MaxBidAmount = maxBidAmount;
+            BidProfile = bidProfile; // Инициализируем свойство с профилем пользователя
+        }
+    }
+    public class UserBidsRequestModel
+    {
+        public string Token { get; set; }
+        public string? SearchString { get; set; }
+        public string? Category { get; set; }
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
+        public string? Region { get; set; }
+        public string? City { get; set; }
+        public bool? IsNew { get; set; }
+        public DateTime? TimeTillEnd { get; set; }
+        public string? OrderBy { get; set; }
+        public bool? Ascending { get; set; }
+        public int Page { get; set; }
+        public int PageSize { get; set; }
+    }
+
+
 }

@@ -381,13 +381,15 @@ namespace Project2.Controllers
                         priceCondition += " AND Price <= @MaxPrice";
                     }
                     string timeCondition = request.TimeTillEnd.HasValue ? " AND TimeTillEnd <= @TimeTillEnd" : "";
+                    string regionCondition = !string.IsNullOrEmpty(request.Region) ? " AND Region = @Region" : "";
+                    string cityCondition = !string.IsNullOrEmpty(request.City) ? " AND City = @City" : "";
 
                     string query = $@"
-                SELECT *
-                FROM Lots
-                WHERE UserId = @UserId {condition} {searchCondition} {categoryCondition} {priceCondition} {timeCondition}
-                ORDER BY Id DESC
-                LIMIT @PageSize OFFSET @Offset";
+            SELECT *
+            FROM Lots
+            WHERE UserId = @UserId {condition} {searchCondition} {categoryCondition} {priceCondition} {timeCondition} {regionCondition} {cityCondition}
+            ORDER BY {request.OrderBy} {(request.Ascending.HasValue && request.Ascending.Value ? "ASC" : "DESC")}
+            LIMIT @PageSize OFFSET @Offset";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
@@ -415,6 +417,14 @@ namespace Project2.Controllers
                         {
                             command.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
                         }
+                        if (!string.IsNullOrEmpty(request.Region))
+                        {
+                            command.Parameters.AddWithValue("@Region", request.Region);
+                        }
+                        if (!string.IsNullOrEmpty(request.City))
+                        {
+                            command.Parameters.AddWithValue("@City", request.City);
+                        }
 
                         List<Lot> lots = new List<Lot>();
 
@@ -429,9 +439,9 @@ namespace Project2.Controllers
 
                         // Дополнительный запрос для подсчета общего количества лотов
                         string totalCountQuery = $@"
-                    SELECT COUNT(*) as TotalCount
-                    FROM Lots
-                    WHERE UserId = @UserId {condition} {searchCondition} {categoryCondition} {priceCondition} {timeCondition}";
+                SELECT COUNT(*) as TotalCount
+                FROM Lots
+                WHERE UserId = @UserId {condition} {searchCondition} {categoryCondition} {priceCondition} {timeCondition} {regionCondition} {cityCondition}";
 
                         using (MySqlCommand totalCountCommand = new MySqlCommand(totalCountQuery, connection))
                         {
@@ -457,6 +467,14 @@ namespace Project2.Controllers
                             {
                                 totalCountCommand.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
                             }
+                            if (!string.IsNullOrEmpty(request.Region))
+                            {
+                                totalCountCommand.Parameters.AddWithValue("@Region", request.Region);
+                            }
+                            if (!string.IsNullOrEmpty(request.City))
+                            {
+                                totalCountCommand.Parameters.AddWithValue("@City", request.City);
+                            }
 
                             totalCount = Convert.ToInt32(totalCountCommand.ExecuteScalar());
                         }
@@ -473,7 +491,6 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = "Internal Server Error" });
             }
         }
-
         private Dictionary<string, int> GetCategoryCount(int userId, string condition, MySqlConnection connection)
         {
             Dictionary<string, int> categoryCount = new Dictionary<string, int>();
@@ -848,7 +865,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("UnactiveLot")]
-        public IActionResult UnactiveLot([FromBody] EditStatusLot request)
+        public IActionResult UnactiveLot( [FromBody] EditStatusLot request)
         {
             try
             {
@@ -879,7 +896,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("ArchiveLot")]
-        public IActionResult ArchiveLot([FromBody] EditStatusLot request)
+        public IActionResult ArchiveLot( [FromBody] EditStatusLot request)
         {
             try
             {
@@ -909,7 +926,7 @@ namespace Project2.Controllers
             }
         }
         [HttpPost("SetAllowBids")]
-        public IActionResult SetAllowBids([FromBody] EditStatusLot request)
+        public IActionResult SetAllowBids( [FromBody] EditStatusLot request)
         {
             try
             {
@@ -1331,7 +1348,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-
+       
 
 
 
@@ -1381,7 +1398,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-
+        
         [HttpGet("getLotsWaitingPayment")]
         public IActionResult GetLotsWaitingPayment([FromBody] string Token)
         {
@@ -1495,12 +1512,14 @@ WHERE
                         priceCondition += " AND Price <= @MaxPrice";
                     }
                     string timeCondition = request.TimeTillEnd.HasValue ? " AND TimeTillEnd <= @TimeTillEnd" : "";
+                    string regionCondition = !string.IsNullOrEmpty(request.Region) ? " AND Region = @Region" : "";
+                    string cityCondition = !string.IsNullOrEmpty(request.City) ? " AND City = @City" : "";
 
                     // Дополнительный запрос для подсчета общего количества лотов
                     string totalCountQuery = $@"
-                SELECT COUNT(*) as TotalCount
-                FROM Lots
-                WHERE UserId = @UserId {searchCondition} {categoryCondition} {priceCondition} {timeCondition}";
+            SELECT COUNT(*) as TotalCount
+            FROM Lots
+            WHERE UserId = @UserId {searchCondition} {categoryCondition} {priceCondition} {timeCondition} {regionCondition} {cityCondition}";
 
                     using (MySqlCommand totalCountCommand = new MySqlCommand(totalCountQuery, connection))
                     {
@@ -1526,21 +1545,31 @@ WHERE
                         {
                             totalCountCommand.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
                         }
+                        if (!string.IsNullOrEmpty(request.Region))
+                        {
+                            totalCountCommand.Parameters.AddWithValue("@Region", request.Region);
+                        }
+                        if (!string.IsNullOrEmpty(request.City))
+                        {
+                            totalCountCommand.Parameters.AddWithValue("@City", request.City);
+                        }
 
                         int totalLotCount = Convert.ToInt32(totalCountCommand.ExecuteScalar());
 
                         // Теперь выполните ваш исходный запрос для получения пагинированных лотов пользователя
                         string query = $@"
-                    SELECT *
-                    FROM Lots
-                    WHERE UserId = @UserId AND Approved = true AND Active = true
-                    {searchCondition}
-                    {categoryCondition}
-                    {priceCondition}
-                    {timeCondition}
-                    ORDER BY Id DESC
-                    LIMIT @PageSize
-                    OFFSET @Offset";
+                SELECT *
+                FROM Lots
+                WHERE UserId = @UserId AND Approved = true AND Active = true
+                {searchCondition}
+                {categoryCondition}
+                {priceCondition}
+                {timeCondition}
+                {regionCondition}
+                {cityCondition}
+                ORDER BY {request.OrderBy ?? "Id"} {(request.Ascending.HasValue && request.Ascending.Value ? "ASC" : "DESC")}
+                LIMIT @PageSize
+                OFFSET @Offset";
 
                         using (MySqlCommand command = new MySqlCommand(query, connection))
                         {
@@ -1567,6 +1596,14 @@ WHERE
                             if (request.TimeTillEnd.HasValue)
                             {
                                 command.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
+                            }
+                            if (!string.IsNullOrEmpty(request.Region))
+                            {
+                                command.Parameters.AddWithValue("@Region", request.Region);
+                            }
+                            if (!string.IsNullOrEmpty(request.City))
+                            {
+                                command.Parameters.AddWithValue("@City", request.City);
                             }
 
                             List<Lot> userLots = new List<Lot>();
@@ -1599,10 +1636,10 @@ WHERE
             Dictionary<string, int> categoryCount = new Dictionary<string, int>();
 
             string categoryCountQuery = @"
-        SELECT Category, COUNT(*) as Count
-        FROM Lots
-        WHERE UserId = @UserId AND Approved = true AND Active = true
-        GROUP BY Category";
+    SELECT Category, COUNT(*) as Count
+    FROM Lots
+    WHERE UserId = @UserId AND Approved = true AND Active = true
+    GROUP BY Category";
 
             using (MySqlCommand categoryCountCommand = new MySqlCommand(categoryCountQuery, connection))
             {
@@ -1668,20 +1705,18 @@ WHERE
         public string Explanation { get; set; }
     }
     public class EditStatusLot
-    {
-
+    { 
+    
         public string Token { get; set; }
-        public int LotId { get; set; }
+        public int LotId { get; set; }  
 
     }
-    public class getUserLikedLots
-    {
-        public string Token { get; set; }
+    public class getUserLikedLots { 
+    public string Token { get; set; }
     }
-    public class LikesLot
-    {
-        public string Token { get; set; }
-        public int LotId { get; set; }
+    public class LikesLot { 
+    public string Token { get; set; }
+    public int LotId { get; set; }
     }
     public class DeleteLot
     {
@@ -1739,6 +1774,10 @@ WHERE
         public bool IsWaitingDelivery { get; set; } = false;
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
+        public string? OrderBy { get; set; }
+        public bool? Ascending { get; set; }
+        public string? Region { get; set; }
+        public string? City { get; set; }
     }
     public class GetUserLotsRequest
     {
@@ -1749,6 +1788,10 @@ WHERE
         public DateTime? TimeTillEnd { get; set; }
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
+        public string? OrderBy { get; set; }
+        public bool? Ascending { get; set; }
+        public string? Region { get; set; }
+        public string? City { get; set; }
     }
     public class SearchLotsRequest
     {
