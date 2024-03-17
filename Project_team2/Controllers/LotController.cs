@@ -848,7 +848,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("UnactiveLot")]
-        public IActionResult UnactiveLot( [FromBody] EditStatusLot request)
+        public IActionResult UnactiveLot([FromBody] EditStatusLot request)
         {
             try
             {
@@ -879,7 +879,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("ArchiveLot")]
-        public IActionResult ArchiveLot( [FromBody] EditStatusLot request)
+        public IActionResult ArchiveLot([FromBody] EditStatusLot request)
         {
             try
             {
@@ -909,7 +909,7 @@ namespace Project2.Controllers
             }
         }
         [HttpPost("SetAllowBids")]
-        public IActionResult SetAllowBids( [FromBody] EditStatusLot request)
+        public IActionResult SetAllowBids([FromBody] EditStatusLot request)
         {
             try
             {
@@ -1115,7 +1115,18 @@ namespace Project2.Controllers
                         query += " AND TimeTillEnd <= @TimeTillEnd";
                         command.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
                     }
-
+                    if (!string.IsNullOrWhiteSpace(request.OrderBy) && request.Ascending.HasValue)
+                    {
+                        query += $" ORDER BY {request.OrderBy}";
+                        if (request.Ascending.Value)
+                        {
+                            query += " ASC";
+                        }
+                        else
+                        {
+                            query += " DESC";
+                        }
+                    }
                     Console.WriteLine("Query: " + query); // Добавим вывод запроса для отладки
 
                     command.CommandText = query;
@@ -1143,13 +1154,13 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-    
 
 
 
 
 
-    [HttpPost("getUserLikedLots")]
+
+        [HttpPost("getUserLikedLots")]
         public IActionResult GetUserLikedLots([FromBody] getUserLikedLots model, int page = 1, int pageSize = 10)
         {
 
@@ -1320,7 +1331,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-       
+
 
 
 
@@ -1345,7 +1356,7 @@ WHERE
                 {
                     connection.Open();
 
-                    string query = "SELECT * FROM Lots WHERE Approved = false AND Unactive = true";
+                    string query = "SELECT * FROM Lots WHERE Approved = false";
 
                     List<Lot> unapprovedLots = new List<Lot>();
 
@@ -1370,7 +1381,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-        
+
         [HttpGet("getLotsWaitingPayment")]
         public IActionResult GetLotsWaitingPayment([FromBody] string Token)
         {
@@ -1611,7 +1622,7 @@ WHERE
             return categoryCount;
         }
 
-      
+
 
         [HttpPost("ApproveLot")]
         public IActionResult ApproveLot([FromBody] EditStatusLot request)
@@ -1657,18 +1668,20 @@ WHERE
         public string Explanation { get; set; }
     }
     public class EditStatusLot
-    { 
-    
+    {
+
         public string Token { get; set; }
-        public int LotId { get; set; }  
+        public int LotId { get; set; }
 
     }
-    public class getUserLikedLots { 
-    public string Token { get; set; }
+    public class getUserLikedLots
+    {
+        public string Token { get; set; }
     }
-    public class LikesLot { 
-    public string Token { get; set; }
-    public int LotId { get; set; }
+    public class LikesLot
+    {
+        public string Token { get; set; }
+        public int LotId { get; set; }
     }
     public class DeleteLot
     {
@@ -1714,7 +1727,7 @@ WHERE
     public class GetLotsByUserRequest
     {
         public string Token { get; set; }
-        public string? SearchQuery { get; set; }
+        public string SearchQuery { get; set; }
         public int? Category { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
@@ -1729,7 +1742,7 @@ WHERE
     }
     public class GetUserLotsRequest
     {
-        public string? SearchQuery { get; set; }
+        public string SearchQuery { get; set; }
         public int? Category { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
@@ -1747,6 +1760,8 @@ WHERE
         public string? City { get; set; }
         public bool? IsNew { get; set; }
         public DateTime? TimeTillEnd { get; set; }
+        public string? OrderBy { get; set; } // Добавлено
+        public bool? Ascending { get; set; } // Добавлено
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;
     }

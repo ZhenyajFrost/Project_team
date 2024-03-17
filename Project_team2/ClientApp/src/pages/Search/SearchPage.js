@@ -89,14 +89,49 @@ function SearchPage(props) {
         </div>
         <p className={css.head}>Фільтри</p>
         <Filters onChange={onFilterChange} initial={filter} />
-        <hr></hr>
+        <hr />
         <div className={css.upThing}>
           <NavLink href="/">На головну</NavLink>
           <div>
             <div>
               Сортувати за:{" "}
-              <select>
-                <option>Як ми це зробимо?</option>
+              <select
+                onChange={(v) => {
+                  const [sortBy, ascending] = v.target.value.split(" ");
+                  onFilterChange({ sortBy, ascending:ascending==="true" });
+                }}
+              >
+                <option value="">Сортувати за:</option>
+                <option value="title true">За назвою вверх</option>
+                <option value="title false">За назвою вниз</option>
+                <option value="category true">За категорією вверх</option>
+                <option value="category false">За категорією вниз</option>
+                <option value="timeTillEnd true">
+                  За часом до закінчення вверх
+                </option>
+                <option value="timeTillEnd false">
+                  За часом до закінчення вниз
+                </option>
+                <option value="minPrice true">
+                  За мінімальною ціною вверх
+                </option>
+                <option value="minPrice false">
+                  За мінімальною ціною вниз
+                </option>
+                <option value="minStepPrice true">
+                  За мінімальним кроком ціни вверх
+                </option>
+                <option value="minStepPrice false">
+                  За мінімальним кроком ціни вниз
+                </option>
+                <option value="price true">За ціною вверх</option>
+                <option value="price false">За ціною вниз</option>
+                <option value="isNew true">За новизною вверх</option>
+                <option value="isNew false">За новизною вниз</option>
+                <option value="region true">За регіоном вверх</option>
+                <option value="region false">За регіоном вниз</option>
+                <option value="city true">За містом вверх</option>
+                <option value="city false">За містом вниз</option>
               </select>
             </div>
             <DisplayChoose
@@ -108,7 +143,11 @@ function SearchPage(props) {
         {isLoading && lots ? (
           <Loader />
         ) : (
-          <LotContainer display={lotDisplay} lotStyle={lotDisplay === 'listWrap' ? 'small' : 'basic'} lots={lots} />
+          <LotContainer
+            display={lotDisplay}
+            lotStyle={lotDisplay === "listWrap" ? "small" : "basic"}
+            lots={lots}
+          />
         )}
         <Pagination
           totalCount={totalCount}

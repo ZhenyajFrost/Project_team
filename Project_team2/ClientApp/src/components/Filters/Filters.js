@@ -118,6 +118,7 @@ function Filters({ onChange, initial }) {
             setParams({ ...params, region: e.target.value });
           }}
         >
+          <option>Будь-який</option>
           {regions.map((v) => (
             <option>{v.name}</option>
           ))}
