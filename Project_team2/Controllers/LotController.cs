@@ -498,6 +498,7 @@ namespace Project2.Controllers
             }
         }
 
+
         private Dictionary<string, int> GetCategoryCount(int userId, string condition, MySqlConnection connection)
         {
             Dictionary<string, int> categoryCount = new Dictionary<string, int>();
@@ -872,7 +873,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("UnactiveLot")]
-        public IActionResult UnactiveLot( [FromBody] EditStatusLot request)
+        public IActionResult UnactiveLot([FromBody] EditStatusLot request)
         {
             try
             {
@@ -903,7 +904,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("ArchiveLot")]
-        public IActionResult ArchiveLot( [FromBody] EditStatusLot request)
+        public IActionResult ArchiveLot([FromBody] EditStatusLot request)
         {
             try
             {
@@ -933,7 +934,7 @@ namespace Project2.Controllers
             }
         }
         [HttpPost("SetAllowBids")]
-        public IActionResult SetAllowBids( [FromBody] EditStatusLot request)
+        public IActionResult SetAllowBids([FromBody] EditStatusLot request)
         {
             try
             {
@@ -1139,6 +1140,7 @@ namespace Project2.Controllers
                         query += " AND TimeTillEnd <= @TimeTillEnd";
                         command.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
                     }
+
                     if (!string.IsNullOrWhiteSpace(request.OrderBy) && request.Ascending.HasValue)
                     {
                         query += $" ORDER BY {request.OrderBy}";
@@ -1151,6 +1153,11 @@ namespace Project2.Controllers
                             query += " DESC";
                         }
                     }
+
+                    // Добавим LIMIT и OFFSET для пагинации
+                    int offset = (request.Page - 1) * request.PageSize;
+                    query += $" LIMIT {request.PageSize} OFFSET {offset}";
+
                     Console.WriteLine("Query: " + query); // Добавим вывод запроса для отладки
 
                     command.CommandText = query;
@@ -1159,13 +1166,13 @@ namespace Project2.Controllers
                     {
                         while (reader.Read())
                         {
-                            Lot lot = new Lot(reader); // Предполагается, что у вас есть конструктор Lot, принимающий MySqlDataReader
+                            Lot lot = new Lot(reader);
                             searchResults.Add(lot);
                         }
                     }
 
                     // Получаем общее количество записей
-                    command.CommandText = $"SELECT COUNT(*) FROM ({query}) AS TotalRecords";
+                    command.CommandText = $"SELECT COUNT(*) FROM Lots WHERE Active = true AND Approved = true";
                     totalRecords = Convert.ToInt32(command.ExecuteScalar());
                     totalPages = (int)Math.Ceiling((double)totalRecords / request.PageSize);
                 }
@@ -1355,7 +1362,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-       
+
 
 
 
@@ -1405,7 +1412,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-        
+
         [HttpGet("getLotsWaitingPayment")]
         public IActionResult GetLotsWaitingPayment([FromBody] string Token)
         {
@@ -1712,18 +1719,20 @@ WHERE
         public string Explanation { get; set; }
     }
     public class EditStatusLot
-    { 
-    
+    {
+
         public string Token { get; set; }
-        public int LotId { get; set; }  
+        public int LotId { get; set; }
 
     }
-    public class getUserLikedLots { 
-    public string Token { get; set; }
+    public class getUserLikedLots
+    {
+        public string Token { get; set; }
     }
-    public class LikesLot { 
-    public string Token { get; set; }
-    public int LotId { get; set; }
+    public class LikesLot
+    {
+        public string Token { get; set; }
+        public int LotId { get; set; }
     }
     public class DeleteLot
     {

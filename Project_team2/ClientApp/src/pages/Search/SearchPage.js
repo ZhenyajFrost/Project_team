@@ -23,10 +23,11 @@ function SearchPage(props) {
   const initial = {
     category: -1,
     minPrice: 1,
-    maxPrice: null,
+    maxPrice: 10000000,
     region: "Будь-який",
     isNew: undefined,
-    sortBy: "",
+    orderBy: "",
+    timeTillEnd: new Date(Date.now()),
   };
 
   const [oldQuerry, setOldQuerry] = useState("");
@@ -57,8 +58,9 @@ function SearchPage(props) {
       setOldQuerry(querry);
       setOldFilter(changed);
     };
-    if (oldQuerry !== querry || oldFilter !== changed) doFetching();
-  }, [querry, oldQuerry, getLots, curPage, oldFilter, changed]);
+    if ((oldQuerry !== querry || oldFilter !== changed) && !isLoading)
+      doFetching();
+  }, [querry, oldQuerry, getLots, curPage, oldFilter, changed, isLoading]);
 
   //get data from url
   useEffect(() => {
@@ -73,11 +75,9 @@ function SearchPage(props) {
     }
   }, []);
   const onFilterChange = (e) => {
+    console.log(e);
     setFilter({ ...filter, ...e });
   };
-  if (isLoading) {
-    return <Loader />;
-  }
   console.log(totalCount, perPage, curPage);
 
   return (
@@ -97,8 +97,8 @@ function SearchPage(props) {
               Сортувати за:{" "}
               <select
                 onChange={(v) => {
-                  const [sortBy, ascending] = v.target.value.split(" ");
-                  onFilterChange({ sortBy, ascending:ascending==="true" });
+                  const [orderBy, ascending] = v.target.value.split(" ");
+                  onFilterChange({ orderBy, ascending: ascending === "true" });
                 }}
               >
                 <option value="">Сортувати за:</option>
