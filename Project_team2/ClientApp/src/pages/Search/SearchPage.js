@@ -108,7 +108,7 @@ function SearchPage(props) {
         {isLoading && lots ? (
           <Loader />
         ) : (
-          <LotContainer display={lotDisplay} lots={lots} />
+          <LotContainer display={lotDisplay} lotStyle={lotDisplay === 'listWrap' ? 'small' : 'basic'} lots={lots} />
         )}
         <Pagination
           totalCount={totalCount}

@@ -43,7 +43,7 @@ export const Home = () => {
     };
 
     return (
-        <div style={{display: "flex", flexDirection: "column", gap: "8vw"}}>
+        <div style={{display: "flex", flexDirection: "column", gap: "6vw"}}>
             <div id="search" style={{ position: "relative", borderRadius: "24px", marginTop: "1.5vw" }}>
                 <img src={homeImg} alt="Description" style={{ width: "100%", height: "auto", borderRadius: "24px" }} />
                 <p className={css.search}>Створюйте та продавайте те, що вам потрібно прямо зараз</p>

@@ -1,4 +1,4 @@
-﻿.navbar>.container {
+﻿.navbar >.container {
   max-width: calc(100vw - 200px);
   margin: auto;
 }

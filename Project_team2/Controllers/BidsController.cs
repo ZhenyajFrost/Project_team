@@ -208,14 +208,6 @@ namespace Project2.Controllers
             }
         }
 
-
-
-
-
-
-
-
-
         [HttpGet("getUserBids/{userId}")]
         public IActionResult GetUserBids(int userId, int page = 1, int pageSize = 10)
         {
