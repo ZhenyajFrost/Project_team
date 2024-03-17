@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import regions from "./regions.json";
+import regions from "../../Data/regions.json";
 import cts from "../../Data/categories.json";
 import css from "./styles.module.css";
 import Notiflix, { Notify } from "notiflix";
@@ -13,7 +13,7 @@ function Filters({ onChange, initial }) {
     minPrice: 1,
     maxPrice: Infinity,
     endTill: new Date(new Date().getDate() + 1),
-    region: regions[0],
+    region: regions[0].name,
     ...initial,
   });
   useEffect(() => {
@@ -40,11 +40,6 @@ function Filters({ onChange, initial }) {
     //перевірка дати
     //хз як з датою працюватимемо (об'єкт, стрінг чи щось тому подібне), тож залишу це пустим
 
-    //регіон чек
-    if (!regions.includes(params.region)) {
-      Notiflix.Notify.failure("Будь ласка, оберіть нормальну облaсть.");
-      return;
-    }
     for (let a in params) {
       if (params[a] !== initial[a]) {
         onChange(params);
@@ -124,7 +119,7 @@ function Filters({ onChange, initial }) {
           }}
         >
           {regions.map((v) => (
-            <option>{v}</option>
+            <option>{v.name}</option>
           ))}
         </select>
       </div>

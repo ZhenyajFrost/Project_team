@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Select from "../Selector/Selector"; // Ensure this is the correct import path
 import { State, City } from "country-state-city";
 import css from "./LocationSelector.module.css";
+import UAregions from "../../Data/regions.json";
 
 const LocationSelector = ({
   onRegionChange,
@@ -12,26 +13,37 @@ const LocationSelector = ({
   const [statesOptions, setStatesOptions] = useState([]);
   const [citiesOptions, setCitiesOptions] = useState([]);
   if (selectedRegion && !selectedRegion.label) {
-    const {name, isoCode} = State.getStatesOfCountry("UA").find((s) => s.name === selectedRegion)
-    onRegionChange(
-      {label:name, value:isoCode}
+    let iso = UAregions.find((r) => r.name === selectedRegion);
+    const c = State.getStatesOfCountry("UA").find(
+      (s) => (iso && s.isoCode === iso.isoCode) || s.name === selectedRegion
     );
+    if (c) {
+      const { name, isoCode } = c;
+      onRegionChange({ label: name, value: isoCode });
+    }
   }
-  if (selectedRegion && selectedRegion.value && selectedCity && !selectedCity.label) {
-    console.log(selectedCity);
-    console.log(City.getCitiesOfState("UA", selectedRegion.value).find((s) => s.name === "Cherkasy"));
-    const {name} = City.getCitiesOfState("UA", selectedRegion.value).find((s) => s.name === selectedCity)
-
-    onCityChange(
-      {label:name, value:name}
+  if (
+    selectedRegion &&
+    selectedRegion.value &&
+    selectedCity &&
+    !selectedCity.label
+  ) {
+    const r = City.getCitiesOfState("UA", selectedRegion.value).find(
+      (s) => s.name === selectedCity
     );
+    if (r) {
+      const { name } = r;
+
+      onCityChange({ label: name, value: name });
+    }
   }
   useEffect(() => {
     const statesData = State.getStatesOfCountry("UA").map((state) => ({
       value: state.isoCode,
-      label: state.name,
+      label: UAregions.find((r) => r.isoCode === state.isoCode).name,
     }));
     setStatesOptions(statesData);
+    console.log(State.getStatesOfCountry("UA"));
   }, []);
 
   useEffect(() => {
