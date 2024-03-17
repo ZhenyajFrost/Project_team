@@ -13,13 +13,10 @@ import Pagination from "../../components/UI/Pagination/Pagination";
 import DisplayChoose from "../../components/UI/DisplayChoose/DisplayChoose";
 
 function SearchPage(props) {
-  const [querry, setQuerry] = useState(
-    decodeURI(
-      window.location.href.split("/")[
-        window.location.href.split("/").length - 1
-      ]
-    )
+  const querry = decodeURI(
+    window.location.href.split("/")[window.location.href.split("/").length - 1]
   );
+
   const initial = {
     category: -1,
     minPrice: 1,
@@ -29,8 +26,6 @@ function SearchPage(props) {
     orderBy: "",
     timeTillEnd: new Date(Date.now()),
   };
-
-  const [oldQuerry, setOldQuerry] = useState("");
   const [oldFilter, setOldFilter] = useState({});
   const [filter, setFilter] = useState({ ...initial });
   const [curPage, setCurPage] = useState(1);
@@ -53,14 +48,14 @@ function SearchPage(props) {
   //fetch data
   useEffect(() => {
     const doFetching = () => {
+      console.log("skskk");
       setCurPage(1);
       getLots(curPage, perPage, changed);
-      setOldQuerry(querry);
       setOldFilter(changed);
     };
-    if ((oldQuerry !== querry || oldFilter !== changed) && !isLoading)
-      doFetching();
-  }, [querry, oldQuerry, getLots, curPage, oldFilter, changed, isLoading]);
+    console.log("AAAA");
+    if (oldFilter !== changed && !isLoading) doFetching();
+  }, [getLots, curPage, oldFilter, changed, isLoading]);
 
   //get data from url
   useEffect(() => {
@@ -85,7 +80,10 @@ function SearchPage(props) {
       <div className={css.searchContainer}>
         <div className={css.searchFieldWrap}>
           <label className={css.searchFieldLabel}>Пошук</label>
-          <InputSearch onSearch={(e) => setQuerry(e)} value={querry} />
+          <InputSearch
+            onSearch={(e) => setFilter({ ...filter, searchString: e })}
+            value={filter.searchString}
+          />
         </div>
         <p className={css.head}>Фільтри</p>
         <Filters onChange={onFilterChange} initial={filter} />
