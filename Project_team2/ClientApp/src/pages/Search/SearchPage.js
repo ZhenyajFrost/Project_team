@@ -13,23 +13,29 @@ import Pagination from "../../components/UI/Pagination/Pagination";
 import DisplayChoose from "../../components/UI/DisplayChoose/DisplayChoose";
 
 function SearchPage(props) {
-  const [querry, setQuerry] = useState(
-    decodeURI(
-      window.location.href.split("/")[
-        window.location.href.split("/").length - 1
-      ]
-    )
+  const querry = decodeURI(
+    window.location.href.split("/")[window.location.href.split("/").length - 1]
   );
+  function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so add 1
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  }
+
   const initial = {
     category: -1,
     minPrice: 1,
-    maxPrice: null,
+    maxPrice: 10000000,
     region: "Будь-який",
     isNew: undefined,
-    sortBy: "",
+    orderBy: "",
+    timeTillEnd: new Date(Date.now()),
   };
-
-  const [oldQuerry, setOldQuerry] = useState("");
   const [oldFilter, setOldFilter] = useState({});
   const [filter, setFilter] = useState({ ...initial });
   const [curPage, setCurPage] = useState(1);
@@ -46,19 +52,20 @@ function SearchPage(props) {
       }
     }
     setChanged(res);
-    console.log("d");
   }, [filter]);
 
   //fetch data
   useEffect(() => {
     const doFetching = () => {
+      console.log("skskk");
       setCurPage(1);
+      changed.timeTillEnd = formatDate(changed.timeTillEnd)
       getLots(curPage, perPage, changed);
-      setOldQuerry(querry);
       setOldFilter(changed);
     };
-    if (oldQuerry !== querry || oldFilter !== changed) doFetching();
-  }, [querry, oldQuerry, getLots, curPage, oldFilter, changed]);
+    console.log("AAAA");
+    if (oldFilter !== changed && !isLoading) doFetching();
+  }, [getLots, curPage, oldFilter, changed, isLoading]);
 
   //get data from url
   useEffect(() => {
@@ -73,11 +80,9 @@ function SearchPage(props) {
     }
   }, []);
   const onFilterChange = (e) => {
+    console.log(e);
     setFilter({ ...filter, ...e });
   };
-  if (isLoading) {
-    return <Loader />;
-  }
   console.log(totalCount, perPage, curPage);
 
   return (
@@ -85,7 +90,10 @@ function SearchPage(props) {
       <div className={css.searchContainer}>
         <div className={css.searchFieldWrap}>
           <label className={css.searchFieldLabel}>Пошук</label>
-          <InputSearch onSearch={(e) => setQuerry(e)} value={querry} />
+          <InputSearch
+            onSearch={(e) => setFilter({ ...filter, searchString: e })}
+            value={filter.searchString}
+          />
         </div>
         <p className={css.head}>Фільтри</p>
         <Filters onChange={onFilterChange} initial={filter} />
@@ -97,8 +105,8 @@ function SearchPage(props) {
               Сортувати за:{" "}
               <select
                 onChange={(v) => {
-                  const [sortBy, ascending] = v.target.value.split(" ");
-                  onFilterChange({ sortBy, ascending:ascending==="true" });
+                  const [orderBy, ascending] = v.target.value.split(" ");
+                  onFilterChange({ orderBy, ascending: ascending === "true" });
                 }}
               >
                 <option value="">Сортувати за:</option>

@@ -498,6 +498,7 @@ namespace Project2.Controllers
             }
         }
 
+
         private Dictionary<string, int> GetCategoryCount(int userId, string condition, MySqlConnection connection)
         {
             Dictionary<string, int> categoryCount = new Dictionary<string, int>();
@@ -872,7 +873,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("UnactiveLot")]
-        public IActionResult UnactiveLot( [FromBody] EditStatusLot request)
+        public IActionResult UnactiveLot([FromBody] EditStatusLot request)
         {
             try
             {
@@ -903,7 +904,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("ArchiveLot")]
-        public IActionResult ArchiveLot( [FromBody] EditStatusLot request)
+        public IActionResult ArchiveLot([FromBody] EditStatusLot request)
         {
             try
             {
@@ -933,7 +934,7 @@ namespace Project2.Controllers
             }
         }
         [HttpPost("SetAllowBids")]
-        public IActionResult SetAllowBids( [FromBody] EditStatusLot request)
+        public IActionResult SetAllowBids([FromBody] EditStatusLot request)
         {
             try
             {
@@ -1090,8 +1091,10 @@ namespace Project2.Controllers
                     MySqlCommand command = new MySqlCommand();
                     command.Connection = connection;
 
+                    // Создаем основной запрос для выборки лотов
                     string query = "SELECT * FROM Lots WHERE Active = true AND Approved = true";
 
+                    // Добавляем фильтры, если они заданы в запросе
                     if (!string.IsNullOrWhiteSpace(request.SearchString))
                     {
                         query += " AND (Title LIKE @SearchString OR ShortDescription LIKE @SearchString)";
@@ -1139,34 +1142,33 @@ namespace Project2.Controllers
                         query += " AND TimeTillEnd <= @TimeTillEnd";
                         command.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
                     }
-                    if (!string.IsNullOrWhiteSpace(request.OrderBy) && request.Ascending.HasValue)
-                    {
-                        query += $" ORDER BY {request.OrderBy}";
-                        if (request.Ascending.Value)
-                        {
-                            query += " ASC";
-                        }
-                        else
-                        {
-                            query += " DESC";
-                        }
-                    }
-                    Console.WriteLine("Query: " + query); // Добавим вывод запроса для отладки
 
+                    // Создаем запрос для подсчета общего количества записей с учетом фильтров
+                    string countQuery = $"SELECT COUNT(*) FROM ({query}) AS TotalRecords";
+
+                    // Применяем LIMIT и OFFSET для пагинации
+                    int offset = (request.Page - 1) * request.PageSize;
+                    query += $" ORDER BY {request.OrderBy ?? "Id"} {(request.Ascending ?? true ? "ASC" : "DESC")} LIMIT {request.PageSize} OFFSET {offset}";
+
+                    // Устанавливаем команды и параметры
                     command.CommandText = query;
+                    command.Parameters.Clear();
 
+                    // Выполняем основной запрос
                     using (MySqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            Lot lot = new Lot(reader); // Предполагается, что у вас есть конструктор Lot, принимающий MySqlDataReader
+                            Lot lot = new Lot(reader);
                             searchResults.Add(lot);
                         }
                     }
 
-                    // Получаем общее количество записей
-                    command.CommandText = $"SELECT COUNT(*) FROM ({query}) AS TotalRecords";
+                    // Получаем общее количество записей с учетом фильтров
+                    command.CommandText = countQuery;
                     totalRecords = Convert.ToInt32(command.ExecuteScalar());
+
+                    // Вычисляем количество страниц
                     totalPages = (int)Math.Ceiling((double)totalRecords / request.PageSize);
                 }
 
@@ -1355,7 +1357,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-       
+
 
 
 
@@ -1405,7 +1407,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-        
+
         [HttpGet("getLotsWaitingPayment")]
         public IActionResult GetLotsWaitingPayment([FromBody] string Token)
         {
@@ -1452,7 +1454,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-        [HttpPost("getLotsWaitingDelivery")] // Используйте HttpPost вместо HttpGet
+        [HttpPost("getLotsWaitingDelivery")]
         public IActionResult GetLotsWaitingDelivery([FromBody] string token) // Измените имя параметра на token
         {
             try
@@ -1712,18 +1714,20 @@ WHERE
         public string Explanation { get; set; }
     }
     public class EditStatusLot
-    { 
-    
+    {
+
         public string Token { get; set; }
-        public int LotId { get; set; }  
+        public int LotId { get; set; }
 
     }
-    public class getUserLikedLots { 
-    public string Token { get; set; }
+    public class getUserLikedLots
+    {
+        public string Token { get; set; }
     }
-    public class LikesLot { 
-    public string Token { get; set; }
-    public int LotId { get; set; }
+    public class LikesLot
+    {
+        public string Token { get; set; }
+        public int LotId { get; set; }
     }
     public class DeleteLot
     {

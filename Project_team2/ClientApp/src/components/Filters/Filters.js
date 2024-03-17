@@ -11,9 +11,9 @@ function Filters({ onChange, initial }) {
   ]);
   const [params, setParams] = useState({
     minPrice: 1,
-    maxPrice: Infinity,
-    endTill: new Date(new Date().getDate() + 1),
-    region: regions[0].name,
+    maxPrice: 10000000,
+    // timeTillEnd: new Date(new Date(Date.now()).getDate() + 1),
+    region: "Будь-який",
     ...initial,
   });
   useEffect(() => {
@@ -36,12 +36,8 @@ function Filters({ onChange, initial }) {
       Notiflix.Notify.failure("Ціна 'від' не може бути більшою, ніж ціна 'до'");
       return;
     }
-
-    //перевірка дати
-    //хз як з датою працюватимемо (об'єкт, стрінг чи щось тому подібне), тож залишу це пустим
-
     for (let a in params) {
-      if (params[a] !== initial[a]) {
+      if (params[a] !== initial[a] && params[a]) {
         onChange(params);
         return;
       }
@@ -58,7 +54,7 @@ function Filters({ onChange, initial }) {
           className={css.inputEl}
           value={initial.category}
           onChange={(e) => {
-            setParams({ ...params, category: Number(e.target.value) });
+            setParams({ ...params, category: e.target.value });
           }}
         >
           {selCat ? (
