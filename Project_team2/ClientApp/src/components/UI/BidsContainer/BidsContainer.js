@@ -1,11 +1,12 @@
 import React from "react";
 import classes from "./BidsContainer.module.css";
 import BidLot from "../../Bid/BidLot/BidLot.js";
+import BidLotSmall from "../../Bid/BidLotSmall/BidLotSmall.js";
+
 
 function BidsContainer({ bids, display = "", bidStyle = "basic", isAdmin = "false" }) {
     const displayClass = display ? classes[display] : '';
     const classString = `${classes.bidsContainer} ${displayClass}`;
-    console.log("bids", bids)
 
     const renderBid = (bid, style) => {
         switch (style) {
@@ -15,6 +16,10 @@ function BidsContainer({ bids, display = "", bidStyle = "basic", isAdmin = "fals
                         bid={bid}
                     />
                 );
+                case "small" : 
+                return (
+                    <BidLotSmall bid={bid}/>
+                )
             default:
                 return null;
         }

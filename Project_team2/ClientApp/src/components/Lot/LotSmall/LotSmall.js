@@ -29,7 +29,7 @@ function LotSmall({
 
   const isLiked = getLocalStorage('user').likedLotIds.includes(id);
 
-  const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date()) / 10000);
+  const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date()) / 1000);
   const { deleteLot, isLoading, error } = useDeleteLot();
   const [unactiveLot, isLoadingUn, errorUn] = useUnactiveLot();
   const [archiveLot, isLoadingAr, errorAr] = useArchiveLot();

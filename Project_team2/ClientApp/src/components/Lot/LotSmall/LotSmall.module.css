@@ -123,3 +123,28 @@
 .thing > p, .thing > a:hover{
   cursor: pointer;
 }
+
+.bid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+
+  padding: 24px 16px;
+  background-color: var(--gray);
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.bid p {
+  margin: 0;
+}
+
+.bid span {
+  font-family: Manrope;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 19px;
+  letter-spacing: 0em;
+
+}

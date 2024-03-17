@@ -4,11 +4,10 @@ import classes from './Pagination.module.css';
 
 const Pagination = ({ totalCount, limit, page, changePage }) => {
   const totalPages = getPageCount(totalCount, limit);
-  const maxPageVisible = 3; // Maximum number of pages to display before the ellipsis
+  const maxPageVisible = 3; 
 
   let pages = [];
   
-  // Determine the start and end of the pagination numbers
   let startPage = Math.max(page - 1, 1);
   let endPage = Math.min(startPage + maxPageVisible - 1, totalPages);
 

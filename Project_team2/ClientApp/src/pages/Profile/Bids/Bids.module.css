@@ -4,3 +4,9 @@
     gap: 30px;
     min-height: 21vw;
 }
+
+.display{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

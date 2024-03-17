@@ -6,6 +6,8 @@ import questions from '../../Data/questions.json'
 import HIWItem from "../../components/HIWItem/HIWItem";
 import video from '../../video/hiwVideo.mp4'
 
+import data from '../../Data/cities.json'
+
 import { styled } from '@mui/system';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -67,10 +69,12 @@ export const HowItWorks = () => {
         return <HIWItem item={item} />
     })
 
+
     useEffect(() => {
         window.scrollTo(0, 0);
+
     }, []);
-    
+
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "5vw" }}>
             <video className={css.img} controls autoPlay auto preload="auto">

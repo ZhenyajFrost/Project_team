@@ -26,9 +26,6 @@ function Lots () {
     const totalCount = categories.reduce((accumulator, currentCategory) => {
         return accumulator + currentCategory.count;
     }, 0);
-    
-
-    console.log(totalCount)
 
     const [pagination, setPagination] = useState({
         pageNumber: 1,
@@ -36,7 +33,6 @@ function Lots () {
     });
 
     useEffect(async () => {
-        console.log(categoryClicked)
         await getLots(pagination.pageNumber, pagination.pageSize, activeTab, filters);
     }, [activeTab, pagination, categoryClicked]) //Filters 
 

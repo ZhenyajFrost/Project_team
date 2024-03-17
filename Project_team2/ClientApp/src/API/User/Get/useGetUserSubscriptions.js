@@ -12,7 +12,7 @@ const useGetUserSubscriptions = () => {
     const getUserSubscriptions = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${EDIT_USER_ENDPOINT}/likedUsers?token=${token}`);
+            const response = await axios.post(`${EDIT_USER_ENDPOINT}/likedUsers`, {token});
             console.log('User Subscriptions successfully retrieved: ', response.data);
             setLikedUsers(response.data)
         } catch (error) {

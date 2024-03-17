@@ -98,7 +98,7 @@ function Settings() {
 
     const { validationErrors, validateForm } = useRegistrationValidation();
 
-    const [selectedRegion, setSelectedRegion] = useState(''); // For Select component
+    const [selectedRegion, setSelectedRegion] = useState(user.region); // For Select component
     const [selectedCity, setSelectedCity] = useState(user.city); // For Select component
 
     useEffect(() => {
@@ -143,6 +143,7 @@ function Settings() {
     };
 
     const handleRegionChange = (selectedOption) => {
+        console.log("Selected Option",selectedOption);
         setSelectedRegion(selectedOption);
         setFormData(prev => ({
             ...prev,

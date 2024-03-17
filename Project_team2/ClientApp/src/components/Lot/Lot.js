@@ -95,7 +95,7 @@ function Lot({
             <svg>
               <use href={`${MoneySvg}#location`} />
             </svg>
-            {`м. ${city}`}
+            {`м. ${city ? city : "Місто"}`}
           </p>
           <NavLink to={"/lot/" + id} className={css.arrowOutward}>
             <svg>

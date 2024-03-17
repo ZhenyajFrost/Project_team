@@ -9,7 +9,6 @@ import ModalWindow from '../../ModalWindow/ModalWindow.js'
 
 function BidLot({ bid }) {
     const [ttl, setTtl] = useState((new Date(bid.lot.timeTillEnd) - new Date()) / 1000);
-    //console.log("SEC:", (new Date(bid.lot.timeTillEnd) - new Date()) / 1000);
     const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
@@ -54,7 +53,7 @@ function BidLot({ bid }) {
                         <svg>
                             <use href={`${MoneySvg}#location`} />
                         </svg>
-                        {`м. ${bid.lot.city}`}
+                        {`м. ${bid.lot.city ? bid.lot.city : "Місто"}`}
                     </p>
                     <NavLink to={"/lot/" + bid.lot.id} className={css.arrowOutward}>
                         <svg>
