@@ -16,8 +16,7 @@ const useGetLotsByUser = () => {
         setLoading(true);
 
         try {
-            const response = await axios.get(`${LOTS_ENDPOINT}/getLotsByUser`, {
-                params: {
+            const response = await axios.post(`${LOTS_ENDPOINT}/getLotsByUser`, {
                     token : token,
                     pageNumber: pageNumber,
                     pageSize: pageSize,
@@ -25,7 +24,6 @@ const useGetLotsByUser = () => {
                     unactive: activeTab === 'unactive',
                     archive: activeTab === 'archive',
                     ...filters
-                }
             }); //FILTER IS NEEDED
             console.log('Lots successfully retrieved: ', response.data);
             setLots(response.data.lots);

@@ -17,6 +17,7 @@ import { getLocalStorage } from "./utils/localStorage.js";
 import AdminPage from "./pages/AdminPage/AdminPage.js";
 import { HowItWorks as HowItWorksPage } from "./pages/HowItWorks/HowItWorks.js";
 import UserPage from "./pages/UserPage/UserPage.js";
+import ProfileBids from "./pages/Profile/Bids/Bids.js";
 
 export default class App extends Component {
   static displayName = App.name;
@@ -66,6 +67,7 @@ export default class App extends Component {
               <ProfileLayout>
                 <Switch>
                   <Route path={`${url}/`} component={ProfileSettings} exact />
+                  <Route path={`${url}/bids`} component={ProfileBids}/>
                   <Route path={`${url}/lots`} component={ProfileLots} />
                   <Route path={`${url}/settings`} component={ProfileSettings} />
                   <Route

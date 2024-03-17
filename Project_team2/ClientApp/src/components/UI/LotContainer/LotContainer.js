@@ -21,6 +21,7 @@ function LotContainer({ lots, display = "", lotStyle = "basic", isAdmin="false" 
             category={lot.category}
             timeTillEnd={lot.timeTillEnd}
             hot={lot.hot}
+            city={lot.city}
             imageURLs={lot.imageURLs}
             isAdmin={isAdmin}
             isApproved={lot.approved}

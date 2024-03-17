@@ -334,8 +334,8 @@ namespace Project2.Controllers
             }
         }
 
-        [HttpGet("getLotsByUser")]
-        public IActionResult GetLotsByUser([FromQuery] GetLotsByUserRequest request)
+        [HttpPost("getLotsByUser")]
+        public IActionResult GetLotsByUser([FromBody] GetLotsByUserRequest request)
         {
             int userId = (int)Convert.ToInt64(ExtractUserIdFromToken(request.Token));
             int totalCount = 0;
@@ -384,12 +384,18 @@ namespace Project2.Controllers
                     string regionCondition = !string.IsNullOrEmpty(request.Region) ? " AND Region = @Region" : "";
                     string cityCondition = !string.IsNullOrEmpty(request.City) ? " AND City = @City" : "";
 
+                    string orderByClause = "";
+                    if (!string.IsNullOrEmpty(request.OrderBy))
+                    {
+                        orderByClause = $"ORDER BY {request.OrderBy} {(request.Ascending.HasValue && request.Ascending.Value ? "ASC" : "DESC")}";
+                    }
+
                     string query = $@"
-            SELECT *
-            FROM Lots
-            WHERE UserId = @UserId {condition} {searchCondition} {categoryCondition} {priceCondition} {timeCondition} {regionCondition} {cityCondition}
-            ORDER BY {request.OrderBy} {(request.Ascending.HasValue && request.Ascending.Value ? "ASC" : "DESC")}
-            LIMIT @PageSize OFFSET @Offset";
+                SELECT *
+                FROM Lots
+                WHERE UserId = @UserId {condition} {searchCondition} {categoryCondition} {priceCondition} {timeCondition} {regionCondition} {cityCondition}
+                {orderByClause}
+                LIMIT @PageSize OFFSET @Offset";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
@@ -439,9 +445,9 @@ namespace Project2.Controllers
 
                         // Дополнительный запрос для подсчета общего количества лотов
                         string totalCountQuery = $@"
-                SELECT COUNT(*) as TotalCount
-                FROM Lots
-                WHERE UserId = @UserId {condition} {searchCondition} {categoryCondition} {priceCondition} {timeCondition} {regionCondition} {cityCondition}";
+                    SELECT COUNT(*) as TotalCount
+                    FROM Lots
+                    WHERE UserId = @UserId {condition} {searchCondition} {categoryCondition} {priceCondition} {timeCondition} {regionCondition} {cityCondition}";
 
                         using (MySqlCommand totalCountCommand = new MySqlCommand(totalCountQuery, connection))
                         {
@@ -491,6 +497,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = "Internal Server Error" });
             }
         }
+
         private Dictionary<string, int> GetCategoryCount(int userId, string condition, MySqlConnection connection)
         {
             Dictionary<string, int> categoryCount = new Dictionary<string, int>();
@@ -1762,7 +1769,7 @@ WHERE
     public class GetLotsByUserRequest
     {
         public string Token { get; set; }
-        public string SearchQuery { get; set; }
+        public string? SearchQuery { get; set; }
         public int? Category { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }

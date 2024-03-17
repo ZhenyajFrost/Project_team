@@ -20,10 +20,11 @@ function Lot({
   hot,
   imageURLs,
   openModal,
+  city,
   isAdmin,
   isApproved
 }) {
-  const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date())/10000);
+  const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date()) / 10000);
 
   const token = getLocalStorage('token');
 
@@ -89,6 +90,12 @@ function Lot({
               <use href={`${MoneySvg}#schedule`} />
             </svg>
             {formatTime(ttl)}
+          </p>
+          <p>
+            <svg>
+              <use href={`${MoneySvg}#location`} />
+            </svg>
+            {`м. ${city}`}
           </p>
           <NavLink to={"/lot/" + id} className={css.arrowOutward}>
             <svg>

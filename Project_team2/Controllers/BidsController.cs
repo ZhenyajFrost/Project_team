@@ -10,6 +10,7 @@ using System.Net;
 using System.Xml.Linq;
 using System.Reflection;
 using Org.BouncyCastle.Asn1.Ocsp;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
 
 namespace Project2.Controllers
 {
@@ -234,13 +235,19 @@ namespace Project2.Controllers
                     MySqlCommand command = new MySqlCommand();
                     command.Connection = connection;
 
-                    string query = "SELECT l.*, b.BidAmount, u.* FROM Lots l " +
-                                   "INNER JOIN Bids b ON l.Id = b.LotId " +
-                                   "INNER JOIN Users u ON b.UserId = u.Id " +
-                                   "WHERE (l.Approved = true AND b.UserId = @UserId) " + // Добавлены скобки для группировки условий
-                                   "OR (l.IsWaitingPayment = true AND l.WinnerUserId = @UserId) " + // Лоты ожидающие оплату
-                                   "OR (l.IsWaitingDelivery = true AND l.WinnerUserId = @UserId)"; // Лоты ожидающие доставку
-
+                    string query = @"
+    SELECT l.*, b.BidAmount, u.*
+    FROM Lots l
+    INNER JOIN (
+        SELECT LotId, MAX(BidAmount) AS MaxBidAmount
+        FROM Bids
+        GROUP BY LotId
+    ) max_bids ON l.Id = max_bids.LotId
+    INNER JOIN Bids b ON max_bids.LotId = b.LotId AND max_bids.MaxBidAmount = b.BidAmount
+    INNER JOIN Users u ON b.UserId = u.Id
+    WHERE (l.Approved = true AND b.UserId = @UserId)
+    OR (l.IsWaitingPayment = true AND l.WinnerUserId = @UserId)
+    OR (l.IsWaitingDelivery = true AND l.WinnerUserId = @UserId)";
                     command.Parameters.AddWithValue("@UserId", userId);
 
                     // Добавляем фильтрацию
@@ -299,9 +306,13 @@ namespace Project2.Controllers
                         query += $" ORDER BY {model.OrderBy} {sortOrder}";
                     }
 
-                    // Применение пагинации
+                    int offset = (page - 1) * pageSize;
+                    if (offset < 0)
+                    {
+                        offset = 0; // Установка смещения в 0, если оно отрицательное
+                    }
                     query += " LIMIT @Offset, @PageSize";
-                    command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
+                    command.Parameters.AddWithValue("@Offset", offset);
                     command.Parameters.AddWithValue("@PageSize", pageSize);
 
                     command.CommandText = query;
@@ -341,6 +352,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
 
 
 
