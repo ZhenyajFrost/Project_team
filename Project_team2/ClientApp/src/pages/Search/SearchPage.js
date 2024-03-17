@@ -16,6 +16,16 @@ function SearchPage(props) {
   const querry = decodeURI(
     window.location.href.split("/")[window.location.href.split("/").length - 1]
   );
+  function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so add 1
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  }
 
   const initial = {
     category: -1,
@@ -42,7 +52,6 @@ function SearchPage(props) {
       }
     }
     setChanged(res);
-    console.log("d");
   }, [filter]);
 
   //fetch data
@@ -50,6 +59,7 @@ function SearchPage(props) {
     const doFetching = () => {
       console.log("skskk");
       setCurPage(1);
+      changed.timeTillEnd = formatDate(changed.timeTillEnd)
       getLots(curPage, perPage, changed);
       setOldFilter(changed);
     };
