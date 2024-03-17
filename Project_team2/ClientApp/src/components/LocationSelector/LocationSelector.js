@@ -3,6 +3,7 @@ import Select from "../Selector/Selector"; // Ensure this is the correct import 
 import { State, City } from "country-state-city";
 import css from "./LocationSelector.module.css";
 import UAregions from "../../Data/regions.json";
+import { transliterate } from "./transilt";
 
 const LocationSelector = ({
   onRegionChange,
@@ -17,8 +18,8 @@ const LocationSelector = ({
     const c = State.getStatesOfCountry("UA").find(
       (s) => (iso && s.isoCode === iso.isoCode) || s.name === selectedRegion
     );
-    if (c) {
-      const { name, isoCode } = c;
+    if (c || iso) {
+      const { name, isoCode } = iso? iso : UAregions.find((r) => r.isoCode === c.isoCode);
       onRegionChange({ label: name, value: isoCode });
     }
   }
@@ -29,12 +30,12 @@ const LocationSelector = ({
     !selectedCity.label
   ) {
     const r = City.getCitiesOfState("UA", selectedRegion.value).find(
-      (s) => s.name === selectedCity
+      (s) => s.name === selectedCity || transliterate(s.name)===selectedCity
     );
     if (r) {
       const { name } = r;
 
-      onCityChange({ label: name, value: name });
+      onCityChange({ label: transliterate(name), value: name });
     }
   }
   useEffect(() => {
@@ -51,7 +52,7 @@ const LocationSelector = ({
       const citiesData = City.getCitiesOfState("UA", selectedRegion.value).map(
         (city) => ({
           value: city.name,
-          label: city.name,
+          label: transliterate(city.name),
         })
       );
       setCitiesOptions(citiesData);
