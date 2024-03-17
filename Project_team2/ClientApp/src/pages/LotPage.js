@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import PostServiceComponent from "../components/PostService/PostService.js";
 import css from "../styles/LotPage.module.css";
 import Loader from "../components/Loader/Loader";
@@ -30,13 +30,24 @@ function LotPage() {
   const cat = categories.find(
     (categ) => Number(categ.id) === Number(lot.category)
   );
-  useState(() => {
+  useState( () => {
     getHistory(id);
 
     getLotById(id).then((v) => {
       getLotsUser((v.userId, 1, 10));
     });
+
+
   }, []);
+
+  useEffect(() => {
+    console.log("lot", lot)
+
+    console.log("user", user)
+    console.log("maxBid", maxBid)
+
+
+  }, [ lot, user, maxBid])
 
   if (!isLoading && !error) {
     const lotInfo = {
@@ -94,14 +105,15 @@ function LotPage() {
                 <p>
                   Наразі{" "}
                   {maxBid.user
-                    ? `користувач: ${maxBid.user}`
-                    : "переможця немає"}
+                    ? `користувач: ${maxBid.user.login} перемагає`
+                    : "переможця немає"
+                  }
                 </p>
                 <p>
                   <svg>
                     <use href={`${svg}#schedule`} />
                   </svg>
-                  {formatTime(lot.timeTillEnd)}
+                  {formatTime((new Date(lot.timeTillEnd) - new Date()) / 1000)}
                 </p>
               </div>
               <hr />
@@ -170,6 +182,7 @@ function LotPage() {
         <div>
           <Carousel
             title={"Усі оголошення автора"}
+            maxItems={2}
             items={lots.map((lot) => (
               <Lot
                 key={lot.id}

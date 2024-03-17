@@ -1,4 +1,8 @@
-﻿.navbar >.container {
+﻿.navbar{
+  background-color: #FFFFFF;
+}
+
+.navbar >.container {
   max-width: calc(100vw - 200px);
   margin: auto;
 }
@@ -9,6 +13,11 @@
   line-height: 24px;
   letter-spacing: 0em;
   color: var(--textColor)
+}
+
+.nav-link{
+  background-color: var(--gray);
+  border-radius: 40px;
 }
 
 a.navbar-brand {
@@ -48,6 +57,7 @@ a.navbar-brand {
   flex-direction: row;
   gap: 18px;
   width: max-content;
+  align-items: center;
 }
 
 .nav-profile {
@@ -105,6 +115,12 @@ html {
 
 .box-shadow {
   box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+.dropdown{
+  background-color: var(--gray);
+  border-radius: 40px;
+  padding: 8px;
 }
 
 .dropdown-item:active {

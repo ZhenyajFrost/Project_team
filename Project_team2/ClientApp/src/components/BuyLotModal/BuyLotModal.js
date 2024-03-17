@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import css from "../../styles/LotPage.module.css";
 import style from "./style.module.css";
 import { Notify } from "notiflix";
-import useAddBid from "../../API/Lots/useAddBid";
+import usePlaceBid from "../../API/Bids/usePlaceBid";
 import { getLocalStorage } from "../../utils/localStorage";
+import useFastBuy from "../../API/Bids/useFastBuy";
 
 function BuyLotModal({ userId, lotUserId, lotId, maxBid, minStep, minPrice, sellOn, killMyself }) {
   const token = getLocalStorage("token");
@@ -13,7 +14,14 @@ function BuyLotModal({ userId, lotUserId, lotId, maxBid, minStep, minPrice, sell
   const handeBidOpt = (e)=>{
     setPrice(price+Number(e))
   }
-  const [addBid, isLoading] = useAddBid();
+  const [addBid, isLoading] = usePlaceBid();
+  const [fastBuy, isLoadingFB, errorFB] = useFastBuy();
+
+  const handleFastBuy = async () => {
+    await fastBuy(lotId, sellOn, token);
+  }
+  
+  
   const buy = () => {
 
     if(Number(userId) === Number(lotUserId)){
@@ -31,6 +39,7 @@ function BuyLotModal({ userId, lotUserId, lotId, maxBid, minStep, minPrice, sell
       addBid({ lotId, bidAmount: price, token });
     }
   };
+
   const bids = [minStep, minStep*5, minStep*10, minStep*50, minStep*100]
   return (
     <div className={style.main}>
@@ -42,7 +51,7 @@ function BuyLotModal({ userId, lotUserId, lotId, maxBid, minStep, minPrice, sell
         </p>
       </div>
       <p>
-        Наразі {maxBid.user ? `користувач: ${maxBid.user}` : "переможця немає"}
+        Наразі {maxBid.user ? `користувач: ${maxBid.user.login} перемагає` : "переможця немає"}
       </p>
       <hr />
       <p>Ставка</p>
@@ -66,7 +75,7 @@ function BuyLotModal({ userId, lotUserId, lotId, maxBid, minStep, minPrice, sell
       </div>
       <div className={style.bidCont}>
           {bids.map(v=><div  className={style.bidOpt} onClick={()=>handeBidOpt(v)}>{v}</div>)}
-          <div className={style.bidOpt +" "+style.noPlus} onClick={()=>setPrice(sellOn)}>Купити одразу</div>
+          <div className={style.bidOpt + " " + style.noPlus} onClick={handleFastBuy}>Купити одразу</div>
       </div>
       <div className={style.suicide} onClick={killMyself}>x</div>
     </div>

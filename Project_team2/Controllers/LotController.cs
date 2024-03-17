@@ -873,7 +873,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("UnactiveLot")]
-        public IActionResult UnactiveLot([FromBody] EditStatusLot request)
+        public IActionResult UnactiveLot( [FromBody] EditStatusLot request)
         {
             try
             {
@@ -904,7 +904,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("ArchiveLot")]
-        public IActionResult ArchiveLot([FromBody] EditStatusLot request)
+        public IActionResult ArchiveLot( [FromBody] EditStatusLot request)
         {
             try
             {
@@ -934,7 +934,7 @@ namespace Project2.Controllers
             }
         }
         [HttpPost("SetAllowBids")]
-        public IActionResult SetAllowBids([FromBody] EditStatusLot request)
+        public IActionResult SetAllowBids( [FromBody] EditStatusLot request)
         {
             try
             {
@@ -1143,6 +1143,7 @@ namespace Project2.Controllers
                         command.Parameters.AddWithValue("@TimeTillEnd", request.TimeTillEnd);
                     }
 
+
                     // Создаем запрос для подсчета общего количества записей с учетом фильтров
                     string countQuery = $"SELECT COUNT(*) FROM ({query}) AS TotalRecords";
 
@@ -1152,7 +1153,6 @@ namespace Project2.Controllers
 
                     // Устанавливаем команды и параметры
                     command.CommandText = query;
-                    command.Parameters.Clear();
 
                     // Выполняем основной запрос
                     using (MySqlDataReader reader = command.ExecuteReader())
@@ -1357,7 +1357,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-
+       
 
 
 
@@ -1407,7 +1407,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-
+        
         [HttpGet("getLotsWaitingPayment")]
         public IActionResult GetLotsWaitingPayment([FromBody] string Token)
         {
@@ -1454,7 +1454,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-        [HttpPost("getLotsWaitingDelivery")]
+        [HttpPost("getLotsWaitingDelivery")] 
         public IActionResult GetLotsWaitingDelivery([FromBody] string token) // Измените имя параметра на token
         {
             try
@@ -1714,20 +1714,18 @@ WHERE
         public string Explanation { get; set; }
     }
     public class EditStatusLot
-    {
-
+    { 
+    
         public string Token { get; set; }
-        public int LotId { get; set; }
+        public int LotId { get; set; }  
 
     }
-    public class getUserLikedLots
-    {
-        public string Token { get; set; }
+    public class getUserLikedLots { 
+    public string Token { get; set; }
     }
-    public class LikesLot
-    {
-        public string Token { get; set; }
-        public int LotId { get; set; }
+    public class LikesLot { 
+    public string Token { get; set; }
+    public int LotId { get; set; }
     }
     public class DeleteLot
     {

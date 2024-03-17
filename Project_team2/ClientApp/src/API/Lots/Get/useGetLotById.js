@@ -15,12 +15,12 @@ const useGetLotById = () => {
       const response = await axios.get(`${LOTS_ENDPOINT}/getLotById/${lotId}`);
 
       const {
-        data: { lot, owner, maxBidPrice, maxBidUser },
+        data: { lot, owner, maxBidPrice, maxBidsUser },
       } = response;
       console.log("Lot successfully retrieved: ", response.data);
       setLot(lot);
       setUser(owner);
-      setMaxBid({ price: maxBidPrice, user: maxBidUser });
+      setMaxBid({ price: maxBidPrice, user: response.data.maxBidsUser });
       setLoading(false);
 
       return lot;

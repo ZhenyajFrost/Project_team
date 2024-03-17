@@ -15,38 +15,6 @@ const LocationSelector = ({
   const [statesOptions, setStatesOptions] = useState([]);
   const [citiesOptions, setCitiesOptions] = useState([]);
 
-  const [regions, setRegions] = useState([]);
-  const [cities, setCities] = useState([])
-
-  // if (selectedRegion && !selectedRegion.label) {
-  //   let iso = UAregions.find((r) => r.name === selectedRegion);
-
-  //   const c = State.getStatesOfCountry("UA").find(
-  //     (s) => (iso && s.isoCode === iso.isoCode) || s.name === selectedRegion
-  //   );
-
-  //   if (c || iso) {
-  //     const { name, isoCode } = iso ? iso : UAregions.find((r) => r.isoCode === c.isoCode);
-  //     onRegionChange({ label: name, value: isoCode });
-  //   }
-  // }
-
-  // if (
-  //   selectedRegion &&
-  //   selectedRegion.value &&
-  //   selectedCity &&
-  //   !selectedCity.label
-  // ) {
-  //   const r = City.getCitiesOfState("UA", selectedRegion.value).find(
-  //     (s) => s.name === selectedCity || transliterate(s.name) === selectedCity
-  //   );
-  //   if (r) {
-  //     const { name } = r;
-
-  //     onCityChange({ label: transliterate(name), value: name });
-  //   }
-  // }
-
   useEffect(() => {
 
     const statesData = regionCities.map(region => ({

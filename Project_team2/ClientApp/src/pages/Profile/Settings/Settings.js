@@ -484,21 +484,6 @@ function Settings() {
                 </CustomAccordionDetails>
             </CustomAccordion>
 
-            <CustomAccordion id="payDetails">
-                <CustomAccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="payDetails-content"
-                    id="payDetails-header"
-                >
-                    Реквізити
-                </CustomAccordionSummary>
-                <CustomAccordionDetails>
-                    <div className={css.container}>
-
-                    </div>
-                </CustomAccordionDetails>
-            </CustomAccordion>
-
             <CustomAccordion id="deleteProfile">
                 <CustomAccordionSummary
                     expandIcon={<ExpandMoreIcon />}

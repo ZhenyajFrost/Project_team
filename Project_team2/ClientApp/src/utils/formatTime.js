@@ -61,6 +61,6 @@ export const formatTime = (seconds) => {
       " " : "") +
     (minutes > 0 ? minutes +
       " " +
-      vidminMinutes(minutes) : "Time is up.")
+      vidminMinutes(minutes) : "Завершено")
   );
 };

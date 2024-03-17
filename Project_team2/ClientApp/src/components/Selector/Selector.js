@@ -1,3 +1,4 @@
+import { VisibilityRounded } from '@mui/icons-material';
 import React from 'react';
 import Select from 'react-select';
 
@@ -18,6 +19,7 @@ const customStyles = {
     backgroundColor: state.isSelected ? 'none' : 'white',
     '&:hover': {
       backgroundColor: 'lightgray',
+      zIndex: '1000'
     },
   }),
   menu: (provided) => ({

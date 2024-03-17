@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import styles from './Carousel.module.css'; // Import the CSS module
 
-const Carousel = ({ items, title }) => {
+const Carousel = ({ items, maxItems = 4, title }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const visibleItems = 3;
+  const visibleItems = maxItems;
 
   const next = () => {
     setCurrentIndex((prevIndex) =>

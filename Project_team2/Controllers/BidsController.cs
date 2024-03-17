@@ -81,101 +81,92 @@ namespace Project2.Controllers
 
             try
             {
+                // Get lot information
+                decimal minPrice;
+                decimal minStepPrice;
+                bool allowBids;
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
 
-                    // Begin transaction
-                    using (MySqlTransaction transaction = connection.BeginTransaction())
+                    using (MySqlCommand getLotInfoCommand = connection.CreateCommand())
                     {
-                        try
+                        getLotInfoCommand.CommandText = "SELECT MinPrice, MinStepPrice, AllowBids FROM Lots WHERE Id = @LotId";
+                        getLotInfoCommand.Parameters.AddWithValue("@LotId", model.LotId);
+
+                        using (MySqlDataReader reader = getLotInfoCommand.ExecuteReader())
                         {
-                            // Get lot information
-                            decimal minPrice;
-                            decimal minStepPrice;
-                            using (MySqlCommand getLotInfoCommand = connection.CreateCommand())
+                            if (reader.Read())
                             {
-                                getLotInfoCommand.Transaction = transaction;
-                                getLotInfoCommand.CommandText = "SELECT MinPrice, MinStepPrice FROM Lots WHERE Id = @LotId";
-                                getLotInfoCommand.Parameters.AddWithValue("@LotId", model.LotId);
-
-                                using (MySqlDataReader reader = getLotInfoCommand.ExecuteReader())
-                                {
-                                    if (reader.Read())
-                                    {
-                                        minPrice = Convert.ToDecimal(reader["MinPrice"]);
-                                        minStepPrice = Convert.ToDecimal(reader["MinStepPrice"]);
-                                    }
-                                    else
-                                    {
-                                        return BadRequest(new { message = "Lot not found" });
-                                    }
-                                }
+                                minPrice = Convert.ToDecimal(reader["MinPrice"]);
+                                minStepPrice = Convert.ToDecimal(reader["MinStepPrice"]);
+                                allowBids = Convert.ToBoolean(reader["AllowBids"]);
                             }
-
-                            // Get current maximum bid for the lot
-                            decimal currentMaxBid;
-                            string userEmail = null; // Initialize userEmail
-                            using (MySqlCommand getCurrentMaxBidCommand = connection.CreateCommand())
+                            else
                             {
-                                getCurrentMaxBidCommand.Transaction = transaction;
-                                getCurrentMaxBidCommand.CommandText = "SELECT MAX(BidAmount), UserId FROM Bids WHERE LotId = @LotId GROUP BY UserId ORDER BY MAX(BidAmount) DESC LIMIT 1";
-                                getCurrentMaxBidCommand.Parameters.AddWithValue("@LotId", model.LotId);
-
-                                using (MySqlDataReader reader = getCurrentMaxBidCommand.ExecuteReader())
-                                {
-                                    if (reader.Read())
-                                    {
-                                        currentMaxBid = Convert.ToDecimal(reader["MAX(BidAmount)"]);
-                                        string userIdWhoseBidWasOutbid = reader.GetString("UserId");
-
-                                        // Get email of the user whose bid was outbid
-                                        userEmail = GetUserEmail(userIdWhoseBidWasOutbid, transaction);
-                                    }
-                                    else
-                                    {
-                                        currentMaxBid = 0;
-                                    }
-                                }
+                                return BadRequest(new { message = "Lot not found" });
                             }
-
-                            // Check if the bid amount is valid
-                            if (model.BidAmount < minPrice || (currentMaxBid > 0 && model.BidAmount <= currentMaxBid))
-                            {
-                                return BadRequest(new { message = "The bid amount must be greater than the minimum price and higher than the current maximum bid" });
-                            }
-
-                            // Check if the bid amount is at least MinStepPrice higher than the current maximum bid
-                            if (model.BidAmount < currentMaxBid + minStepPrice)
-                            {
-                                return BadRequest(new { message = "The bid amount must be at least the minimum step price higher than the current maximum bid" });
-                            }
-
-                            // Add bid to Bids table
-                            AddBidToDatabase(model.LotId, userId, model.BidAmount, transaction);
-
-                            // Commit transaction
-                            transaction.Commit();
-
-                            // Send email notification
-                            if (!string.IsNullOrEmpty(userEmail))
-                            {
-                                string subject = "Your bid has been outbid";
-                                string message = $"Your bid has been outbid for lot ID: {model.LotId}.";
-                                SendEmail(userEmail, subject, message);
-                            }
-
-                            return Ok(new { message = "Bid placed successfully" });
-                        }
-                        catch (Exception ex)
-                        {
-                            // Rollback transaction on error
-                            transaction.Rollback();
-                            Console.WriteLine($"Error in PlaceBid method: {ex.ToString()}");
-                            return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
                         }
                     }
                 }
+
+                // Check if bidding is allowed for the lot
+                if (!allowBids)
+                {
+                    return BadRequest(new { message = "Bidding is not allowed for this lot" });
+                }
+
+                // Get current maximum bid for the lot
+                decimal currentMaxBid = 0;
+                int userIdWhoseBidWasOutbid = 0;
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    using (MySqlCommand getCurrentMaxBidCommand = connection.CreateCommand())
+                    {
+                        getCurrentMaxBidCommand.CommandText = "SELECT MAX(BidAmount), UserId FROM Bids WHERE LotId = @LotId GROUP BY UserId ORDER BY MAX(BidAmount) DESC LIMIT 1";
+                        getCurrentMaxBidCommand.Parameters.AddWithValue("@LotId", model.LotId);
+
+                        using (MySqlDataReader reader = getCurrentMaxBidCommand.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                currentMaxBid = Convert.ToDecimal(reader["MAX(BidAmount)"]);
+                                userIdWhoseBidWasOutbid = reader.GetInt32("UserId");
+                            }
+                        }
+                    }
+                }
+
+                // Check if the bid amount is valid
+                if (model.BidAmount < minPrice || (currentMaxBid > 0 && model.BidAmount <= currentMaxBid))
+                {
+                    return BadRequest(new { message = "The bid amount must be greater than the minimum price and higher than the current maximum bid" });
+                }
+
+                // Check if the bid amount is at least MinStepPrice higher than the current maximum bid
+                if (model.BidAmount < currentMaxBid + minStepPrice)
+                {
+                    return BadRequest(new { message = "The bid amount must be at least the minimum step price higher than the current maximum bid" });
+                }
+
+                // Add bid to Bids table
+                AddBidToDatabase(model.LotId, userId, model.BidAmount);
+
+                // Send email notification if needed
+                if (userIdWhoseBidWasOutbid != 0)
+                {
+                    string userEmail = GetUserEmail(userIdWhoseBidWasOutbid);
+                    if (!string.IsNullOrEmpty(userEmail))
+                    {
+                        string subject = "Your bid has been outbid";
+                        string message = $"Your bid has been outbid for lot ID: {model.LotId}.";
+                        SendEmail(userEmail, subject, message);
+                    }
+                }
+
+                return Ok(new { message = "Bid placed successfully" });
             }
             catch (Exception ex)
             {
@@ -184,30 +175,40 @@ namespace Project2.Controllers
             }
         }
 
-        private string GetUserEmail(string userId, MySqlTransaction transaction)
+        private string GetUserEmail(int userId)
         {
-            using (MySqlCommand getUserEmailCommand = transaction.Connection.CreateCommand())
+            using (MySqlConnection connection = new MySqlConnection(_connString))
             {
-                getUserEmailCommand.Transaction = transaction;
-                getUserEmailCommand.CommandText = "SELECT Email FROM Users WHERE Id = @UserId";
-                getUserEmailCommand.Parameters.AddWithValue("@UserId", userId);
+                connection.Open();
 
-                object userEmailObj = getUserEmailCommand.ExecuteScalar();
-                return userEmailObj != null ? userEmailObj.ToString() : null;
+                using (MySqlCommand getUserEmailCommand = connection.CreateCommand())
+                {
+                    getUserEmailCommand.CommandText = "SELECT Email FROM Users WHERE Id = @UserId";
+                    getUserEmailCommand.Parameters.AddWithValue("@UserId", userId);
+
+                    object userEmailObj = getUserEmailCommand.ExecuteScalar();
+                    return userEmailObj != null ? userEmailObj.ToString() : null;
+                }
             }
         }
-        private void AddBidToDatabase(int lotId, string userId, decimal bidAmount, MySqlTransaction transaction)
+
+        private void AddBidToDatabase(int lotId, string userId, decimal bidAmount)
         {
-            using (MySqlCommand insertBidCommand = transaction.Connection.CreateCommand())
+            using (MySqlConnection connection = new MySqlConnection(_connString))
             {
-                insertBidCommand.Transaction = transaction;
-                insertBidCommand.CommandText = "INSERT INTO Bids (LotId, UserId, BidAmount, BidTime) VALUES (@LotId, @UserId, @BidAmount, NOW())";
-                insertBidCommand.Parameters.AddWithValue("@LotId", lotId);
-                insertBidCommand.Parameters.AddWithValue("@UserId", userId);
-                insertBidCommand.Parameters.AddWithValue("@BidAmount", bidAmount);
-                insertBidCommand.ExecuteNonQuery();
+                connection.Open();
+
+                using (MySqlCommand insertBidCommand = connection.CreateCommand())
+                {
+                    insertBidCommand.CommandText = "INSERT INTO Bids (LotId, UserId, BidAmount, BidTime) VALUES (@LotId, @UserId, @BidAmount, NOW())";
+                    insertBidCommand.Parameters.AddWithValue("@LotId", lotId);
+                    insertBidCommand.Parameters.AddWithValue("@UserId", userId);
+                    insertBidCommand.Parameters.AddWithValue("@BidAmount", bidAmount);
+                    insertBidCommand.ExecuteNonQuery();
+                }
             }
         }
+
 
 
 

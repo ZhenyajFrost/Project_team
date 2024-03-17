@@ -13,6 +13,8 @@ import Login from "../../Login/Login.js";
 import LoginForgotPassword from "../../Login/LoginForgotPassword.js";
 import Registration from "../../Registration/Registration.js";
 import RegistrationConfirm from "../../Registration/RegistrationConfirm.js";
+
+import InputSearch from "../Input/InputSearch.js";
 import {
   setLocalStorage,
   getLocalStorage,
@@ -78,7 +80,10 @@ function NavMenu() {
 
     history.push("/");
     window.location.reload();
+
+
   };
+
 
   return (
     <header>
@@ -91,12 +96,16 @@ function NavMenu() {
             <Nav.Link href="search">
               <img src={catalog} alt="catalog" /> Каталог
             </Nav.Link>
-            {user && user.isAdmin ?
-              <Nav.Link href="admin">
-                Admin
-              </Nav.Link> : <></>}
+            <Nav.Link href="howItWorks">
+                {`Як це працює`}
+              </Nav.Link>
+
           </Nav>
           <Nav className="nav-right">
+            {isLoggined ?
+              <Nav.Link href="create">
+                {`Cтворити Лот +`}
+              </Nav.Link> : <></>}
             <Dropdown>
               <Dropdown.Toggle
                 as="a"
@@ -120,7 +129,7 @@ function NavMenu() {
 
                   </Dropdown.Item>
                   <Dropdown.Item onClick={() => history.push('/profile/favorites')}>Мої Вподобання</Dropdown.Item>
-                  <Dropdown.Item onClick={() => history.push('/profile')}>Мої ставки</Dropdown.Item>
+                  <Dropdown.Item onClick={() => history.push('/profile/bids')}>Мої ставки</Dropdown.Item>
                   <hr />
                   <Dropdown.Item onClick={() => history.push('/profile/lots')}>Оголошення</Dropdown.Item>
                   <Dropdown.Item onClick={() => history.push('/profile/settings')}>Налаштування</Dropdown.Item>

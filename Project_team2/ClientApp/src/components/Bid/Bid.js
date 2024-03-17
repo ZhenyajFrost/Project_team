@@ -28,7 +28,7 @@ function Bid({ time, user, amount }) {
     return `${day} ${ukrainianMonth}`;
   }
 
-  const userDisp =<p>{user.login}</p>;
+  const userDisp =<p>{user ? user.login : ''}</p>;
 
   return (
     <div>

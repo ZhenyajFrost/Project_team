@@ -49,7 +49,7 @@ function BidLotSmall({ bid }) {
                         <svg>
                             <use href={`${svg}#attach_money`} />
                         </svg>
-                        {bid.lot.price}
+                        {bid.maxBidAmount}
                     </div>
                     <div className={css.text}>
                         <svg >
