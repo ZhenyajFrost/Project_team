@@ -16,7 +16,7 @@ function BuyLotModal({ userId, lotUserId, lotId, maxBid, minStep, minPrice, sell
   const [addBid, isLoading] = useAddBid();
   const buy = () => {
 
-    if(userId === lotUserId){
+    if(Number(userId) === Number(lotUserId)){
       Notify.failure('Ви не можете ставити ставку на свій лот((((')
       return;
     }
