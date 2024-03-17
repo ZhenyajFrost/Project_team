@@ -109,6 +109,7 @@ export default function CreateLot({ data = {} }) {
           <CategorySelector
             onCatChange={(c) => onInput({ name: "category", value: c })}
             selectedCat={lot.category}
+            active = {!data.title}
           />
 
           <p>Тривалість торгів</p>

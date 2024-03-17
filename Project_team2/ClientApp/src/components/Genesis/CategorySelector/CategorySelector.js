@@ -2,18 +2,20 @@ import React, { useState } from "react";
 import categories from "../../../Data/categories.json";
 import def from "../../../images/svgDef.svg";
 import ModalWindow from "../../ModalWindow/ModalWindow";
-import css from "./style.module.css"
+import css from "./style.module.css";
 import CategoryModal from "../CategoryModal/CategoryModal";
 
-function CategorySelector({ selectedCat, onCatChange }) {
+function CategorySelector({ selectedCat, onCatChange, active }) {
   const [modal, setModal] = useState(false);
 
   if (!selectedCat) {
     onCatChange(categories[0]);
     return null;
   } else {
-    if(!selectedCat.title){
-      selectedCat = categories.find(v=>Number(v.id)===Number(selectedCat))
+    if (!selectedCat.title) {
+      selectedCat = categories.find(
+        (v) => Number(v.id) === Number(selectedCat)
+      );
     }
     return (
       <>
@@ -24,13 +26,23 @@ function CategorySelector({ selectedCat, onCatChange }) {
             </svg>
             <p>{selectedCat.title}</p>
           </div>
-          <div onClick={() => setModal(true)} className={css.button}>Змінити</div>
+          {active ? (
+            <div onClick={() => setModal(active)} className={css.button}>
+              Змінити
+            </div>
+          ) : null}
         </div>
         <ModalWindow
           visible={modal}
           setVisible={setModal}
           children={
-            <CategoryModal onSelect={(c)=>{onCatChange(c); setModal(false); }} categories={categories}/>
+            <CategoryModal
+              onSelect={(c) => {
+                onCatChange(c);
+                setModal(false);
+              }}
+              categories={categories}
+            />
           }
         />
       </>
