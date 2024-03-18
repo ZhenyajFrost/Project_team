@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import css from './BidLot.module.css'
 import svg from "../../../images/svgDef.svg";
 import { NavLink } from "react-router-dom";
@@ -8,13 +7,13 @@ import Button from '../../UI/Button/Button';
 import ModalWindow from '../../ModalWindow/ModalWindow.js'
 import statusSvg from '../../../images/status.svg';
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min.js";
-import useGetDivisions from "../../../API/NovaPost/Get/useGetDivisions.js";
+
+import DeliveryRadioGroup from '../../DeliveryRadioGroup/DeliveryRadioGroup.js'
 
 function BidLot({ bid }) {
-
     const history = useHistory();
 
-    const [getDivisions, isLoading, error] = useGetDivisions();
+    const [delivery, setDelivery] = useState({});
 
     const [ttl, setTtl] = useState((new Date(bid.lot.timeTillEnd) - new Date()) / 1000 > 0 ? (new Date(bid.lot.timeTillEnd) - new Date()) / 1000 : 0);
     const [modalVisible, setModalVisible] = useState(false);
@@ -26,11 +25,10 @@ function BidLot({ bid }) {
             }, 1000);
     }, [ttl]);
 
-    const onCheckout = (e) => {
+    const onCheckout = async (e) => {
         e.preventDefault();
 
-        //bla bla bla 
-        getDivisions();
+        //bla bla bla
     }
 
     return (
@@ -146,22 +144,17 @@ function BidLot({ bid }) {
 
                     <div className={css.formDiv} id="delivery">
                         <h4>Доставка</h4>
-                        <div className={css.data}>
-                            <div className={css.text2}>
-                                <img src={bid.lot.imageURLs ? bid.lot.imageURLs[0] : 'defaultImagePath.jpg'} className={css.img} alt="image" />
-                                {bid.lot.title}
-                            </div>
+                        <DeliveryRadioGroup onDeliveryChange={(delivery) => setDelivery(delivery)}/>
 
-                            <div className={css.text} >{`${bid.maxBidAmount} грн`}</div>
-                        </div>
                     </div>
 
                     <Button type="submit">Підтвердити оформлення лота</Button>
                 </form>
             </ModalWindow>
-        </div>
+        </div >
 
     );
 }
+
 
 export default BidLot;
