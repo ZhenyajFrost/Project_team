@@ -4,6 +4,8 @@ import svg from "../../../images/svgDef.svg";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
 import { formatTime } from "../../../utils/formatTime";
 import css from "../../Lot/LotSmall/LotSmall.module.css"
+import statusSvg from '../../../images/status.svg';
+
 
 function BidLotSmall({ bid }) {
     const history = useHistory();
@@ -33,10 +35,25 @@ function BidLotSmall({ bid }) {
                 <div className={css.title}>{bid.lot.title}</div>
                 <div className={css.desc}>{bid.lot.shortDescription}</div>
                 
-                <div className={css.bid}>
-                    <p>Моя ставка: <span>{`${bid.maxBidAmount} ₴`}</span> </p>
-                    <p>Наразі перемагає: <span>{`${bid.bidProfile.login}`}</span> </p>
-                </div>
+
+                {ttl > 0 ?
+                    <div className={css.bid}>
+                        <p>Моя ставка: <span>{`${bid.maxBidAmount} ₴`}</span> </p>
+                        <p>Наразі перемагає: <span>{`${bid.bidProfile.login}`}</span> </p>
+                    </div> :
+                    bid.lot.winnerUserId ?
+                        <div className={css.winner}>
+                            <div className={css.title}>
+                                <svg style={{ width: "32px", height: "32px" }}>
+                                    <use href={`${statusSvg}#good`} />
+                                </svg>
+                                Ви перемогли
+                            </div>
+                            <p>{`Зі ставкою ${bid.maxBidAmount} грн, оформіть лот)`}</p>
+                        </div>
+                        :
+                        ''
+                }
 
                 <div className={css.text}>
                     <svg>

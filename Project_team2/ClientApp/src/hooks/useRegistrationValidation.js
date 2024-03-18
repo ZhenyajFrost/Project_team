@@ -4,7 +4,7 @@ const useRegistrationValidation = () => {
   const [validationErrors, setValidationErrors] = useState({});
  
   const validateText = (name) => {
-    const nameRegex = /^[a-zA-Z]*[-\s]?[a-zA-Z]*?$/;
+    const nameRegex = /^[a-zA-Z\u0400-\u04FF]*[-\s]?[a-zA-Z\u0400-\u04FF]*?$/u;
     return nameRegex.test(name);
   };
 

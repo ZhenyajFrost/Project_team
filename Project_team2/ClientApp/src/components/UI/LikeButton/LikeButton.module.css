@@ -1,7 +1,14 @@
 .btn{
+    width: 32px;
+    height: 32px;
+
     background-color: var(--gray);
     padding: 4px;
     border-radius: 40px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn:hover {

@@ -358,7 +358,6 @@ namespace Project2.Controllers
 
 
 
-
         [HttpPost("fastBuy")]
         public IActionResult FastBuy([FromBody] BidModel model)
         {
@@ -366,6 +365,8 @@ namespace Project2.Controllers
             var userId = ExtractUserIdFromToken(tok);
             try
             {
+                Console.WriteLine($"Received data - LotId: {model.LotId}, BidAmount: {model.BidAmount}");
+
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
@@ -376,7 +377,7 @@ namespace Project2.Controllers
                         try
                         {
                             // Получаем информацию о лоте
-                            string getLotInfoQuery = "SELECT Price, AllowBids FROM Lots WHERE Id = @LotId";
+                            string getLotInfoQuery = "SELECT Price, AllowBids, Active FROM Lots WHERE Id = @LotId";
                             using (MySqlCommand getLotInfoCommand = new MySqlCommand(getLotInfoQuery, connection, transaction))
                             {
                                 getLotInfoCommand.Parameters.AddWithValue("@LotId", model.LotId);
@@ -386,17 +387,33 @@ namespace Project2.Controllers
                                     {
                                         decimal price = Convert.ToDecimal(lotReader["Price"]);
                                         bool allowBids = Convert.ToBoolean(lotReader["AllowBids"]);
+                                        bool active = Convert.ToBoolean(lotReader["Active"]);
 
-                                        // Проверяем, что AllowBids равно false
-                                        if (allowBids)
+                                        // Выводим цену в консоль для понимания
+                                        Console.WriteLine($"Price of the item: {price}");
+
+                                        // Проверяем, что лот активен
+                                        if (!active)
                                         {
-                                            return BadRequest(new { message = "You cannot buy this item after the auction has started" });
+                                            return BadRequest(new { message = "Lot is not active" });
                                         }
 
-                                        // Проверяем, что BidAmount равен Price
-                                        if (model.BidAmount != price)
+                                        // Проверяем, что ставки не разрешены
+                                        if (!allowBids)
                                         {
-                                            return BadRequest(new { message = "Bid amount must be equal to the price of the item" });
+                                            // Продолжаем выполнение метода, так как это разрешено, когда Active = true и Allow Bids = false
+                                            Console.WriteLine("Bidding is not allowed but continuing with the purchase process.");
+
+                                            // Теперь мы можем проверить, равна ли ставка цене товара
+                                            if (model.BidAmount != price)
+                                            {
+                                                return BadRequest(new { message = "Bid amount must be equal to the price of the item" });
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // Если ставки разрешены, возвращаем ошибку
+                                            return BadRequest(new { message = "You cannot buy this item after the auction has started" });
                                         }
                                     }
                                     else
@@ -446,6 +463,9 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
+
+
 
         [HttpGet("getRecentBids/{lotId}")]
         public IActionResult GetRecentBids(int lotId)

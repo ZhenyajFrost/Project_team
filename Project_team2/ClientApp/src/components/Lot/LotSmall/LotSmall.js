@@ -37,6 +37,7 @@ function LotSmall({
 
 
   useEffect(() => {
+    if(ttl > 0)
     setTimeout(() => {
       setTtl(ttl - 1);
     }, 1000);

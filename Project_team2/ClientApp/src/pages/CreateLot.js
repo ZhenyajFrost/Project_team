@@ -67,10 +67,12 @@ export default function CreateLot({ data = {} }) {
       lot.city = lot.city.label;
     }
     lot.userId = user.id;
-    lot.timeTillEnd = new Date().setDate(
-      new Date().getDate() + lot.timeTillEnd
-    );
+    lot.timeTillEnd = ` ${new Date(lot.timeTillEnd).valueOf()}`;
+    //lot.timeTillEnd = lot.timeTillEnd.toISOString().replace(/\.\d+Z$/, '');
+
     lot.category = lot.category.id;
+
+    console.log(lot);
 
     if (data.id) {
       const answ = {};
@@ -117,7 +119,7 @@ export default function CreateLot({ data = {} }) {
             onChange={(t) => {
               const today = new Date();
               const endDate = new Date(
-                today.setDate(today.getDate() + Number(t))
+                today.setDate((today.getDate() + Number(t)))
               );
               onInput({ name: "timeTillEnd", value: endDate });
             }}

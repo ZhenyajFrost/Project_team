@@ -1790,7 +1790,7 @@ WHERE
     }
     public class GetUserLotsRequest
     {
-        public string SearchQuery { get; set; }
+        public string? SearchQuery { get; set; }
         public int? Category { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }

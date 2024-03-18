@@ -148,3 +148,34 @@
   letter-spacing: 0em;
 
 }
+
+.winner {
+  padding: 16px;
+  background-color: #7AD26C1A;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vw;
+}
+
+.winner>.title {
+  display: flex;
+  gap: 0.5vw;
+  align-items: center;
+
+  font-family: Manrope;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 22px;
+  letter-spacing: 0em;
+
+}
+
+.winner>p {
+  font-family: Manrope;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 19px;
+  letter-spacing: 0em;
+
+}

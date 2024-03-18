@@ -11,7 +11,7 @@ const useFastBuy = () => {
     const fastBuy = async (lotId, price, token) => {
         setLoading(true);
         try {
-            const response = await axios.post(`${BIDS_ENDPOINT}/fastBuy`, {lotId, bidAmout: price, token});
+            const response = await axios.post(`${BIDS_ENDPOINT}/fastBuy`, {lotId, bidAmount: price, token});
 
             Notiflix.Notify.success("Успішно! Оформіть лот у кабінеті!")
         } catch (error) {

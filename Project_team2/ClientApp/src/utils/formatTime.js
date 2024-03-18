@@ -42,25 +42,30 @@ const vidminMinutes = (minutes) => {
 };
 
 export const formatTime = (seconds) => {
+  if (seconds <= 0)
+  return "Завершено"
+
   const days = Math.floor(seconds / (3600 * 24));
   seconds -= days * 3600 * 24;
   const hours = Math.floor(seconds / 3600);
   seconds -= hours * 3600;
   const minutes = Math.floor(seconds / 60);
   seconds -= minutes * 60;
-  
-  return (
-    (days > 0 ? days +
-      " " +
-      vidminDays(days) +
-      " " : "") +
-    (hours > 0 ?
-      hours +
-      " " +
-      vidminHours(hours) +
-      " " : "") +
-    (minutes > 0 ? minutes +
-      " " +
-      vidminMinutes(minutes) : "Завершено")
-  );
+
+    return (
+      (days > 0 ? days +
+        " " +
+        vidminDays(days) +
+        " " : "") +
+      (hours > 0 ?
+        hours +
+        " " +
+        vidminHours(hours) +
+        " " : "") +
+      (minutes > 0 ? minutes +
+        " " +
+        vidminMinutes(minutes) : "Завершено")
+    );
+
+
 };

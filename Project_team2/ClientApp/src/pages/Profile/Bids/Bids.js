@@ -50,11 +50,10 @@ function Bids() {
             <FiltersWSearch initial={filters} onChange={onFilterChange} />
             <div className={css.display}>
                 <Button onClick={handleButtonSearch}>Search</Button>
-                <DisplayChoose lotDisplay={bidsDisplay} setLotDisplay={setBidsDisplay} />
             </div>
 
 
-            {totalCount === 0 ? "No lots Found" : isLoading ? <Loader /> : <BidsContainer bids={bids} display={bidsDisplay} bidStyle={bidsDisplay === "listWrap" ? "small" : "basic"} />}
+            {totalCount === 0 ? "No lots Found" : isLoading ? <Loader /> : <BidsContainer bids={bids} display='list' />}
             {isLoading ? '' : <Pagination totalCount={totalCount} page={pagination.page} limit={pagination.pageSize} changePage={handleChangePage} />}
 
         </div>
