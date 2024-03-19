@@ -12,7 +12,6 @@
   display: flex;
   transition: transform 0.5s ease-in-out;
   gap: 1.5vw;
-
 }
 
 .carouselItem {
@@ -21,7 +20,7 @@
   text-align: center;
 }
 
-.header{
+.header {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -36,7 +35,7 @@
   cursor: pointer;
   padding: 10px;
 
-  z-index: 100; 
+  z-index: 100;
 
   width: 42px;
   height: 42px;
@@ -44,8 +43,16 @@
   border-radius: 40px;
 }
 
-.buttons{
+.buttons {
   display: flex;
   flex-direction: row;
-  gap: 1vw
+  gap: 1vw;
+}
+
+.shine {
+  height: 338px;
+  width: 20px;
+  box-shadow: 0 0 25px var(--white);
+  position: absolute;
+  right: -20px;
 }
