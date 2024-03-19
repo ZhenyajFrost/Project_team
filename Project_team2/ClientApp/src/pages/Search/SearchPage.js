@@ -63,7 +63,6 @@ function SearchPage(props) {
           res[a]= undefined;
         }else{
           res[a] = filter[a];
-
         }
       }
     }
