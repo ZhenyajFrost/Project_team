@@ -17,6 +17,7 @@ function SearchPage(props) {
     window.location.href.split("/")[window.location.href.split("/").length - 1]
   );
   function formatDate(date) {
+    if (!date) return undefined;
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so add 1
     const day = String(date.getDate()).padStart(2, "0");
@@ -28,13 +29,13 @@ function SearchPage(props) {
   }
 
   const initial = {
-    category: -1,
     minPrice: 1,
     maxPrice: 10000000,
     region: "Будь-який",
     isNew: undefined,
     orderBy: "",
-    timeTillEnd: new Date(Date.now()),
+    timeTillEnd:undefined,
+    searchString:querry
   };
   const [oldFilter, setOldFilter] = useState({});
   const [filter, setFilter] = useState({ ...initial });
@@ -47,8 +48,13 @@ function SearchPage(props) {
   useEffect(() => {
     const res = {};
     for (let a in filter) {
-      if (filter[a] !== initial[a]) {
-        res[a] = filter[a];
+      if (filter[a] !== changed[a]) {
+        if(!filter[a] || filter[a]<0 || filter[a]==="Будь-який"){
+          res[a]= undefined;
+        }else{
+          res[a] = filter[a];
+
+        }
       }
     }
     setChanged(res);
@@ -57,13 +63,11 @@ function SearchPage(props) {
   //fetch data
   useEffect(() => {
     const doFetching = () => {
-      console.log("skskk");
       setCurPage(1);
-      changed.timeTillEnd = formatDate(changed.timeTillEnd)
+      changed.timeTillEnd = formatDate(changed.timeTillEnd);
       getLots(curPage, perPage, changed);
       setOldFilter(changed);
     };
-    console.log("AAAA");
     if (oldFilter !== changed && !isLoading) doFetching();
   }, [getLots, curPage, oldFilter, changed, isLoading]);
 
@@ -76,14 +80,13 @@ function SearchPage(props) {
       args.split("&").forEach((v) => {
         obj[v.split("=")[0]] = v.split("=")[1];
       });
-      setFilter(obj);
+      onFilterChange(obj);
     }
   }, []);
   const onFilterChange = (e) => {
     console.log(e);
     setFilter({ ...filter, ...e });
   };
-  console.log(totalCount, perPage, curPage);
 
   return (
     <>

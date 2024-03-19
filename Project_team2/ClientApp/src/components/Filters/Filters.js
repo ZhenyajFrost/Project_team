@@ -12,7 +12,6 @@ function Filters({ onChange, initial }) {
   const [params, setParams] = useState({
     minPrice: 1,
     maxPrice: 10000000,
-    // timeTillEnd: new Date(new Date(Date.now()).getDate() + 1),
     region: "Будь-який",
     ...initial,
   });
@@ -46,6 +45,7 @@ function Filters({ onChange, initial }) {
   const selCat = categories.find(
     (v) => Number(v.id) === Number(initial.category)
   );
+  console.log(selCat);
   return (
     <div className={css.filterContainer}>
       <div className={css.filterItem}>
