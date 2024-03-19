@@ -82,7 +82,7 @@ public class LotExpirationReminderService : BackgroundService
 
                     // Получаем почту пользователя
                     string ownerEmail = string.Empty;
-                    
+
                     string getOwnerEmailQuery = "SELECT Email FROM Users WHERE UserId = @UserId";
                     using (MySqlCommand getOwnerEmailCommand = new MySqlCommand(getOwnerEmailQuery, connection))
                     {
@@ -97,12 +97,12 @@ public class LotExpirationReminderService : BackgroundService
                     // Отправляем оповещения пользователям и владельцу лота
                     foreach (var email in recipientEmails)
                     {
-                        SendEmail(email, "Оповещение: Осталось менее 12 часов до окончания аукциона", $"Лот '{lotTitle}' (ID={lotId}) заканчивается через менее 12 часов. Дата окончания: {expirationTime}");
+                        SendEmail(email, "Оповещение: Осталось менее 12 часов до окончания аукциона", $"Лот '{lotTitle}' заканчивается через менее 12 часов. Дата окончания: {expirationTime}. Просмотреть и поставить можно по ссылке: https://localhost:44424/lot/{lotId}");
                     }
 
                     if (!string.IsNullOrEmpty(ownerEmail))
                     {
-                        SendEmail(ownerEmail, "Оповещение: Осталось менее 12 часов до окончания вашего лота", $"Ваш лот '{lotTitle}' (ID={lotId}) заканчивается через менее 12 часов. Дата окончания: {expirationTime}");
+                        SendEmail(ownerEmail, "Оповещение: Осталось менее 12 часов до окончания вашего лота", $"Ваш лот '{lotTitle}' заканчивается через менее 12 часов. Дата окончания: {expirationTime}. Просмотреть можно по ссылке: https://localhost:44424/lot/{lotId}");
                     }
                 }
             }

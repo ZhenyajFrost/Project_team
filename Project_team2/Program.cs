@@ -41,9 +41,11 @@ builder.Services.AddHostedService<LotExpirationReminderService>(sp =>
 builder.Services.AddHostedService<LotSchedulingService>(sp =>
     new LotSchedulingService(
         Config.MySqlConnection,
-        sp.GetRequiredService<ILogger<LotSchedulingService>>()
-     
-       
+        sp.GetRequiredService<ILogger<LotSchedulingService>>(),
+        Config.SmtpServer,
+        Config.SmtpPort,
+        Config.SmtpUsername,
+        Config.SmtpPassword
     )
 );
 var app = builder.Build();

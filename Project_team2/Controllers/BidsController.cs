@@ -11,6 +11,8 @@ using System.Xml.Linq;
 using System.Reflection;
 using Org.BouncyCastle.Asn1.Ocsp;
 using Org.BouncyCastle.Pqc.Crypto.Lms;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Project2.Controllers
 {
@@ -153,6 +155,36 @@ namespace Project2.Controllers
 
                 // Add bid to Bids table
                 AddBidToDatabase(model.LotId, userId, model.BidAmount);
+                string lotTitle = "";
+                string lotDescription = "";
+                string imageUrl = "";
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    string getLotDetailsQuery = "SELECT Title, ShortDescription, ImageUrls FROM Lots WHERE Id = @LotId";
+                    using (MySqlCommand getLotDetailsCommand = new MySqlCommand(getLotDetailsQuery, connection))
+                    {
+                        getLotDetailsCommand.Parameters.AddWithValue("@LotId", model.LotId);
+
+                        using (MySqlDataReader lotDetailsReader = getLotDetailsCommand.ExecuteReader())
+                        {
+                            if (lotDetailsReader.Read())
+                            {
+                                lotTitle = lotDetailsReader.GetString("Title");
+                                lotDescription = lotDetailsReader.GetString("ShortDescription");
+
+                                // Get first image URL from comma-separated list
+                                string imageUrlString = lotDetailsReader.GetString("ImageUrls");
+                                string[] imageUrlArray = imageUrlString.Split(',');
+                                if (imageUrlArray.Length > 0)
+                                {
+                                    imageUrl = imageUrlArray[0];
+                                }
+                            }
+                        }
+                    }
+                }
 
                 // Send email notification if needed
                 if (userIdWhoseBidWasOutbid != 0)
@@ -167,7 +199,10 @@ namespace Project2.Controllers
                         htmlTemplate = htmlTemplate.Replace("{{Zagolovok}}", "Ваша ставка была перебита");
                         htmlTemplate = htmlTemplate.Replace("{{lotId}}", model.LotId.ToString());
                         htmlTemplate = htmlTemplate.Replace("{{newBidAmount}}", model.BidAmount.ToString());
-
+                        htmlTemplate = htmlTemplate.Replace("{{title}}", lotTitle);
+                        htmlTemplate = htmlTemplate.Replace("{{Description}}", lotDescription);
+                        htmlTemplate = htmlTemplate.Replace("{{URL_Lots}}", $"https://localhost:44424/lot/{model.LotId}");
+                        htmlTemplate = htmlTemplate.Replace("{{image_url}}", imageUrl); // Замена заполнителя для изображения
                         await SendEmailAsync(userEmail, "Ваша ставка была перебита", htmlTemplate);
                     }
                 }
@@ -228,13 +263,9 @@ namespace Project2.Controllers
             var userId = ExtractUserIdFromToken(model.Token);
             int page = model.Page;
             int pageSize = model.PageSize;
+
             try
             {
-                List<int> userBidsCount = new List<int>();
-                List<Lot> userLots = new List<Lot>();
-                List<decimal> maxBidAmounts = new List<decimal>();
-                List<UserProfile> bidProfiles = new List<UserProfile>(); // Список профилей пользователей для каждой ставки
-
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
@@ -242,67 +273,69 @@ namespace Project2.Controllers
                     MySqlCommand command = new MySqlCommand();
                     command.Connection = connection;
 
-                    string query = @"
-    SELECT l.*, b.BidAmount, u.*
-    FROM Lots l
-    INNER JOIN (
-        SELECT LotId, MAX(BidAmount) AS MaxBidAmount
-        FROM Bids
-        GROUP BY LotId
-    ) max_bids ON l.Id = max_bids.LotId
-    INNER JOIN Bids b ON max_bids.LotId = b.LotId AND max_bids.MaxBidAmount = b.BidAmount
-    INNER JOIN Users u ON b.UserId = u.Id
-    WHERE (l.Approved = true AND b.UserId = @UserId)
-    OR (l.IsWaitingPayment = true AND l.WinnerUserId = @UserId)
-    OR (l.IsWaitingDelivery = true AND l.WinnerUserId = @UserId)";
-                    command.Parameters.AddWithValue("@UserId", userId);
+                    StringBuilder queryBuilder = new StringBuilder();
+                    queryBuilder.Append(@"SELECT 
+                l.*, 
+                b.BidAmount, 
+                u.*
+            FROM 
+                Lots l
+            INNER JOIN (
+                SELECT 
+                    LotId, 
+                    MAX(BidAmount) AS MaxBidAmount
+                FROM 
+                    Bids
+                GROUP BY 
+                    LotId
+            ) max_bids ON l.Id = max_bids.LotId
+            INNER JOIN Bids b ON max_bids.LotId = b.LotId AND max_bids.MaxBidAmount = b.BidAmount
+            INNER JOIN Users u ON b.UserId = u.Id
+            WHERE 
+                l.Price <= @MaxPrice");
 
-                    // Добавляем фильтрацию
+                    command.Parameters.AddWithValue("@MaxPrice", model.MaxPrice);
+
+                    // Добавляем остальные фильтры
                     if (!string.IsNullOrWhiteSpace(model.SearchString))
                     {
-                        query += " AND (l.Title LIKE @SearchString OR l.ShortDescription LIKE @SearchString)";
+                        queryBuilder.Append(" AND (l.Title LIKE @SearchString OR l.ShortDescription LIKE @SearchString)");
                         command.Parameters.AddWithValue("@SearchString", $"%{model.SearchString}%");
                     }
 
                     if (!string.IsNullOrWhiteSpace(model.Category))
                     {
-                        query += " AND l.Category = @Category";
+                        queryBuilder.Append(" AND l.Category = @Category");
                         command.Parameters.AddWithValue("@Category", model.Category);
                     }
 
                     if (model.MinPrice.HasValue)
                     {
-                        query += " AND l.Price >= @MinPrice";
+                        queryBuilder.Append(" AND l.Price >= @MinPrice");
                         command.Parameters.AddWithValue("@MinPrice", model.MinPrice);
-                    }
-
-                    if (model.MaxPrice.HasValue)
-                    {
-                        query += " AND l.Price <= @MaxPrice";
-                        command.Parameters.AddWithValue("@MaxPrice", model.MaxPrice);
                     }
 
                     if (!string.IsNullOrWhiteSpace(model.Region))
                     {
-                        query += " AND l.Region = @Region";
+                        queryBuilder.Append(" AND l.Region = @Region");
                         command.Parameters.AddWithValue("@Region", model.Region);
                     }
 
                     if (!string.IsNullOrWhiteSpace(model.City))
                     {
-                        query += " AND l.City = @City";
+                        queryBuilder.Append(" AND l.City = @City");
                         command.Parameters.AddWithValue("@City", model.City);
                     }
 
                     if (model.IsNew.HasValue)
                     {
-                        query += " AND l.IsNew = @IsNew";
+                        queryBuilder.Append(" AND l.IsNew = @IsNew");
                         command.Parameters.AddWithValue("@IsNew", model.IsNew);
                     }
 
                     if (model.TimeTillEnd.HasValue)
                     {
-                        query += " AND l.TimeTillEnd <= @TimeTillEnd";
+                        queryBuilder.Append(" AND l.TimeTillEnd <= @TimeTillEnd");
                         command.Parameters.AddWithValue("@TimeTillEnd", model.TimeTillEnd);
                     }
 
@@ -310,47 +343,36 @@ namespace Project2.Controllers
                     if (!string.IsNullOrWhiteSpace(model.OrderBy) && model.Ascending.HasValue)
                     {
                         string sortOrder = model.Ascending.Value ? "ASC" : "DESC";
-                        query += $" ORDER BY {model.OrderBy} {sortOrder}";
+                        queryBuilder.Append($" ORDER BY {model.OrderBy} {sortOrder}");
                     }
 
-                    int offset = (page - 1) * pageSize;
-                    if (offset < 0)
-                    {
-                        offset = 0; // Установка смещения в 0, если оно отрицательное
-                    }
-                    query += " LIMIT @Offset, @PageSize";
-                    command.Parameters.AddWithValue("@Offset", offset);
+                    queryBuilder.Append(" LIMIT @Offset, @PageSize");
+                    command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
                     command.Parameters.AddWithValue("@PageSize", pageSize);
 
-                    command.CommandText = query;
+                    command.CommandText = queryBuilder.ToString();
 
                     using (MySqlDataReader reader = command.ExecuteReader())
                     {
+                        List<LotWithMaxBid> userBids = new List<LotWithMaxBid>();
+
                         while (reader.Read())
                         {
-                            userLots.Add(new Lot(reader));
-                            maxBidAmounts.Add(Convert.ToDecimal(reader["BidAmount"]));
-                            bidProfiles.Add(new UserProfile(reader));
+                            Lot lot = new Lot(reader);
+                            decimal bidAmount = Convert.ToDecimal(reader["BidAmount"]);
+                            UserProfile userProfile = new UserProfile(reader);
+
+                            userBids.Add(new LotWithMaxBid(lot, bidAmount, userProfile));
                         }
-                    }
 
-                    // Получаем общее количество записей (без учета пагинации)
-                    command.CommandText = "SELECT COUNT(DISTINCT LotId) FROM Bids WHERE UserId = @UserId";
-                    int totalRecords = Convert.ToInt32(command.ExecuteScalar());
-                    int totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-
-                    // Проверяем валидность номера страницы
-                    if (page < 1)
-                    {
-                        page = 1;
+                        // Возвращаем результат с пагинацией и общим количеством найденных лотов
+                        return Ok(new
+                        {
+                            totalPages = (int)Math.Ceiling((double)userBids.Count / pageSize),
+                            totalRecords = userBids.Count,
+                            userBids = userBids
+                        });
                     }
-                    else if (page > totalPages)
-                    {
-                        page = totalPages;
-                    }
-
-                    // Возвращаем результат с пагинацией и общим количеством найденных лотов
-                    return Ok(new { totalPages, totalRecords, userBids = userLots.Select((lot, index) => new LotWithMaxBid(lot, maxBidAmounts[index], bidProfiles[index])) });
                 }
             }
             catch (Exception ex)
@@ -364,8 +386,10 @@ namespace Project2.Controllers
 
 
 
+
+
         [HttpPost("fastBuy")]
-        public IActionResult FastBuy([FromBody] BidModel model)
+        public async Task<IActionResult> FastBuy([FromBody] BidModel model)
         {
             string tok = model.Token;
             var userId = ExtractUserIdFromToken(tok);
@@ -383,7 +407,7 @@ namespace Project2.Controllers
                         try
                         {
                             // Получаем информацию о лоте
-                            string getLotInfoQuery = "SELECT Price, AllowBids, Active FROM Lots WHERE Id = @LotId";
+                            string getLotInfoQuery = "SELECT Price, AllowBids, Active, UserId AS OwnerId FROM Lots WHERE Id = @LotId";
                             using (MySqlCommand getLotInfoCommand = new MySqlCommand(getLotInfoQuery, connection, transaction))
                             {
                                 getLotInfoCommand.Parameters.AddWithValue("@LotId", model.LotId);
@@ -394,6 +418,7 @@ namespace Project2.Controllers
                                         decimal price = Convert.ToDecimal(lotReader["Price"]);
                                         bool allowBids = Convert.ToBoolean(lotReader["AllowBids"]);
                                         bool active = Convert.ToBoolean(lotReader["Active"]);
+                                        int ownerId = Convert.ToInt32(lotReader["OwnerId"]);
 
                                         // Выводим цену в консоль для понимания
                                         Console.WriteLine($"Price of the item: {price}");
@@ -421,6 +446,41 @@ namespace Project2.Controllers
                                             // Если ставки разрешены, возвращаем ошибку
                                             return BadRequest(new { message = "You cannot buy this item after the auction has started" });
                                         }
+
+                                        // Добавляем ставку в таблицу Bids
+                                        string insertBidQuery = "INSERT INTO Bids (LotId, UserId, BidAmount, BidTime) VALUES (@LotId, @UserId, @BidAmount, NOW())";
+                                        using (MySqlCommand insertBidCommand = new MySqlCommand(insertBidQuery, connection, transaction))
+                                        {
+                                            insertBidCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                            insertBidCommand.Parameters.AddWithValue("@UserId", userId);
+                                            insertBidCommand.Parameters.AddWithValue("@BidAmount", model.BidAmount);
+                                            insertBidCommand.ExecuteNonQuery();
+                                        }
+
+                                        // Обновляем лот
+                                        string updateLotQuery = "UPDATE Lots SET WinnerUserId = @WinnerUserId, Active = false, AllowBids = false, isWaitingPayment = true WHERE Id = @LotId";
+                                        using (MySqlCommand updateLotCommand = new MySqlCommand(updateLotQuery, connection, transaction))
+                                        {
+                                            updateLotCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                            updateLotCommand.Parameters.AddWithValue("@WinnerUserId", userId);
+                                            updateLotCommand.ExecuteNonQuery();
+                                        }
+
+                                        // Фиксируем транзакцию
+                                        transaction.Commit();
+
+                                        // Отправляем письмо владельцу лота
+                                        string ownerEmail = GetOwnerEmail(ownerId); // Метод для получения электронного адреса владельца лота
+                                        if (!string.IsNullOrEmpty(ownerEmail))
+                                        {
+                                            string subject = "Your item has been purchased!";
+                                            string body = $"Ваш лот https://localhost:44424/lot/10 успешно купили по указанной цене без аукциона. " +
+                                                $"Ожидайте оповещения об оплате и готовьтесь к отправке товара." +
+                                                $"С уважением, администрация Exestick.";
+                                            await SendEmailAsync(ownerEmail, subject, body);
+                                        }
+
+                                        return Ok(new { message = "Bid placed successfully and lot updated" });
                                     }
                                     else
                                     {
@@ -428,49 +488,56 @@ namespace Project2.Controllers
                                     }
                                 }
                             }
-
-                            // Добавляем ставку в таблицу Bids
-                            string insertBidQuery = "INSERT INTO Bids (LotId, UserId, BidAmount, BidTime) VALUES (@LotId, @UserId, @BidAmount, NOW())";
-                            using (MySqlCommand insertBidCommand = new MySqlCommand(insertBidQuery, connection, transaction))
-                            {
-                                insertBidCommand.Parameters.AddWithValue("@LotId", model.LotId);
-                                insertBidCommand.Parameters.AddWithValue("@UserId", userId);
-                                insertBidCommand.Parameters.AddWithValue("@BidAmount", model.BidAmount);
-                                insertBidCommand.ExecuteNonQuery();
-                            }
-
-                            // Обновляем лот
-                            string updateLotQuery = "UPDATE Lots SET WinnerUserId = @WinnerUserId, Active = false, AllowBids = false, isWaitingPayment = true WHERE Id = @LotId";
-                            using (MySqlCommand updateLotCommand = new MySqlCommand(updateLotQuery, connection, transaction))
-                            {
-                                updateLotCommand.Parameters.AddWithValue("@LotId", model.LotId);
-                                updateLotCommand.Parameters.AddWithValue("@WinnerUserId", userId);
-                                updateLotCommand.ExecuteNonQuery();
-                            }
-
-                            // Фиксируем транзакцию
-                            transaction.Commit();
-
-                            return Ok(new { message = "Bid placed successfully and lot updated" });
                         }
                         catch (Exception ex)
                         {
                             // Откатываем транзакцию в случае ошибки
                             transaction.Rollback();
-                            Console.WriteLine($"Error in FastBuy method: {ex.ToString()}");
-                            return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+                            Console.WriteLine($"Error in FastBuy method: {ex}");
+                            return StatusCode(500, new { message = "Internal Server Error. Please try again later." });
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in FastBuy method: {ex.ToString()}");
-                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+                Console.WriteLine($"Error in FastBuy method: {ex}");
+                return StatusCode(500, new { message = "Internal Server Error. Please try again later." });
             }
         }
+        private string GetOwnerEmail(int ownerId)
+        {
+            string ownerEmail = null;
 
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
 
+                    string query = "SELECT Email FROM Users WHERE UserId = @OwnerId";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@OwnerId", ownerId);
+
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                ownerEmail = reader.GetString("Email");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching owner email: {ex.Message}");
+                // Обработайте исключение в соответствии с вашими потребностями
+            }
+
+            return ownerEmail;
+        }
 
 
         [HttpGet("getRecentBids/{lotId}")]
