@@ -1019,7 +1019,102 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+        [HttpPost("paymentResult")]
+        public IActionResult IsWaitingDelivery([FromBody] DeliveryStatusModel request)
+        {
+            try
+            {
+                var userId = ExtractUserIdFromToken(request.Token); // Получаем идентификатор пользователя из токена
+                int ownerId;
+                int winnerId;
 
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    // Получаем идентификатор владельца лота и победителя лота из базы данных
+                    string ownerQuery = "SELECT UserID FROM Lots WHERE id = @id";
+                    string winnerQuery = "SELECT WinnerUserId FROM Lots WHERE id = @id";
+
+                    using (MySqlCommand ownerCommand = new MySqlCommand(ownerQuery, connection))
+                    {
+                        ownerCommand.Parameters.AddWithValue("@id", request.LotId);
+                        ownerId = (int)ownerCommand.ExecuteScalar();
+                    }
+
+                    // Проверяем, соответствует ли пользователь владельцу лота
+                    if (!userId.ToString().Equals(ownerId.ToString()))
+                    {
+                        return BadRequest(new { message = "User does not have permission to perform this action" });
+                    }
+
+                    using (MySqlCommand winnerCommand = new MySqlCommand(winnerQuery, connection))
+                    {
+                        winnerCommand.Parameters.AddWithValue("@id", request.LotId);
+                        winnerId = (int)winnerCommand.ExecuteScalar();
+                    }
+
+                    // Устанавливаем статус лота
+                    string updateQuery = "UPDATE Lots SET Active = false, Unactive = false, AllowBids = false, Archive = false, isWaitingPayment = false, isWaitingDelivery = true WHERE id = @id";
+                    using (MySqlCommand command = new MySqlCommand(updateQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@id", request.LotId);
+                        command.ExecuteNonQuery();
+                    }
+                }
+
+                // Отправить письмо владельцу лота
+                SendEmailToUser(ownerId, "Ваш товар куплен, отправьте его", "Текст вашего сообщения для владельца лота");
+
+                // Формирование сообщения для отправки победителю лота
+                string deliveryInfo = $"Город: {request.Delivery.City}\n" +
+                                        $"Район: {request.Delivery.Area}\n" +
+                                        $"Регион: {request.Delivery.Region}\n" +
+                                        $"Индекс: {request.Delivery.Index}\n" +
+                                        $"Служба доставки: {request.Delivery.DeliveryService}";
+
+                // Отправить письмо победителю лота с информацией о доставке
+                SendEmailToUser(winnerId, "Ожидайте получения товара", $"Мы отправили письмо владельцу, товар отправят вам в ближайшее время.\n\nИнформация о доставке:\n{deliveryInfo}");
+
+                return Ok(new { message = "Lot set as waiting delivery successfully" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in IsWaitingDelivery method: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+            }
+        }
+
+
+        private void SendEmailToUser(int userId, string subject, string body)
+        {
+            // Получение адреса электронной почты пользователя по его идентификатору
+            string userEmail = GetUserEmailById(userId);
+
+            // Отправка письма
+            SendEmail(userEmail, subject, body);
+        }
+
+        private string GetUserEmailById(int userId)
+        {
+            // Логика для получения адреса электронной почты пользователя по его идентификатору из базы данных
+            string userEmail = ""; // Получите адрес электронной почты из базы данных на основе userId
+
+            // Пример реализации:
+            using (MySqlConnection connection = new MySqlConnection(_connString))
+            {
+                connection.Open();
+
+                string query = "SELECT Email FROM Users WHERE UserId = @userId";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@userId", userId);
+                    userEmail = (string)command.ExecuteScalar();
+                }
+            }
+
+            return userEmail;
+        }
         [HttpPost("toggleLike")]
         public IActionResult ToggleLike([FromBody] LikesLot likesLot)
         {
@@ -1790,7 +1885,7 @@ WHERE
     }
     public class GetUserLotsRequest
     {
-        public string? SearchQuery { get; set; }
+        public string SearchQuery { get; set; }
         public int? Category { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
@@ -1821,4 +1916,21 @@ WHERE
     {
         public decimal MaxBidPrice { get; set; }
     }
+    public class DeliveryStatusModel
+    {
+        public int LotId { get; set; }
+        public string Payment { get; set; }
+        public string Token { get; set; }
+        public DeliveryInfo Delivery { get; set; }
+    }
+
+    public class DeliveryInfo
+    {
+        public string City { get; set; }
+        public string Area { get; set; }
+        public string Region { get; set; }
+        public string Index { get; set; }
+        public string DeliveryService { get; set; }
+    }
+
 }
