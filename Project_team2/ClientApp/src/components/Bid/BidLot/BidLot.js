@@ -8,14 +8,19 @@ import ModalWindow from '../../ModalWindow/ModalWindow.js'
 import statusSvg from '../../../images/status.svg';
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min.js";
 import PayPal from '../../PayPal/PayPal.js'
+import Notiflix from 'notiflix';
 
+import usePaymentResult from '../../../API/PayPal/usePaymentResult.js'
 import DeliveryRadioGroup from '../../DeliveryRadioGroup/DeliveryRadioGroup.js'
-import { PAY_PAL_CLIENT_ID } from "../../../API/apiConstant.js";
 
 function BidLot({ bid }) {
     const history = useHistory();
 
+    const [paymentResult, result, isLoading, error] = usePaymentResult();
+
     const [delivery, setDelivery] = useState({});
+
+    const [isPayed, setIsPayed] = useState(false);
 
     const [ttl, setTtl] = useState((new Date(bid.lot.timeTillEnd) - new Date()) / 1000 > 0 ? (new Date(bid.lot.timeTillEnd) - new Date()) / 1000 : 0);
     const [modalVisible, setModalVisible] = useState(false);
@@ -32,6 +37,20 @@ function BidLot({ bid }) {
 
         //bla bla bla
     }
+
+    useEffect(() => {
+        if (isPayed === 'success') {
+            paymentResult(isPayed, bid.lot.id, delivery);
+
+            Notiflix.Notify.success('Оплата успішна')
+
+            setModalVisible(false);
+        }
+
+        if (isPayed === 'error')
+            Notiflix.Notify.failure('Оплата не успішна! Спробуйте ще раз')
+
+    }, [isPayed])
 
     return (
         <div className={`${css.lot} ${ttl > 0 ? css.active : css.inactive}`}>
@@ -146,17 +165,17 @@ function BidLot({ bid }) {
 
                     <div className={css.formDiv} id="delivery">
                         <h4>Доставка</h4>
-                        <DeliveryRadioGroup onDeliveryChange={(delivery) => setDelivery(delivery)}/>
-                        
+                        <DeliveryRadioGroup onDeliveryChange={(delivery) => setDelivery(delivery)} />
+
                     </div>
 
                     <div className={css.formDiv} id="payment">
                         <h4>Оплата</h4>
-                        <PayPal />
-
+                        {!isPayed && delivery.index ?
+                            <PayPal amount={bid.maxBidAmount} lot={bid.lot} setPayment={(status) => setIsPayed(status)} />
+                            : "Оберіть адресу доставки)"
+                        }
                     </div>
-
-                    <Button type="submit">Підтвердити оформлення лота</Button>
                 </form>
             </ModalWindow>
         </div >

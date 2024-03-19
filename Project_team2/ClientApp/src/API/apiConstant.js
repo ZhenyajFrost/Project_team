@@ -6,6 +6,8 @@ export const BIDS_ENDPOINT = `${API_BASE_URL}/bids`;
 
 export const AUTH_ENDPOINT = `${API_BASE_URL}/auth`;
 
+export const PAYPAL_ENDPOINT = `${API_BASE_URL}/paypal`;
+
 export const EDIT_USER_ENDPOINT = `${API_BASE_URL}/EditUser`;
 
 export const NOVA_POST_BASE_URL = `https://api.novaposhta.ua/v2.0/json`

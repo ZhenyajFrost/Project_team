@@ -4,6 +4,7 @@ import { LOTS_ENDPOINT } from '../apiConstant';
 import { getLocalStorage } from '../../utils/localStorage';
 import Notiflix from 'notiflix';
 
+
 const useDeleteLot = () => {
     const token = getLocalStorage('token')
     const [isLoading, setLoading] = useState(false);
