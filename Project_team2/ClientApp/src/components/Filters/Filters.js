@@ -45,7 +45,6 @@ function Filters({ onChange, initial }) {
   const selCat = categories.find(
     (v) => Number(v.id) === Number(initial.category)
   );
-  console.log(selCat);
   return (
     <div className={css.filterContainer}>
       <div className={css.filterItem}>
@@ -103,7 +102,14 @@ function Filters({ onChange, initial }) {
             setParams({ ...params, timeTillEnd: e.target.value });
           }}
         >
-          <option>Всі оголошення</option>
+          <option value={-1}>Всі оголошення</option>
+          <option value={1}>1 дня</option>
+          <option value={2}>2 днів</option>
+          <option value={5}>5 днів</option>
+          <option value={10}>10 днів</option>
+          <option value={15}>15 днів</option>
+          <option value={20}>20 днів</option>
+          <option value={30}>30 днів</option>
         </select>
       </div>
       <div className={css.filterItem}>

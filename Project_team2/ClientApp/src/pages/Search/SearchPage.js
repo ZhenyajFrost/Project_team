@@ -17,7 +17,17 @@ function SearchPage(props) {
     window.location.href.split("/")[window.location.href.split("/").length - 1]
   );
   function formatDate(date) {
-    if (!date) return undefined;
+
+    if(!date || !date.getFullYear){
+      if(!date || date<0){
+        return;
+      }
+      const today = new Date(Date.now());
+    console.log(today.getDate()+date);
+
+      date = new Date(new Date().setDate(Number(today.getDate())+Number(date)))
+    }
+
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so add 1
     const day = String(date.getDate()).padStart(2, "0");
@@ -112,7 +122,7 @@ function SearchPage(props) {
                   onFilterChange({ orderBy, ascending: ascending === "true" });
                 }}
               >
-                <option value="">Сортувати за:</option>
+                <option value="">Довільний порядок</option>
                 <option value="title true">За назвою вверх</option>
                 <option value="title false">За назвою вниз</option>
                 <option value="category true">За категорією вверх</option>
