@@ -90,7 +90,7 @@ public class LotViewsEmailService : BackgroundService
                     Console.WriteLine($"Found lot with ID={lotId}, Title='{lotTitle}'.");
 
                     // Read HTML template content
-                    string htmlTemplate = await File.ReadAllTextAsync("C:\\Users\\ostap\\Desktop\\Project_team-master\\Project_team2\\Services\\Sending.html");
+                    string htmlTemplate = await File.ReadAllTextAsync("Pages/Sending.html");
 
                     // Replace placeholders with data from the database
                     htmlTemplate = htmlTemplate.Replace("{{Zagolovok}}", "Уважаемый пользователь! Самое время посмотреть восстребованный лот");
