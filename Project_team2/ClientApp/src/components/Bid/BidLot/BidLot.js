@@ -7,8 +7,10 @@ import Button from '../../UI/Button/Button';
 import ModalWindow from '../../ModalWindow/ModalWindow.js'
 import statusSvg from '../../../images/status.svg';
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min.js";
+import PayPal from '../../PayPal/PayPal.js'
 
 import DeliveryRadioGroup from '../../DeliveryRadioGroup/DeliveryRadioGroup.js'
+import { PAY_PAL_CLIENT_ID } from "../../../API/apiConstant.js";
 
 function BidLot({ bid }) {
     const history = useHistory();
@@ -145,6 +147,12 @@ function BidLot({ bid }) {
                     <div className={css.formDiv} id="delivery">
                         <h4>Доставка</h4>
                         <DeliveryRadioGroup onDeliveryChange={(delivery) => setDelivery(delivery)}/>
+                        
+                    </div>
+
+                    <div className={css.formDiv} id="payment">
+                        <h4>Оплата</h4>
+                        <PayPal />
 
                     </div>
 
