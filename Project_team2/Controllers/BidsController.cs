@@ -52,8 +52,8 @@ namespace Project2.Controllers
             _telegramBotToken = Config.TelegramBotToken;
             _chatId = Config.ChatId;
         }
-       
-        public void SendEmail(string recipientEmail,string subject, string message)
+
+        private async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             using (SmtpClient smtpClient = new SmtpClient(_smtpServer, _smtpPort))
             {
@@ -64,18 +64,18 @@ namespace Project2.Controllers
                 using (MailMessage mailMessage = new MailMessage())
                 {
                     mailMessage.From = new MailAddress(_smtpUsername);
-                    mailMessage.To.Add(recipientEmail);
+                    mailMessage.To.Add(toEmail);
                     mailMessage.Subject = subject;
-                    mailMessage.Body = message;
-                    mailMessage.IsBodyHtml = false;
+                    mailMessage.Body = body;
+                    mailMessage.IsBodyHtml = true;
 
-                    smtpClient.Send(mailMessage);
+                    await smtpClient.SendMailAsync(mailMessage);
                 }
             }
         }
 
         [HttpPost("placeBid")]
-        public IActionResult PlaceBid([FromBody] BidModel model)
+        public async Task<IActionResult> PlaceBid([FromBody] BidModel model)
         {
             var userId = ExtractUserIdFromToken(model.Token);
 
@@ -160,9 +160,15 @@ namespace Project2.Controllers
                     string userEmail = GetUserEmail(userIdWhoseBidWasOutbid);
                     if (!string.IsNullOrEmpty(userEmail))
                     {
-                        string subject = "Your bid has been outbid";
-                        string message = $"Your bid has been outbid for lot ID: {model.LotId}.";
-                        SendEmail(userEmail, subject, message);
+                        // Read HTML template content
+                        string htmlTemplate = await System.IO.File.ReadAllTextAsync("C:\\Users\\ostap\\Desktop\\Project_team-master\\Project_team2\\Services\\Sending.html");
+
+                        // Replace placeholders with data from the database
+                        htmlTemplate = htmlTemplate.Replace("{{Zagolovok}}", "Ваша ставка была перебита");
+                        htmlTemplate = htmlTemplate.Replace("{{lotId}}", model.LotId.ToString());
+                        htmlTemplate = htmlTemplate.Replace("{{newBidAmount}}", model.BidAmount.ToString());
+
+                        await SendEmailAsync(userEmail, "Ваша ставка была перебита", htmlTemplate);
                     }
                 }
 

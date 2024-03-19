@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { PAYPAL_ENDPOINT } from '../apiConstant';
 
 const useCaptureOrder = () => {
     const [captureResponse, setCaptureResponse] = useState(null);
@@ -9,7 +10,7 @@ const useCaptureOrder = () => {
     const captureOrder = async (orderId) => {
         setIsLoading(true);
         try {
-            const response = await axios.post(`/api/paypal/captureOrder/${orderId}`);
+            const response = await axios.post(`${PAYPAL_ENDPOINT}/captureOrder/${orderId}`);
 
             console.log("CaptureOrder",response)
             setCaptureResponse(response.data);
