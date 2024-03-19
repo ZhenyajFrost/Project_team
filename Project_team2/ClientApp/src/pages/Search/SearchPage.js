@@ -17,15 +17,15 @@ function SearchPage(props) {
     window.location.href.split("/")[window.location.href.split("/").length - 1]
   );
   function formatDate(date) {
-
-    if(!date || !date.getFullYear){
-      if(!date || date<0){
+    if (!date || !date.getFullYear) {
+      if (!date || date < 0) {
         return;
       }
       const today = new Date(Date.now());
-    console.log(today.getDate()+date);
 
-      date = new Date(new Date().setDate(Number(today.getDate())+Number(date)))
+      date = new Date(
+        new Date().setDate(Number(today.getDate()) + Number(date))
+      );
     }
 
     const year = date.getFullYear();
@@ -44,8 +44,8 @@ function SearchPage(props) {
     region: "Будь-який",
     isNew: undefined,
     orderBy: "",
-    timeTillEnd:undefined,
-    searchString:querry
+    timeTillEnd: undefined,
+    searchString: querry,
   };
   const [oldFilter, setOldFilter] = useState({});
   const [filter, setFilter] = useState({ ...initial });
@@ -59,11 +59,10 @@ function SearchPage(props) {
     const res = {};
     for (let a in filter) {
       if (filter[a] !== changed[a]) {
-        if(!filter[a] || filter[a]<0 || filter[a]==="Будь-який"){
-          res[a]= undefined;
-        }else{
+        if (!filter[a] || filter[a] < 0 || filter[a] === "Будь-який") {
+          res[a] = undefined;
+        } else {
           res[a] = filter[a];
-
         }
       }
     }
@@ -94,7 +93,6 @@ function SearchPage(props) {
     }
   }, []);
   const onFilterChange = (e) => {
-    console.log(e);
     setFilter({ ...filter, ...e });
   };
 
@@ -114,8 +112,8 @@ function SearchPage(props) {
         <div className={css.upThing}>
           <NavLink href="/">На головну</NavLink>
           <div>
+            Сортувати за{" "}
             <div>
-              Сортувати за:{" "}
               <select
                 onChange={(v) => {
                   const [orderBy, ascending] = v.target.value.split(" ");

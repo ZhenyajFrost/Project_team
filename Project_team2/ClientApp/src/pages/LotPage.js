@@ -16,8 +16,6 @@ import ModalWindow from "../components/ModalWindow/ModalWindow";
 import BuyLotModal from "../components/BuyLotModal/BuyLotModal.js";
 import Bid from "../components/Bid/Bid.js";
 import useGetUserLots from "../API/Lots/Get/useGetUserLots.js";
-import Carousel from "../components/Carousel/Carousel.js";
-import Lot from "../components/Lot/Lot.js";
 import { getLocalStorage } from "../utils/localStorage.js";
 import LotsCarousel from "../components/Carousel/LotsCarousel/LotsCarousel.js";
 
@@ -80,7 +78,7 @@ function LotPage() {
               {history ? (
                 history.length ? (
                   history.map((v) => (
-                    <Bid user={v.user} amount={v.bidAmount} time={v.bidTime} />
+                    <Bid user={v.userId} amount={v.bidAmount} time={v.bidTime} />
                   ))
                 ) : (
                   "Тут поки пусто, будьте першими, хто зробить ставку :)"

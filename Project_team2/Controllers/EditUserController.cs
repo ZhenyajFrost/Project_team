@@ -40,7 +40,7 @@ namespace Project2.Controllers
             var userId = ExtractUserIdFromToken(model.Token);
             try
             {
-               
+
 
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
@@ -82,7 +82,7 @@ namespace Project2.Controllers
             var userId = ExtractUserIdFromToken(model.Token);
             try
             {
-                
+
 
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
@@ -125,7 +125,7 @@ namespace Project2.Controllers
             var userId = ExtractUserIdFromToken(model.Token);
             try
             {
-               
+
 
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
@@ -556,10 +556,10 @@ namespace Project2.Controllers
         {
             int userId = request.UserId;
             int deliveryLotsCount = 0;
-            
+
             try
             {
-                
+
 
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
@@ -660,7 +660,8 @@ namespace Project2.Controllers
         public Dictionary<string, string> FieldsToUpdate { get; set; }
 
     }
-    public class DeleteUserRequest { 
+    public class DeleteUserRequest
+    {
         public string Token { get; set; }
     }
     public class UpdateEmailModel
@@ -677,7 +678,7 @@ namespace Project2.Controllers
     }
     public class UpdatePassWithTokenModel
     {
-       
+
         public string OldPassword { get; set; }
         public string NewPassword { get; set; }
         public string Token { get; set; }

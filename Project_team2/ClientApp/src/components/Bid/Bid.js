@@ -28,13 +28,13 @@ function Bid({ time, user, amount }) {
     return `${day} ${ukrainianMonth}`;
   }
 
-  const userDisp =<p>{user ? user.login : ''}</p>;
+  const userDisp =<p className={css.user}>{user ? user.login : ''}</p>;
 
   return (
     <div>
       {userDisp}
       <div className={css.fle}>
-        <p>Дата ставки: {formatDate(new Date(time))}</p> <p>{amount}₴</p>
+        <p className={css.def}>Дата ставки: {formatDate(new Date(time))}</p> <p>{amount}₴</p>
       </div>
     </div>
   );

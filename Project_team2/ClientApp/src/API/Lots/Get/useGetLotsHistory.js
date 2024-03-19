@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { BIDS_ENDPOINT } from '../../apiConstant';
-import { Notify } from 'notiflix';
+
 
 const useGetLotsHistory= () => {
     const [isLoading, setLoading] = useState(false);
@@ -11,11 +11,9 @@ const useGetLotsHistory= () => {
     const getHistory = async (lotId) => {
         setLoading(true);
         try {
-            const response = await axios.get(`${BIDS_ENDPOINT}/getRecentBids/${lotId}`);  
-            Notify.failure(response.data)          
+            const response = await axios.get(`${BIDS_ENDPOINT}/getRecentBids/${lotId}`);          
             setHistory(response.data); 
         } catch (error) {
-            Notify.failure(error)   
             setError(error);
         } finally {
             setLoading(false);
