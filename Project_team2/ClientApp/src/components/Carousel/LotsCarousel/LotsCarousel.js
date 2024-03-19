@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Lot from "../../Lot/Lot";
 import styles from "../Carousel.module.css";
 
-function LotsCarousel({ lots, lotWidth = 600 }) {
+function LotsCarousel({ lots, lotWidth = 589 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   useEffect(() => {
     if (currentIndex < 0) {
