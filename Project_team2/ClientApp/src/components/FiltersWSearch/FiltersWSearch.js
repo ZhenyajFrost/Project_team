@@ -8,8 +8,8 @@ function FiltersWSearch({ onChange, initial }) {
     searchQuery: null,
     minPrice: null,
     maxPrice: null,
-    endTill: null,
-    ...initial,
+    timeTillEnd: null,
+    ...initial
   });
 
   useEffect(() => {
@@ -38,7 +38,17 @@ function FiltersWSearch({ onChange, initial }) {
     //перевірка дати
     //хз як з датою працюватимемо (об'єкт, стрінг чи щось тому подібне), тож залишу це пустим
 
-    onChange(filters);
+    console.log("Filters changed in FiltersWSearch")
+
+    const appliedFilters = Object.entries(filters).reduce((acc, [key, value]) => {
+      // Exclude properties with null values
+      if (value !== null) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+
+    onChange(appliedFilters)
   }, [filters]);
 
   const onSearch = (value) => {
@@ -90,7 +100,7 @@ function FiltersWSearch({ onChange, initial }) {
         <select
           className={css.inputEl}
           onChange={(e) => {
-            setFilters({ ...filters, endTill: e.target.value });
+            setFilters({ ...filters, timeTillEnd: e.target.value });
           }}
         >
           <option>Всі оголошення</option>

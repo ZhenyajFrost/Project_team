@@ -112,6 +112,11 @@ function BidLot({ bid }) {
                         <></>
                     }
 
+                    {bid.lot.isWaitingDelivery ?
+                        <Button className={css.waitDel}> Очікуйте доставки</Button> :
+                        <></>
+                    }
+
                     <NavLink to={"/lot/" + bid.lot.id} className={css.arrowOutward}>
                         <svg>
                             <use href={`${svg}#arrow_outward`} />

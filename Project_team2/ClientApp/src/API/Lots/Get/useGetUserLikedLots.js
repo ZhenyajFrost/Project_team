@@ -17,7 +17,7 @@ const useGetLotsByUser = () => {
             const response = await axios.post(`${LOTS_ENDPOINT}/getUserLikedLots`, {token, page, pageSize});
             console.log('Lots successfully retrieved: ', response.data);
             setLots(response.data.likedLots);
-            setTotalCount(response.data.totalCount)
+            setTotalCount(response.data.totalRecords)
         } catch (error) {
             console.error('Getting lots failed: ', error);
             setError(error);

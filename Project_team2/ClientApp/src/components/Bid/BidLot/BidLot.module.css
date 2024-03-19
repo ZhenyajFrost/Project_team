@@ -190,3 +190,7 @@
   background-color: var(--gray);
   border-radius: 40px;
 }
+
+.waitDel{
+  background-color:  #7ad26c;
+}

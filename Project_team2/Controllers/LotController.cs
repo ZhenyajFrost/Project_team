@@ -1033,29 +1033,29 @@ namespace Project2.Controllers
                     connection.Open();
 
                     // Получаем идентификатор владельца лота и победителя лота из базы данных
-                    string ownerQuery = "SELECT UserID FROM Lots WHERE id = @id";
-                    string winnerQuery = "SELECT WinnerUserId FROM Lots WHERE id = @id";
+                    string ownerQuery = "SELECT UserID FROM Lots WHERE Id = @id";
+                    string winnerQuery = "SELECT WinnerUserId FROM Lots WHERE Id = @id";
 
                     using (MySqlCommand ownerCommand = new MySqlCommand(ownerQuery, connection))
                     {
                         ownerCommand.Parameters.AddWithValue("@id", request.LotId);
-                        ownerId = (int)ownerCommand.ExecuteScalar();
-                    }
-
-                    // Проверяем, соответствует ли пользователь владельцу лота
-                    if (!userId.ToString().Equals(ownerId.ToString()))
-                    {
-                        return BadRequest(new { message = "User does not have permission to perform this action" });
+                        ownerId = Convert.ToInt32(ownerCommand.ExecuteScalar());
                     }
 
                     using (MySqlCommand winnerCommand = new MySqlCommand(winnerQuery, connection))
                     {
                         winnerCommand.Parameters.AddWithValue("@id", request.LotId);
-                        winnerId = (int)winnerCommand.ExecuteScalar();
+                        winnerId = Convert.ToInt32(winnerCommand.ExecuteScalar());
+                    }
+
+                    // Проверяем, соответствует ли пользователь владельцу лота
+                    if (!userId.ToString().Equals(winnerId.ToString()))
+                    {
+                        return BadRequest(new { message = "User does not have permission to perform this action" });
                     }
 
                     // Устанавливаем статус лота
-                    string updateQuery = "UPDATE Lots SET Active = false, Unactive = false, AllowBids = false, Archive = false, isWaitingPayment = false, isWaitingDelivery = true WHERE id = @id";
+                    string updateQuery = "UPDATE Lots SET Active = false, Unactive = false, AllowBids = false, Archive = false, isWaitingPayment = false, isWaitingDelivery = true WHERE Id = @id";
                     using (MySqlCommand command = new MySqlCommand(updateQuery, connection))
                     {
                         command.Parameters.AddWithValue("@id", request.LotId);
@@ -1282,63 +1282,62 @@ namespace Project2.Controllers
 
 
         [HttpPost("getUserLikedLots")]
-        public IActionResult GetUserLikedLots([FromBody] getUserLikedLots model, int page = 1, int pageSize = 10)
+        public IActionResult GetUserLikedLots([FromBody] GetUserLikedLotsRequest model, int page = 1, int pageSize = 10)
         {
-
-            var UserId = ExtractUserIdFromToken(model.Token);
             try
             {
-                List<Lot> likedLots = new List<Lot>();
+                var userId = ExtractUserIdFromToken(model.Token);
 
-                using (MySqlConnection connection = new MySqlConnection(_connString))
+                using (var connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
 
-                    // Запрос для получения общего количества лотов
-                    string countQuery = "SELECT COUNT(*) FROM LikedLots LL JOIN Lots L ON LL.LotId = L.Id WHERE LL.UserId = @userId";
-                    using (MySqlCommand countCommand = new MySqlCommand(countQuery, connection))
+                    // Query to count total liked lots
+                    string countQuery = "SELECT COUNT(*) FROM LikedLots WHERE UserId = @userId";
+                    using (var countCommand = new MySqlCommand(countQuery, connection))
                     {
-                        countCommand.Parameters.AddWithValue("@userId", UserId);
+                        countCommand.Parameters.AddWithValue("@userId", userId);
                         int totalRecords = Convert.ToInt32(countCommand.ExecuteScalar());
 
-                        // Вычисляем количество страниц
+                        // Calculate total pages
                         int totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
 
-                        // Проверяем, чтобы номер страницы был в допустимых пределах
+                        // Validate page number
                         if (page < 1)
                             page = 1;
-                        else if (page > totalPages)
+                        else if (page > totalPages && totalPages > 0)
                             page = totalPages;
 
-                        // Рассчитываем индекс начальной записи для страницы
+                        // Calculate starting index for pagination
                         int startIndex = (page - 1) * pageSize;
 
-                        // Запрос для получения лотов с учетом пагинации
-                        string query = "SELECT L.* FROM LikedLots LL JOIN Lots L ON LL.LotId = L.Id WHERE LL.UserId = @userId LIMIT @startIndex, @pageSize";
-                        using (MySqlCommand command = new MySqlCommand(query, connection))
+                        // Query to fetch paginated liked lots
+                        string query = "SELECT * FROM LikedLots WHERE UserId = @userId LIMIT @startIndex, @pageSize";
+                        using (var command = new MySqlCommand(query, connection))
                         {
-                            command.Parameters.AddWithValue("@userId", UserId);
+                            command.Parameters.AddWithValue("@userId", userId);
                             command.Parameters.AddWithValue("@startIndex", startIndex);
                             command.Parameters.AddWithValue("@pageSize", pageSize);
 
-                            using (MySqlDataReader reader = command.ExecuteReader())
+                            using (var reader = command.ExecuteReader())
                             {
+                                var likedLots = new List<Lot>();
                                 while (reader.Read())
                                 {
-                                    Lot lot = new Lot(reader); // Создание объекта Lot из данных в результате запроса
+                                    Lot lot = new Lot(reader); // Assuming Lot constructor is provided
                                     likedLots.Add(lot);
                                 }
+
+                                return Ok(new { likedLots, totalRecords, totalPages, currentPage = page });
                             }
                         }
-
-                        return Ok(new { likedLots, totalRecords, totalPages, currentPage = page });
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in GetUserLikedLots method: {ex.ToString()}");
-                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+                Console.WriteLine($"Error in GetUserLikedLots method: {ex}");
+                return StatusCode(500, new { message = "Internal Server Error. Please try again later." });
             }
         }
 
@@ -1815,8 +1814,9 @@ WHERE
         public int LotId { get; set; }  
 
     }
-    public class getUserLikedLots { 
-    public string Token { get; set; }
+    public class GetUserLikedLotsRequest
+    {
+        public string Token { get; set; }
     }
     public class LikesLot { 
     public string Token { get; set; }

@@ -5,6 +5,7 @@ import useGetUserLikedLots from '../../API/Lots/Get/useGetUserLikedLots';
 import useGetUserSubscriptions from '../../API/User/Get/useGetUserSubscriptions';
 import Loader from '../../components/Loader/Loader';
 import UserContainer from '../../components/UI/UserContainer/UserContainer';
+import Pagination from '../../components/UI/Pagination/Pagination'
 
 function LikedItems() {
     const [activeTab, setActiveTab] = useState(sessionStorage.getItem('activeTab') || 'lots');
@@ -22,7 +23,7 @@ function LikedItems() {
             await getLots(pagination.page, pagination.pageSize);
         if (activeTab === 'users')
             await getUserSubscriptions();
-    }, [activeTab])
+    }, [activeTab, pagination])
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
@@ -49,11 +50,30 @@ function LikedItems() {
 
             <div className={`${css.body}Liked`}>
                 <div className={css.lots}>
-                    {activeTab === 'lots' ?
-                        (isLoading ? <Loader /> : <LotContainer lots={lots} display="listWrap" lotStyle="small" />) :
-                        activeTab === 'users' ?
-                            (isLoadingUS ? <Loader /> : <UserContainer users={likedUsers} display="listWrap" />) :
-                            "Оберіть вкладку"
+                    {
+                        activeTab === 'lots' ? (
+                            isLoading ? (
+                                <Loader />
+                            ) : (
+                                <>
+                                    <LotContainer lots={lots} display="listWrap" lotStyle="small" />
+                                    <Pagination
+                                        totalCount={totalCount}
+                                        page={pagination.page}
+                                        limit={pagination.pageSize}
+                                        changePage={(page) => setPagination(prev => ({ ...prev, page }))}
+                                    />
+                                </>
+                            )
+                        ) : activeTab === 'users' ? (
+                            isLoadingUS ? (
+                                <Loader />
+                            ) : (
+                                <UserContainer users={likedUsers} display="listWrap" />
+                            )
+                        ) : (
+                            "Оберіть вкладку" // This translates to "Select a tab" in English
+                        )
                     }
                 </div>
             </div>

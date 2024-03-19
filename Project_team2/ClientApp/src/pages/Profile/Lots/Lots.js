@@ -62,7 +62,8 @@ function Lots () {
     };
 
     const handleButtonSearch = async () => {
-        await getLots(user.id, pagination.page, pagination.pageSize, activeTab, filters);
+        console.log(filters)
+        await getLots(pagination.pageNumber, pagination.pageSize, activeTab, filters);
     }
 
     const handleAddButton = () => {
@@ -75,6 +76,10 @@ function Lots () {
             ...filterChanges
         }));
     };
+
+    useEffect(() => {
+        console.log(filters)
+    }, [filters])
 
     return (
         <div className={css.container} style={{ padding: '0' }}>
