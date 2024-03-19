@@ -17,13 +17,14 @@ const useGetLotsByUser = () => {
 
         try {
             const response = await axios.post(`${LOTS_ENDPOINT}/getLotsByUser`, {
-                    token : token,
-                    pageNumber: pageNumber,
-                    pageSize: pageSize,
-                    active: activeTab === 'active',
-                    unactive: activeTab === 'unactive',
-                    archive: activeTab === 'archive',
-                    ...filters
+                ...filters,
+                token: token,
+                pageNumber: pageNumber,
+                pageSize: pageSize,
+                active: activeTab === 'active',
+                unactive: activeTab === 'unactive',
+                archive: activeTab === 'archive',
+
             }); //FILTER IS NEEDED
             console.log('Lots successfully retrieved: ', response.data);
             setLots(response.data.lots);

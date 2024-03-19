@@ -1,10 +1,18 @@
-﻿import React from 'react';
+﻿import React, { useEffect } from 'react';
 import { getPageCount } from '../../../utils/pages';
 import classes from './Pagination.module.css';
 
 const Pagination = ({ totalCount, limit, page, changePage }) => {
   const totalPages = getPageCount(totalCount, limit);
   const maxPageVisible = 3; 
+
+  useEffect(() => {
+    console.log(`totalCount`, totalCount);
+    console.log(`limit`, limit);
+    console.log(`page`, totalCount);
+    
+
+  }, [])
 
   let pages = [];
   

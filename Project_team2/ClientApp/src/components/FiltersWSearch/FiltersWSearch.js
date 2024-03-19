@@ -9,7 +9,7 @@ function FiltersWSearch({ onChange, initial }) {
     searchQuery: null,
     minPrice: null,
     maxPrice: null,
-    endTill: null,
+    timeTillEnd: null,
     ...initial
   });
 
@@ -25,7 +25,7 @@ function FiltersWSearch({ onChange, initial }) {
     }
 
     if (minPrice < 0) {
-      setFilters(prev => ({ ...prev, minPrice: (minPrice * -1)}));
+      setFilters(prev => ({ ...prev, minPrice: (minPrice * -1) }));
       return;
     }
 
@@ -42,7 +42,16 @@ function FiltersWSearch({ onChange, initial }) {
     //хз як з датою працюватимемо (об'єкт, стрінг чи щось тому подібне), тож залишу це пустим
 
     console.log("Filters changed in FiltersWSearch")
-    onChange(filters)
+
+    const appliedFilters = Object.entries(filters).reduce((acc, [key, value]) => {
+      // Exclude properties with null values
+      if (value !== null) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+
+    onChange(appliedFilters)
   }, [filters]);
 
   const onSearch = (value) => {
@@ -51,7 +60,7 @@ function FiltersWSearch({ onChange, initial }) {
       searchQuery: value
     }));
   }
-  
+
 
   return (
     <div className={css.filterContainer}>
@@ -91,7 +100,7 @@ function FiltersWSearch({ onChange, initial }) {
         <select
           className={css.inputEl}
           onChange={(e) => {
-            setFilters({ ...filters, endTill: e.target.value });
+            setFilters({ ...filters, timeTillEnd: e.target.value });
           }}
         >
           <option>Всі оголошення</option>

@@ -161,7 +161,7 @@ namespace Project2.Controllers
                     if (!string.IsNullOrEmpty(userEmail))
                     {
                         // Read HTML template content
-                        string htmlTemplate = await System.IO.File.ReadAllTextAsync("C:\\Users\\ostap\\Desktop\\Project_team-master\\Project_team2\\Services\\Sending.html");
+                        string htmlTemplate = await System.IO.File.ReadAllTextAsync("Pages/Sending.html");
 
                         // Replace placeholders with data from the database
                         htmlTemplate = htmlTemplate.Replace("{{Zagolovok}}", "Ваша ставка была перебита");

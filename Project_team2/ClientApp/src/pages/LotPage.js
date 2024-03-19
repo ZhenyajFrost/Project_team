@@ -121,12 +121,12 @@ function LotPage() {
                       {maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
                     </p>
                   </div>
-                  {!lot.winnerUserId ? (
+                  {Number(maxBid.user.id) !== Number(getLocalStorage("user").id)  ? (
                     <div className={css.buyBtn} onClick={() => setModal(true)}>
                       Залишити ставку
                     </div>
                   ) : (
-                    <></>
+                    "Не можна перебити свою ставку!"
                   )}
                 </div>
 
