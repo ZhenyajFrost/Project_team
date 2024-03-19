@@ -40,7 +40,7 @@ namespace Project2.Controllers
             var userId = ExtractUserIdFromToken(model.Token);
             try
             {
-               
+
 
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
@@ -82,7 +82,7 @@ namespace Project2.Controllers
             var userId = ExtractUserIdFromToken(model.Token);
             try
             {
-                
+
 
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
@@ -125,7 +125,7 @@ namespace Project2.Controllers
             var userId = ExtractUserIdFromToken(model.Token);
             try
             {
-               
+
 
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
@@ -551,7 +551,45 @@ namespace Project2.Controllers
 
             return null;
         }
+        [HttpPost("reputationUser")]
+        public int GetUserWaitingDeliveryLotsCount([FromBody] ReputationUserRequest request)
+        {
+            int userId = request.UserId;
+            int deliveryLotsCount = 0;
 
+            try
+            {
+
+
+                using (MySqlConnection connection = new MySqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = @"
+                SELECT COUNT(*) AS DeliveryLotsCount
+                FROM Lots
+                WHERE UserID = @UserId AND isWaitingDelivery = true";
+
+                    Console.WriteLine($"Executing query: {query} with UserID = {userId}");
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserId", userId);
+
+                        deliveryLotsCount = Convert.ToInt32(command.ExecuteScalar());
+                    }
+
+                    Console.WriteLine($"User {userId} has {deliveryLotsCount} lots awaiting delivery.");
+                }
+
+                return deliveryLotsCount;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting user waiting delivery lots count: {ex}");
+                throw;
+            }
+        }
 
         [HttpGet("getUserProfile")]
         public IActionResult GetUserProfile(int userId)
@@ -622,7 +660,8 @@ namespace Project2.Controllers
         public Dictionary<string, string> FieldsToUpdate { get; set; }
 
     }
-    public class DeleteUserRequest { 
+    public class DeleteUserRequest
+    {
         public string Token { get; set; }
     }
     public class UpdateEmailModel
@@ -639,10 +678,13 @@ namespace Project2.Controllers
     }
     public class UpdatePassWithTokenModel
     {
-       
+
         public string OldPassword { get; set; }
         public string NewPassword { get; set; }
         public string Token { get; set; }
     }
-
+    public class ReputationUserRequest
+    {
+        public int UserId { get; set; }
+    }
 }
