@@ -12,7 +12,6 @@ function Filters({ onChange, initial }) {
   const [params, setParams] = useState({
     minPrice: 1,
     maxPrice: 10000000,
-    // timeTillEnd: new Date(new Date(Date.now()).getDate() + 1),
     region: "Будь-який",
     ...initial,
   });
@@ -103,7 +102,14 @@ function Filters({ onChange, initial }) {
             setParams({ ...params, timeTillEnd: e.target.value });
           }}
         >
-          <option>Всі оголошення</option>
+          <option value={-1}>Всі оголошення</option>
+          <option value={1}>1 дня</option>
+          <option value={2}>2 днів</option>
+          <option value={5}>5 днів</option>
+          <option value={10}>10 днів</option>
+          <option value={15}>15 днів</option>
+          <option value={20}>20 днів</option>
+          <option value={30}>30 днів</option>
         </select>
       </div>
       <div className={css.filterItem}>

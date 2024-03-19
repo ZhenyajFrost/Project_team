@@ -18,7 +18,7 @@ export default function CreateLot({ data = {} }) {
     timeTillEnd: 1,
     minPrice: 0,
     minStepPrice: 0,
-    price: 1000000000000000000000000000000000,
+    price: 10000000,
     isNew: true,
     imageURLs: [],
     region: {},
@@ -38,8 +38,13 @@ export default function CreateLot({ data = {} }) {
   const onInput = (e) => {
     const { name, value } = e.target ? e.target : e;
 
-    if (!isNaN(Number(value)) && value.toString().length > 10) {
-      Notify.failure("число не може перевищувати 10000000000");
+    if (name.includes("rice")) {
+      if (Number(value) > 100000000) {
+        Notify.failure("число не може перевищувати 100000000");
+      } else {
+        setLot({ ...lot, [name]: Number(value) });
+      }
+      return;
     }
 
     setLot({ ...lot, [name]: value });
@@ -67,8 +72,10 @@ export default function CreateLot({ data = {} }) {
       lot.city = lot.city.label;
     }
     lot.userId = user.id;
-    lot.timeTillEnd = ` ${new Date(lot.timeTillEnd).valueOf()}`;
-    //lot.timeTillEnd = lot.timeTillEnd.toISOString().replace(/\.\d+Z$/, '');
+    //lot.timeTillEnd = ` ${new Date(lot.timeTillEnd).valueOf()}`;
+    lot.timeTillEnd = new Date(
+      new Date().setDate(new Date().getDate() + Number(lot.timeTillEnd))
+    ).toISOString().replace("Z", "");
 
     lot.category = lot.category.id;
 
@@ -89,6 +96,7 @@ export default function CreateLot({ data = {} }) {
     } else {
       create(lot).then((v) => {
         Notify.success("Лот створено успішно");
+        window.location.href = "/profile";
         setLot({});
       });
     }
@@ -111,17 +119,13 @@ export default function CreateLot({ data = {} }) {
           <CategorySelector
             onCatChange={(c) => onInput({ name: "category", value: c })}
             selectedCat={lot.category}
-            active = {!data.title}
+            active={!data.title}
           />
 
           <p>Тривалість торгів</p>
           <TimeSelector
             onChange={(t) => {
-              const today = new Date();
-              const endDate = new Date(
-                today.setDate((today.getDate() + Number(t)))
-              );
-              onInput({ name: "timeTillEnd", value: endDate });
+              onInput({ name: "timeTillEnd", value: t });
             }}
             value={lot.timeTillEnd}
           />
@@ -165,7 +169,7 @@ export default function CreateLot({ data = {} }) {
             <div>
               <p>Вкажіть Мінімальну Ціну</p>
               <span>
-                <Input
+                <input
                   className={css.priceInp}
                   name="minPrice"
                   onInput={onInput}
@@ -179,7 +183,7 @@ export default function CreateLot({ data = {} }) {
             <div>
               <p>Вкажіть мінімальну суму для 1 кроку</p>
               <span>
-                <Input
+                <input
                   className={css.priceInp}
                   name="minStepPrice"
                   onInput={onInput}
@@ -193,7 +197,7 @@ export default function CreateLot({ data = {} }) {
             <div>
               <p>Вкажіть бажану Ціну за яку готові продати</p>
               <span>
-                <Input
+                <input
                   className={css.priceInp}
                   name="price"
                   onInput={onInput}

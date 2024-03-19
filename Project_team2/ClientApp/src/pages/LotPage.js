@@ -19,6 +19,7 @@ import useGetUserLots from "../API/Lots/Get/useGetUserLots.js";
 import Carousel from "../components/Carousel/Carousel.js";
 import Lot from "../components/Lot/Lot.js";
 import { getLocalStorage } from "../utils/localStorage.js";
+import LotsCarousel from "../components/Carousel/LotsCarousel/LotsCarousel.js";
 
 function LotPage() {
   const id = parseInt(window.location.href.split("/").pop(), 10);
@@ -36,18 +37,14 @@ function LotPage() {
     getLotById(id).then((v) => {
       getLotsUser((v.userId, 1, 10));
     });
-
-
   }, []);
 
   useEffect(() => {
-    console.log("lot", lot)
+    console.log("lot", lot);
 
-    console.log("user", user)
-    console.log("maxBid", maxBid)
-
-
-  }, [lot, user, maxBid])
+    console.log("user", user);
+    console.log("maxBid", maxBid);
+  }, [lot, user, maxBid]);
 
   if (!isLoading && !error) {
     const lotInfo = {
@@ -83,11 +80,7 @@ function LotPage() {
               {history ? (
                 history.length ? (
                   history.map((v) => (
-                    <Bid
-                      user={v.user}
-                      amount={v.bidAmount}
-                      time={v.bidTime}
-                    />
+                    <Bid user={v.user} amount={v.bidAmount} time={v.bidTime} />
                   ))
                 ) : (
                   "Тут поки пусто, будьте першими, хто зробить ставку :)"
@@ -103,13 +96,14 @@ function LotPage() {
             <div className={css.splitContainer}>
               <div className={css.sides}>
                 <p>
-                  {lot.winnerUserId ? 
-                  `Користувач ${maxBid.user.login} переміг` : 
-                  `Наразі 
-                  ${maxBid.user ? `користувач: ${maxBid.user.login} перемагає`
-                    : `переможця немає`}`
-                  }
-
+                  {lot.winnerUserId
+                    ? `Користувач ${maxBid.user.login} переміг`
+                    : `Наразі 
+                  ${
+                    maxBid.user
+                      ? `користувач: ${maxBid.user.login} перемагає`
+                      : `переможця немає`
+                  }`}
                 </p>
                 <p>
                   <svg>
@@ -127,14 +121,13 @@ function LotPage() {
                       {maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
                     </p>
                   </div>
-                  {!lot.winnerUserId
-                     ?
-                      <div className={css.buyBtn} onClick={() => setModal(true)}>
-                        Залишити ставку
-                      </div> :
-                      <></>
-                  }
-
+                  {!lot.winnerUserId ? (
+                    <div className={css.buyBtn} onClick={() => setModal(true)}>
+                      Залишити ставку
+                    </div>
+                  ) : (
+                    <></>
+                  )}
                 </div>
 
                 <LikeButton lotId={id} />
@@ -187,47 +180,28 @@ function LotPage() {
           </div>
         </div>
         <div>
-          <Carousel
-            title={"Усі оголошення автора"}
-            maxItems={2}
-            items={lots.map((lot) => (
-              <Lot
-                key={lot.id}
-                id={lot.id}
-                title={lot.title}
-                price={lot.price}
-                shortDescription={lot.shortDescription}
-                category={lot.category}
-                timeTillEnd={lot.timeTillEnd}
-                hot={lot.hot}
-                imageURLs={lot.imageURLs}
-                isAdmin={false}
-                isApproved={lot.approved}
-              />
-            ))}
-          />
+          <h2>Усі оголошення автора</h2>
+          {lots.length === 0 ? <Loader /> : <LotsCarousel lots={lots} />}
         </div>
-        {
-      modal ? (
-        <ModalWindow
-          visible={modal}
-          setVisible={setModal}
-          children={
-            <BuyLotModal
-              userId={getLocalStorage('user').id}
-              lotUserId={lot.userId}
-              killMyself={() => setModal(false)}
-              maxBid={maxBid}
-              minStep={lot.minStepPrice}
-              minPrice={lot.minPrice}
-              lotId={lot.id}
-              sellOn={lot.price}
-            />
-          }
-        />
-      ) : null
-    }
-      </div >
+        {modal ? (
+          <ModalWindow
+            visible={modal}
+            setVisible={setModal}
+            children={
+              <BuyLotModal
+                userId={getLocalStorage("user").id}
+                lotUserId={lot.userId}
+                killMyself={() => setModal(false)}
+                maxBid={maxBid}
+                minStep={lot.minStepPrice}
+                minPrice={lot.minPrice}
+                lotId={lot.id}
+                sellOn={lot.price}
+              />
+            }
+          />
+        ) : null}
+      </div>
     );
   } else return <Loader />;
 }
