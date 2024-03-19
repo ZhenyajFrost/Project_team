@@ -189,6 +189,200 @@ namespace Project2.Controllers
                 Console.WriteLine($"Ошибка отправки уведомления в чат Telegram: {ex.ToString()}");
             }
         }
+        [HttpPost("register/google")]
+        public IActionResult RegisterOrLoginWithGoogle([FromBody] GoogleRegisterModel model)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    // Проверяем, существует ли пользователь с таким Google Id
+                    if (!string.IsNullOrEmpty(model.GoogleId))
+                    {
+                        string checkQuery = "SELECT * FROM Users WHERE GoogleId = @googleId";
+                        using (MySqlCommand checkCommand = new MySqlCommand(checkQuery, connection))
+                        {
+                            checkCommand.Parameters.AddWithValue("@googleId", model.GoogleId);
+                            using (MySqlDataReader reader = checkCommand.ExecuteReader())
+                            {
+                                if (reader.Read()) // Если пользователь существует, выполняем логинизацию
+                                {
+                                    var userId = reader["Id"].ToString();
+                                    reader.Close();
+
+                                    // Обновляем LastLogin для существующего пользователя
+                                    UpdateLastLogin(connection, userId);
+                                    // Получаем профиль пользователя
+                                    var userProfile = GetUserProfile(connection, userId);
+                                    // Получаем идентификаторы подписанных пользователей
+                                    var subscribedUserIds = GetSubscribedUserIds(connection, userId);
+                                    // Получаем идентификаторы лотов, на которые пользователь поставил лайк
+                                    var likedLotIds = GetLikedLotIds(connection, userId);
+
+                                    // Создаем JWT токен
+                                    var token = GenerateJwtToken(userId);
+                                    // Создаем объект JSON с данными пользователя и дополнительными данными
+                                    var response = new
+                                    {
+                                        message = "Login successful",
+                                        user = userProfile,
+                                        token,
+                                        likedLotIds,
+                                        subscribedUserIds
+                                    };
+
+                                    return Ok(response);
+                                }
+                            }
+                        }
+                    }
+
+                    // Если пользователь не существует или GoogleId не указан, выполняем регистрацию
+                    string query = "INSERT INTO Users (FirstName, LastName, Email, Avatar, RegistrationTime";
+
+                    // Добавляем GoogleId в запрос, если он указан
+                    if (!string.IsNullOrEmpty(model.GoogleId))
+                    {
+                        query += ", GoogleId";
+                    }
+
+                    query += ") VALUES (@firstName, @lastName, @email, @avatar";
+
+                    // Добавляем параметр GoogleId, если он указан
+                    if (!string.IsNullOrEmpty(model.GoogleId))
+                    {
+                        query += ", @googleId";
+                    }
+
+                    query += ", @registrationTime)";
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@firstName", model.GivenName);
+                        command.Parameters.AddWithValue("@lastName", model.FamilyName);
+                        command.Parameters.AddWithValue("@email", model.Email);
+                        command.Parameters.AddWithValue("@avatar", model.ImageUrl); // Сохраняем ссылку на аватар
+                        command.Parameters.AddWithValue("@registrationTime", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+
+
+                        // Добавляем значение GoogleId в параметры, если оно указано
+                        if (!string.IsNullOrEmpty(model.GoogleId))
+                        {
+                            command.Parameters.AddWithValue("@googleId", model.GoogleId);
+                        }
+
+                        int rowsAffected = command.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            // Получаем Id нового пользователя
+                            string newUserId = command.LastInsertedId.ToString();
+                            // Обновляем LastLogin для нового пользователя
+                            UpdateLastLogin(connection, newUserId);
+                            // Получаем профиль нового пользователя
+                            var userProfile = GetUserProfile(connection, newUserId);
+                            // Создаем JWT токен
+                            var token = GenerateJwtToken(newUserId);
+                            // Создаем объект JSON с данными пользователя и дополнительными данными
+                            var response = new
+                            {
+                                message = "Registration successful",
+                                user = userProfile,
+                                token
+                            };
+
+                            return Ok(response);
+                        }
+                        else
+                        {
+                            return BadRequest(new { message = "Registration failed" });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in RegisterOrLoginWithGoogle method: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Internal server error. Exception: {ex.Message}" });
+            }
+        }
+
+        // Метод для обновления времени последнего входа пользователя
+        private void UpdateLastLogin(MySqlConnection connection, string userId)
+        {
+            string updateQuery = "UPDATE Users SET LastLogin = @LastLogin WHERE Id = @UserId";
+            using (MySqlCommand updateCommand = new MySqlCommand(updateQuery, connection))
+            {
+                updateCommand.Parameters.AddWithValue("@LastLogin", DateTime.UtcNow);
+                updateCommand.Parameters.AddWithValue("@UserId", userId);
+                updateCommand.ExecuteNonQuery();
+            }
+        }
+
+        // Метод для получения профиля пользователя
+        private object GetUserProfile(MySqlConnection connection, string userId)
+        {
+            var query = "SELECT * FROM Users WHERE Id = @UserId";
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@UserId", userId);
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new UserProfile(reader);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        // Метод для получения идентификаторов подписанных пользователей
+        private List<int> GetSubscribedUserIds(MySqlConnection connection, string userId)
+        {
+            var subscribedUserIds = new List<int>();
+            var query = "SELECT SubscribedToId FROM UsersSubscribe WHERE SubscriberId = @UserId";
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@UserId", userId);
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        subscribedUserIds.Add(reader.GetInt32("SubscribedToId"));
+                    }
+                }
+            }
+            return subscribedUserIds;
+        }
+
+        // Метод для получения идентификаторов лотов, на которые пользователь поставил лайк
+        private List<int> GetLikedLotIds(MySqlConnection connection, string userId)
+        {
+            var likedLotIds = new List<int>();
+            var query = "SELECT LotId FROM LikedLots WHERE UserId = @UserId";
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@UserId", userId);
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        likedLotIds.Add(reader.GetInt32("LotId"));
+                    }
+                }
+            }
+            return likedLotIds;
+        }
+
+
+
+
 
         [HttpPost("register")]
         public IActionResult Register([FromBody] RegisterModel model)
@@ -295,7 +489,14 @@ namespace Project2.Controllers
             }
         }
     }
-
+    public class GoogleRegisterModel
+    {
+        public string GivenName { get; set; } // Имя пользователя (полученное от Google)
+        public string FamilyName { get; set; } // Фамилия пользователя (полученная от Google)
+        public string Email { get; set; } // Email пользователя (полученный от Google)
+        public string GoogleId { get; set; } // Google Id пользователя (полученный от Google)
+        public string ImageUrl { get; set; } // URL аватара пользователя (полученный от Google)
+    }
     public class LoginModel
     {
         public string Login { get; set; }

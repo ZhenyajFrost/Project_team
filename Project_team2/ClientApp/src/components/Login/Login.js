@@ -62,7 +62,7 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
       //window.location.reload();
 
     }).catch((err) => {
-      Notiflix.Notify.failure(`Оновлення паролю з помилками! Тикніть для інформації`, () => {
+      Notiflix.Notify.failure(`Вхід з помилками! Тикніть для інформації`, () => {
         Notiflix.Notify.info(`${err.response.data.message}`);
     })
     });;
@@ -81,7 +81,7 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
             <div className={classes.containerVer}>
               <div className={classes.containerVer}>
                 <label className={classes.label} htmlFor="email">
-                  Email or login:
+                  Пошта або логін:
                 </label>
                 <Input
                   type="value"
@@ -96,13 +96,13 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
 
               <div className={classes.containerVer}>
                 <label className={classes.label} htmlFor="password">
-                  Password:
+                  Пароль:
                 </label>
                 <Input
                   type="password"
                   id="password"
                   name="password"
-                  placeholder="Придумайте пароль"
+                  placeholder="Введіть пароль"
                   value={password}
                   onChange={handlePasswordChange}
                   required

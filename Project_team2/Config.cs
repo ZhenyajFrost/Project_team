@@ -1,4 +1,8 @@
-﻿namespace Project_team2
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Project_team2
 {
     public class Config
     {
@@ -9,6 +13,8 @@
         public static string SmtpPassword { get; } = "khtojlbdaeadwmpn";
         public static string TelegramBotToken { get; } = "6693790489:AAHzRPq9DZzY_mfRoyqYZm6_Z0q9nkCHqIk";
         public static long ChatId { get; } = -1002051823222;
-        
+
     }
+
+
 }

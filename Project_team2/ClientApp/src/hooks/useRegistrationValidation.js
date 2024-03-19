@@ -9,7 +9,7 @@ const useRegistrationValidation = () => {
   };
 
   const validateLogin = (name) => {
-    const nameRegex = /^[a-z0-9_-]*$/;
+    const nameRegex = /^[a-zA-Z0-9_-]*$/;
     return nameRegex.test(name);
   };
  

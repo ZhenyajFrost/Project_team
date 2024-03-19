@@ -49,7 +49,12 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
       return;
     }
 
-    if (!validateForm(formData) || passwordMatchError) return;
+    if (!validateForm(formData) || passwordMatchError) {
+      console.log(validationErrors);
+      console.log(passwordMatchError);
+      return;
+    }
+
     const { confirmPassword, ...userFormData } = formData;
     setUser(userFormData);
     setEmailSent(true);
@@ -57,17 +62,18 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
 
   return (
     <div>
-      <h2>Registration</h2>
-      <div className={classes.container}>
-        {validationErrors.password && (
-          <p className="error">{validationErrors.password}</p>
+      <h2>Реєстрація</h2>
+      {validationErrors && (
+          <p className="error">{`${validationErrors}`}</p>
         )}
+      <div className={classes.container}>
+
         <div className={classes.container}>
           <form onSubmit={onSubmit} className={classes.form}>
             <div className={classes.container} style={{ flexDirection: 'column', gap: '0.5vw' }}>
               <div>
                 <label className={classes.label} >
-                  Login:
+                  Логін:
                 </label>
                 <Input
                   type="text"
@@ -82,7 +88,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
 
               <div>
                 <label className={classes.label} htmlFor="phone">
-                  Phone:
+                  Телефон:
                 </label>
                 <PhoneInput
                   type="tel"
@@ -95,7 +101,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
 
               <div>
                 <label className={classes.label} htmlFor="email">
-                  Email:
+                  Пошта:
                 </label>
                 <Input
                   type="email"
@@ -108,9 +114,13 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
                 />
               </div>
 
+
               <div>
                 <label className={classes.label} htmlFor="password">
-                  Password:
+                  {validationErrors.password && (
+                    <p className="error">{validationErrors.password}</p>
+                  )}
+                  Пароль:
                 </label>
                 <Input
                   type="password"
@@ -125,7 +135,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
 
               <div>
                 <label className={classes.label} htmlFor="confirmPassword">
-                  Confirm Password:
+                  Підтвердіть пароль:
                 </label>
                 <Input
                   type="password"
@@ -137,10 +147,10 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
                   required
                 />
                 {passwordMatchError && (
-                  <p style={{ color: "red" }}>Passwords do not match.</p>
+                  <p style={{ color: "red" }}>Паролі не співпадають!</p>
                 )}
               </div>
-              <p>I am not a diplodocus <input name="diplo" type="checkbox" /></p>
+              <p>Я не діплодок <input name="diplo" type="checkbox" /></p>
             </div>
 
             <div style={{ textAlign: 'end' }}>
