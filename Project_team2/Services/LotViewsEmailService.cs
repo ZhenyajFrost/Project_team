@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Mail;
 using System.Threading;
@@ -16,7 +17,6 @@ public class LotViewsEmailService : BackgroundService
     private readonly int _smtpPort;
     private readonly string _smtpUsername;
     private readonly string _smtpPassword;
-  
 
     public LotViewsEmailService(string connString, string smtpServer, int smtpPort, string smtpUsername, string smtpPassword)
     {
@@ -25,7 +25,6 @@ public class LotViewsEmailService : BackgroundService
         _smtpPort = smtpPort;
         _smtpUsername = smtpUsername;
         _smtpPassword = smtpPassword;
-        
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -43,7 +42,7 @@ public class LotViewsEmailService : BackgroundService
                 Console.WriteLine($"An error occurred while processing lots and sending email: {ex}");
             }
 
-            // Ожидаем 5 минут перед повторным запуском
+            // Wait for 24 hours before running again
             await Task.Delay(TimeSpan.FromMinutes(1440), stoppingToken);
         }
 
@@ -60,7 +59,7 @@ public class LotViewsEmailService : BackgroundService
         {
             await connection.OpenAsync();
 
-            // Получаем адреса электронной почты пользователей, у которых установлен флаг NotificationsAdvices = true
+            // Get emails of users with NotificationsAdvices set to true
             string getUsersWithEmailsQuery = "SELECT Email FROM Users WHERE NotificationsAdvices = true";
             using (MySqlCommand getUsersCommand = new MySqlCommand(getUsersWithEmailsQuery, connection))
             using (MySqlDataReader emailReader = await getUsersCommand.ExecuteReaderAsync())
@@ -73,27 +72,36 @@ public class LotViewsEmailService : BackgroundService
 
             Console.WriteLine($"Found {recipientEmails.Count} recipient(s) with notification advices enabled.");
 
-            // Получаем данные о лоте с наибольшим количеством просмотров
+            // Get data of the lot with the highest number of views
             string query = "SELECT * FROM Lots ORDER BY Views DESC LIMIT 1";
             using (MySqlCommand command = new MySqlCommand(query, connection))
             using (MySqlDataReader reader = await command.ExecuteReaderAsync())
             {
                 if (await reader.ReadAsync())
                 {
-                    // Получаем данные о лоте с наибольшим количеством просмотров
                     int lotId = reader.GetInt32("Id");
                     string lotTitle = reader.GetString("Title");
-                    int views = reader.GetInt32("Views");
+                    string lotDescription = reader.GetString("ShortDescription");
+                    string imageUrlString = reader.GetString("ImageUrls"); // Получение строки URL изображения из базы данных
 
-                    Console.WriteLine($"Found lot with ID={lotId}, Title='{lotTitle}', Views={views}.");
+                    // Разделение строки на массив по запятой и взятие первого элемента
+                    string[] imageUrlArray = imageUrlString.Split(',');
+                    string imageUrl = imageUrlArray[0];
+                    Console.WriteLine($"Found lot with ID={lotId}, Title='{lotTitle}'.");
 
-                    // Отправляем письмо с информацией о лоте каждому пользователю
+                    // Read HTML template content
+                    string htmlTemplate = await File.ReadAllTextAsync("C:\\Users\\ostap\\Desktop\\Project_team-master\\Project_team2\\Services\\Sending.html");
+
+                    // Replace placeholders with data from the database
+                    htmlTemplate = htmlTemplate.Replace("{{Zagolovok}}", "Уважаемый пользователь! Самое время посмотреть восстребованный лот");
+                    htmlTemplate = htmlTemplate.Replace("{{title}}", lotTitle);
+                    htmlTemplate = htmlTemplate.Replace("{{Description}}", lotDescription);
+                    htmlTemplate = htmlTemplate.Replace("{{URL_Lots}}", $"https://localhost:44424/lot/{lotId}");
+                    htmlTemplate = htmlTemplate.Replace("{{image_url}}", imageUrl); // Замена заполнителя для изображения
+                    // Send email with lot information to each user
                     foreach (var email in recipientEmails)
                     {
-                        string emailBody = $"Лот с наибольшим количеством просмотров: ID={lotId}, Название={lotTitle}, Просмотры={views}" +
-                            $"" +
-                            $"Ссылка: https://localhost:44424/lot/{lotId}";
-                        SendEmail(email, "Лот с наибольшим количеством просмотров", emailBody);
+                        await SendEmailAsync(email, "Лот с наибольшим количеством просмотров", htmlTemplate);
                     }
 
                     Console.WriteLine("Emails sent successfully.");
@@ -102,7 +110,7 @@ public class LotViewsEmailService : BackgroundService
         }
     }
 
-    private void SendEmail(string toEmail, string subject, string body)
+    private async Task SendEmailAsync(string toEmail, string subject, string body)
     {
         using (SmtpClient smtpClient = new SmtpClient(_smtpServer, _smtpPort))
         {
@@ -116,9 +124,9 @@ public class LotViewsEmailService : BackgroundService
                 mailMessage.To.Add(toEmail);
                 mailMessage.Subject = subject;
                 mailMessage.Body = body;
-                mailMessage.IsBodyHtml = false;
+                mailMessage.IsBodyHtml = true;
 
-                smtpClient.Send(mailMessage);
+                await smtpClient.SendMailAsync(mailMessage);
             }
         }
     }
