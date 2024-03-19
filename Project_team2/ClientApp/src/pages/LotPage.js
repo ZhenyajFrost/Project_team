@@ -37,13 +37,6 @@ function LotPage() {
     });
   }, []);
 
-  useEffect(() => {
-    console.log("lot", lot);
-
-    console.log("user", user);
-    console.log("maxBid", maxBid);
-  }, [lot, user, maxBid]);
-
   if (!isLoading && !error) {
     const lotInfo = {
       Область: lot.region ? lot.region : "Невідоме",
@@ -78,7 +71,11 @@ function LotPage() {
               {history ? (
                 history.length ? (
                   history.map((v) => (
-                    <Bid user={v.userId} amount={v.bidAmount} time={v.bidTime} />
+                    <Bid
+                      user={v.userId}
+                      amount={v.bidAmount}
+                      time={v.bidTime}
+                    />
                   ))
                 ) : (
                   "Тут поки пусто, будьте першими, хто зробить ставку :)"
@@ -119,12 +116,13 @@ function LotPage() {
                       {maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
                     </p>
                   </div>
-                  {Number(maxBid.user.id) !== Number(getLocalStorage("user").id)  ? (
+                  {maxBid && maxBid.user && Number(maxBid.user.id) ===
+                  Number(getLocalStorage("user").id) ? (
+                    "Не можна перебити свою ставку!"
+                  ) : (
                     <div className={css.buyBtn} onClick={() => setModal(true)}>
                       Залишити ставку
                     </div>
-                  ) : (
-                    "Не можна перебити свою ставку!"
                   )}
                 </div>
 
