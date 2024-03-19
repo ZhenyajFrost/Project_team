@@ -9,7 +9,7 @@ function FiltersWSearch({ onChange, initial }) {
     minPrice: null,
     maxPrice: null,
     timeTillEnd: null,
-    ...initial
+    ...initial,
   });
 
   useEffect(() => {
@@ -38,23 +38,24 @@ function FiltersWSearch({ onChange, initial }) {
     //перевірка дати
     //хз як з датою працюватимемо (об'єкт, стрінг чи щось тому подібне), тож залишу це пустим
 
-    console.log("Filters changed in FiltersWSearch")
+    const appliedFilters = Object.entries(filters).reduce(
+      (acc, [key, value]) => {
+        // Exclude properties with null values
+        if (value !== null) {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {}
+    );
 
-    const appliedFilters = Object.entries(filters).reduce((acc, [key, value]) => {
-      // Exclude properties with null values
-      if (value !== null) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
-
-    onChange(appliedFilters)
+    onChange(appliedFilters);
   }, [filters]);
 
   const onSearch = (value) => {
     setFilters((prev) => ({
       ...prev,
-      searchQuery: value,
+      searchString: value,
     }));
   };
 
@@ -100,10 +101,23 @@ function FiltersWSearch({ onChange, initial }) {
         <select
           className={css.inputEl}
           onChange={(e) => {
-            setFilters({ ...filters, timeTillEnd: e.target.value });
+            const date = new Date().setDate(new Date().getDate() + Number(e.target.value))
+            setFilters({
+              ...filters,
+              timeTillEnd: new Date(
+                date
+              ).toISOString().replace("Z", ""),
+            });
           }}
         >
-          <option>Всі оголошення</option>
+          <option value={-1}>Всі оголошення</option>
+          <option value={1}>1 дня</option>
+          <option value={2}>2 днів</option>
+          <option value={5}>5 днів</option>
+          <option value={10}>10 днів</option>
+          <option value={15}>15 днів</option>
+          <option value={20}>20 днів</option>
+          <option value={30}>30 днів</option>
         </select>
       </div>
       <div>
