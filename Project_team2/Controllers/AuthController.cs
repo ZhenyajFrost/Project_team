@@ -265,7 +265,7 @@ namespace Project2.Controllers
 
                     // Если пользователь не существует, выполняем регистрацию
                     string TempPass;
-                    string query = "INSERT INTO Users (Email, Avatar, RegistrationTime, Password";
+                    string query = "INSERT INTO Users (Login, Email, Avatar, RegistrationTime, Password";
 
                     // Добавляем GoogleId в запрос, если он указан
                     if (!string.IsNullOrEmpty(model.GoogleId))
@@ -283,7 +283,7 @@ namespace Project2.Controllers
                         query += ", LastName";
                     }
 
-                    query += ") VALUES (@email, @avatar, @registrationTime, @password";
+                    query += ") VALUES (@email, @email, @avatar, @registrationTime, @password";
                     // Добавляем значение GoogleId в запрос, если оно указано
                     if (!string.IsNullOrEmpty(model.GoogleId))
                     {
@@ -299,7 +299,7 @@ namespace Project2.Controllers
                         query += ", @lastName";
                     }
 
-                   
+
 
                     query += ");";
 
@@ -592,7 +592,7 @@ namespace Project2.Controllers
         public string GoogleId { get; set; } // Google Id пользователя (полученный от Google)
         public string ImageUrl { get; set; } // URL аватара пользователя (полученный от Google)
     }
- 
+
     public class LoginModel
     {
         public string Login { get; set; }
