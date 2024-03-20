@@ -79,10 +79,11 @@
 }
 
 .status.bad {
-  background-color: var(--red);
+  background-color: #D26C6C1A;
+
 }
 .status.norm {
-  background-color: var(--borderColor);
+  background-color: var(--gray);
 }
 .status.good {
   background-color: var(--subtleGreen);

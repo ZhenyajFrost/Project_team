@@ -24,7 +24,7 @@ function LotPage() {
 
   const [modal, setModal] = useState(false);
   const [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
-  const [getLotsUser, lots] = useGetUserLots();
+  const [getLotsUser, lots, isLoadingLots] = useGetUserLots();
   let [getHistory, history] = useGetLotsHistory();
   const cat = categories.find(
     (categ) => Number(categ.id) === Number(lot.category)
@@ -177,7 +177,7 @@ function LotPage() {
         </div>
         <div>
           <h2>Усі оголошення автора</h2>
-          {lots.length === 0 ? <Loader /> : <LotsCarousel lots={lots} />}
+          {isLoadingLots ? <Loader /> : (lots.length>0 ? <LotsCarousel lots={lots} />: <h4>В цього користувача немає інших лотів</h4>)}
         </div>
         {modal ? (
           <ModalWindow

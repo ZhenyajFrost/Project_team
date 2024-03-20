@@ -2,9 +2,9 @@ import React from "react";
 import svgDef from "../../images/status.svg";
 import css from "./UserShortV2/UserShortV2.module.css";
 
-function Reputation({ reputation: { imgId, value, amount } }) {
+function Reputation({ reputation: { imgId, value, amount }, className="" }) {
   return (
-    <div className={`${css.status} ${css[imgId]}`}>
+    <div className={`${css.status} ${css[imgId]} ${className}`}>
       <div>
         <svg>
           <use href={`${svgDef}#${imgId}`} />
