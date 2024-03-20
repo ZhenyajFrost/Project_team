@@ -15,7 +15,7 @@ const useGetUserReputation = () => {
             const response = await axios.post(`${EDIT_USER_ENDPOINT}/reputationUser`, {id});
             const num =response.data;
             if(num<10) {
-                setReput({value:"Поганo", imgId:"bad", amount:num})
+                setReput({value:"Ризикований", imgId:"bad", amount:num})
             }else if(num<50) {
                 setReput({value:"Нормальнo", imgId:"norm", amount:num})
             }else{
