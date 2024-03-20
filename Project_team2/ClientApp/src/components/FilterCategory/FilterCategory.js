@@ -23,7 +23,7 @@ export default function FilterCategory({ totalCount, categories, onChange, setCa
             <label>Категорії</label>
             <div className={css.btnContainer}>
                 <Button value=''
-                    className={`${css.btn} ${categoryClicked.value === '' ? '' : css.activeCat}`}
+                    className={`${css.btn} ${!categoryClicked.value? '' : css.activeCat}`}
                     onClick={handleCatClick}>Усі категорії <div className={css.number}>{totalCount}</div></Button>
                 {categories.map(category => (
                     <Button
