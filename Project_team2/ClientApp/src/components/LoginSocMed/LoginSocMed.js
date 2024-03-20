@@ -40,7 +40,7 @@ const LoginSocMed = () => {
           setLocalStorage('isLoggined', true);
 
           Notiflix.Notify.success("Вхід успішний!");
-          //setTimeout(() => window.location.reload(), 3000);
+          setTimeout(() => window.location.reload(), 3000);
 
         }).catch((err) => {
           Notiflix.Notify.failure('Вхід з помилками! Тикніть для інформації', () => {
@@ -56,32 +56,6 @@ const LoginSocMed = () => {
   const onFailure = (res) => {
     console.log("Login failure", res);
   };
-
-  // useEffect(() => {
-  //   const checkLoginStatusAndLogoutFromGoogle = async () => {
-  //     const isUserLoggedIn = localStorage.getItem('isLoggined') === 'true';
-
-  //     if (isUserLoggedIn)
-  //       return;
-
-  //     if (!isUserLoggedIn) {
-  //       // Ensure gapi is loaded and initialized
-  //       if (window.gapi) {
-  //         // Attempt to get the auth2 instance
-  //         const auth2 = window.gapi.auth2.getAuthInstance();
-
-  //         if (auth2 != null) {
-  //           // Sign out from Google
-  //           await auth2.signOut();
-  //           console.log("Logged out from Google");
-  //         }
-  //       }
-  //     }
-  //   };
-
-  //   // Call the function to check login status and potentially logout
-  //   checkLoginStatusAndLogoutFromGoogle();
-  // }, []);
 
   return (
     <div className={classes.container}>

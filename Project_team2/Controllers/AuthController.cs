@@ -240,7 +240,15 @@ namespace Project2.Controllers
                                     // Создаем JWT токен
                                     var token = GenerateJwtToken(userId);
                                     Console.WriteLine($"JWT token: {token}");
+                                    var updateQuery = "UPDATE Users SET LastLogin = @LastLogin WHERE Id = @UserId";
+                                     using (var updateCommand = new MySqlCommand(updateQuery, connection))
+                                    {
+                                        updateCommand.Parameters.AddWithValue("@LastLogin", DateTime.UtcNow);
+                                        updateCommand.Parameters.AddWithValue("@UserId", userId);
+                                        updateCommand.ExecuteNonQueryAsync();
+                                        // Получаем информацию об уведомлениях из базы данных
 
+                                    }
                                     // Создаем объект JSON с данными пользователя и дополнительными данными
                                     var response = new
                                     {
@@ -352,6 +360,7 @@ namespace Project2.Controllers
                             Console.WriteLine($"JWT token: {token}");
 
                             // Создаем объект JSON с данными пользователя и дополнительными данными
+                        
                             var response = new
                             {
                                 message = "Registration successful",
@@ -488,13 +497,14 @@ namespace Project2.Controllers
                 {
                     connection.Open();
 
-                    string query = "INSERT INTO Users (Login, Email, Password, Phone,RegistrationTime) " +
-                                   "VALUES (@login, @email,@password, @phone, @registrationTime)";
+                    string query = "INSERT INTO Users (Login, Avatar,Email, Password, Phone,RegistrationTime) " +
+                                   "VALUES (@login, @avatar @email,@password, @phone, @registrationTime)";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
 
                         command.Parameters.AddWithValue("@login", model.Login);
+                        command.Parameters.AddWithValue("@avatar", "http://res.cloudinary.com/ebayclone/image/upload/v1710431831/userAvatars/profile_png_w2cxsi.png");
                         command.Parameters.AddWithValue("@email", model.Email);
                         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
                         command.Parameters.AddWithValue("@password", hashedPassword);

@@ -140,7 +140,8 @@
   gap: 1vw;
 }
 
-.text, .text2{
+.text,
+.text2 {
   display: flex;
   flex-direction: row;
   gap: 0.3vw;
@@ -191,6 +192,18 @@
   border-radius: 40px;
 }
 
-.waitDel{
-  background-color:  #7ad26c;
+.waitDel {
+  background-color: #7ad26c;
+}
+
+.fromDiv>h3 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32.78px;
+}
+
+.fromDiv>h4 {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 32.78px;
 }
