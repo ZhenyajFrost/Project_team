@@ -1,66 +1,97 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import classes from './LoginSocMed.module.css';
 import google from './images/google.svg';
 import axios from 'axios';
-import { AUTH_ENDPOINT } from '../../API/apiConstant';
 import Notiflix from 'notiflix';
-
-import { gapi } from 'gapi-script'
-
-import { GOOGLE_CLIENT_ID } from '../../API/apiConstant';
-import { GoogleLogin, GoogleLogout } from 'react-google-login'
-import { useEffect } from 'react';
-
+import { setLocalStorage } from '../../utils/localStorage';
+import { AUTH_ENDPOINT, GOOGLE_CLIENT_ID } from '../../API/apiConstant';
+import { GoogleLogin } from 'react-google-login';
+import { gapi } from 'gapi-script';
 
 const LoginSocMed = () => {
+  // Success handler for both login and logout
 
+  const onSuccess = (response) => {
+    if (response.profileObj) { // Login success
+      console.log(response);
+      const user = {
+        ...response.profileObj,
+        name: undefined, // remove googleId if you don't want to send it to the backend
+      };
 
+      const isUserLoggedIn = localStorage.getItem('isLoggined') === 'true';
 
-  const onSuccess = (res) => {
-    console.log(res);
-    const {name, ...user} = res.profileObj;
+      if (isUserLoggedIn)
+        return;
 
-    axios.post(`${AUTH_ENDPOINT}/register/google`, user)
-    .then((result) => {
+      axios.post(`${AUTH_ENDPOINT}/register/google`, user)
+        .then((result) => {
+          const userData = {
+            ...result.data.user,
+            notifications: {
+              ...result.data.notifications,
+            },
+            likedLotIds: result.data.likedLotIds,
+            likedUsers: result.data.subscribedUserIds,
+          };
 
-      console.log(result)
+          setLocalStorage('user', userData);
+          setLocalStorage('token', result.data.token);
+          setLocalStorage('isLoggined', true);
 
-    }).catch((err) => {
-      Notiflix.Notify.failure(`Вхід з помилками! Тикніть для інформації`, () => {
-        Notiflix.Notify.info(`${err.response.data.message}`);
-      })
-    });;
+          Notiflix.Notify.success("Вхід успішний!");
+          setTimeout(() => window.location.reload(), 3000);
 
-  }
+        }).catch((err) => {
+          Notiflix.Notify.failure('Вхід з помилками! Тикніть для інформації', () => {
+            Notiflix.Notify.info(`${err.response?.data.message || 'An error occurred'}`);
+          });
+        });
 
-  const onLogoutSuccess = (res) => {
-    console.log("Logout", res)
-  }
+    } else { // Logout success
+      console.log("Logout successful");
+    }
+  };
 
   const onFailure = (res) => {
-    console.log("failure", res)
-  }
+    console.log("Login failure", res);
+  };
 
-  useEffect(() => {
-    function start() {
-      gapi.client.init({
-        clientId: GOOGLE_CLIENT_ID,
-        scope: ''
-      })
-    };
-    gapi.load('client:auth2', start)
-  });
+  // useEffect(() => {
+  //   const checkLoginStatusAndLogoutFromGoogle = async () => {
+  //     const isUserLoggedIn = localStorage.getItem('isLoggined') === 'true';
+
+  //     if (isUserLoggedIn)
+  //       return;
+
+  //     if (!isUserLoggedIn) {
+  //       // Ensure gapi is loaded and initialized
+  //       if (window.gapi) {
+  //         // Attempt to get the auth2 instance
+  //         const auth2 = window.gapi.auth2.getAuthInstance();
+
+  //         if (auth2 != null) {
+  //           // Sign out from Google
+  //           await auth2.signOut();
+  //           console.log("Logged out from Google");
+  //         }
+  //       }
+  //     }
+  //   };
+
+  //   // Call the function to check login status and potentially logout
+  //   checkLoginStatusAndLogoutFromGoogle();
+  // }, []);
 
   return (
     <div className={classes.container}>
       <label>Увійти за допомогою</label>
-
       <GoogleLogin
         clientId={GOOGLE_CLIENT_ID}
         onSuccess={onSuccess}
         onFailure={onFailure}
         cookiePolicy={'single_host_origin'}
-        isSignedIn={true}
+        isSignedIn={false}
         render={renderProps => (
           <div onClick={renderProps.onClick} disabled={renderProps.disabled} className={classes.btn}>
             <img src={google} alt="Google sign-in" /> Login with Google

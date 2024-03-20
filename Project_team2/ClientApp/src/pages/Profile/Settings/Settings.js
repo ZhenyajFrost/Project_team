@@ -79,6 +79,8 @@ function Settings() {
     const [updateEmail, isLoadingEmail, errorEmail] = useUpdateEmail();
     const [toggleNotification, isLoadingNotifi, errorNotifi] = useToggleNotification();
 
+    const [minHeight, setMinHeight] = useState(290);
+
     const [formData, setFormData] = useState({
         lastName: '',
         firstName: '',
@@ -283,7 +285,7 @@ function Settings() {
                 </CustomAccordionSummary>
                 <CustomAccordionDetails>
                     <form onSubmit={handleContactSubmit}>
-                        <div className={css.container}>
+                        <div className={`${css.container} `} style={{minHeight: `${minHeight}px`}}>
 
                             <div className={css.grid}>
                                 <div>
@@ -345,7 +347,9 @@ function Settings() {
                                 onCityChange={handleCityChange}
                                 selectedRegion={selectedRegion}
                                 selectedCity={selectedCity}
+                                handleOnClick={(val) => setMinHeight(val)}
                             />
+
                         </div>
                         <Button type="submit" diabled={isLoading}>Зберегти</Button>
                     </form>

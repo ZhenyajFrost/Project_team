@@ -192,6 +192,9 @@ namespace Project2.Controllers
         [HttpPost("register/google")]
         public IActionResult RegisterOrLoginWithGoogle([FromBody] GoogleRegisterModel model)
         {
+            var notificationsAdvices = false;
+            var notificationsHelp = false;
+            var notificationsRemind = false;
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(_connString))
@@ -210,19 +213,33 @@ namespace Project2.Controllers
                                 if (reader.Read()) // Если пользователь существует, выполняем логинизацию
                                 {
                                     var userId = reader["Id"].ToString();
+                                    Console.WriteLine($"UserId: {userId}");
+                                    
+                                    notificationsAdvices = Convert.ToBoolean(reader["NotificationsAdvices"]);
+                                    notificationsHelp = Convert.ToBoolean(reader["NotificationsHelp"]);
+                                    notificationsRemind = Convert.ToBoolean(reader["NotificationsRemind"]);
                                     reader.Close();
 
                                     // Обновляем LastLogin для существующего пользователя
                                     UpdateLastLogin(connection, userId);
+                                    Console.WriteLine("Last login updated");
+
                                     // Получаем профиль пользователя
                                     var userProfile = GetUserProfile(connection, userId);
+                                    Console.WriteLine($"User profile: {userProfile}");
+
                                     // Получаем идентификаторы подписанных пользователей
                                     var subscribedUserIds = GetSubscribedUserIds(connection, userId);
+                                    Console.WriteLine($"Subscribed user ids: {string.Join(", ", subscribedUserIds)}");
+
                                     // Получаем идентификаторы лотов, на которые пользователь поставил лайк
                                     var likedLotIds = GetLikedLotIds(connection, userId);
+                                    Console.WriteLine($"Liked lot ids: {string.Join(", ", likedLotIds)}");
 
                                     // Создаем JWT токен
                                     var token = GenerateJwtToken(userId);
+                                    Console.WriteLine($"JWT token: {token}");
+                                    
                                     // Создаем объект JSON с данными пользователя и дополнительными данными
                                     var response = new
                                     {
@@ -230,9 +247,15 @@ namespace Project2.Controllers
                                         user = userProfile,
                                         token,
                                         likedLotIds,
-                                        subscribedUserIds
+                                        subscribedUserIds,
+                                         notifications = new
+                                         {
+                                             advices = notificationsAdvices,
+                                             help = notificationsHelp,
+                                             remind = notificationsRemind
+                                         }
                                     };
-
+                                    
                                     return Ok(response);
                                 }
                             }
@@ -250,13 +273,7 @@ namespace Project2.Controllers
 
                     query += ") VALUES (@firstName, @lastName, @email, @avatar";
 
-                    // Добавляем параметр GoogleId, если он указан
-                    if (!string.IsNullOrEmpty(model.GoogleId))
-                    {
-                        query += ", @googleId";
-                    }
-
-                    query += ", @registrationTime)";
+                    query += ", @registrationTime, @googleId)";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
@@ -264,8 +281,8 @@ namespace Project2.Controllers
                         command.Parameters.AddWithValue("@lastName", model.FamilyName);
                         command.Parameters.AddWithValue("@email", model.Email);
                         command.Parameters.AddWithValue("@avatar", model.ImageUrl); // Сохраняем ссылку на аватар
-                        command.Parameters.AddWithValue("@registrationTime", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
-
+                        command.Parameters.AddWithValue("@registrationTime", DateTime.UtcNow); // Получаем текущее время сервера
+                        Console.WriteLine($"Parameters: FirstName={model.GivenName}, LastName={model.FamilyName}, Email={model.Email}, Avatar={model.ImageUrl}, RegistrationTime={DateTime.UtcNow}");
 
                         // Добавляем значение GoogleId в параметры, если оно указано
                         if (!string.IsNullOrEmpty(model.GoogleId))
@@ -274,17 +291,26 @@ namespace Project2.Controllers
                         }
 
                         int rowsAffected = command.ExecuteNonQuery();
+                        Console.WriteLine($"Rows affected: {rowsAffected}");
 
                         if (rowsAffected > 0)
                         {
                             // Получаем Id нового пользователя
                             string newUserId = command.LastInsertedId.ToString();
+                            Console.WriteLine($"New user id: {newUserId}");
+
                             // Обновляем LastLogin для нового пользователя
                             UpdateLastLogin(connection, newUserId);
+                            Console.WriteLine("Last login updated");
+
                             // Получаем профиль нового пользователя
                             var userProfile = GetUserProfile(connection, newUserId);
+                            Console.WriteLine($"User profile: {userProfile}");
+
                             // Создаем JWT токен
                             var token = GenerateJwtToken(newUserId);
+                            Console.WriteLine($"JWT token: {token}");
+
                             // Создаем объект JSON с данными пользователя и дополнительными данными
                             var response = new
                             {
