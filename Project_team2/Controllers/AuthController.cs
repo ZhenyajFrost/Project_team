@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Net;
 using Project_team2;
+using System.Text;
 namespace Project2.Controllers
 
 {
@@ -214,7 +215,7 @@ namespace Project2.Controllers
                                 {
                                     var userId = reader["Id"].ToString();
                                     Console.WriteLine($"UserId: {userId}");
-                                    
+
                                     notificationsAdvices = Convert.ToBoolean(reader["NotificationsAdvices"]);
                                     notificationsHelp = Convert.ToBoolean(reader["NotificationsHelp"]);
                                     notificationsRemind = Convert.ToBoolean(reader["NotificationsRemind"]);
@@ -239,7 +240,7 @@ namespace Project2.Controllers
                                     // Создаем JWT токен
                                     var token = GenerateJwtToken(userId);
                                     Console.WriteLine($"JWT token: {token}");
-                                    
+
                                     // Создаем объект JSON с данными пользователя и дополнительными данными
                                     var response = new
                                     {
@@ -248,22 +249,23 @@ namespace Project2.Controllers
                                         token,
                                         likedLotIds,
                                         subscribedUserIds,
-                                         notifications = new
-                                         {
-                                             advices = notificationsAdvices,
-                                             help = notificationsHelp,
-                                             remind = notificationsRemind
-                                         }
+                                        notifications = new
+                                        {
+                                            advices = notificationsAdvices,
+                                            help = notificationsHelp,
+                                            remind = notificationsRemind
+                                        }
                                     };
-                                    
+
                                     return Ok(response);
                                 }
                             }
                         }
                     }
 
-                    // Если пользователь не существует или GoogleId не указан, выполняем регистрацию
-                    string query = "INSERT INTO Users (FirstName, LastName, Email, Avatar, RegistrationTime";
+                    // Если пользователь не существует, выполняем регистрацию
+                    string TempPass;
+                    string query = "INSERT INTO Users (Email, Avatar, RegistrationTime, Password";
 
                     // Добавляем GoogleId в запрос, если он указан
                     if (!string.IsNullOrEmpty(model.GoogleId))
@@ -271,18 +273,57 @@ namespace Project2.Controllers
                         query += ", GoogleId";
                     }
 
-                    query += ") VALUES (@firstName, @lastName, @email, @avatar";
+                    // Добавляем GivenName и FamilyName в запрос, если они переданы
+                    if (!string.IsNullOrEmpty(model.GivenName))
+                    {
+                        query += ", FirstName";
+                    }
+                    if (!string.IsNullOrEmpty(model.FamilyName))
+                    {
+                        query += ", LastName";
+                    }
 
-                    query += ", @registrationTime, @googleId)";
+                    query += ") VALUES (@email, @avatar, @registrationTime, @password";
+                    // Добавляем значение GoogleId в запрос, если оно указано
+                    if (!string.IsNullOrEmpty(model.GoogleId))
+                    {
+                        query += ", @googleId";
+                    }
+                    // Добавляем значения для GivenName и FamilyName, если они переданы
+                    if (!string.IsNullOrEmpty(model.GivenName))
+                    {
+                        query += ", @firstName";
+                    }
+                    if (!string.IsNullOrEmpty(model.FamilyName))
+                    {
+                        query += ", @lastName";
+                    }
 
+                   
+
+                    query += ");";
+
+                    // Добавляем параметры к команде
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@firstName", model.GivenName);
-                        command.Parameters.AddWithValue("@lastName", model.FamilyName);
+                        // Добавляем параметры к команде
                         command.Parameters.AddWithValue("@email", model.Email);
                         command.Parameters.AddWithValue("@avatar", model.ImageUrl); // Сохраняем ссылку на аватар
                         command.Parameters.AddWithValue("@registrationTime", DateTime.UtcNow); // Получаем текущее время сервера
-                        Console.WriteLine($"Parameters: FirstName={model.GivenName}, LastName={model.FamilyName}, Email={model.Email}, Avatar={model.ImageUrl}, RegistrationTime={DateTime.UtcNow}");
+                        TempPass = GenerateTemporaryPassword();
+                        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(TempPass);
+                        command.Parameters.AddWithValue("@password", hashedPassword);
+                        Console.WriteLine($"Parameters: Email={model.Email}, Avatar={model.ImageUrl}, RegistrationTime={DateTime.UtcNow}");
+
+                        // Добавляем значения для GivenName и FamilyName, если они переданы
+                        if (!string.IsNullOrEmpty(model.GivenName))
+                        {
+                            command.Parameters.AddWithValue("@firstName", model.GivenName);
+                        }
+                        if (!string.IsNullOrEmpty(model.FamilyName))
+                        {
+                            command.Parameters.AddWithValue("@lastName", model.FamilyName);
+                        }
 
                         // Добавляем значение GoogleId в параметры, если оно указано
                         if (!string.IsNullOrEmpty(model.GoogleId))
@@ -292,7 +333,6 @@ namespace Project2.Controllers
 
                         int rowsAffected = command.ExecuteNonQuery();
                         Console.WriteLine($"Rows affected: {rowsAffected}");
-
                         if (rowsAffected > 0)
                         {
                             // Получаем Id нового пользователя
@@ -318,6 +358,9 @@ namespace Project2.Controllers
                                 user = userProfile,
                                 token
                             };
+                            string mess = $"Здравствуйте, ваш временный пароль указан ниже. Смените его при первой возможности в целях безопасности. " +
+                                "Пароль:" + TempPass;
+                            SendEmail(model.Email, "Временный пароль", mess);
 
                             return Ok(response);
                         }
@@ -327,6 +370,7 @@ namespace Project2.Controllers
                         }
                     }
                 }
+
             }
             catch (Exception ex)
             {
@@ -334,7 +378,32 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal server error. Exception: {ex.Message}" });
             }
         }
+        private string GenerateTemporaryPassword()
+        {
+            const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+";
+            Random random = new Random();
+            StringBuilder password = new StringBuilder();
 
+            // Добавляем случайные символы в пароль
+            for (int i = 0; i < 8; i++)
+            {
+                password.Append(validChars[random.Next(validChars.Length)]);
+            }
+
+            // Убедимся, что пароль содержит хотя бы одну большую букву и один специальный символ
+            if (!password.ToString().Any(char.IsUpper))
+            {
+                // Добавляем случайную большую букву в пароль
+                password[random.Next(0, 7)] = validChars[random.Next(26, 52)];
+            }
+            if (!password.ToString().Any(char.IsSymbol))
+            {
+                // Добавляем случайный специальный символ в пароль
+                password[random.Next(0, 7)] = validChars[random.Next(52, validChars.Length)];
+            }
+
+            return password.ToString();
+        }
         // Метод для обновления времени последнего входа пользователя
         private void UpdateLastLogin(MySqlConnection connection, string userId)
         {
@@ -517,12 +586,13 @@ namespace Project2.Controllers
     }
     public class GoogleRegisterModel
     {
-        public string GivenName { get; set; } // Имя пользователя (полученное от Google)
-        public string FamilyName { get; set; } // Фамилия пользователя (полученная от Google)
+        public string? GivenName { get; set; } // Имя пользователя (полученное от Google)
+        public string? FamilyName { get; set; } // Фамилия пользователя (полученная от Google)
         public string Email { get; set; } // Email пользователя (полученный от Google)
         public string GoogleId { get; set; } // Google Id пользователя (полученный от Google)
         public string ImageUrl { get; set; } // URL аватара пользователя (полученный от Google)
     }
+ 
     public class LoginModel
     {
         public string Login { get; set; }
