@@ -17,8 +17,8 @@ const Carousel = ({ items, maxItems = 4, title }) => {
     if (currentIndex < 0) {
       setCurrentIndex(0);
     }
-    if (currentIndex > 1) {
-      setCurrentIndex(1);
+    if (currentIndex > maxItems-1) {
+      setCurrentIndex(maxItems-1);
     }
   }, [currentIndex]);
 
