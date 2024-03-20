@@ -14,7 +14,12 @@ import Button from "../Button/Button";
 //     );
 // });
 
-const InputSearch = ({ onSearch, placeholder = "", value = null, nobutton }) => {
+const InputSearch = ({
+  onSearch,
+  placeholder = "",
+  value = null,
+  nobutton,
+}) => {
   const [inputValue, setInputValue] = useState(value);
 
   const handleInputChange = (e) => {
@@ -32,20 +37,22 @@ const InputSearch = ({ onSearch, placeholder = "", value = null, nobutton }) => 
   };
 
   return (
-    <div className={classes.search}>
-      <div>
-        <img src={search} className={classes.search} alt="Search" />
-        <input
-          type="text"
-          className={classes.input}
-          value={inputValue}
-          onChange={handleInputChange}
-          placeholder={placeholder}
-        />
-      </div>
+    <form>
+      <div className={classes.search}>
+        <div>
+          <img src={search} className={classes.search} alt="Search" />
+          <input
+            type="text"
+            className={classes.input}
+            value={inputValue}
+            onChange={handleInputChange}
+            placeholder={placeholder}
+          />
+        </div>
 
-      {!nobutton && <Button onClick={handleSearchClick}>Пошук</Button>}
-    </div>
+        {!nobutton && <Button onClick={handleSearchClick}>Пошук</Button>}
+      </div>
+    </form>
   );
 };
 
