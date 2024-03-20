@@ -56,7 +56,7 @@ export const Home = () => {
         <img
           src={homeImg}
           alt="Description"
-          style={{ width: "100%", height: "auto", borderRadius: "24px" }}
+          className={css.searchImg}
         />
         <p className={css.search}>
           Створюйте та продавайте те, що вам потрібно прямо зараз

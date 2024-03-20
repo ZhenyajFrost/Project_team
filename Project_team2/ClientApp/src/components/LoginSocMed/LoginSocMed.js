@@ -48,7 +48,7 @@ const LoginSocMed = () => {
           });
         });
 
-    } else { // Logout success
+    } else {
       console.log("Logout successful");
     }
   };

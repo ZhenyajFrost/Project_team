@@ -1,10 +1,13 @@
 ﻿/* Global Styles */
-body, .text, .textQuest {
+body,
+.text,
+.textQuest {
     font-family: 'Manrope', sans-serif;
     color: #1C1B1F;
 }
 
-h2, .search label {
+h2,
+.search label {
     font-family: 'Manrope', sans-serif;
     font-weight: 700;
 }
@@ -38,7 +41,7 @@ p.search {
 }
 
 div.search {
-   background-color: white;
+    background-color: white;
     position: absolute;
     bottom: -56.5px;
     left: 10%;
@@ -54,38 +57,45 @@ h2 {
     line-height: 48px;
 }
 
-h4{
+h4 {
     margin-bottom: 0;
 }
 
-.mainCont, .mainContQuest {
+.mainCont,
+.mainContQuest {
     display: flex;
     padding: 24px 24px 24px 48px;
     border-radius: 32px;
 }
-.mainCont{
-    background: #EDF0F1; /* For .mainCont */
+
+.mainCont {
+    background: #EDF0F1;
+    /* For .mainCont */
 }
 
-.container, .containerQuest {
+.container,
+.containerQuest {
     display: flex;
     gap: 2vw;
     text-align: start;
 }
 
-.element, .elementQuest {
+.element,
+.elementQuest {
     display: flex;
     flex-direction: column;
-    gap: 24px; /* unified gap */
+    gap: 24px;
+    /* unified gap */
 }
 
-.element{
+.element {
     max-width: 60%;
 }
 
 .elementQuest {
     padding: 24px;
-    background: #E7EEF2; /* For .elementQuest */
+    background: #E7EEF2;
+    /* For .elementQuest */
 }
 
 .header {
@@ -99,11 +109,12 @@ h4{
     gap: 2vw;
 }
 
-.point, .pointQuest {
+.point,
+.pointQuest {
     width: 32px;
     height: 32px;
     padding: 10px;
-    border-radius: 32px ;
+    border-radius: 32px;
     background: #7A9BE94D;
     color: white;
     display: flex;
@@ -126,4 +137,29 @@ h4{
 
 .img {
     border-radius: 24px;
+}
+
+.searchImg {
+    width: 100%;
+    height: auto;
+    border-radius: 24px;
+}
+
+@media(max-width: 976px) {
+    .img {
+        display: none;
+    }
+
+    .searchImg, p.search{
+        display: none;
+        color: aqua;
+    }
+    
+    div.search{
+        position: relative;
+        top: 0;
+        width: 100%;
+        left: 0;
+    }
+
 }

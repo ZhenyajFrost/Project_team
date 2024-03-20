@@ -117,7 +117,7 @@ function NavMenu() {
 
 
               {isLoggined ?
-                (<Dropdown.Menu align="end" >
+                (<Dropdown.Menu align="end" style={{  position: 'absolute'}} >
                   <Dropdown.Item>
                     {user && <div className="nav-profile">
                       {user.avatar && <img src={user.avatar} class="avatar" />}
