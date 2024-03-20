@@ -1,26 +1,20 @@
-import React from "react";
+import React, {useEffect} from "react";
 import css from "./UserShortV2.module.css";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
-import svgStat from "../../../images/status.svg";
 import svg from "../../../images/svgDef.svg";
 import UserLikeButton from "../../UI/LikeButton/UserLikeButton";
 import { useState } from "react";
 import Reputation from "../Reputation";
+import useGetUserReputation from "../../../API/User/Get/useGetReputation";
 
-function UserShortV2({
-  user: {
-    id,
-    avatar,
-    login,
-    city,
-    region,
-    status = { imgId: "norm", value: "Нормальний" },
-  },
-}) {
+function UserShortV2({ user: { id, avatar, login, city, region } }) {
   //STATUS
   const history = useHistory();
-
+  const [get, status] = useGetUserReputation();
   const [likeVisible, setLikeVisible] = useState(true); // false if hover
+  useEffect(() => {
+    get(id);
+  }, []);
 
   return (
     //onMouseEnter={() => setLikeVisible(true)} onMouseLeave={() => setTimeout(() => setLikeVisible(true), 1000)}
@@ -43,8 +37,7 @@ function UserShortV2({
         <></>
       )}
 
-      <Reputation reputation={status}/>
-      
+      <Reputation reputation={status} />
     </div>
   );
 }
