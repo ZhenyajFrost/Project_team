@@ -14,7 +14,7 @@ import DisplayChoose from "../../components/UI/DisplayChoose/DisplayChoose";
 
 function SearchPage(props) {
   const querry = decodeURI(
-    window.location.href.split("/")[window.location.href.split("/").length - 1]
+    window.location.href.split("/search")[1].split("?")[0].replace("/", "")
   );
   function formatDate(date) {
     if (!date || !date.getFullYear) {
