@@ -34,7 +34,7 @@ p.search {
     top: 6%;
     left: 4%;
     font-weight: 700;
-    font-size: 4vw;
+    font-size: 42px;
     line-height: 60px;
     max-width: 70%;
     color: white;
@@ -53,7 +53,7 @@ div.search {
 }
 
 h2 {
-    font-size: 4vw;
+    font-size: 42px;
     line-height: 48px;
 }
 
@@ -123,13 +123,13 @@ h4 {
 }
 
 .text {
-    font-size: 1.4vw;
+    font-size: 14px;
     font-weight: 400;
     line-height: 24px;
 }
 
 .textQuest {
-    font-size: 1.6vw;
+    font-size: 16px;
     font-weight: 600;
     line-height: 24px;
     letter-spacing: 0.01em;

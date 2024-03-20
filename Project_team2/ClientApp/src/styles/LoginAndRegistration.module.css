@@ -37,7 +37,7 @@ h2 {
   display: inline-flex;
   justify-content: end;
   font-family: Manrope;
-  font-size: 1.4vw;
+  font-size: 14px;
   font-weight: 700;
   line-height: 19px;
   color: var(--textColor);
