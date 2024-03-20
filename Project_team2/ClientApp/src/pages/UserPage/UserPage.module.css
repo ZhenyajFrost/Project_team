@@ -5,10 +5,17 @@
     min-height: 21vw;
 }
 
+.row{
+    flex-direction: row;
+}
+
+.col{
+    flex-direction: column;
+
+}
+
 .header {
     display: flex;
-    flex-direction: row;
-    align-items: center;
 
     justify-content: space-between;
     background-color: white;

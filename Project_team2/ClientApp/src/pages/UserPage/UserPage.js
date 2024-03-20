@@ -82,8 +82,8 @@ function UserPage() {
 
     return (
         <div className={css.container} style={{ padding: '0' }}>
-            <div>
-                <div className={css.header}>
+            <div className={`${css.header} ${css.col}`}>
+                <div className={`${css.header} ${css.row}`}>
                     <div className={css.user}>
                         <img className={css.avatar} src={user.avatar} />
                         <span> {user.firstName ? `${user.firstName} ${user.lastName}` : user.login}</span>
@@ -91,8 +91,10 @@ function UserPage() {
                     </div>
 
                     <SubscribeButton userId={userId} />
+                    
                 </div>
                 {isLoadingRep ? <Loader /> : <Reputation reputation={reputation} />}
+
             </div>
 
 
