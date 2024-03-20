@@ -66,7 +66,7 @@ function SearchPage(props) {
         }
       }
     }
-    setChanged(res);
+    setChanged({...changed, ...res});
   }, [filter]);
 
   //fetch data
