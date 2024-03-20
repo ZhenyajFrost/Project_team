@@ -31,13 +31,13 @@ function NavMenu() {
   const [emailSent, setEmailSent] = useState(false);
 
   const [user, setUser] = useState(getLocalStorage('user'));
-  const [isLoggined, setIsLoggined1] = useState(null);
+  const [isLoggined, setIsLoggined] = useState(null);
   const [token, setToken] = useState(null);
 
   useEffect(() => {
     setToken(getLocalStorage('token'));
     setUser(getLocalStorage('user'));
-    setIsLoggined1(getLocalStorage('isLoggined'));
+    setIsLoggined(getLocalStorage('isLoggined'));
 
     const modal = new URLSearchParams(window.location.search).get("modal");
 
@@ -48,6 +48,10 @@ function NavMenu() {
         setModalRegVisible(true);
       }
     }
+
+    console.log("isLoggined: " + isLoggined);
+    console.log("user: " + user);
+    console.log("token: " + token);
   }, []);
 
   useEffect(() => {
@@ -70,7 +74,7 @@ function NavMenu() {
 
     );
 
-    setIsLoggined1(false);
+    setIsLoggined(false);
     setUser({});
     setToken("");
 
@@ -151,7 +155,7 @@ function NavMenu() {
             setModalVisible={setModalLogVisible}
             setModalRegVisible={setModalRegVisible}
             setForgotPass={setForgotPass}
-            setIsLoggined1={setIsLoggined1}
+            setIsLoggined={setIsLoggined}
           />
         )}
       </ModalWindow>

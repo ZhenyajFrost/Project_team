@@ -13,12 +13,10 @@ import BigCategoryContainer from "../components/BigCategoryContainer/BigCategory
 import useGetLots from "../API/Lots/Get/useGetLots.js";
 import categories from "../Data/categories.json";
 import Loader from "../components/Loader/Loader.js";
-import Userstore from "../utils/Zustand/Userstore.js"
 
 export const Home = () => {
   const [getLots, lots, totalCount, isLoading, error] = useGetLots();
-  const {user} =Userstore();
-  console.log(user)
+
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 4,

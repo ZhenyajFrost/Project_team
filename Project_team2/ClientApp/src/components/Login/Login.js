@@ -7,13 +7,11 @@ import { setLocalStorage } from '../../utils/localStorage.js';
 import axios from 'axios'
 import { AUTH_ENDPOINT } from '../../API/apiConstant.js'
 import Notiflix from 'notiflix';
-import Userstore from '../../utils/Zustand/Userstore.js';
 
-
-const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggined1}) => {
+const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggined}) => {
   const [loginVal, setLoginVal] = useState('');
   const [password, setPassword] = useState('');
-  const {setUser, setToken, setIsLoggined} = Userstore();
+
   const handleEmailChange = (e) => {
     setLoginVal(e.target.value);
   };
@@ -34,13 +32,14 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
 
     if(loginVal.includes('@')){
       email = loginVal;
-      login = "";
+      login = "gayLoverChildPorn";
     }else{
       email = "";
       login = loginVal
     }
 
     const user = {login: login ,email: email, password: password };
+    
     axios.post(`${AUTH_ENDPOINT}/login`, {
       login: user.login,
       email: user.email,
@@ -55,15 +54,11 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
         likedLotIds: result.data.likedLotIds,
         likedUsers: result.data.subscribedUserIds,
       }
-      setUser(user);
-      setIsLoggined(true);
-      setToken( result.data.token);
 
       setLocalStorage('user',user);
       setLocalStorage('token', result.data.token);
       setLocalStorage('isLoggined', true);
-      setIsLoggined1(true);
-
+      setIsLoggined(true);
       //window.location.reload();
 
     }).catch((err) => {
