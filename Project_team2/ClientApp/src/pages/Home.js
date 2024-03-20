@@ -89,7 +89,8 @@ export const Home = () => {
         {isLoading ? (
           <Loader />
         ) : (
-          <LotContainer lots={lots} display="grid-2col" />
+          lots.length > 0 ?
+          <LotContainer lots={lots} display="grid-2col" /> :"Жодних лотів по цій категорії"
         )}
         {lots.length >= pagination.page * pagination.pageSize ? (
           isLoading ? (
