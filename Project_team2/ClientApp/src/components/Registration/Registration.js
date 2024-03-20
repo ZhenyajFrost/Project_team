@@ -63,8 +63,8 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
   return (
     <div>
       <h2>Реєстрація</h2>
-      {validationErrors && (
-          <p className="error">{`${validationErrors}`}</p>
+      {validationErrors.length > 0 && (
+          <p className={classes.error}>{`${validationErrors}`}</p>
         )}
       <div className={classes.container}>
 

@@ -1,11 +1,12 @@
 import React from 'react';
-import "./style.css"
+import css from "./style.module.css"
+import Button from '../UI/Button/Button';
 
 function CategoryContainer({categories, onCategoryChange, selectedCategorie}) {
     return (
-        <div className='categoriesContainer'>
+        <div className={css.categoriesContainer}>
             {categories.map(v=>
-                <div className={((v===selectedCategorie)?"selected ":"")+"category-item-container"} onClick={()=>onCategoryChange(v)}>{v.title}</div>
+                <Button className={(v.id === selectedCategorie.id)? "" : css.selected} onClick={()=>onCategoryChange(v)}>{v.title}</Button>
             )}
         </div>
     );

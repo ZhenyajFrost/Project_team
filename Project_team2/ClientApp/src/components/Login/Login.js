@@ -74,7 +74,7 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
 
   return (
     <div>
-      <h2>Login</h2>
+      <h2>Логін</h2>
       <div className={classes.container}>
         <div className={classes.container}>
           <form onSubmit={onSubmit} className={classes.form}>
