@@ -1347,59 +1347,82 @@ namespace Project2.Controllers
 
 
 
-
         [HttpPost("getUserLikedLots")]
-        public IActionResult GetUserLikedLots([FromBody] GetUserLikedLotsRequest model, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> GetUserLikedLots([FromBody] GetUserLikedLotsRequest model, int page = 1, int pageSize = 10)
         {
             try
             {
                 var userId = ExtractUserIdFromToken(model.Token);
 
+                var likedLots = new List<Lot>();
+                var totalRecords = 0;
+                var totalPages = 0;
+
+                // Query to count total liked lots
                 using (var connection = new MySqlConnection(_connString))
                 {
-                    connection.Open();
+                    await connection.OpenAsync();
 
                     // Query to count total liked lots
                     string countQuery = "SELECT COUNT(*) FROM LikedLots WHERE UserId = @userId";
                     using (var countCommand = new MySqlCommand(countQuery, connection))
                     {
                         countCommand.Parameters.AddWithValue("@userId", userId);
-                        int totalRecords = Convert.ToInt32(countCommand.ExecuteScalar());
+                        totalRecords = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
+                    }
 
-                        // Calculate total pages
-                        int totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+                    // Calculate total pages
+                    totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
 
-                        // Validate page number
-                        if (page < 1)
-                            page = 1;
-                        else if (page > totalPages && totalPages > 0)
-                            page = totalPages;
+                    // Validate page number
+                    if (page < 1)
+                        page = 1;
+                    else if (page > totalPages && totalPages > 0)
+                        page = totalPages;
 
-                        // Calculate starting index for pagination
-                        int startIndex = (page - 1) * pageSize;
+                    // Calculate starting index for pagination
+                    int startIndex = (page - 1) * pageSize;
 
-                        // Query to fetch paginated liked lots
-                        string query = "SELECT * FROM LikedLots WHERE UserId = @userId LIMIT @startIndex, @pageSize";
-                        using (var command = new MySqlCommand(query, connection))
+                    // Query to fetch paginated liked lot IDs
+                    string query = "SELECT LotId FROM LikedLots WHERE UserId = @userId LIMIT @startIndex, @pageSize";
+                    using (var command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@userId", userId);
+                        command.Parameters.AddWithValue("@startIndex", startIndex);
+                        command.Parameters.AddWithValue("@pageSize", pageSize);
+
+                        using (var reader = await command.ExecuteReaderAsync())
                         {
-                            command.Parameters.AddWithValue("@userId", userId);
-                            command.Parameters.AddWithValue("@startIndex", startIndex);
-                            command.Parameters.AddWithValue("@pageSize", pageSize);
-
-                            using (var reader = command.ExecuteReader())
+                            var likedLotIds = new List<int>();
+                            while (await reader.ReadAsync())
                             {
-                                var likedLots = new List<Lot>();
-                                while (reader.Read())
-                                {
-                                    Lot lot = new Lot(reader); // Assuming Lot constructor is provided
-                                    likedLots.Add(lot);
-                                }
+                                likedLotIds.Add(reader.GetInt32(0));
+                            }
 
-                                return Ok(new { likedLots, totalRecords, totalPages, currentPage = page });
+                            // Close the reader before executing the next query
+                            await reader.CloseAsync();
+
+                            // Query to fetch full information of liked lots from Lots table
+                            if (likedLotIds.Count > 0)
+                            {
+                                string lotQuery = $"SELECT * FROM Lots WHERE Id IN ({string.Join(",", likedLotIds)})";
+                                using (var lotCommand = new MySqlCommand(lotQuery, connection))
+                                {
+                                    using (var lotReader = await lotCommand.ExecuteReaderAsync())
+                                    {
+                                        while (await lotReader.ReadAsync())
+                                        {
+                                            Lot lot = new Lot(lotReader); // Assuming Lot constructor is provided
+                                            likedLots.Add(lot);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
+
+                return Ok(new { likedLots, totalRecords, totalPages, currentPage = page });
             }
             catch (Exception ex)
             {
@@ -1407,6 +1430,9 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = "Internal Server Error. Please try again later." });
             }
         }
+
+
+
 
 
         [HttpGet("getLotById/{id}")]

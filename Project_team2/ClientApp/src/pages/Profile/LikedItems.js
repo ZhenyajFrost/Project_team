@@ -56,13 +56,16 @@ function LikedItems() {
                                 <Loader />
                             ) : (
                                 <>
-                                    <LotContainer lots={lots} display="listWrap" lotStyle="small" />
-                                    <Pagination
-                                        totalCount={totalCount}
-                                        page={pagination.page}
-                                        limit={pagination.pageSize}
-                                        changePage={(page) => setPagination(prev => ({ ...prev, page }))}
-                                    />
+                                    {totalCount === 0 ? "Items are not found" :
+                                        <>
+                                            <LotContainer lots={lots} display="listWrap" lotStyle="small" />
+                                            <Pagination
+                                                totalCount={totalCount}
+                                                page={pagination.page}
+                                                limit={pagination.pageSize}
+                                                changePage={(page) => setPagination(prev => ({ ...prev, page }))}
+                                            /></>
+                                    }
                                 </>
                             )
                         ) : activeTab === 'users' ? (

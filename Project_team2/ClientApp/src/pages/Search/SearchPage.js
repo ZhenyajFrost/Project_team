@@ -51,7 +51,7 @@ function SearchPage(props) {
   const [filter, setFilter] = useState({ ...initial });
   const [curPage, setCurPage] = useState(1);
   const [lotDisplay, setLotDisplay] = useState("list");
-  const perPage = lotDisplay === 'list' ? 7 : window.innerWidth % 269 * 2;
+  const perPage = 7;
   const [getLots, lots, totalCount, isLoading, error] = useGetLots();
   const [changed, setChanged] = useState({});
 
