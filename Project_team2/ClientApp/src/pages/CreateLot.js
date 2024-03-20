@@ -51,7 +51,6 @@ export default function CreateLot({ data = {} }) {
   };
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log(lot);
 
     for (let a of Object.keys(initialState)) {
       if (!lot[a] && a != "isNew") {
@@ -79,8 +78,6 @@ export default function CreateLot({ data = {} }) {
 
     lot.category = lot.category.id;
 
-    console.log(lot);
-
     if (data.id) {
       const answ = {};
       for (let a of Object.keys(lot)) {
@@ -97,7 +94,6 @@ export default function CreateLot({ data = {} }) {
       create(lot).then((v) => {
         Notify.success("Лот створено успішно");
         window.location.href = "/profile";
-        setLot({});
       });
     }
   };

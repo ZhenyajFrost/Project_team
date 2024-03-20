@@ -68,15 +68,6 @@ export default class App extends Component {
               <ProfileLayout>
                 <Switch>
                   <RestrictedPath
-                    path={`${url}/`}
-                    component={ProfileSettings}
-                    condition={isLoggined}
-                    fallback={{
-                      pathname: "",
-                      search: "?modal=login",
-                    }}
-                  />
-                  <RestrictedPath
                     path={`${url}/bids`}
                     component={ProfileBids}
                     condition={isLoggined}
@@ -106,6 +97,15 @@ export default class App extends Component {
                   <RestrictedPath
                     path={`${url}/favorites`}
                     component={ProfileLikedItems}
+                    condition={isLoggined}
+                    fallback={{
+                      pathname: "",
+                      search: "?modal=login",
+                    }}
+                  />
+                  <RestrictedPath
+                    path={`${url}/`}
+                    component={ProfileSettings}
                     condition={isLoggined}
                     fallback={{
                       pathname: "",
