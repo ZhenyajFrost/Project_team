@@ -30,14 +30,15 @@ const InputSearch = ({
     }
   };
 
-  const handleSearchClick = () => {
+  const handleSearchClick = (e) => {
+    e.preventDefault();
     if (onSearch && !nobutton) {
       onSearch(inputValue); // Only invoke onSearch on button click when `nobutton` is false
     }
   };
 
   return (
-    <form>
+    <form onSubmit={handleSearchClick}>
       <div className={classes.search}>
         <div>
           <img src={search} className={classes.search} alt="Search" />
