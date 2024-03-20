@@ -12,13 +12,19 @@ import { getLocalStorage } from '../../utils/localStorage.js';
 import { Redirect } from 'react-router-dom/cjs/react-router-dom.min.js';
 import useGetUserLots from '../../API/Lots/Get/useGetUserLots.js';
 
+import useGetUserReputation from '../../API/User/Get/useGetReputation.js';
+import Loader from '../../components/Loader/Loader.js';
+import Reputation from '../../components/UserShort/Reputation.js';
+
 function UserPage() {
     const thisUser = getLocalStorage('user');
     const thisUserId = thisUser ? thisUser.id : null;
 
     const userId = parseInt(window.location.href.split("/").pop(), 10);
 
-    const [getUserProfile, user, isLoadingUs, errorUs]= useGetUserProfile();
+    const [getUserProfile, user, isLoadingUs, errorUs] = useGetUserProfile();
+
+    const [getreputation, reputation, isLoadingRep] = useGetUserReputation();
 
     const [filters, setFilters] = useState({});
     const [categoryClicked, setCategoryClicked] = useState({ value: '' });
@@ -38,6 +44,7 @@ function UserPage() {
     useEffect(() => {
         async function fetchData() {
             await getUserProfile(userId);
+            await getreputation(userId)
         }
         fetchData();
     }, [userId]);
@@ -68,22 +75,26 @@ function UserPage() {
         }));
     };
 
-    if(Number(userId) === Number(thisUserId)){
+    if (Number(userId) === Number(thisUserId)) {
         console.log("userId === rhisId")
-        return <Redirect to="/profile"/>;
+        return <Redirect to="/profile" />;
     }
 
     return (
         <div className={css.container} style={{ padding: '0' }}>
-            <div className={css.header}>
-                <div className={css.user}>
-                    <img className={css.avatar} src={user.avatar} />
-                    <span> { user.firstName ? `${user.firstName} ${user.lastName}` : user.login}</span>
+            <div>
+                <div className={css.header}>
+                    <div className={css.user}>
+                        <img className={css.avatar} src={user.avatar} />
+                        <span> {user.firstName ? `${user.firstName} ${user.lastName}` : user.login}</span>
 
+                    </div>
+
+                    <SubscribeButton userId={userId} />
                 </div>
-
-                <SubscribeButton userId={userId}/>
+                {isLoadingRep ? <Loader /> : <Reputation reputation={reputation} />}
             </div>
+
 
             <FiltersWSearch onChange={onFilterChange} initial={filters} />
             <Button onClick={handleButtonSearch}>Search</Button>
