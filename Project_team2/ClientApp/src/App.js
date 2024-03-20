@@ -23,6 +23,7 @@ export default class App extends Component {
   static displayName = App.name;
   render() {
     const user = getLocalStorage("user");
+    const isLoggined = getLocalStorage("isLoggined");
 
     return (
       <Layout>
@@ -48,7 +49,7 @@ export default class App extends Component {
               pathname: "",
               search: "?modal=login",
             }}
-            condition={user && user.login}
+            condition={user && isLoggined}
           />
           <RestrictedPath
             path="/edit/:id"
@@ -57,7 +58,7 @@ export default class App extends Component {
               pathname: "",
               search: "?modal=login",
             }}
-            condition={user && user.login}
+            condition={user && isLoggined}
           />
 
           <Route exact path="/" component={Home} />
