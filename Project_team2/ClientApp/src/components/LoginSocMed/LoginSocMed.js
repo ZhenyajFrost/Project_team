@@ -40,7 +40,7 @@ const LoginSocMed = () => {
           setLocalStorage('isLoggined', true);
 
           Notiflix.Notify.success("Вхід успішний!");
-          setTimeout(() => window.location.reload(), 3000);
+          //setTimeout(() => window.location.reload(), 3000);
 
         }).catch((err) => {
           Notiflix.Notify.failure('Вхід з помилками! Тикніть для інформації', () => {
