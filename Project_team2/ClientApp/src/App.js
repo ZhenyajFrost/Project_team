@@ -9,7 +9,7 @@ import SearchPage from "./pages/Search/SearchPage.js";
 import ProfileLots from "./pages/Profile/Lots/Lots.js";
 import ProfileSettings from "./pages/Profile/Settings/Settings.js";
 import ProfileLikedItems from "./pages/Profile/LikedItems.js";
-import EditPage from "./pages/Edit/EditPage.js"
+import EditPage from "./pages/Edit/EditPage.js";
 
 import ProfileLayout from "./pages/Profile/ProfileLayout.js";
 import RestrictedPath from "./components/RestrictedPath/RestrictedPath.js";
@@ -29,9 +29,9 @@ export default class App extends Component {
       <Layout>
         <Switch>
           <Route path="/lot/:id" component={LotPage} />
-          <Route path="/user/:id" component={UserPage}/>
+          <Route path="/user/:id" component={UserPage} />
           <Route path="/search" component={SearchPage} />
-          <Route path="/howItWorks" component={HowItWorksPage}/>
+          <Route path="/howItWorks" component={HowItWorksPage} />
           <RestrictedPath
             path="/admin"
             component={AdminPage}
@@ -67,13 +67,50 @@ export default class App extends Component {
             render={({ match: { url } }) => (
               <ProfileLayout>
                 <Switch>
-                  <Route path={`${url}/`} component={ProfileSettings} exact />
-                  <Route path={`${url}/bids`} component={ProfileBids}/>
-                  <Route path={`${url}/lots`} component={ProfileLots} />
-                  <Route path={`${url}/settings`} component={ProfileSettings} />
-                  <Route
+                  <RestrictedPath
+                    path={`${url}/`}
+                    component={ProfileSettings}
+                    condition={isLoggined}
+                    fallback={{
+                      pathname: "",
+                      search: "?modal=login",
+                    }}
+                  />
+                  <RestrictedPath
+                    path={`${url}/bids`}
+                    component={ProfileBids}
+                    condition={isLoggined}
+                    fallback={{
+                      pathname: "",
+                      search: "?modal=login",
+                    }}
+                  />
+                  <RestrictedPath
+                    path={`${url}/lots`}
+                    component={ProfileLots}
+                    condition={isLoggined}
+                    fallback={{
+                      pathname: "",
+                      search: "?modal=login",
+                    }}
+                  />
+                  <RestrictedPath
+                    path={`${url}/settings`}
+                    component={ProfileSettings}
+                    condition={isLoggined}
+                    fallback={{
+                      pathname: "",
+                      search: "?modal=login",
+                    }}
+                  />{" "}
+                  <RestrictedPath
                     path={`${url}/favorites`}
                     component={ProfileLikedItems}
+                    condition={isLoggined}
+                    fallback={{
+                      pathname: "",
+                      search: "?modal=login",
+                    }}
                   />
                 </Switch>
               </ProfileLayout>
