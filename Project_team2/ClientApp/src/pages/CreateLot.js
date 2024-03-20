@@ -88,12 +88,14 @@ export default function CreateLot({ data = {} }) {
       }
       update(lot.id, answ).then((v) => {
         Notify.success("Лот оновлено успішно");
+        
+        window.location.href = "/profile/lots";
         // setLot({});
       });
     } else {
       create(lot).then((v) => {
         Notify.success("Лот створено успішно");
-        window.location.href = "/profile";
+        window.location.href = "/profile/lots";
       });
     }
   };
