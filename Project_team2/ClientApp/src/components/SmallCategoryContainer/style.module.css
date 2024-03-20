@@ -14,7 +14,9 @@
 
   background: #fff;
 }
-.category-item-container.selected {
-  border: 1.5px solid #7a9be9;
-  background-color: rgba(212, 226, 255, 0.4);
+
+.selected {
+  border: 1px solid rgba(235, 235, 235, 1);
+  background-color: rgba(255, 255, 255, 1);
+  color: var(--textColorSecondary)
 }

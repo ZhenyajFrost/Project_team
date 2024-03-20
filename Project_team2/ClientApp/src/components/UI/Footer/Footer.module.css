@@ -31,6 +31,17 @@ p {
     line-height: 19px;
 }
 
+.container p, a{
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.container > .menu2 > a {
+    color: white !important;
+
+}
+
+
 .menu {
     display: flex;
     flex-wrap: nowrap;

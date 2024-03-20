@@ -218,6 +218,7 @@ export default function CreateLot({ data = {} }) {
             onCityChange={(e) => onInput({ name: "city", value: e })}
             selectedRegion={lot.region}
             selectedCity={lot.city}
+            handleOnClick={() => {''}}
           />
         </div>
         <div className={css.createSection}>

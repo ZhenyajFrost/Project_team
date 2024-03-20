@@ -37,7 +37,6 @@ const ImageUpload = () => {
 
   const onFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
-    console.log(selectedFile)
   };
 
   const onChooseFile = () => {
@@ -71,11 +70,9 @@ const ImageUpload = () => {
 
         const data = await response.json();
 
-        console.log(data.url); //LOGIC TO SERVER
         updateUser(token, { avatar: data.url });
-        //window.location.reload();
+        window.location.reload();
 
-        alert("Image uploaded successfully.");
       } catch (error) {
         console.error(error);
         alert(error.message);

@@ -63,7 +63,6 @@ const LocationSelector = ({
           onChange={onRegionChange}
           value={selectedRegion}
           placeholder={selectedRegion ? selectedRegion : "Оберіть область"}
-          isClearable
         />
       </div>
       <div className={css.item}>
@@ -73,7 +72,6 @@ const LocationSelector = ({
           onChange={onCityChange}
           value={selectedCity}
           placeholder={selectedCity ? selectedCity : "Оберіть область"}
-          isClearable
         />
       </div>
     </div>

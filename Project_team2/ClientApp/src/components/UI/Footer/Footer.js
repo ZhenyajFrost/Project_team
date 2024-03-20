@@ -1,5 +1,6 @@
 import React from 'react';
 import css from './Footer.module.css'
+import { NavLink } from 'reactstrap';
 
 const Footer = () => {
     return (
@@ -12,28 +13,19 @@ const Footer = () => {
                 <div className={css.container} style={{gap: '100px'}}> 
                     <div className={css.menu2}>
                         <h4>Меню</h4>
-                        <p>Про компанію</p>
-                        <p>Новини</p>
-                        <p>Допомога</p>
-                        <p>Зв'язатися з нами</p>
+                        <a >Про компанію</a>
+                        <a>Новини</a>
+                        <a href='/howItWorks'>Допомога</a>
                     </div>
                     <div className={css.menu2}>
                         <h4>Слідуйте за нами</h4>
-                        <p>Facebook</p>
-                        <p>Linkedin</p>
-                        <p>Instagram</p>
-                        <p>Telegram</p>
+                        <a href='https://uk-ua.facebook.com/'>Facebook</a>
+                        <a href='https://www.instagram.com/?hl=ru'>Instagram</a>
+                        <a href='https://t.me/Exestic' target='blank'>Telegram</a>
                     </div>
                 </div>
             </div>
-            <div className={css.menu}>
-                <div className={css.menuItem}>Privacy Policy</div>
-                <div className={css.menuItem}>Terms of Use</div>
-                <div className={css.menuItem}>Sales and Refunds</div>
-                <div className={css.menuItem}>Legal</div>
-                <div className={css.menuItem}>Site Map</div>
-            </div>
-            <span>© 2021 Exestick</span>
+            <span>© 2024 Exestick</span>
         </footer>
     );
 };
