@@ -66,7 +66,7 @@ function Lot({
   }
 
   return (
-    <div className={`${css.lot} ${ttl > 0 ? css.active : css.inactive} ${isChecked ? css.checked : ""}`}>
+    <div className={`${css.lot} ${isChecked ? css.checked : ""}`}>
       <img
         src={
           imageURLs[0]

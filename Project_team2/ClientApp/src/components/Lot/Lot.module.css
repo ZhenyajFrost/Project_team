@@ -24,7 +24,7 @@
   gap: 12px;
 }
 
-.active .lotTitle::after {
+/* .active .lotTitle::after {
   padding: 8px 10px;
   align-items: center;
 
@@ -38,7 +38,7 @@
   font-weight: 700;
   line-height: 24px;
   content: "ACTIVE";
-}
+} */
 
 .lotDesc {
   color: #474747;
