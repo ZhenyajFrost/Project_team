@@ -65,7 +65,7 @@ function BidLot({ bid }) {
                 <h3 className={`${css.lotTitle}`}>{bid.lot.title}</h3>
                 <p className={css.lotDesc}>{bid.lot.shortDescription}</p>
 
-                {ttl > 0 ?
+                {ttl > 0  && bid.lot.isWaitingDelivery ?
                     <div className={css.bid}>
                         <p>Моя ставка: <span>{`${bid.maxBidAmount} ₴`}</span> </p>
                         <p>Наразі перемагає: <span>{`${bid.bidProfile.login}`}</span> </p>

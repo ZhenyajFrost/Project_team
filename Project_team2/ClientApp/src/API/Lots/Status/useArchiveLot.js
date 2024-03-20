@@ -14,20 +14,6 @@ const useArchiveLot = () => {
         try {
             const response = await axios.post(`${LOTS_ENDPOINT}/archiveLot`, {token, lotId});
 
-            const user = getLocalStorage('user');
-            let updatedLikedLotIds = [];
-
-            if (user.likedLotIds.includes(lotId)) {
-                updatedLikedLotIds = user.likedLotIds.filter(id => id !== lotId);
-            } else {
-                updatedLikedLotIds = [...user.likedLotIds, lotId];
-            }
-
-            setLocalStorage('user', {
-                ...user,
-                likedLotIds: updatedLikedLotIds
-            });
-
             Notiflix.Notify.success('Лот успішно переміщено до архіву')
         } catch (error) {
             Notiflix.Notify.failure(`Лот не переміщено до архіву! Тикніть для інформації`, () => {

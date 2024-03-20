@@ -18,6 +18,7 @@ const useGetUserBids = () => {
                 token,
                 page: pagination.page,
                 pageSize: pagination.pageSize,
+                maxPrice: 100000000000,
                 ...filters
             });
 

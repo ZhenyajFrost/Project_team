@@ -13,8 +13,8 @@ const Footer = () => {
                 <div className={css.container} style={{gap: '100px'}}> 
                     <div className={css.menu2}>
                         <h4>Меню</h4>
-                        <a >Про компанію</a>
-                        <a>Новини</a>
+                        <a href='/howItWorks'>Про компанію</a>
+                        <a href='/howItWorks'>Новини</a>
                         <a href='/howItWorks'>Допомога</a>
                     </div>
                     <div className={css.menu2}>
