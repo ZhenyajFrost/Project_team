@@ -19,7 +19,7 @@ function Bids() {
     });
 
     useEffect(async () => {
-        await getUserBids(pagination)
+        await getUserBids(pagination, filters)
         console.log(bids, totalCount, isLoading)
     }, [pagination])
 
@@ -28,15 +28,29 @@ function Bids() {
     }, [bidsDisplay])
 
     const onFilterChange = (filterChanges) => {
-        setFilters(prev => ({
-            ...prev,
-            ...filterChanges
+        // First, clean up filterChanges to remove keys with null or "" values
+        const cleanedFilterChanges = Object.entries(filterChanges).reduce((acc, [key, value]) => {
+            if (value !== null && value !== "") {
+                acc[key] = value;
+            }
+            else{
+                acc[key] = null;
+            }
+            return acc;
+        }, {});
+    
+        // Then, merge these cleaned changes with the existing filters
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            ...cleanedFilterChanges
         }));
     };
-
+    
     const handleButtonSearch = async () => {
-        await getUserBids(pagination, filters)
+        console.log(filters)
+        await getUserBids(pagination, filters);
     }
+
 
     const handleChangePage = (page) => {
         setPagination(prev => ({

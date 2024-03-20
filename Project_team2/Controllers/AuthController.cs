@@ -196,6 +196,7 @@ namespace Project2.Controllers
             var notificationsAdvices = false;
             var notificationsHelp = false;
             var notificationsRemind = false;
+
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(_connString))
@@ -318,6 +319,7 @@ namespace Project2.Controllers
                         command.Parameters.AddWithValue("@email", model.Email);
                         command.Parameters.AddWithValue("@avatar", model.ImageUrl); // Сохраняем ссылку на аватар
                         command.Parameters.AddWithValue("@registrationTime", DateTime.UtcNow); // Получаем текущее время сервера
+                        command.Parameters.AddWithValue("@likedLotIds", new List<int>() );
                         TempPass = GenerateTemporaryPassword();
                         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(TempPass);
                         command.Parameters.AddWithValue("@password", hashedPassword);
@@ -484,10 +486,6 @@ namespace Project2.Controllers
             return likedLotIds;
         }
 
-
-
-
-
         [HttpPost("register")]
         public IActionResult Register([FromBody] RegisterModel model)
         {
@@ -498,7 +496,7 @@ namespace Project2.Controllers
                     connection.Open();
 
                     string query = "INSERT INTO Users (Login, Avatar,Email, Password, Phone,RegistrationTime) " +
-                                   "VALUES (@login, @avatar @email,@password, @phone, @registrationTime)";
+                                   "VALUES (@login, @avatar, @email, @password, @phone, @registrationTime)";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {

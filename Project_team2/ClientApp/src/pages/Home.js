@@ -16,19 +16,28 @@ import Loader from "../components/Loader/Loader.js";
 
 export const Home = () => {
   const [getLots, lots, totalCount, isLoading, error] = useGetLots();
+  const [showableLots, setShowableLots] = useState([]);
 
   const [pagination, setPagination] = useState({
     page: 1,
-    pageSize: 4,
+    pageSize: 2,
   });
 
   let history = useHistory();
 
-  useEffect(async () => {
-    await getLots(1, pagination.pageSize * pagination.page, {
-      category: selectedCat.id.toString(),
-    });
+  useEffect(() => {
+    const fetchData = async () => {
+      await getLots(pagination.page, pagination.pageSize, {
+        category: selectedCat.id.toString(),
+      });
+    };
+
+    fetchData();
   }, [pagination]);
+
+  useEffect(() => {
+    setShowableLots(prevLots => [...prevLots, ...lots]);
+  }, [lots]);
 
   const handleSearch = (newSearchQuery) => {
     if (newSearchQuery) {
@@ -40,9 +49,10 @@ export const Home = () => {
 
   const onCategoryChange = (cat) => {
     setSelectedCat(cat);
-    setPagination({ page: 1, pageSize: 4 });
-   
+    setPagination({ page: 1, pageSize: 2 });
   };
+
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "6vw" }}>
       <div
@@ -90,7 +100,7 @@ export const Home = () => {
           <Loader />
         ) : (
           lots && lots.length > 0 ?
-          <LotContainer lots={lots} display="grid-2col" /> :"Жодних лотів по цій категорії"
+          <LotContainer lots={showableLots} display="grid-2col" /> :"Жодних лотів по цій категорії"
         )}
         {lots.length >= pagination.page * pagination.pageSize ? (
           isLoading ? (

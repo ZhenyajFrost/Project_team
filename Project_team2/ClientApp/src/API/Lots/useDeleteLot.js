@@ -14,7 +14,7 @@ const useDeleteLot = () => {
         setLoading(true);
         try {
             const response = await axios.post(`${LOTS_ENDPOINT}/deleteLot`, { token, lotId });
-            window.location.reload();
+            //window.location.reload();
 
             Notiflix.Notify.success('Лот успішно видалено')
         } catch (error) {

@@ -3,7 +3,7 @@
 }
 
 .navbar >.container {
-  max-width: calc(100vw - 200px);
+  max-width: calc(100vw - 5vw);
   margin: auto;
 }
 

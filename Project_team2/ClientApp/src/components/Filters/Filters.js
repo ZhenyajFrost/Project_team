@@ -15,6 +15,7 @@ function Filters({ onChange, initial }) {
     region: "Будь-який",
     ...initial,
   });
+  
   useEffect(() => {
     //перевірка ціни
     const minPrice = Number(params.minPrice);
@@ -42,9 +43,11 @@ function Filters({ onChange, initial }) {
       }
     }
   }, [params, categories, onChange]);
+
   const selCat = categories.find(
     (v) => Number(v.id) === Number(initial.category)
   );
+
   return (
     <div className={css.filterContainer}>
       <div className={css.filterItem}>

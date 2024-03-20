@@ -14,21 +14,7 @@ const useUnactiveLot = () => {
         try {
             const response = await axios.post(`${LOTS_ENDPOINT}/unactiveLot`, {token, lotId});
             console.log('Lot successfully moved to Unactive: ', response.data);
-
-            const user = getLocalStorage('user');
-            let updatedLikedLotIds = [];
-
-            if (user.likedLotIds.includes(lotId)) {
-                updatedLikedLotIds = user.likedLotIds.filter(id => id !== lotId);
-            } else {
-                updatedLikedLotIds = [...user.likedLotIds, lotId];
-            }
-
-            setLocalStorage('user', {
-                ...user,
-                likedLotIds: updatedLikedLotIds
-            });
-
+            
             Notiflix.Notify.success('Лот успішно переміщено до неактивних')
         } catch (error) {
             Notiflix.Notify.failure(`Лот не переміщено до неактивних! Тикніть для інформації`, () => {

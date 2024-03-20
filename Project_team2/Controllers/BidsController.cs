@@ -297,10 +297,10 @@ namespace Project2.Controllers
                     command.Parameters.AddWithValue("@MaxPrice", model.MaxPrice);
 
                     // Добавляем остальные фильтры
-                    if (!string.IsNullOrWhiteSpace(model.SearchString))
+                    if (!string.IsNullOrWhiteSpace(model.SearchQuery))
                     {
-                        queryBuilder.Append(" AND (l.Title LIKE @SearchString OR l.ShortDescription LIKE @SearchString)");
-                        command.Parameters.AddWithValue("@SearchString", $"%{model.SearchString}%");
+                        queryBuilder.Append(" AND (l.Title LIKE @SearchQuery OR l.ShortDescription LIKE @SearchQuery)");
+                        command.Parameters.AddWithValue("@SearchQuery", $"%{model.SearchQuery}%");
                     }
 
                     if (!string.IsNullOrWhiteSpace(model.Category))
@@ -641,7 +641,7 @@ namespace Project2.Controllers
     public class UserBidsRequestModel
     {
         public string Token { get; set; }
-        public string? SearchString { get; set; }
+        public string? SearchQuery { get; set; }
         public string? Category { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }

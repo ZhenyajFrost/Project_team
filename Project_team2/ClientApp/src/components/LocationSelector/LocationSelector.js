@@ -55,7 +55,7 @@ const LocationSelector = ({
   }, [selectedRegion]);
 
   return (
-    <div className={css.container} onMouseEnter={() => handleOnClick(400)} onMouseLeave={() => handleOnClick(290)}>
+    <div className={css.container} onMouseOver={() => {handleOnClick(450)}} onMouseLeave={() => handleOnClick(290)} >
       <div className={css.item}>
         <label>Область</label>
         <Select

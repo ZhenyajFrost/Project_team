@@ -64,7 +64,7 @@ h4 {
 .mainCont,
 .mainContQuest {
     display: flex;
-    padding: 24px 24px 24px 48px;
+    padding: 24px 0px;
     border-radius: 32px;
 }
 

@@ -368,7 +368,7 @@ function Settings() {
                     <form onSubmit={handlePasswordSubmit}>
                         <div className={css.container}>
                             {validationErrors.password && (
-                                <p className="error">{validationErrors.password}</p>
+                                <p className={css.error}>{validationErrors.password}</p>
                             )}
                             <div className={css.grid}>
                                 <div>

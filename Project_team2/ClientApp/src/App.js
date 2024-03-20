@@ -18,6 +18,7 @@ import AdminPage from "./pages/AdminPage/AdminPage.js";
 import { HowItWorks as HowItWorksPage } from "./pages/HowItWorks/HowItWorks.js";
 import UserPage from "./pages/UserPage/UserPage.js";
 import ProfileBids from "./pages/Profile/Bids/Bids.js";
+import Page404 from "./pages/404/Page404.js";
 
 export default class App extends Component {
   static displayName = App.name;
@@ -29,6 +30,7 @@ export default class App extends Component {
       <Layout>
         <Switch>
           <Route path="/lot/:id" component={LotPage} />
+          <Route path='/404' component={Page404}/>
           <Route path="/user/:id" component={UserPage} />
           <Route path="/search" component={SearchPage} />
           <Route path="/howItWorks" component={HowItWorksPage} />
@@ -75,6 +77,7 @@ export default class App extends Component {
                       pathname: "",
                       search: "?modal=login",
                     }}
+
                   />
                   <RestrictedPath
                     path={`${url}/lots`}

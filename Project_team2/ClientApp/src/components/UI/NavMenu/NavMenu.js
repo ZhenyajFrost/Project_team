@@ -137,8 +137,8 @@ function NavMenu() {
                   <Dropdown.Item onClick={() => { onExit(); history.push('/'); }} style={{ color: "red" }}>Exit</Dropdown.Item>
                 </Dropdown.Menu>) :
                 (<Dropdown.Menu align="end" >
-                  <Dropdown.Item onClick={() => setModalLogVisible(true)}>Login</Dropdown.Item>
-                  <Dropdown.Item onClick={() => setModalRegVisible(true)}>Registration</Dropdown.Item>
+                  <Dropdown.Item onClick={() => setModalLogVisible(true)}>Логін</Dropdown.Item>
+                  <Dropdown.Item onClick={() => setModalRegVisible(true)}>Реєстрація</Dropdown.Item>
                 </Dropdown.Menu>)
               }
 

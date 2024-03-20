@@ -150,10 +150,10 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
                   <p style={{ color: "red" }}>Паролі не співпадають!</p>
                 )}
               </div>
-              <p>Я не діплодок <input name="diplo" type="checkbox" /></p>
+              <div style={{display: 'flex', flexDirection: 'row', gap: '2vw', alignItems: 'center'}}>Я не діплодок <input name="diplo" type="checkbox" /></div>
             </div>
 
-            <div style={{ textAlign: 'end' }}>
+            <div style={{display: 'flex', flexDirection:'row', gap: '1vw', justifyContent: 'flex-end' }}>
               <div className="btn btn-light" onClick={onLoginClick}>Увійти в свій акаунт</div>
               <Button disabled={passwordMatchError}>Зареєструватися</Button>
             </div>

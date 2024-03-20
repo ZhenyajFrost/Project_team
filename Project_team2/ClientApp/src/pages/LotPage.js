@@ -29,12 +29,12 @@ function LotPage() {
   const cat = categories.find(
     (categ) => Number(categ.id) === Number(lot.category)
   );
-  useState(() => {
-    getHistory(id);
 
-    getLotById(id).then((v) => {
-      getLotsUser((v.userId, 1, 10));
-    });
+  useState(async () => {
+    await getLotById(id);
+    await getLotsUser(lot.userId, 1, 10);
+
+    getHistory(id);
   }, []);
 
   if (!isLoading && !error) {
@@ -94,11 +94,10 @@ function LotPage() {
                   {lot.winnerUserId
                     ? `Користувач ${maxBid.user.login} переміг`
                     : `Наразі 
-                  ${
-                    maxBid.user
+                  ${maxBid.user
                       ? `користувач: ${maxBid.user.login} перемагає`
                       : `переможця немає`
-                  }`}
+                    }`}
                 </p>
                 <p>
                   <svg>
@@ -117,7 +116,7 @@ function LotPage() {
                     </p>
                   </div>
                   {maxBid && maxBid.user && Number(maxBid.user.id) ===
-                  Number(getLocalStorage("user").id) ? (
+                    Number(getLocalStorage("user").id) ? (
                     "Не можна перебити свою ставку!"
                   ) : (
                     <div className={css.buyBtn} onClick={() => setModal(true)}>
@@ -177,7 +176,7 @@ function LotPage() {
         </div>
         <div>
           <h2>Усі оголошення автора</h2>
-          {isLoadingLots ? <Loader /> : (lots.length>0 ? <LotsCarousel lots={lots} />: <h4>В цього користувача немає інших лотів</h4>)}
+          {isLoadingLots ? <Loader /> : (lots.length > 0 ? <LotsCarousel lots={lots} /> : <h4>В цього користувача немає інших лотів</h4>)}
         </div>
         {modal ? (
           <ModalWindow

@@ -72,10 +72,14 @@ function LikedItems() {
                             isLoadingUS ? (
                                 <Loader />
                             ) : (
-                                <UserContainer users={likedUsers} display="listWrap" />
+                                <>
+                                    {likedUsers.length <=0 ? "Items are not found" :
+                                        <UserContainer users={likedUsers} display="listWrap" />
+                                    }
+                                </>
                             )
                         ) : (
-                            "Оберіть вкладку" // This translates to "Select a tab" in English
+                            "Оберіть вкладку"
                         )
                     }
                 </div>

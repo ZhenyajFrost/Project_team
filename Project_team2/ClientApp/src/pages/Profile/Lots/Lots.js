@@ -34,11 +34,11 @@ function Lots () {
 
     useEffect(async () => {
         await getLots(pagination.pageNumber, pagination.pageSize, activeTab, filters);
-    }, [activeTab, pagination, categoryClicked]) //Filters 
+    }, [activeTab, pagination, categoryClicked])
 
     useEffect(async () => {
         setPagination({pageNumber: 1, pageSize: 9})
-    }, [activeTab, categoryClicked]) //Filters 
+    }, [activeTab, categoryClicked])
 
     useEffect(() => {
         setCategoryClicked({value: ''});
@@ -71,9 +71,21 @@ function Lots () {
     }
 
     const onFilterChange = (filterChanges) => {
-        setFilters(prev => ({
-            ...prev,
-            ...filterChanges
+        // First, clean up filterChanges to remove keys with null or "" values
+        const cleanedFilterChanges = Object.entries(filterChanges).reduce((acc, [key, value]) => {
+            if (value !== null && value !== "") {
+                acc[key] = value;
+            }
+            else{
+                acc[key] = null;
+            }
+            return acc;
+        }, {});
+    
+        // Then, merge these cleaned changes with the existing filters
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            ...cleanedFilterChanges
         }));
     };
 

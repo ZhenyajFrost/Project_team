@@ -11,18 +11,18 @@ form {
 
 .containerVer {
   flex-direction: column;
-  gap: 1vw;
+  gap: 0.1vw;
 }
 
 form {
-  gap: 1.5vw;
+  gap: 1vw;
 
   flex-direction: column;
   justify-content: space-between;
 }
 
-.form{
-  width: 450px;
+.form {
+  min-width: 450px;
 }
 
 .contBlock {
@@ -33,8 +33,9 @@ h2 {
   margin-bottom: 24px;
 }
 
-.text {
+div.text {
   display: inline-flex;
+  cursor: pointer;
   justify-content: end;
   font-family: Manrope;
   font-size: 14px;

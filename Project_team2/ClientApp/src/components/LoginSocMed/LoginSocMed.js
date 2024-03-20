@@ -31,7 +31,7 @@ const LoginSocMed = () => {
             notifications: {
               ...result.data.notifications,
             },
-            likedLotIds: result.data.likedLotIds,
+            likedLotIds: result.data.likedLotIds ? result.data.likedLotIds : [],
             likedUsers: result.data.subscribedUserIds,
           };
 

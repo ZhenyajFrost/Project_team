@@ -10,7 +10,6 @@ import { getLocalStorage } from "../../../utils/localStorage";
 import useUnactiveLot from "../../../API/Lots/Status/useUnactiveLot";
 import useArchiveLot from "../../../API/Lots/Status/useArchiveLot";
 import useUpdateLot from '../../../API/Lots/useUpdateLot';
-import useLikeLot from '../../../API/Lots/useLikeLot';
 import LikeButton from '../../UI/LikeButton/LikeButton'
 
 function LotSmall({
@@ -69,7 +68,7 @@ function LotSmall({
   }
 
   return (
-    <div className={css.lot} onMouseEnter={() => setDots(Number(userId) === Number(getLocalStorage("user").id))} onMouseLeave={() => setDots(false)}>
+    <div className={css.lot} onMouseOver={() => {setDots(userId == getLocalStorage("user").id); console.log(getLocalStorage("user").id, userId)}} onMouseLeave={() => setDots(false)}>
 
       <div className={`${css.dots}`}>
         {
