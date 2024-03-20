@@ -399,100 +399,118 @@ namespace Project2.Controllers
 
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
-                    connection.Open();
+                    await connection.OpenAsync();
 
                     // Начинаем транзакцию
-                    using (MySqlTransaction transaction = connection.BeginTransaction())
+                    using (MySqlTransaction transaction = await connection.BeginTransactionAsync())
                     {
                         try
                         {
                             // Получаем информацию о лоте
-                            string getLotInfoQuery = "SELECT Price, AllowBids, Active, UserId AS OwnerId FROM Lots WHERE Id = @LotId";
-                            using (MySqlCommand getLotInfoCommand = new MySqlCommand(getLotInfoQuery, connection, transaction))
+                            decimal price;
+                            bool allowBids;
+                            bool active;
+                            int ownerId;
+
+                            // Execute the first command to get lot information
+                            using (MySqlConnection connectionForLotInfo = new MySqlConnection(_connString))
                             {
-                                getLotInfoCommand.Parameters.AddWithValue("@LotId", model.LotId);
-                                using (MySqlDataReader lotReader = getLotInfoCommand.ExecuteReader())
+                                await connectionForLotInfo.OpenAsync();
+                                using (MySqlCommand getLotInfoCommand = connectionForLotInfo.CreateCommand())
                                 {
-                                    if (lotReader.Read())
+                                    getLotInfoCommand.CommandText = "SELECT Price, AllowBids, Active, UserId AS OwnerId FROM Lots WHERE Id = @LotId";
+                                    getLotInfoCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                    using (MySqlDataReader lotReader = await getLotInfoCommand.ExecuteReaderAsync())
                                     {
-                                        decimal price = Convert.ToDecimal(lotReader["Price"]);
-                                        bool allowBids = Convert.ToBoolean(lotReader["AllowBids"]);
-                                        bool active = Convert.ToBoolean(lotReader["Active"]);
-                                        int ownerId = Convert.ToInt32(lotReader["OwnerId"]);
-
-                                        // Выводим цену в консоль для понимания
-                                        Console.WriteLine($"Price of the item: {price}");
-
-                                        // Проверяем, что лот активен
-                                        if (!active)
+                                        if (lotReader.Read())
                                         {
-                                            return BadRequest(new { message = "Lot is not active" });
-                                        }
+                                            price = Convert.ToDecimal(lotReader["Price"]);
+                                            allowBids = Convert.ToBoolean(lotReader["AllowBids"]);
+                                            active = Convert.ToBoolean(lotReader["Active"]);
+                                            ownerId = Convert.ToInt32(lotReader["OwnerId"]);
 
-                                        // Проверяем, что ставки не разрешены
-                                        if (!allowBids)
-                                        {
-                                            // Продолжаем выполнение метода, так как это разрешено, когда Active = true и Allow Bids = false
-                                            Console.WriteLine("Bidding is not allowed but continuing with the purchase process.");
-
-                                            // Теперь мы можем проверить, равна ли ставка цене товара
-                                            if (model.BidAmount != price)
-                                            {
-                                                return BadRequest(new { message = "Bid amount must be equal to the price of the item" });
-                                            }
+                                            // Выводим цену в консоль для понимания
+                                            Console.WriteLine($"Price of the item: {price}");
                                         }
                                         else
                                         {
-                                            // Если ставки разрешены, возвращаем ошибку
-                                            return BadRequest(new { message = "You cannot buy this item after the auction has started" });
+                                            return BadRequest(new { message = "Lot not found" });
                                         }
-
-                                        // Добавляем ставку в таблицу Bids
-                                        string insertBidQuery = "INSERT INTO Bids (LotId, UserId, BidAmount, BidTime) VALUES (@LotId, @UserId, @BidAmount, NOW())";
-                                        using (MySqlCommand insertBidCommand = new MySqlCommand(insertBidQuery, connection, transaction))
-                                        {
-                                            insertBidCommand.Parameters.AddWithValue("@LotId", model.LotId);
-                                            insertBidCommand.Parameters.AddWithValue("@UserId", userId);
-                                            insertBidCommand.Parameters.AddWithValue("@BidAmount", model.BidAmount);
-                                            insertBidCommand.ExecuteNonQuery();
-                                        }
-
-                                        // Обновляем лот
-                                        string updateLotQuery = "UPDATE Lots SET WinnerUserId = @WinnerUserId, Active = false, AllowBids = false, isWaitingPayment = true WHERE Id = @LotId";
-                                        using (MySqlCommand updateLotCommand = new MySqlCommand(updateLotQuery, connection, transaction))
-                                        {
-                                            updateLotCommand.Parameters.AddWithValue("@LotId", model.LotId);
-                                            updateLotCommand.Parameters.AddWithValue("@WinnerUserId", userId);
-                                            updateLotCommand.ExecuteNonQuery();
-                                        }
-
-                                        // Фиксируем транзакцию
-                                        transaction.Commit();
-
-                                        // Отправляем письмо владельцу лота
-                                        string ownerEmail = GetOwnerEmail(ownerId); // Метод для получения электронного адреса владельца лота
-                                        if (!string.IsNullOrEmpty(ownerEmail))
-                                        {
-                                            string subject = "Your item has been purchased!";
-                                            string body = $"Ваш лот https://localhost:44424/lot/10 успешно купили по указанной цене без аукциона. " +
-                                                $"Ожидайте оповещения об оплате и готовьтесь к отправке товара." +
-                                                $"С уважением, администрация Exestick.";
-                                            await SendEmailAsync(ownerEmail, subject, body);
-                                        }
-
-                                        return Ok(new { message = "Bid placed successfully and lot updated" });
-                                    }
-                                    else
-                                    {
-                                        return BadRequest(new { message = "Lot not found" });
                                     }
                                 }
                             }
+
+                            // Проверяем, что лот активен
+                            if (!active)
+                            {
+                                return BadRequest(new { message = "Lot is not active" });
+                            }
+
+                            // Проверяем, что ставки не разрешены
+                            if (!allowBids)
+                            {
+                                // Продолжаем выполнение метода, так как это разрешено, когда Active = true и Allow Bids = false
+                                Console.WriteLine("Bidding is not allowed but continuing with the purchase process.");
+
+                                // Теперь мы можем проверить, равна ли ставка цене товара
+                                if (model.BidAmount != price)
+                                {
+                                    return BadRequest(new { message = "Bid amount must be equal to the price of the item" });
+                                }
+                            }
+                            else
+                            {
+                                // Если ставки разрешены, возвращаем ошибку
+                                return BadRequest(new { message = "You cannot buy this item after the auction has started" });
+                            }
+
+                            // Добавляем ставку в таблицу Bids
+                            using (MySqlConnection connectionForInsertBid = new MySqlConnection(_connString))
+                            {
+                                await connectionForInsertBid.OpenAsync();
+                                using (MySqlCommand insertBidCommand = connectionForInsertBid.CreateCommand())
+                                {
+                                    insertBidCommand.CommandText = "INSERT INTO Bids (LotId, UserId, BidAmount, BidTime) VALUES (@LotId, @UserId, @BidAmount, NOW())";
+                                    insertBidCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                    insertBidCommand.Parameters.AddWithValue("@UserId", userId);
+                                    insertBidCommand.Parameters.AddWithValue("@BidAmount", model.BidAmount);
+                                    await insertBidCommand.ExecuteNonQueryAsync();
+                                }
+                            }
+
+                            // Обновляем лот
+                            using (MySqlConnection connectionForUpdateLot = new MySqlConnection(_connString))
+                            {
+                                await connectionForUpdateLot.OpenAsync();
+                                using (MySqlCommand updateLotCommand = connectionForUpdateLot.CreateCommand())
+                                {
+                                    updateLotCommand.CommandText = "UPDATE Lots SET WinnerUserId = @WinnerUserId, Active = false, AllowBids = false, isWaitingPayment = true WHERE Id = @LotId";
+                                    updateLotCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                                    updateLotCommand.Parameters.AddWithValue("@WinnerUserId", userId);
+                                    await updateLotCommand.ExecuteNonQueryAsync();
+                                }
+                            }
+
+                            // Фиксируем транзакцию
+                            await transaction.CommitAsync();
+
+                            // Отправляем письмо владельцу лота
+                            string ownerEmail = GetOwnerEmail(ownerId); // Метод для получения электронного адреса владельца лота
+                            if (!string.IsNullOrEmpty(ownerEmail))
+                            {
+                                string subject = "Your item has been purchased!";
+                                string body = $"Ваш лот https://localhost:44424/lot/10 успешно купили по указанной цене без аукциона. " +
+                                    $"Ожидайте оповещения об оплате и готовьтесь к отправке товара." +
+                                    $"С уважением, администрация Exestick.";
+                                await SendEmailAsync(ownerEmail, subject, body);
+                            }
+
+                            return Ok(new { message = "Bid placed successfully and lot updated" });
                         }
                         catch (Exception ex)
                         {
                             // Откатываем транзакцию в случае ошибки
-                            transaction.Rollback();
+                            await transaction.RollbackAsync();
                             Console.WriteLine($"Error in FastBuy method: {ex}");
                             return StatusCode(500, new { message = "Internal Server Error. Please try again later." });
                         }
@@ -505,6 +523,8 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = "Internal Server Error. Please try again later." });
             }
         }
+
+
         private string GetOwnerEmail(int ownerId)
         {
             string ownerEmail = null;
@@ -591,9 +611,9 @@ namespace Project2.Controllers
     {
 
         public int LotId { get; set; }
-       
+
         public decimal BidAmount { get; set; }
-       
+
         public string Token { get; set; } // Добавлено поле Token для хранения токена
     }
     public class BidHistoryModel
@@ -603,7 +623,7 @@ namespace Project2.Controllers
         public UserProfile UserId { get; set; } // Изменили тип с int на UserProfile
         public decimal BidAmount { get; set; }
         public DateTime BidTime { get; set; }
-        
+
     }
     public class LotWithMaxBid
     {
