@@ -36,3 +36,24 @@ img.image{
     background-color: var(--f9);
     border: 1px solid var(--borderColor);
 }
+
+.buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+@media (max-width: 380px) {
+    .image{
+        width: 84px;
+        height: 84px;
+        align-items: center;
+    }
+
+    .container{
+        flex-direction: column;
+        align-items: center;
+        gap: 1vw;
+    }
+    
+}

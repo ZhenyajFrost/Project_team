@@ -45,6 +45,15 @@
 .btn, .tab {
     font-size: 14px;
     line-height: 14px;
+
+}
+.btn > p{
+    margin: auto;
+    margin-bottom: 0px;
+}
+
+.btn {
+    max-height: 44px;
 }
 
 .tabContainer {
@@ -79,5 +88,16 @@
     .body{
         display: flex;
         flex-direction: column;
+    }
+}
+
+@media(max-width: 380px){
+    .header{
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .btn{
+        width: 100%;
     }
 }

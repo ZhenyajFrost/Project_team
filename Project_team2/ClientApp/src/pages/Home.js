@@ -14,6 +14,8 @@ import useGetLots from "../API/Lots/Get/useGetLots.js";
 import categories from "../Data/categories.json";
 import Loader from "../components/Loader/Loader.js";
 
+import useWindowWidth from "../API/useWindowWidth.js";
+
 export const Home = () => {
   const [getLots, lots, totalCount, isLoading, error] = useGetLots();
   const [showableLots, setShowableLots] = useState([]);
@@ -24,6 +26,11 @@ export const Home = () => {
   });
 
   let history = useHistory();
+
+  const width = useWindowWidth(); 
+
+  const displayMode = width <= 380 ? { display: 'listWrap', lotStyle: 'small' } : { display: 'grid-2col', lotStyle: undefined };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -100,7 +107,8 @@ export const Home = () => {
           <Loader />
         ) : (
           lots && lots.length > 0 ?
-          <LotContainer lots={showableLots} display="grid-2col" /> :"Жодних лотів по цій категорії"
+            <LotContainer lots={showableLots} display={displayMode.display} lotStyle={displayMode.lotStyle} />
+            : "Жодних лотів по цій категорії"
         )}
         {lots.length >= pagination.page * pagination.pageSize ? (
           isLoading ? (

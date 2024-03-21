@@ -52,3 +52,19 @@
 .lots{
     min-height: 10vh;
 }
+
+@media(max-width: 768px){
+    .body{
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header{
+        overflow-x: auto;
+        padding: 12px;
+    }
+
+    .header > .header{
+        align-items: center;
+    }
+}

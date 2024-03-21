@@ -1,0 +1,6 @@
+@media (max-width: 380px) {
+    .disappear, a.navbar-brand > .disappear{
+      display: none !important;
+    }
+    
+  }

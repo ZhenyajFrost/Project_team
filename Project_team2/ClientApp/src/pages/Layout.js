@@ -14,7 +14,7 @@ export class Layout extends Component {
         <Container className={css.container1}>
           {this.props.children}
         </Container>
-        <Footer />
+        <Footer style={{alignSelf: 'flex-end'}}/>
       </div>
     );
   }

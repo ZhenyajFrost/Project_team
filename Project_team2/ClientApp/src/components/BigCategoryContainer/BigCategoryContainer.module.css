@@ -3,3 +3,11 @@
     grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 24px;
 }
+
+@media (max-width: 380px) {
+    .container{
+        grid-template-columns: 1fr 1fr;
+        gap: 12px
+    }
+    
+}

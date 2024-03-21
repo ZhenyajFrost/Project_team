@@ -63,3 +63,10 @@ select:focus {
         left: 0; /* Align to the left edge of the container */
     }
 }
+
+@media (max-width: 380px) {
+    .filterContainer {
+        grid-template-columns: 1fr;
+    }
+    
+}

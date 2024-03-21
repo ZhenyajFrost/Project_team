@@ -351,7 +351,7 @@ function Settings() {
                                 </div>
                             </div>
                         </div>
-                        <Button type="submit" diabled={isLoading}>Зберегти</Button>
+                        <Button className={css.btn} type="submit" diabled={isLoading}>Зберегти</Button>
                     </form>
                 </CustomAccordionDetails>
             </CustomAccordion>
@@ -395,7 +395,7 @@ function Settings() {
                                 </div>
                             </div>
                         </div>
-                        <Button type="submit">Зберегти</Button>
+                        <Button className={css.btn} type="submit">Зберегти</Button>
                     </form>
                 </CustomAccordionDetails>
             </CustomAccordion>
@@ -436,7 +436,7 @@ function Settings() {
                                 </div>
                             </div>
                         </div>
-                        <Button type="submit">Зберегти</Button>
+                        <Button  className={css.btn} type="submit">Зберегти</Button>
                     </form>
                 </CustomAccordionDetails>
             </CustomAccordion>

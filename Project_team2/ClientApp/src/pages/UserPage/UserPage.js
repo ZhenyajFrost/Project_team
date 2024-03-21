@@ -16,9 +16,14 @@ import useGetUserReputation from '../../API/User/Get/useGetReputation.js';
 import Loader from '../../components/Loader/Loader.js';
 import Reputation from '../../components/UserShort/Reputation.js';
 
+import useWindowWidth from '../../API/useWindowWidth.js'
+
 function UserPage() {
     const thisUser = getLocalStorage('user');
     const thisUserId = thisUser ? thisUser.id : null;
+
+    const width = useWindowWidth();
+    const likeButton = width >= 381 ?  'default' : 'small';
 
     const userId = parseInt(window.location.href.split("/").pop(), 10);
 
@@ -38,8 +43,10 @@ function UserPage() {
 
     const [pagination, setPagination] = useState({
         pageNumber: 1,
-        pageSize: 9
+        pageSize: width >= 381 ? 9 : 3
     });
+
+
 
     useEffect(() => {
         async function fetchData() {
@@ -90,7 +97,7 @@ function UserPage() {
 
                     </div>
 
-                    <SubscribeButton userId={userId} />
+                    <SubscribeButton userId={userId} style={likeButton}/>
                     
                 </div>
                 {isLoadingRep ? <Loader /> : <Reputation reputation={reputation} />}

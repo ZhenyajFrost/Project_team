@@ -193,3 +193,16 @@
 
   }
 }
+
+@media(max-width: 380px) {
+  .image {
+    width: 303px;
+    height: 202px;
+  }
+
+  .lot {
+    max-width: none;
+
+  }
+}
+

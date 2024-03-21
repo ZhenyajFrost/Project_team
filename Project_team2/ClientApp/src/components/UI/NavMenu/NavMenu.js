@@ -4,7 +4,7 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import { Dropdown } from "react-bootstrap";
-import "./NavMenu.css";
+import css from"./NavMenu.css";
 import logo from "./images/logo.svg";
 import catalog from "./images/catalog.svg";
 import profile from "./images/profile.svg";
@@ -13,8 +13,9 @@ import Login from "../../Login/Login.js";
 import LoginForgotPassword from "../../Login/LoginForgotPassword.js";
 import Registration from "../../Registration/Registration.js";
 import RegistrationConfirm from "../../Registration/RegistrationConfirm.js";
+import svg from '../../../images/svgDef.svg'
+import cssMod from './css.module.css'
 
-import InputSearch from "../Input/InputSearch.js";
 import {
   setLocalStorage,
   getLocalStorage,
@@ -90,21 +91,21 @@ function NavMenu() {
       <Navbar expand="lg">
         <Container>
           <Navbar.Brand href="/">
-            <img src={logo} alt="logo" /> Exestic
+            <img src={logo} alt="logo" /> <p className={cssMod.disappear}>{`Exestic`}</p> 
           </Navbar.Brand>
           <Nav className="me-auto">
             <Nav.Link href="search">
               <img src={catalog} alt="catalog" /> Каталог
             </Nav.Link>
             <Nav.Link href="howItWorks">
-                {`Як це працює`}
-              </Nav.Link>
+              <p className={cssMod.disappear}>{`Як це працює `}</p> {` ?`}
+            </Nav.Link>
 
           </Nav>
           <Nav className="nav-right">
             {isLoggined ?
               <Nav.Link href="create">
-                {`Cтворити Лот +`}
+                <p className={cssMod.disappear}>{`Створити лот`}</p> <svg><use href={`${svg}#add`}/></svg>
               </Nav.Link> : <></>}
             <Dropdown>
               <Dropdown.Toggle
@@ -117,7 +118,7 @@ function NavMenu() {
 
 
               {isLoggined ?
-                (<Dropdown.Menu align="end" style={{  position: 'absolute'}} >
+                (<Dropdown.Menu align="end" style={{ position: 'absolute' }} >
                   <Dropdown.Item>
                     {user && <div className="nav-profile">
                       {user.avatar && <img src={user.avatar} class="avatar" />}

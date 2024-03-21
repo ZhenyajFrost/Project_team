@@ -12,13 +12,13 @@ import { categoriesFromCategoriesCount } from '../../../utils/categoriesFromCate
 import Pagination from '../../../components/UI/Pagination/Pagination.js';
 import Loader from '../../../components/Loader/Loader.js'
 
-function Lots () {
+function Lots() {
     const user = getLocalStorage('user');
     const history = useHistory();
     const [activeTab, setActiveTab] = useState(sessionStorage.getItem('activeTab') || 'active');
 
     const [filters, setFilters] = useState({});
-    const [categoryClicked, setCategoryClicked] = useState({value: ''});
+    const [categoryClicked, setCategoryClicked] = useState({ value: '' });
 
     const [getLots, lots, _totalCount, categoriesCount, isLoading, error] = useGetLotsByUser(); //rewrite this part
     const categories = categoriesFromCategoriesCount(categoriesCount);
@@ -37,11 +37,11 @@ function Lots () {
     }, [activeTab, pagination, categoryClicked])
 
     useEffect(async () => {
-        setPagination({pageNumber: 1, pageSize: 9})
+        setPagination({ pageNumber: 1, pageSize: 9 })
     }, [activeTab, categoryClicked])
 
     useEffect(() => {
-        setCategoryClicked({value: ''});
+        setCategoryClicked({ value: '' });
         setFilters({});
     }, [activeTab])
 
@@ -56,7 +56,7 @@ function Lots () {
     const handleTabClick = (tab) => {
         setActiveTab(tab);
         sessionStorage.setItem('activeTab', tab);
-        setCategoryClicked({value: ''});
+        setCategoryClicked({ value: '' });
         setFilters({});
 
     };
@@ -76,12 +76,12 @@ function Lots () {
             if (value !== null && value !== "") {
                 acc[key] = value;
             }
-            else{
+            else {
                 acc[key] = null;
             }
             return acc;
         }, {});
-    
+
         // Then, merge these cleaned changes with the existing filters
         setFilters(prevFilters => ({
             ...prevFilters,
@@ -118,10 +118,11 @@ function Lots () {
                 </ul>
 
                 <Button className={css.btn} onClick={handleAddButton}>
-                    <svg>
-                        <use href={`${svg}#plus`} />
-                    </svg>
-                    Додати оголошення
+                    <p>
+                        <svg>
+                            <use href={`${svg}#plus`} />
+                        </svg> Додати оголошення
+                    </p>
                 </Button>
             </div>
 
@@ -129,15 +130,15 @@ function Lots () {
             <Button onClick={handleButtonSearch}>Search</Button>
 
             <div className={css.body}>
-                <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={totalCount} categoryClicked={categoryClicked}/>
+                <FilterCategory onChange={onFilterChange} setCategoryClicked={setCategoryClicked} categories={categories} totalCount={totalCount} categoryClicked={categoryClicked} />
 
                 <div className={css.lots}>
-                    {_totalCount === 0 ? "No lots Found" : isLoading ? <Loader/> : <LotContainer lots={lots} display="listWrap" lotStyle="small" isLoading={isLoading}/>}
+                    {_totalCount === 0 ? "No lots Found" : isLoading ? <Loader /> : <LotContainer lots={lots} display="listWrap" lotStyle="small" isLoading={isLoading} />}
                     {isLoading ? '' : <Pagination totalCount={_totalCount} page={pagination.pageNumber} limit={pagination.pageSize} changePage={handleChangePage} />}
                 </div>
             </div>
 
-        </div>
+        </div >
     );
 
 }

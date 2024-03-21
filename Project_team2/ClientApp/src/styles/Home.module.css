@@ -7,9 +7,10 @@ body,
 }
 
 h2,
-.search label {
+label.search {
     font-family: 'Manrope', sans-serif;
     font-weight: 700;
+    color: var(--textColor);
 }
 
 /* Simplify repeated styles */
@@ -22,8 +23,7 @@ h2,
     flex-direction: column;
 }
 
-/* Specific Styles */
-.search label {
+label.search {
     font-size: 20px;
     line-height: 24px;
     text-align: left;
@@ -50,6 +50,9 @@ div.search {
     padding: 20px;
     gap: 18px;
     box-shadow: 0px 4px 14px 0px #0000000A;
+    display: flex;
+    gap: 14px;
+    flex-direction: column;
 }
 
 h2 {
@@ -68,7 +71,7 @@ h4 {
     border-radius: 32px;
 }
 
-.mainCont{
+.mainCont {
     padding: 24px 24px 24px 48px;
 }
 
@@ -89,7 +92,6 @@ h4 {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    /* unified gap */
 }
 
 .element {
@@ -154,16 +156,66 @@ h4 {
         display: none;
     }
 
-    .searchImg, p.search{
+    .searchImg,
+    p.search {
         display: none;
         color: aqua;
     }
-    
-    div.search{
+
+    div.search {
         position: relative;
         top: 0;
         width: 100%;
         left: 0;
     }
 
+}
+
+@media(max-width: 380px) {
+    h2 {
+        font-family: Manrope;
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 42px;
+        margin: 0;
+    }
+
+    .container {
+        gap: 36px;
+    }
+
+    .containerQuest,
+    .mainContQuest {
+        gap: 24px;
+    }
+
+    .containerQuest {
+        flex-direction: column;
+    }
+
+    .element,
+    .elementQuest {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    label.search {
+        font-size: 18px;
+    }
+
+    .element {
+        max-width: 100%;
+    }
+
+    .header {
+        gap: 12px;
+    }
+
+    .button {
+        width: 100%;
+        font-size: 14px;
+        font-weight: 700;
+
+    }
 }

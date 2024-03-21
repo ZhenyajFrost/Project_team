@@ -15,7 +15,7 @@ function Bids() {
 
     const [pagination, setPagination] = useState({
         page: 1,
-        pageSize: 13
+        pageSize: 4
     });
 
     useEffect(async () => {

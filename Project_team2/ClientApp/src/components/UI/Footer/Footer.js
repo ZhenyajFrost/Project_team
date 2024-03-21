@@ -10,7 +10,7 @@ const Footer = () => {
                     <h3>Хочете продавати швидше?</h3>
                     <p>Exestick - це український онлайн-аукціон, де ви можете купити і продати все, що завгодно! Тут ви знайдете найкращі пропозиції за привабливими цінами.</p>
                 </div>
-                <div className={css.container} style={{gap: '100px'}}> 
+                <div className={`${css.container} ${css.container2}`} style={{gap: '100px'}}> 
                     <div className={css.menu2}>
                         <h4>Меню</h4>
                         <a href='/howItWorks'>Про компанію</a>

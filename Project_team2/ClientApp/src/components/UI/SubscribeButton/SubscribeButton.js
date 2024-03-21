@@ -7,10 +7,10 @@ import useSubscribeUser from '../../../API/User/useSubscribeUser';
 import Notiflix from 'notiflix';
 import Button from '../Button/Button';
 
-const SubscribeButton = ({ userId }) => {
+const SubscribeButton = ({ userId, style = 'default' }) => {
     const user = getLocalStorage('user');
     const likedUsers = user ? user.likedUsers : null;
-    
+
     const token = getLocalStorage('token');
 
     const isUserLiked = () => {
@@ -40,7 +40,15 @@ const SubscribeButton = ({ userId }) => {
 
     return (
         <>
-            {isLiked ? <Button onClick={handleLike} className={css.btn}>Відписатись </Button> : <Button onClick={handleLike} className={css.btn}>Підписатись +</Button>}
+            {style === 'small' ? (
+                <div className={css.btn} onClick={handleLike}>
+                    <svg>
+                        <use href={`${svg}#${isLiked ? 'liked' : 'unliked'}`} />
+                    </svg>
+                </div>
+            ) :
+                <Button onClick={handleLike} className={css.btn} > {isLiked ? 'Відписатись' : 'Підписатись +'}</Button >
+            }
         </>
     );
 };

@@ -1,6 +1,4 @@
 import React from "react";
-import Lot from "../../Lot/Lot.js";
-import LotSmall from "../../Lot/LotSmall/LotSmall.js"
 import classes from "./UserContainer.module.css";
 import UserShortV2 from "../../UserShort/UserShortV2/UserShortV2.js";
 

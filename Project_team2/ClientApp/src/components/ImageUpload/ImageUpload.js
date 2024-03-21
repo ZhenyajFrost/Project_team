@@ -97,9 +97,12 @@ const ImageUpload = () => {
         />
 
         <Button className="file-btn" onClick={onChooseFile}> Завантажити нове зображення</Button>
+      </div>
+      <div className={css.buttons}>
+        <Button onClick={onFileUpload}>Зберегти</Button>
         <Button onClick={onDelete} className={css.delete}>Видалити</Button>
       </div>
-      <Button onClick={onFileUpload}>Зберегти</Button>
+
     </div>
   );
 }

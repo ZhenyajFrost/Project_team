@@ -5,6 +5,7 @@ footer {
     padding: 3vw 8vw 1vw 8vw;
     text-align: center;
     font-family: Manrope;
+    align-self: stretch;
 }
 
 span {
@@ -85,7 +86,7 @@ a {
         justify-content: flex-start;
     }
 
-    .border{
+    .border {
         border-bottom: 1px solid #EBEBEB1A;
     }
 
@@ -94,12 +95,60 @@ a {
         gap: 3vw;
     }
 
-    .footer{
+    .footer {
         text-align: end;
     }
 
     .menu2 {
         gap: 12px
+    }
+
+}
+
+@media (max-width: 380px) {
+
+    h3 {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 27.32px;
+    }
+
+    h4{
+        font-size: 14px;
+    }
+
+    a{
+        font-size: 14px;
+        font-weight: 400;
+    }
+
+    .container{
+        margin-bottom: 24px
+    }
+    .container2{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    .border {
+        border-bottom: 1px solid #EBEBEB1A;
+    }
+
+    .description {
+        max-width: 100%;
+        gap: 3vw;
+    }
+
+    footer{
+        padding: 24px 20px;
+        text-align: start !important;
+        
+    }
+
+    .menu2 {
+        gap: 12px;
+        white-space: nowrap;
     }
 
 }

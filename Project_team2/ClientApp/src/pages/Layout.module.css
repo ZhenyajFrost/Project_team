@@ -1,4 +1,16 @@
-.container1{
+.container1 {
     max-width: calc(100vw - 5vw);
-    min-height: 50vh;
+    min-height: 60vh;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+@media (max-width: 380px) {
+    .container1 {
+        max-width: calc(100vw - 2vw);
+    }
 }

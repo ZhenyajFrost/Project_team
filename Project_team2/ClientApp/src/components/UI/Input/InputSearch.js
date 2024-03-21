@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import classes from "../../../styles/InputSearch.module.css";
 import search from "../../../images/search.svg";
 import Button from "../Button/Button";
+import cssMod from '../NavMenu/css.module.css'
 
 // -- Search without button
 // const InputSearch = React.forwardRef((props, ref) => {
@@ -51,7 +52,7 @@ const InputSearch = ({
           />
         </div>
 
-        {!nobutton && <Button onClick={handleSearchClick}>Пошук</Button>}
+        {!nobutton && <Button className={cssMod.disappear} onClick={handleSearchClick}>Пошук</Button>}
       </div>
     </form>
   );

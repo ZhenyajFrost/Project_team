@@ -44,6 +44,7 @@
 
 .lotInfo {
   display: flex;
+  gap: 0.5vw;
 }
 
 .lotInfo p {
@@ -135,7 +136,7 @@
   letter-spacing: 0em;
 }
 
-.formDiv {
+.formDiv, .container {
   display: flex;
   flex-direction: column;
   gap: 1vw;
@@ -207,4 +208,17 @@
   font-size: 18px;
   font-weight: 700;
   line-height: 32.78px;
+}
+
+h5 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32.78px;
+
+}
+
+h4 {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 24.59px;
 }

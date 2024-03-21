@@ -56,7 +56,7 @@ const LocationSelector = ({
   return (
     <div className={css.container}>
       <div className={css.item}>
-        <label>Область</label>
+        <label>Область:</label>
         <Select
           options={statesOptions}
           onChange={onRegionChange}
@@ -65,7 +65,7 @@ const LocationSelector = ({
         />
       </div>
       <div className={css.item}>
-        <label>Місто</label>
+        <label>Місто:</label>
         <Select
           options={citiesOptions}
           onChange={onCityChange}

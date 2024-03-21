@@ -37,3 +37,9 @@
 
   }
 }
+
+@media(max-width: 380px){
+  .listWrap{
+    grid-template-columns: 1fr;
+  }
+}

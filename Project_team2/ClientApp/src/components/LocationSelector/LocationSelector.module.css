@@ -7,6 +7,18 @@
 .item{
     display: flex;
     flex-direction: column;
-    gap: 0.5vw;
+    gap: 1vw;
     width: 50%;
+}
+
+@media (max-width: 380px) {
+    .container{
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .item{
+        width: 100%;
+    }
+    
 }

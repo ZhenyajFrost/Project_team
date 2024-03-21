@@ -66,7 +66,7 @@ function BidLot({ bid }) {
                 <h3 className={`${css.lotTitle}`}>{bid.lot.title}</h3>
                 <p className={css.lotDesc}>{bid.lot.shortDescription}</p>
 
-                {ttl > 0  && !bid.lot.winnerUserId === getLocalStorage('user').id ?
+                {ttl > 0 && !bid.lot.winnerUserId === getLocalStorage('user').id ?
                     <div className={css.bid}>
                         <p>Моя ставка: <span>{`${bid.maxBidAmount} ₴`}</span> </p>
                         <p>Наразі перемагає: <span>{`${bid.bidProfile.login}`}</span> </p>
@@ -108,7 +108,7 @@ function BidLot({ bid }) {
                             {`м. ${bid.lot.city ? bid.lot.city : "Місто"}`}
                         </p>
                     </div>
-                    {bid.lot.isWaitingPayment  ?
+                    {bid.lot.isWaitingPayment ?
                         <Button onClick={() => setModalVisible(true)}> Оформити лот</Button> :
                         <></>
                     }
@@ -130,59 +130,61 @@ function BidLot({ bid }) {
             </div>
 
             <ModalWindow visible={modalVisible} setVisible={setModalVisible}>
-                <h3>Оформити лот</h3>
-                <form onSubmit={onCheckout}>
-                    <div className={css.formDiv} id="data">
-                        <h4>Ваші контактні дані</h4>
-                        <div className={css.data}>
-                            <div className={css.text}>
-                                <svg>
-                                    <use href={`${svg}#avatar`} />
-                                </svg>
-                                {`${bid.bidProfile.firstName} ${bid.bidProfile.lastName}`}
+                <div className={css.container}>
+                    <h5>Оформити лот</h5>
+                    <form onSubmit={onCheckout}>
+                        <div className={css.formDiv} id="data">
+                            <h4>Ваші контактні дані</h4>
+                            <div className={css.data}>
+                                <div className={css.text}>
+                                    <svg>
+                                        <use href={`${svg}#avatar`} />
+                                    </svg>
+                                    {`${bid.bidProfile.firstName} ${bid.bidProfile.lastName}`}
+                                </div>
+
+                                <div className={css.btn} onClick={() => history.push('/profile')}>Змінити</div>
                             </div>
 
-                            <div className={css.btn} onClick={() => history.push('/profile')}>Змінити</div>
-                        </div>
+                            <div className={css.data}>
+                                <div className={css.text}>
+                                    <svg>
+                                        <use href={`${svg}#phone`} />
+                                    </svg>
+                                    {`${bid.bidProfile.phone}`}
+                                </div>
 
-                        <div className={css.data}>
-                            <div className={css.text}>
-                                <svg>
-                                    <use href={`${svg}#phone`} />
-                                </svg>
-                                {`${bid.bidProfile.phone}`}
+                                <div className={css.btn} onClick={() => history.push('/profile')}>Змінити</div>
                             </div>
-
-                            <div className={css.btn} onClick={() => history.push('/profile')}>Змінити</div>
                         </div>
-                    </div>
 
-                    <div className={css.formDiv} id="order">
-                        <h4>Замовлення</h4>
-                        <div className={css.data}>
-                            <div className={css.text2}>
-                                <img src={bid.lot.imageURLs ? bid.lot.imageURLs[0] : 'defaultImagePath.jpg'} className={css.img} alt="image" />
-                                {bid.lot.title}
+                        <div className={css.formDiv} id="order">
+                            <h4>Замовлення</h4>
+                            <div className={css.data}>
+                                <div className={css.text2}>
+                                    <img src={bid.lot.imageURLs ? bid.lot.imageURLs[0] : 'defaultImagePath.jpg'} className={css.img} alt="image" />
+                                    {bid.lot.title}
+                                </div>
+
+                                <div className={css.text} >{`${bid.maxBidAmount} грн`}</div>
                             </div>
-
-                            <div className={css.text} >{`${bid.maxBidAmount} грн`}</div>
                         </div>
-                    </div>
 
-                    <div className={css.formDiv} id="delivery">
-                        <h4>Доставка</h4>
-                        <DeliveryRadioGroup onDeliveryChange={(delivery) => setDelivery(delivery)} />
+                        <div className={css.formDiv} id="delivery">
+                            <h4>Доставка</h4>
+                            <DeliveryRadioGroup onDeliveryChange={(delivery) => setDelivery(delivery)} />
 
-                    </div>
+                        </div>
 
-                    <div className={css.formDiv} id="payment">
-                        <h4>Оплата</h4>
-                        {!isPayed && delivery.index ?
-                            <PayPal amount={bid.maxBidAmount} lot={bid.lot} setPayment={(status) => setIsPayed(status)} />
-                            : "Оберіть адресу доставки)"
-                        }
-                    </div>
-                </form>
+                        <div className={css.formDiv} id="payment">
+                            <h4>Оплата</h4>
+                            {!isPayed && delivery.index ?
+                                <PayPal amount={bid.maxBidAmount} lot={bid.lot} setPayment={(status) => setIsPayed(status)} />
+                                : "Оберіть адресу доставки)"
+                            }
+                        </div>
+                    </form>
+                </div>
             </ModalWindow>
         </div >
 
