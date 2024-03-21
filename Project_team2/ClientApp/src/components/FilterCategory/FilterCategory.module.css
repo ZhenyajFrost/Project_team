@@ -47,7 +47,7 @@
 @media (max-width: 768px) {
     .btnContainer {
         flex-direction: row;
-        overflow-x: scroll;
+        overflow-x: auto;
     }
 
     .btn {
