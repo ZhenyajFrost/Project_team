@@ -290,12 +290,15 @@ namespace Project2.Controllers
                     LotId
             ) max_bids ON l.Id = max_bids.LotId
             INNER JOIN Bids b ON max_bids.LotId = b.LotId AND max_bids.MaxBidAmount = b.BidAmount
-            INNER JOIN Users u ON b.UserId = u.Id
-            WHERE 
-                l.Price <= @MaxPrice");
+            INNER JOIN Users u ON b.UserId = u.Id");
 
-                    command.Parameters.AddWithValue("@MaxPrice", model.MaxPrice);
 
+                    if (model.MaxPrice.HasValue)
+                    {
+                        queryBuilder.Append(" AND l.price <= @MaxPrice");
+
+                        command.Parameters.AddWithValue("@MaxPrice", model.MaxPrice);
+                    }
                     // Добавляем остальные фильтры
                     if (!string.IsNullOrWhiteSpace(model.SearchQuery))
                     {
