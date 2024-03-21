@@ -74,3 +74,10 @@
     display: flex;
     flex-wrap: wrap;
 }
+
+@media(max-width: 768px){
+    .body{
+        display: flex;
+        flex-direction: column;
+    }
+}

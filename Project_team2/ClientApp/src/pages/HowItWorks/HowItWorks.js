@@ -84,6 +84,7 @@ export const HowItWorks = () => {
             <Carousel items={items} title="Як це працює?" />
 
             <div>
+                <h2 className={css.h2}>Популярні запитання</h2>
                 {questions.map(ques => {
                     return (
                         <CustomAccordion id="question">

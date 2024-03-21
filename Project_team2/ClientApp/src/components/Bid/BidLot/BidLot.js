@@ -12,6 +12,7 @@ import Notiflix from 'notiflix';
 
 import usePaymentResult from '../../../API/PayPal/usePaymentResult.js'
 import DeliveryRadioGroup from '../../DeliveryRadioGroup/DeliveryRadioGroup.js'
+import { getLocalStorage } from "../../../utils/localStorage.js";
 
 function BidLot({ bid }) {
     const history = useHistory();
@@ -65,7 +66,7 @@ function BidLot({ bid }) {
                 <h3 className={`${css.lotTitle}`}>{bid.lot.title}</h3>
                 <p className={css.lotDesc}>{bid.lot.shortDescription}</p>
 
-                {ttl > 0  && bid.lot.isWaitingDelivery ?
+                {ttl > 0  && !bid.lot.winnerUserId === getLocalStorage('user').id ?
                     <div className={css.bid}>
                         <p>Моя ставка: <span>{`${bid.maxBidAmount} ₴`}</span> </p>
                         <p>Наразі перемагає: <span>{`${bid.bidProfile.login}`}</span> </p>
@@ -107,7 +108,7 @@ function BidLot({ bid }) {
                             {`м. ${bid.lot.city ? bid.lot.city : "Місто"}`}
                         </p>
                     </div>
-                    {bid.lot.isWaitingPayment ?
+                    {bid.lot.isWaitingPayment  ?
                         <Button onClick={() => setModalVisible(true)}> Оформити лот</Button> :
                         <></>
                     }

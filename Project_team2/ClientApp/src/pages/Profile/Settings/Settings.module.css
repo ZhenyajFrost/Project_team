@@ -1,21 +1,35 @@
-.item{
+.item {
     box-shadow: none;
     border-radius: 24px;
 }
 
-.container{
+.container {
     display: flex;
     flex-direction: column;
     gap: 1vw;
     overflow: auto;
 }
 
-.grid{
+.grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1vw;
 }
 
-.delete{
+.delete {
     margin: auto;
+}
+
+label {
+    color: var(--secondaryTextColor);
+    font-family: Manrope;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 19.12px;
+}
+
+@media (max-width: 768px) {
+    .container .container{
+        gap: 2vw;
+    }
 }

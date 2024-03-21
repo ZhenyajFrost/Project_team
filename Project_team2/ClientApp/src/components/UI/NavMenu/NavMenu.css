@@ -1,5 +1,6 @@
 ﻿.navbar{
   background-color: #FFFFFF;
+  border-bottom: 1px solid #EBEBEB;
 }
 
 .navbar >.container {
@@ -107,7 +108,7 @@ html {
   font-size: 14px;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 768px) {
   html {
     font-size: 16px;
   }

@@ -257,6 +257,134 @@ namespace Project2.Controllers
 
 
 
+        //[HttpPost("getUserBids")]
+        //public IActionResult GetUserBids([FromBody] UserBidsRequestModel model)
+        //{
+        //    var userId = ExtractUserIdFromToken(model.Token);
+        //    int page = model.Page;
+        //    int pageSize = model.PageSize;
+
+        //    try
+        //    {
+        //        using (MySqlConnection connection = new MySqlConnection(_connString))
+        //        {
+        //            connection.Open();
+
+        //            MySqlCommand command = new MySqlCommand();
+        //            command.Connection = connection;
+
+        //            StringBuilder queryBuilder = new StringBuilder();
+        //            queryBuilder.Append(@"SELECT 
+        //        l.*, 
+        //        b.BidAmount, 
+        //        u.*
+        //    FROM 
+        //        Lots l
+        //    INNER JOIN (
+        //        SELECT 
+        //            LotId, 
+        //            MAX(BidAmount) AS MaxBidAmount
+        //        FROM 
+        //            Bids
+        //        GROUP BY 
+        //            LotId
+        //    ) max_bids ON l.Id = max_bids.LotId
+        //    INNER JOIN Bids b ON max_bids.LotId = b.LotId AND max_bids.MaxBidAmount = b.BidAmount
+        //    INNER JOIN Users u ON b.UserId = u.Id");
+
+
+        //            if (model.MaxPrice.HasValue)
+        //            {
+        //                queryBuilder.Append(" AND l.price <= @MaxPrice");
+
+        //                command.Parameters.AddWithValue("@MaxPrice", model.MaxPrice);
+        //            }
+        //            // Добавляем остальные фильтры
+        //            if (!string.IsNullOrWhiteSpace(model.SearchQuery))
+        //            {
+        //                queryBuilder.Append(" AND (l.Title LIKE @SearchQuery OR l.ShortDescription LIKE @SearchQuery)");
+        //                command.Parameters.AddWithValue("@SearchQuery", $"%{model.SearchQuery}%");
+        //            }
+
+        //            if (!string.IsNullOrWhiteSpace(model.Category))
+        //            {
+        //                queryBuilder.Append(" AND l.Category = @Category");
+        //                command.Parameters.AddWithValue("@Category", model.Category);
+        //            }
+
+        //            if (model.MinPrice.HasValue)
+        //            {
+        //                queryBuilder.Append(" AND l.Price >= @MinPrice");
+        //                command.Parameters.AddWithValue("@MinPrice", model.MinPrice);
+        //            }
+
+        //            if (!string.IsNullOrWhiteSpace(model.Region))
+        //            {
+        //                queryBuilder.Append(" AND l.Region = @Region");
+        //                command.Parameters.AddWithValue("@Region", model.Region);
+        //            }
+
+        //            if (!string.IsNullOrWhiteSpace(model.City))
+        //            {
+        //                queryBuilder.Append(" AND l.City = @City");
+        //                command.Parameters.AddWithValue("@City", model.City);
+        //            }
+
+        //            if (model.IsNew.HasValue)
+        //            {
+        //                queryBuilder.Append(" AND l.IsNew = @IsNew");
+        //                command.Parameters.AddWithValue("@IsNew", model.IsNew);
+        //            }
+
+        //            if (model.TimeTillEnd.HasValue)
+        //            {
+        //                queryBuilder.Append(" AND l.TimeTillEnd <= @TimeTillEnd");
+        //                command.Parameters.AddWithValue("@TimeTillEnd", model.TimeTillEnd);
+        //            }
+
+        //            // Добавляем сортировку
+        //            if (!string.IsNullOrWhiteSpace(model.OrderBy) && model.Ascending.HasValue)
+        //            {
+        //                string sortOrder = model.Ascending.Value ? "ASC" : "DESC";
+        //                queryBuilder.Append($" ORDER BY {model.OrderBy} {sortOrder}");
+        //            }
+
+        //            queryBuilder.Append(" LIMIT @Offset, @PageSize");
+        //            command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
+        //            command.Parameters.AddWithValue("@PageSize", pageSize);
+
+        //            command.CommandText = queryBuilder.ToString();
+
+        //            using (MySqlDataReader reader = command.ExecuteReader())
+        //            {
+        //                List<LotWithMaxBid> userBids = new List<LotWithMaxBid>();
+
+        //                while (reader.Read())
+        //                {
+        //                    Lot lot = new Lot(reader);
+        //                    decimal bidAmount = Convert.ToDecimal(reader["BidAmount"]);
+        //                    UserProfile userProfile = new UserProfile(reader);
+
+        //                    userBids.Add(new LotWithMaxBid(lot, bidAmount, userProfile));
+        //                }
+
+        //                // Возвращаем результат с пагинацией и общим количеством найденных лотов
+        //                return Ok(new
+        //                {
+        //                    totalPages = (int)Math.Ceiling((double)userBids.Count / pageSize),
+        //                    totalRecords = userBids.Count,
+        //                    userBids = userBids
+        //                });
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Error in GetUserBids method: {ex.ToString()}");
+        //        return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+        //    }
+        //}
+
         [HttpPost("getUserBids")]
         public IActionResult GetUserBids([FromBody] UserBidsRequestModel model)
         {
@@ -270,92 +398,102 @@ namespace Project2.Controllers
                 {
                     connection.Open();
 
-                    MySqlCommand command = new MySqlCommand();
-                    command.Connection = connection;
-
-                    StringBuilder queryBuilder = new StringBuilder();
-                    queryBuilder.Append(@"SELECT 
-                l.*, 
-                b.BidAmount, 
-                u.*
-            FROM 
-                Lots l
+                    StringBuilder baseQueryBuilder = new StringBuilder();
+                    baseQueryBuilder.Append(@"FROM Lots l
             INNER JOIN (
-                SELECT 
-                    LotId, 
-                    MAX(BidAmount) AS MaxBidAmount
-                FROM 
-                    Bids
-                GROUP BY 
-                    LotId
+                SELECT LotId, MAX(BidAmount) AS MaxBidAmount FROM Bids GROUP BY LotId
             ) max_bids ON l.Id = max_bids.LotId
             INNER JOIN Bids b ON max_bids.LotId = b.LotId AND max_bids.MaxBidAmount = b.BidAmount
-            INNER JOIN Users u ON b.UserId = u.Id");
+            INNER JOIN Users u ON b.UserId = u.Id WHERE 1=1");
 
+                    MySqlCommand countCommand = new MySqlCommand
+                    {
+                        Connection = connection,
+                        CommandText = $"SELECT COUNT(DISTINCT l.Id) {baseQueryBuilder.ToString()}"
+                    };
+
+                    MySqlCommand dataCommand = new MySqlCommand
+                    {
+                        Connection = connection
+                    };
 
                     if (model.MaxPrice.HasValue)
                     {
-                        queryBuilder.Append(" AND l.price <= @MaxPrice");
+                        baseQueryBuilder.Append(" AND l.price <= @MaxPrice");
 
-                        command.Parameters.AddWithValue("@MaxPrice", model.MaxPrice);
+                        countCommand.Parameters.AddWithValue("@MaxPrice", model.MaxPrice);
+                        dataCommand.Parameters.AddWithValue("@MaxPrice", model.MaxPrice);
+
                     }
-                    // Добавляем остальные фильтры
+
                     if (!string.IsNullOrWhiteSpace(model.SearchQuery))
                     {
-                        queryBuilder.Append(" AND (l.Title LIKE @SearchQuery OR l.ShortDescription LIKE @SearchQuery)");
-                        command.Parameters.AddWithValue("@SearchQuery", $"%{model.SearchQuery}%");
+                        baseQueryBuilder.Append(" AND (l.Title LIKE @SearchQuery OR l.ShortDescription LIKE @SearchQuery)");
+                        countCommand.Parameters.AddWithValue("@SearchQuery", $"%{model.SearchQuery}%");
+                        dataCommand.Parameters.AddWithValue("@SearchQuery", $"%{model.SearchQuery}%");
                     }
 
                     if (!string.IsNullOrWhiteSpace(model.Category))
                     {
-                        queryBuilder.Append(" AND l.Category = @Category");
-                        command.Parameters.AddWithValue("@Category", model.Category);
+                        baseQueryBuilder.Append(" AND l.Category = @Category");
+                        countCommand.Parameters.AddWithValue("@Category", model.Category);
+                        dataCommand.Parameters.AddWithValue("@Category", model.Category);
                     }
 
                     if (model.MinPrice.HasValue)
                     {
-                        queryBuilder.Append(" AND l.Price >= @MinPrice");
-                        command.Parameters.AddWithValue("@MinPrice", model.MinPrice);
+                        baseQueryBuilder.Append(" AND l.Price >= @MinPrice");
+                        countCommand.Parameters.AddWithValue("@MinPrice", model.MinPrice);
+                        dataCommand.Parameters.AddWithValue("@MinPrice", model.MinPrice);
                     }
 
                     if (!string.IsNullOrWhiteSpace(model.Region))
                     {
-                        queryBuilder.Append(" AND l.Region = @Region");
-                        command.Parameters.AddWithValue("@Region", model.Region);
+                        baseQueryBuilder.Append(" AND l.Region = @Region");
+                        countCommand.Parameters.AddWithValue("@Region", model.Region);
+                        dataCommand.Parameters.AddWithValue("@Region", model.Region);
                     }
 
                     if (!string.IsNullOrWhiteSpace(model.City))
                     {
-                        queryBuilder.Append(" AND l.City = @City");
-                        command.Parameters.AddWithValue("@City", model.City);
+                        baseQueryBuilder.Append(" AND l.City = @City");
+                        countCommand.Parameters.AddWithValue("@City", model.City);
+                        dataCommand.Parameters.AddWithValue("@City", model.City);
                     }
 
                     if (model.IsNew.HasValue)
                     {
-                        queryBuilder.Append(" AND l.IsNew = @IsNew");
-                        command.Parameters.AddWithValue("@IsNew", model.IsNew);
+                        baseQueryBuilder.Append(" AND l.IsNew = @IsNew");
+                        countCommand.Parameters.AddWithValue("@IsNew", model.IsNew);
+                        dataCommand.Parameters.AddWithValue("@IsNew", model.IsNew);
                     }
 
                     if (model.TimeTillEnd.HasValue)
                     {
-                        queryBuilder.Append(" AND l.TimeTillEnd <= @TimeTillEnd");
-                        command.Parameters.AddWithValue("@TimeTillEnd", model.TimeTillEnd);
+                        baseQueryBuilder.Append(" AND l.TimeTillEnd <= @TimeTillEnd");
+                        countCommand.Parameters.AddWithValue("@TimeTillEnd", model.TimeTillEnd);
+                        dataCommand.Parameters.AddWithValue("@TimeTillEnd", model.TimeTillEnd);
                     }
 
-                    // Добавляем сортировку
+                    long totalRecords = (long)countCommand.ExecuteScalar();
+
+                    StringBuilder dataQueryBuilder = new StringBuilder();
+                    dataQueryBuilder.Append("SELECT l.*, b.BidAmount, u.* ");
+                    dataQueryBuilder.Append(baseQueryBuilder.ToString()); 
+
+
+                    dataQueryBuilder.Append(" LIMIT @Offset, @PageSize");
+                    dataCommand.CommandText = dataQueryBuilder.ToString();
+                    dataCommand.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
+                    dataCommand.Parameters.AddWithValue("@PageSize", pageSize);
+
                     if (!string.IsNullOrWhiteSpace(model.OrderBy) && model.Ascending.HasValue)
                     {
                         string sortOrder = model.Ascending.Value ? "ASC" : "DESC";
-                        queryBuilder.Append($" ORDER BY {model.OrderBy} {sortOrder}");
+                        dataQueryBuilder.Append($" ORDER BY {model.OrderBy} {sortOrder}");
                     }
 
-                    queryBuilder.Append(" LIMIT @Offset, @PageSize");
-                    command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
-                    command.Parameters.AddWithValue("@PageSize", pageSize);
-
-                    command.CommandText = queryBuilder.ToString();
-
-                    using (MySqlDataReader reader = command.ExecuteReader())
+                    using (MySqlDataReader reader = dataCommand.ExecuteReader())
                     {
                         List<LotWithMaxBid> userBids = new List<LotWithMaxBid>();
 
@@ -368,11 +506,10 @@ namespace Project2.Controllers
                             userBids.Add(new LotWithMaxBid(lot, bidAmount, userProfile));
                         }
 
-                        // Возвращаем результат с пагинацией и общим количеством найденных лотов
                         return Ok(new
                         {
-                            totalPages = (int)Math.Ceiling((double)userBids.Count / pageSize),
-                            totalRecords = userBids.Count,
+                            totalPages = (int)Math.Ceiling((double)totalRecords / pageSize),
+                            totalRecords = totalRecords,
                             userBids = userBids
                         });
                     }
@@ -384,7 +521,6 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-
 
 
 
@@ -654,8 +790,8 @@ namespace Project2.Controllers
         public DateTime? TimeTillEnd { get; set; }
         public string? OrderBy { get; set; }
         public bool? Ascending { get; set; }
-        public int Page { get; set; }
-        public int PageSize { get; set; }
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 4;
     }
 
 

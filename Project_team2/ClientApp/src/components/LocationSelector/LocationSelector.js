@@ -10,8 +10,7 @@ const LocationSelector = ({
   onRegionChange,
   onCityChange,
   selectedRegion,
-  selectedCity,
-  handleOnClick
+  selectedCity
 }) => {
   const [statesOptions, setStatesOptions] = useState([]);
   const [citiesOptions, setCitiesOptions] = useState([]);
@@ -55,7 +54,7 @@ const LocationSelector = ({
   }, [selectedRegion]);
 
   return (
-    <div className={css.container} onMouseOver={() => {handleOnClick(450)}} onMouseLeave={() => handleOnClick(290)} >
+    <div className={css.container}>
       <div className={css.item}>
         <label>Область</label>
         <Select

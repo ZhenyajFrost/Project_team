@@ -5,7 +5,7 @@ import { NavLink } from 'reactstrap';
 const Footer = () => {
     return (
         <footer className={css.footer}>
-            <div className={css.container}>
+            <div className={`${css.container} ${css.border}`}>
                 <div className={css.description}>
                     <h3>Хочете продавати швидше?</h3>
                     <p>Exestick - це український онлайн-аукціон, де ви можете купити і продати все, що завгодно! Тут ви знайдете найкращі пропозиції за привабливими цінами.</p>

@@ -145,7 +145,7 @@ function Settings() {
     };
 
     const handleRegionChange = (selectedOption) => {
-        console.log("Selected Option",selectedOption);
+        console.log("Selected Option", selectedOption);
         setSelectedRegion(selectedOption);
         setFormData(prev => ({
             ...prev,
@@ -248,7 +248,7 @@ function Settings() {
         window.location.reload();
         setFormData((prev) => ({
             ...prev,
-            oldPassword: '' 
+            oldPassword: ''
         }))
     }
 
@@ -285,8 +285,7 @@ function Settings() {
                 </CustomAccordionSummary>
                 <CustomAccordionDetails>
                     <form onSubmit={handleContactSubmit}>
-                        <div className={`${css.container} `} style={{minHeight: `${minHeight}px`}}>
-
+                        <div className={`${css.container} `} style={{ minHeight: `${minHeight}px` }}>
                             <div className={css.grid}>
                                 <div>
                                     {validationErrors.lastName && (
@@ -316,6 +315,16 @@ function Settings() {
                                         onChange={handleChange}
                                     />
                                 </div>
+                            </div>
+
+                            <LocationSelector
+                                onRegionChange={handleRegionChange}
+                                onCityChange={handleCityChange}
+                                selectedRegion={selectedRegion}
+                                selectedCity={selectedCity}
+                            />
+
+                            <div className={css.grid}>
                                 <div>
                                     {validationErrors.login && (
                                         <p className="error">{validationErrors.login}</p>
@@ -341,15 +350,6 @@ function Settings() {
                                     />
                                 </div>
                             </div>
-
-                            <LocationSelector
-                                onRegionChange={handleRegionChange}
-                                onCityChange={handleCityChange}
-                                selectedRegion={selectedRegion}
-                                selectedCity={selectedCity}
-                                handleOnClick={(val) => setMinHeight(val)}
-                            />
-
                         </div>
                         <Button type="submit" diabled={isLoading}>Зберегти</Button>
                     </form>

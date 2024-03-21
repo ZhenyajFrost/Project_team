@@ -7,7 +7,7 @@
     line-height: 19px;
 }
 
-.btnContainer{
+.btnContainer {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -16,7 +16,7 @@
     background-color: white;
 }
 
-.btn{
+.btn {
     display: flex;
     flex-direction: row;
     width: 100%;
@@ -25,7 +25,7 @@
     padding: 4px 8px 4px 24px;
 }
 
-.number{
+.number {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -35,11 +35,23 @@
     min-width: 25px;
     max-height: 26px;
     padding: 8px;
-    line-height: 14px;    
+    line-height: 14px;
 }
 
-.activeCat{
+.activeCat {
     background-color: white;
     border: none;
     color: var(--textColor);
+}
+
+@media (max-width: 768px) {
+    .btnContainer {
+        flex-direction: row;
+        overflow-x: scroll;
+    }
+
+    .btn {
+        width: auto;
+        gap: 2vw;
+    }
 }

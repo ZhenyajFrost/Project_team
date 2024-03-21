@@ -1,5 +1,6 @@
 .filterContainer {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     background-color: #f8f8f8;
     gap: 10px;
     flex-wrap: wrap;
@@ -11,7 +12,7 @@
     gap: 10px;
 }
 
-.filterCont{
+.filterCont {
     display: flex;
     flex-direction: row;
     max-width: 50%;
@@ -40,6 +41,25 @@ select:focus {
     max-height: 45px;
 }
 
-.inputEl.price{
+.inputEl.price {
     max-width: 50%;
+}
+
+@media (max-width: 768px) {
+    .filterContainer {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        position: relative; /* Needed to properly position the pseudo-element */
+    }
+    
+    .filterContainer::after {
+        content: ""; /* Required for the pseudo-element to be generated */
+        display: block; /* Makes it a block-level element, like <hr> */
+        width: 100%; /* Match the width of the container */
+        height: 1.5px; /* Height of the horizontal line */
+        background-color: var(--borderColor); /* Color of the line, can be adjusted as needed */
+        position: absolute;
+        bottom: -15px; /* Position at the bottom of the container */
+        left: 0; /* Align to the left edge of the container */
+    }
 }

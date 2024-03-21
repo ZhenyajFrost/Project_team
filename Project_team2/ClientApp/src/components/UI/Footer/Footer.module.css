@@ -31,16 +31,16 @@ p {
     line-height: 19px;
 }
 
-.container p, a{
+.container p,
+a {
     cursor: pointer;
     text-decoration: none;
 }
 
-.container > .menu2 > a {
+.container>.menu2>a {
     color: white !important;
 
 }
-
 
 .menu {
     display: flex;
@@ -76,4 +76,30 @@ p {
     gap: 32px;
     text-align: left;
     max-width: 50%;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: flex-start;
+    }
+
+    .border{
+        border-bottom: 1px solid #EBEBEB1A;
+    }
+
+    .description {
+        max-width: 100%;
+        gap: 3vw;
+    }
+
+    .footer{
+        text-align: end;
+    }
+
+    .menu2 {
+        gap: 12px
+    }
+
 }
