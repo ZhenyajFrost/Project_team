@@ -902,6 +902,20 @@ namespace Project2.Controllers
                         return BadRequest(new { message = "User is not authorized to delete this lot" });
                     }
                 }
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+                    string checkBidsQuery = "SELECT COUNT(*) FROM Bids WHERE LotId = @id";
+                    using (MySqlCommand checkBidsCommand = new MySqlCommand(checkBidsQuery, connection)) // заменяем _connString на connection
+                    {
+                        checkBidsCommand.Parameters.AddWithValue("@id", request.LotId);
+                        int bidsCount = Convert.ToInt32(checkBidsCommand.ExecuteScalar());
+                        if (bidsCount > 0)
+                        {
+                            return BadRequest(new { message = "Нельзя удалить лот на котором уже есть ставки" });
+                        }
+                    }
+                }
 
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
@@ -947,7 +961,20 @@ namespace Project2.Controllers
                 {
                     return BadRequest(new { message = "Only administrators can perform this action" });
                 }
-
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+                    string checkBidsQuery = "SELECT COUNT(*) FROM Bids WHERE LotId = @id";
+                    using (MySqlCommand checkBidsCommand = new MySqlCommand(checkBidsQuery, connection)) // заменяем _connString на connection
+                    {
+                        checkBidsCommand.Parameters.AddWithValue("@id", request.LotId);
+                        int bidsCount = Convert.ToInt32(checkBidsCommand.ExecuteScalar());
+                        if (bidsCount > 0)
+                        {
+                            return BadRequest(new { message = "Нельзя удалить лот на котором уже есть ставки" });
+                        }
+                    }
+                }
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
@@ -978,7 +1005,20 @@ namespace Project2.Controllers
                 {
                     return BadRequest(new { message = "Only administrators can perform this action" });
                 }
-
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+                    string checkBidsQuery = "SELECT COUNT(*) FROM Bids WHERE LotId = @id";
+                    using (MySqlCommand checkBidsCommand = new MySqlCommand(checkBidsQuery, connection)) // заменяем _connString на connection
+                    {
+                        checkBidsCommand.Parameters.AddWithValue("@id", request.LotId);
+                        int bidsCount = Convert.ToInt32(checkBidsCommand.ExecuteScalar());
+                        if (bidsCount > 0)
+                        {
+                            return BadRequest(new { message = "Нельзя удалить лот на котором уже есть ставки" });
+                        }
+                    }
+                }
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
@@ -999,61 +1039,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-        [HttpPost("SetAllowBids")]
-        public IActionResult SetAllowBids( [FromBody] EditStatusLot request)
-        {
-            try
-            {
-                string userId = ExtractUserIdFromToken(request.Token);
-
-                // Проверяем, является ли пользователь администратором
-                bool isAdmin = CheckUserIsAdmin(userId);
-
-                // Проверяем, является ли пользователь владельцем лота
-                bool isOwner = CheckUserIsOwnerOfLot(userId, request.LotId);
-
-                // Если пользователь не является администратором и не владельцем лота, возвращаем ошибку
-                if (!isAdmin && !isOwner)
-                {
-                    return BadRequest(new { message = "Only administrators or lot owners can perform this action" });
-                }
-
-                using (MySqlConnection connection = new MySqlConnection(_connString))
-                {
-                    connection.Open();
-
-                    // Проверяем, имеет ли лот статус approved = true
-                    string checkApprovedQuery = "SELECT Approved FROM Lots WHERE id = @id";
-                    bool isApproved;
-                    using (MySqlCommand checkApprovedCommand = new MySqlCommand(checkApprovedQuery, connection))
-                    {
-                        checkApprovedCommand.Parameters.AddWithValue("@id", request.LotId);
-                        isApproved = Convert.ToBoolean(checkApprovedCommand.ExecuteScalar());
-                    }
-
-                    // Если лот не имеет статус approved = true, возвращаем ошибку
-                    if (!isApproved)
-                    {
-                        return BadRequest(new { message = "Lot is not approved" });
-                    }
-
-                    // Обновляем статус AllowBids = true
-                    string query = "UPDATE Lots SET AllowBids = true WHERE id = @id";
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@id", request.LotId);
-                        command.ExecuteNonQuery();
-                    }
-
-                    return Ok(new { message = "AllowBids set successfully" });
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in SetAllowBids method: {ex.ToString()}");
-                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
-            }
-        }
+       
 
         [HttpPost("isWaitingPaymentLot")]
         public IActionResult isWaitingPaymentLot([FromBody] EditStatusLot request)
@@ -1440,49 +1426,55 @@ namespace Project2.Controllers
         {
             try
             {
+                Lot lot = null;
+                User owner = null;
+                User maxBidsUser = null;
+                decimal maxBidPrice = 0;
+
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
 
+                    // SQL query to fetch the lot details
                     string query = @"
-      SELECT 
-    l.*, 
-    u1.LastLogin AS OwnersLastLogin, 
-    u1.RegistrationTime AS OwnersRegistrationTime, 
-    u1.Avatar AS OwnersAvatar, 
-    u1.Id AS OwnersUserId,
-    u1.FirstName AS OwnersFirstName,
-    u1.LastName AS OwnersLastName,
-    u1.Login AS OwnersLogin,
-    u1.Email AS OwnersEmail,
-    u2.LastLogin AS MaxBidsLastLogin, 
-    u2.RegistrationTime AS MaxBidsRegistrationTime, 
-    u2.Avatar AS MaxBidsAvatar, 
-    u2.Id AS MaxBidsUserId,
-    u2.FirstName AS MaxBidsFirstName,
-    u2.LastName AS MaxBidsLastName,
-    u2.Login AS MaxBidsLogin,
-    u2.Email AS MaxBidsEmail,
-    b.MaxPrice AS MaxBidPrice
-FROM 
-    Lots l
-LEFT JOIN Users u1 ON l.UserId = u1.Id
-LEFT JOIN 
-    (
-        SELECT 
-            LotId, 
-            MAX(BidAmount) AS MaxPrice 
-        FROM 
-            Bids 
-        GROUP BY 
-            LotId
-    ) b ON l.Id = b.LotId
-LEFT JOIN 
-    Bids b2 ON l.Id = b2.LotId AND b.MaxPrice = b2.BidAmount
-LEFT JOIN 
-    Users u2 ON b2.UserId = u2.Id
-WHERE 
-    l.Id = @id";
+                SELECT 
+                    l.*, 
+                    u1.LastLogin AS OwnersLastLogin, 
+                    u1.RegistrationTime AS OwnersRegistrationTime, 
+                    u1.Avatar AS OwnersAvatar, 
+                    u1.Id AS OwnersUserId,
+                    u1.FirstName AS OwnersFirstName,
+                    u1.LastName AS OwnersLastName,
+                    u1.Login AS OwnersLogin,
+                    u1.Email AS OwnersEmail,
+                    u2.LastLogin AS MaxBidsLastLogin, 
+                    u2.RegistrationTime AS MaxBidsRegistrationTime, 
+                    u2.Avatar AS MaxBidsAvatar, 
+                    u2.Id AS MaxBidsUserId,
+                    u2.FirstName AS MaxBidsFirstName,
+                    u2.LastName AS MaxBidsLastName,
+                    u2.Login AS MaxBidsLogin,
+                    u2.Email AS MaxBidsEmail,
+                    b.MaxPrice AS MaxBidPrice
+                FROM 
+                    Lots l
+                LEFT JOIN Users u1 ON l.UserId = u1.Id
+                LEFT JOIN 
+                    (
+                        SELECT 
+                            LotId, 
+                            MAX(BidAmount) AS MaxPrice 
+                        FROM 
+                            Bids 
+                        GROUP BY 
+                            LotId
+                    ) b ON l.Id = b.LotId
+                LEFT JOIN 
+                    Bids b2 ON l.Id = b2.LotId AND b.MaxPrice = b2.BidAmount
+                LEFT JOIN 
+                    Users u2 ON b2.UserId = u2.Id
+                WHERE 
+                    l.Id = @id";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
@@ -1492,9 +1484,20 @@ WHERE
                         {
                             if (reader.Read())
                             {
-                                Lot lot = new Lot(reader);
+                                // Check if the lot is archived or inactive
+                                bool isArchived = Convert.ToBoolean(reader["Archive"]);
+                                bool isInactive = Convert.ToBoolean(reader["Unactive"]);
 
-                                User owner = new User
+                                if (isArchived || isInactive)
+                                {
+                                    return NotFound(new { message = "Lot not found" });
+                                }
+
+                                // Populate Lot object
+                                lot = new Lot(reader);
+
+                                // Populate Owner object
+                                owner = new User
                                 {
                                     LastLogin = reader["OwnersLastLogin"].ToString(),
                                     RegistrationTime = reader["OwnersRegistrationTime"].ToString(),
@@ -1506,7 +1509,7 @@ WHERE
                                     Email = reader["OwnersEmail"].ToString()
                                 };
 
-                                User maxBidsUser = null;
+                                // Populate MaxBidsUser object if available
                                 if (!reader.IsDBNull(reader.GetOrdinal("MaxBidsLastLogin")))
                                 {
                                     maxBidsUser = new User
@@ -1522,13 +1525,11 @@ WHERE
                                     };
                                 }
 
-                                decimal maxBidPrice = 0;
+                                // Get the MaxBidPrice
                                 if (!reader.IsDBNull(reader.GetOrdinal("MaxBidPrice")))
                                 {
                                     maxBidPrice = Convert.ToDecimal(reader["MaxBidPrice"]);
                                 }
-
-                                return Ok(new { Lot = lot, Owner = owner, MaxBidsUser = maxBidsUser, MaxBidPrice = maxBidPrice });
                             }
                             else
                             {
@@ -1537,6 +1538,26 @@ WHERE
                         }
                     }
                 }
+
+                // Increment the Views for the lot
+                using (MySqlConnection updateConnection = new MySqlConnection(_connString))
+                {
+                    updateConnection.Open();
+
+                    string updateViewsQuery = @"
+                UPDATE Lots 
+                SET Views = Views + 1 
+                WHERE Id = @id";
+
+                    using (MySqlCommand updateCommand = new MySqlCommand(updateViewsQuery, updateConnection))
+                    {
+                        updateCommand.Parameters.AddWithValue("@id", id);
+                        updateCommand.ExecuteNonQuery();
+                    }
+                }
+
+                // Return the lot details along with updated Views
+                return Ok(new { Lot = lot, Owner = owner, MaxBidsUser = maxBidsUser, MaxBidPrice = maxBidPrice });
             }
             catch (Exception ex)
             {
@@ -1544,7 +1565,7 @@ WHERE
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-       
+
 
 
 
@@ -1873,7 +1894,7 @@ WHERE
                     connection.Open();
 
                     // Обновляем состояние лота в базе данных
-                    string query = "UPDATE Lots SET Approved = true, Active = true, AllowBids = false, unactive = false, archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
+                    string query = "UPDATE Lots SET Approved = true, Active = true, AllowBids = true, unactive = false, archive = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@id", request.LotId);

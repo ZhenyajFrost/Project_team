@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
 using Newtonsoft.Json.Linq;
 using Project_team2;
@@ -326,6 +328,29 @@ namespace Project2.Controllers
                 using (MySqlConnection connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
+                    // Строим запрос на удаление пользователя
+                    string query3 = $"DELETE FROM UsersSubscribe WHERE SubscriberId = '{userId}' or SubscribedToId = '{userId}'";
+
+                    // Выполняем запрос на удаление
+                    using (MySqlCommand command = new MySqlCommand(query3, connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                    string query2 = $"DELETE FROM LikedLots WHERE UserId = '{userId}'";
+
+                    // Выполняем запрос на удаление
+                    using (MySqlCommand command = new MySqlCommand(query2, connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                    // Строим запрос на удаление пользователя
+                    string query1 = $"DELETE FROM Lots WHERE UserId = '{userId}'";
+
+                    // Выполняем запрос на удаление
+                    using (MySqlCommand command = new MySqlCommand(query1, connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
 
                     // Строим запрос на удаление пользователя
                     string query = $"DELETE FROM Users WHERE Id = '{userId}'";
@@ -347,6 +372,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
         [HttpPost("update-email")]
         public IActionResult UpdateEmail([FromBody] UpdateEmailModel model)
         {

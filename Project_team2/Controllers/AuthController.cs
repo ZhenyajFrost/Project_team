@@ -199,9 +199,16 @@ namespace Project2.Controllers
 
             try
             {
+
+
+
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
+
+
+               
+
 
                     // Проверяем, существует ли пользователь с таким Google Id
                     if (!string.IsNullOrEmpty(model.GoogleId))
