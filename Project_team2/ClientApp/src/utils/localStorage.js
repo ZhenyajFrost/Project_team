@@ -21,4 +21,5 @@ export function clearLocalStorage(keys, values) {
     window.localStorage.setItem(keys.isLoggined, values.isLoggined);
     window.localStorage.setItem(keys.user, values.user);
     window.localStorage.setItem(keys.token, values.token);
+    window.localStorage.setItem(keys.webSocketToken, values.webSocketToken)
 }

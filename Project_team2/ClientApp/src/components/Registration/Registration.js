@@ -64,14 +64,16 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
     <div>
       <h2>Реєстрація</h2>
       {validationErrors.length > 0 && (
-          <p className={classes.error}>{`${validationErrors}`}</p>
-        )}
-      <div className={classes.container}>
+        <p className={classes.error}>{`${validationErrors}`}</p>
+      )}
+      <div className={classes.containerMain}>
+        <LoginSocMed />
+        <div className={classes.contBlock}>або</div>
 
         <div className={classes.container}>
           <form onSubmit={onSubmit} className={classes.form}>
             <div className={classes.container} style={{ flexDirection: 'column', gap: '0.5vw' }}>
-              <div>
+              <div className={classes.formDiv}>
                 <label className={classes.label} >
                   Логін:
                 </label>
@@ -86,7 +88,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
                 />
               </div>
 
-              <div>
+              <div className={classes.formDiv}>
                 <label className={classes.label} htmlFor="phone">
                   Телефон:
                 </label>
@@ -99,7 +101,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
                 />
               </div>
 
-              <div>
+              <div className={classes.formDiv}>
                 <label className={classes.label} htmlFor="email">
                   Пошта:
                 </label>
@@ -115,7 +117,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
               </div>
 
 
-              <div>
+              <div className={classes.formDiv}>
                 <label className={classes.label} htmlFor="password">
                   {validationErrors.password && (
                     <p className="error">{validationErrors.password}</p>
@@ -133,7 +135,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
                 />
               </div>
 
-              <div>
+              <div className={classes.formDiv}>
                 <label className={classes.label} htmlFor="confirmPassword">
                   Підтвердіть пароль:
                 </label>
@@ -150,20 +152,16 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
                   <p style={{ color: "red" }}>Паролі не співпадають!</p>
                 )}
               </div>
-              <div style={{display: 'flex', flexDirection: 'row', gap: '2vw', alignItems: 'center'}}>Я не діплодок <input name="diplo" type="checkbox" /></div>
+              <div style={{ display: 'flex', flexDirection: 'row', gap: '2vw', alignItems: 'center' }}>Я не діплодок <input style={{width: 'unset'}} name="diplo" type="checkbox" /></div>
             </div>
 
-            <div style={{display: 'flex', flexDirection:'row', gap: '1vw', justifyContent: 'flex-end' }}>
-              <div className="btn btn-light" onClick={onLoginClick}>Увійти в свій акаунт</div>
+            <div style={{ display: 'flex', flexDirection: 'row', gap: '1vw', justifyContent: 'flex-end' }}>
+              <div className="btn btn-light" style={{whiteSpace: 'nowrap'}} onClick={onLoginClick}>Увійти в свій акаунт</div>
               <Button disabled={passwordMatchError}>Зареєструватися</Button>
             </div>
 
           </form>
         </div>
-
-        <div className={classes.contBlock}>або</div>
-
-        <LoginSocMed />
       </div>
     </div>
   );

@@ -37,6 +37,7 @@ const LoginSocMed = () => {
 
           setLocalStorage('user', userData);
           setLocalStorage('token', result.data.token);
+          setLocalStorage('webSocketToken', result.data.webSocketToken)
           setLocalStorage('isLoggined', true);
 
           Notiflix.Notify.success("Вхід успішний!");

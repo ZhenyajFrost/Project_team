@@ -7,7 +7,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Net;
 using Project_team2;
+using Project_team2.Controllers;
+
 using System.Text;
+
 namespace Project2.Controllers
 
 {
@@ -15,6 +18,7 @@ namespace Project2.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+
         private readonly string _connString;
         private readonly string _smtpServer;
         private readonly int _smtpPort;
@@ -22,6 +26,7 @@ namespace Project2.Controllers
         private readonly string _smtpPassword;
         private readonly string _telegramBotToken;
         private readonly long _chatId;
+
         public AuthController()
         {
             _connString = Config.MySqlConnection;
@@ -33,6 +38,45 @@ namespace Project2.Controllers
             _chatId = Config.ChatId;
         }
 
+    private string GenerateWebSocketToken(string userId)
+    {
+        var webSocketTokenController = new WebSocketTokenController(new MySqlConnection(_connString)); 
+        return webSocketTokenController.GenerateTokenAsync(userId).Result;
+    }
+
+        private async Task SaveOrUpdateWebSocketToken(MySqlConnection connection, string userId, string token)
+        {
+            var query = "SELECT COUNT(*) FROM UsersWebTokens WHERE userId = @userId";
+            using (var cmd = new MySqlCommand(query, connection))
+            {
+                cmd.Parameters.AddWithValue("@userId", userId);
+                var exists = (long)await cmd.ExecuteScalarAsync() > 0;
+
+                if (exists)
+                {
+                    var updateTokenQuery = "UPDATE UsersWebTokens SET token = @token, expiryDate = @expiryDate WHERE userId = @userId";
+                    using (var updateCmd = new MySqlCommand(updateTokenQuery, connection))
+                    {
+                        updateCmd.Parameters.AddWithValue("@token", token);
+                        updateCmd.Parameters.AddWithValue("@expiryDate", DateTime.UtcNow.AddHours(6));
+                        updateCmd.Parameters.AddWithValue("@userId", userId);
+                        await updateCmd.ExecuteNonQueryAsync();
+                    }
+                }
+                else
+                {
+                    var insertTokenQuery = "INSERT INTO UsersWebTokens (userId, token, expiryDate) VALUES (@userId, @token, @expiryDate)";
+                    using (var insertCmd = new MySqlCommand(insertTokenQuery, connection))
+                    {
+                        insertCmd.Parameters.AddWithValue("@userId", userId);
+                        insertCmd.Parameters.AddWithValue("@token", token);
+                        insertCmd.Parameters.AddWithValue("@expiryDate", DateTime.UtcNow.AddHours(6));
+                        await insertCmd.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -42,6 +86,9 @@ namespace Project2.Controllers
                 await connection.OpenAsync();
 
                 var query = "SELECT * FROM Users WHERE LOWER(Login) = LOWER(@name) OR LOWER(Email) = LOWER(@Ename)";
+
+                var queryWebTokens = "SELECT * FROM UsersWebTokens WHERE userId = @userId";
+
                 await using (var command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@name", model.Login);
@@ -68,6 +115,48 @@ namespace Project2.Controllers
 
                             if (BCrypt.Net.BCrypt.Verify(model.Password, storedHash))
                             {
+
+                                var webSocketToken = GenerateWebSocketToken(userId);
+
+                                // Логика веб-токена
+                                await using (var commandTok = new MySqlCommand(queryWebTokens, connection))
+                                {
+                                    commandTok.Parameters.AddWithValue("@userId", userId);
+                                    var exists = false; // Предполагаем, что записи нет
+                                    await using (var readerTok = await commandTok.ExecuteReaderAsync())
+                                    {
+                                        if (await readerTok.ReadAsync())
+                                        {
+                                            exists = true; // Запись найдена
+                                        }
+                                    }
+
+                                    if (exists)
+                                    {
+                                        // Запись существует, обновляем токен
+                                        var updateTokenQuery = "UPDATE UsersWebTokens SET token = @token, expiryDate = @expiryDate WHERE userId = @userId";
+                                        await using (var updateCommand = new MySqlCommand(updateTokenQuery, connection))
+                                        {
+                                            updateCommand.Parameters.AddWithValue("@token", webSocketToken);
+                                            updateCommand.Parameters.AddWithValue("@expiryDate", DateTime.UtcNow.AddHours(6)); 
+                                            updateCommand.Parameters.AddWithValue("@userId", userId);
+                                            await updateCommand.ExecuteNonQueryAsync();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Записи нет, добавляем новую
+                                        var insertTokenQuery = "INSERT INTO UsersWebTokens (userId, token, expiryDate) VALUES (@userId, @token, @expiryDate)";
+                                        await using (var insertCommand = new MySqlCommand(insertTokenQuery, connection))
+                                        {
+                                            insertCommand.Parameters.AddWithValue("@userId", userId);
+                                            insertCommand.Parameters.AddWithValue("@token", webSocketToken);
+                                            insertCommand.Parameters.AddWithValue("@expiryDate", DateTime.UtcNow.AddHours(6));
+                                            await insertCommand.ExecuteNonQueryAsync();
+                                        }
+                                    }
+                                }
+
                                 var updateQuery = "UPDATE Users SET LastLogin = @LastLogin WHERE Id = @UserId";
                                 await using (var updateCommand = new MySqlCommand(updateQuery, connection))
                                 {
@@ -118,6 +207,7 @@ namespace Project2.Controllers
                                     message = "Authentication successful",
                                     user = userProfile,
                                     token = GenerateJwtToken(userId),
+                                    webSocketToken,
                                     likedLotIds,
                                     subscribedUserIds,
                                     notifications = new
@@ -143,6 +233,7 @@ namespace Project2.Controllers
                         }
                     }
                 }
+                await connection.CloseAsync();
             }
             catch (Exception ex)
             {
@@ -190,8 +281,9 @@ namespace Project2.Controllers
                 Console.WriteLine($"Ошибка отправки уведомления в чат Telegram: {ex.ToString()}");
             }
         }
+
         [HttpPost("register/google")]
-        public IActionResult RegisterOrLoginWithGoogle([FromBody] GoogleRegisterModel model)
+        public async Task<IActionResult> RegisterOrLoginWithGoogle([FromBody] GoogleRegisterModel model)
         {
             var notificationsAdvices = false;
             var notificationsHelp = false;
@@ -199,15 +291,9 @@ namespace Project2.Controllers
 
             try
             {
-
-
-
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
-
-
-               
 
 
                     // Проверяем, существует ли пользователь с таким Google Id
@@ -221,6 +307,7 @@ namespace Project2.Controllers
                             {
                                 if (reader.Read()) // Если пользователь существует, выполняем логинизацию
                                 {
+
                                     var userId = reader["Id"].ToString();
                                     Console.WriteLine($"UserId: {userId}");
 
@@ -248,6 +335,10 @@ namespace Project2.Controllers
                                     // Создаем JWT токен
                                     var token = GenerateJwtToken(userId);
                                     Console.WriteLine($"JWT token: {token}");
+
+                                    var webSocketToken = GenerateWebSocketToken(userId);
+                                    await SaveOrUpdateWebSocketToken(connection, userId, webSocketToken);
+
                                     var updateQuery = "UPDATE Users SET LastLogin = @LastLogin WHERE Id = @UserId";
                                      using (var updateCommand = new MySqlCommand(updateQuery, connection))
                                     {
@@ -263,6 +354,7 @@ namespace Project2.Controllers
                                         message = "Login successful",
                                         user = userProfile,
                                         token,
+                                        webSocketToken,
                                         likedLotIds,
                                         subscribedUserIds,
                                         notifications = new
@@ -275,6 +367,8 @@ namespace Project2.Controllers
 
                                     return Ok(response);
                                 }
+
+
                             }
                         }
                     }
@@ -320,7 +414,7 @@ namespace Project2.Controllers
                     query += ");";
 
                     // Добавляем параметры к команде
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         // Добавляем параметры к команде
                         command.Parameters.AddWithValue("@email", model.Email);
@@ -368,13 +462,17 @@ namespace Project2.Controllers
                             var token = GenerateJwtToken(newUserId);
                             Console.WriteLine($"JWT token: {token}");
 
+                            var webSocketToken = GenerateWebSocketToken(newUserId);
+                            await SaveOrUpdateWebSocketToken(connection, newUserId, webSocketToken);
+
                             // Создаем объект JSON с данными пользователя и дополнительными данными
-                        
+
                             var response = new
                             {
                                 message = "Registration successful",
                                 user = userProfile,
-                                token
+                                token,
+                                webSocketToken
                             };
                             string mess = $"Здравствуйте, ваш временный пароль указан ниже. Смените его при первой возможности в целях безопасности. " +
                                 "Пароль:" + TempPass;
@@ -396,6 +494,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal server error. Exception: {ex.Message}" });
             }
         }
+        
         private string GenerateTemporaryPassword()
         {
             const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+";

@@ -1,4 +1,5 @@
 export const API_BASE_URL = "https://localhost:7074/api";
+export const WS_BASE_URL = 'wss://localhost:7074/api/ws';
 
 export const LOTS_ENDPOINT = `${API_BASE_URL}/lots`;
 

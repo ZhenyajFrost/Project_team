@@ -1,19 +1,17 @@
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Project_team2;
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
+using Microsoft.Extensions.Logging;
+using Project_team2;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// Настройка аутентификации и других сервисов
 builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(options =>
 {
@@ -25,11 +23,10 @@ builder.Services.AddAuthentication(options =>
 })
 .AddGoogle(googleOptions =>
 {
-    googleOptions.ClientId = "6001760886-n0diorlhsrml5hlokovhhi18ulh6molj.apps.googleusercontent.com"; // Replace with your Google Client ID
-    googleOptions.ClientSecret = "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"; // Replace with your Google Client Secret
+    googleOptions.ClientId = "6001760886-n0diorlhsrml5hlokovhhi18ulh6molj.apps.googleusercontent.com";
+    googleOptions.ClientSecret = "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";
 });
 
-// Add services to the container.
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
@@ -38,10 +35,9 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader());
 });
 
-builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<ILoggerFactory, LoggerFactory>();
 
-// Используем Config для предоставления параметров конструктора LotViewsEmailService
+// Настройка Email и WebSocket сервисов
 builder.Services.AddHostedService<LotViewsEmailService>(sp =>
     new LotViewsEmailService(
         Config.MySqlConnection,
@@ -71,25 +67,39 @@ builder.Services.AddHostedService<LotSchedulingService>(sp =>
         Config.SmtpPassword
     )
 );
+
+
+// Регистрация WebSocketServer как Singleton, чтобы его можно было внедрить
+builder.Services.AddSingleton<WebSocketServer>();
+
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
+// Настройка WebSocket подключений
+app.UseWebSockets();
+
+// Настройка HTTP запросов
 if (!app.Environment.IsDevelopment())
 {
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
-// Enable CORS
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Важно! Добавьте это для маршрутизации к контроллерам
+app.MapControllers();
+
+
 
 app.MapFallbackToFile("index.html");
 

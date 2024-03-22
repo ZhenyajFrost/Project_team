@@ -66,24 +66,22 @@ function BidLot({ bid }) {
                 <h3 className={`${css.lotTitle}`}>{bid.lot.title}</h3>
                 <p className={css.lotDesc}>{bid.lot.shortDescription}</p>
 
-                {ttl > 0 && !bid.lot.winnerUserId === getLocalStorage('user').id ?
-                    <div className={css.bid}>
-                        <p>Моя ставка: <span>{`${bid.maxBidAmount} ₴`}</span> </p>
-                        <p>Наразі перемагає: <span>{`${bid.bidProfile.login}`}</span> </p>
-                    </div> :
-                    bid.lot.winnerUserId ?
-                        <div className={css.winner}>
-                            <div className={css.title}>
-                                <svg style={{ width: "32px", height: "32px" }}>
-                                    <use href={`${statusSvg}#good`} />
-                                </svg>
-                                Ви перемогли
-                            </div>
-                            <p>{`Ви перемогли з фінальною ставкою ${bid.maxBidAmount} грн, оберіть зручний спосіб доставки та оплати для отримання товару`}</p>
+                {bid.lot.winnerUserId === getLocalStorage('user').id ?
+                    <div className={css.winner}>
+                        <div className={css.title}>
+                            <svg style={{ width: "32px", height: "32px" }}>
+                                <use href={`${statusSvg}#good`} />
+                            </svg>
+                            Ви перемогли
                         </div>
-                        :
+                        <p>{`Ви перемогли з фінальною ставкою ${bid.maxBidAmount} грн, оберіть зручний спосіб доставки та оплати для отримання товару`}</p>
+                    </div> :
 
-                        ''
+                    ttl > 0 ?
+                        <div className={css.bid}>
+                            <p>Моя ставка: <span>{`${bid.maxBidAmount} ₴`}</span> </p>
+                            <p>Наразі перемагає: <span>{`${bid.bidProfile.login}`}</span> </p>
+                        </div> : ''
                 }
 
                 <div className={css.desc}>
@@ -108,7 +106,7 @@ function BidLot({ bid }) {
                             {`м. ${bid.lot.city ? bid.lot.city : "Місто"}`}
                         </p>
                     </div>
-                    {bid.lot.isWaitingPayment ?
+                    {bid.lot.isWaitingPayment && bid.lot.winnerUserId === getLocalStorage('user').id ?
                         <Button onClick={() => setModalVisible(true)}> Оформити лот</Button> :
                         <></>
                     }

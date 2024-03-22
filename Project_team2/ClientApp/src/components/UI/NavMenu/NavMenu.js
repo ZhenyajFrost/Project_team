@@ -66,11 +66,13 @@ function NavMenu() {
         isLoggined: "isLoggined",
         user: "user",
         token: "token",
+        webSocketToken: "webSocketToken"
       },
       {
         isLoggined: false,
         user: {},
         token: "",
+        webSocketToken: ""
       }
 
     );

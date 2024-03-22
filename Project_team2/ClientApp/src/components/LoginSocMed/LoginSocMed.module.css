@@ -5,6 +5,11 @@
     width: 220px;
     gap: 0.7vw;
     text-align: center;
+    width: 100%;
+}
+
+.container > label {
+    text-align: start;
 }
 
 img{

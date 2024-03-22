@@ -25,6 +25,7 @@ namespace Project2.Controllers
         private readonly int _smtpPort;
         private readonly string _smtpUsername;
         private readonly string _smtpPassword;
+        
         public LotsController()
         {
             _connString = Config.MySqlConnection;

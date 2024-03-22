@@ -82,13 +82,18 @@ function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setEmailSet
     return (
         <div>
             <h2>Підтвердіть пошту</h2>
-            <div className={classes.container}>
+            <div className={classes.containerMain}>
+
+                <LoginSocMed />
+
+                <div className={classes.contBlock}>або</div>
+
                 <div className={classes.container}>
                     <form onSubmit={onSubmit}>
                         <div className={classes.container} style={{ flexDirection: 'column', gap: '0.5vw' }}>
                             <div>
                                 <p className={classes.secondaryTxt}> {loading ? "Sending..." : "Ми відправили код на вашу почту"}<br />
-                                    {user.email}
+                                    <p style={{fontWeight: '700'}}>{user.email}</p>
                                 </p>
                                 <div className={classes.container + ' ' + classes.text}>
                                     <p onClick={onEmailChange}>Змінити пошту</p>
@@ -116,10 +121,6 @@ function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setEmailSet
 
                     </form>
                 </div>
-
-                <div className={classes.contBlock}>або</div>
-
-                <LoginSocMed />
             </div>
         </div>
     );

@@ -8,7 +8,7 @@ import axios from 'axios'
 import { AUTH_ENDPOINT } from '../../API/apiConstant.js'
 import Notiflix from 'notiflix';
 
-const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggined}) => {
+const Login = ({ setModalVisible, setModalRegVisible, setForgotPass, setIsLoggined }) => {
   const [loginVal, setLoginVal] = useState('');
   const [password, setPassword] = useState('');
 
@@ -30,16 +30,16 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
     var email;
     var login;
 
-    if(loginVal.includes('@')){
+    if (loginVal.includes('@')) {
       email = loginVal;
-      login = "gayLoverChildPorn";
-    }else{
+      login = "";
+    } else {
       email = "";
       login = loginVal
     }
 
-    const user = {login: login ,email: email, password: password };
-    
+    const user = { login: login, email: email, password: password };
+
     axios.post(`${AUTH_ENDPOINT}/login`, {
       login: user.login,
       email: user.email,
@@ -55,8 +55,9 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
         likedUsers: result.data.subscribedUserIds,
       }
 
-      setLocalStorage('user',user);
+      setLocalStorage('user', user);
       setLocalStorage('token', result.data.token);
+      setLocalStorage('webSocketToken', result.data.webSocketToken)
       setLocalStorage('isLoggined', true);
       setIsLoggined(true);
       //window.location.reload();
@@ -64,7 +65,7 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
     }).catch((err) => {
       Notiflix.Notify.failure(`Вхід з помилками! Тикніть для інформації`, () => {
         Notiflix.Notify.info(`${err.response.data.message}`);
-    })
+      })
     });;
 
     setModalVisible(false);
@@ -75,7 +76,10 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
   return (
     <div>
       <h2>Логін</h2>
-      <div className={classes.container}>
+      <div className={classes.containerMain}>
+        <LoginSocMed />
+        <div className={classes.contBlock}>або</div>
+
         <div className={classes.container}>
           <form onSubmit={onSubmit} className={classes.form}>
             <div className={classes.containerVer}>
@@ -112,16 +116,12 @@ const Login = ({setModalVisible, setModalRegVisible, setForgotPass, setIsLoggine
               <div className={classes.text} onClick={() => setForgotPass(true)}>Забув пароль</div>
             </div>
 
-            <div style={{ textAlign: 'end' }}>
+            <div style={{ justifyContent: 'flex-end', display: 'flex', flexDirection: 'row', gap: '1vw' }}>
               <div className="btn btn-light" onClick={onRegClick}>Зареєструватися</div>
               <Button>Увійти</Button>
             </div>
           </form>
         </div>
-
-        <div className={classes.contBlock}>або</div>
-
-        <LoginSocMed/>
       </div>
     </div>
   );

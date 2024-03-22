@@ -1,19 +1,20 @@
-﻿.navbar{
+﻿.navbar {
   background-color: #FFFFFF;
   border-bottom: 1px solid #EBEBEB;
 }
 
-.navbar >.container {
+.navbar>.container {
   max-width: calc(100vw - 5vw);
   margin: auto;
 }
 
-.navbar-brand{
+.navbar-brand {
   display: flex;
   align-items: center;
 }
 
- .navbar .nav-link p, .navbar .nav-link{
+.navbar .nav-link p,
+.navbar .nav-link {
   font-size: 16px;
   font-weight: 700;
   line-height: 24px;
@@ -21,7 +22,7 @@
   color: var(--textColor)
 }
 
-.navbar .nav-link{
+.navbar .nav-link {
   display: inline-flex;
   gap: 0.2vw
 }
@@ -31,7 +32,7 @@
 }
 
 
-.nav-link{
+.nav-link {
   background-color: var(--gray);
   border-radius: 40px;
   min-width: 44px;
@@ -39,7 +40,7 @@
   padding: 10px;
 }
 
-a.navbar-brand > p{
+a.navbar-brand>p {
   display: flex;
   white-space: normal;
   text-align: center;
@@ -131,7 +132,7 @@ html {
   box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
-.dropdown{
+.dropdown {
   background-color: var(--gray);
   border-radius: 40px;
   padding: 8px;
@@ -149,7 +150,13 @@ html {
 }
 
 @media (max-width: 380px) {
-  .disappear{
+  .disappear {
     display: none;
+  }
+}
+
+@media (max-width: 992px) {
+  .navbar-expand-lg .navbar-nav .dropdown-menu {
+    position: absolute;
   }
 }

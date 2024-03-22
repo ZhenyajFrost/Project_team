@@ -27,9 +27,9 @@ export const Home = () => {
 
   let history = useHistory();
 
-  const width = useWindowWidth(); 
+  const width = useWindowWidth();
 
-  const displayMode = width <= 380 ? { display: 'listWrap', lotStyle: 'small' } : { display: 'grid-2col', lotStyle: undefined };
+  const displayMode = width <= 768 ? { display: 'listWrap', lotStyle: 'small' } : { display: 'grid-2col', lotStyle: undefined };
 
 
   useEffect(() => {
@@ -43,7 +43,23 @@ export const Home = () => {
   }, [pagination]);
 
   useEffect(() => {
-    setShowableLots(prevLots => [...prevLots, ...lots]);
+    // Ensure both arrays are not empty to avoid accessing properties of undefined
+
+    if (showableLots.length === 0 || lots.length === 0) {
+      setShowableLots([...lots]);
+      return;
+    }
+
+    console.log(lots.length)
+
+    if (lots.length > 0) {
+      const lastShowableLot = showableLots[showableLots.length - 1];
+      const lastLot = lots[lots.length - 1];
+
+      if (lastShowableLot.id !== lastLot.id) {
+        setShowableLots(prevLots => [...prevLots, ...lots]);
+      }
+    }
   }, [lots]);
 
   const handleSearch = (newSearchQuery) => {
@@ -90,12 +106,12 @@ export const Home = () => {
         </div>
       </div>
 
-      <div id="categories">
+      <div id="categories" className={css.categories}>
         <h2>Популярні категорії</h2>
         <BigCategoryContainer categories={categories} />
       </div>
 
-      <div id="lots">
+      <div id="lots" className={css.lots}>
         <h2 className={css.h2}>Популярні лоти</h2>
         <CategoryContainer
           categories={categories}
@@ -106,14 +122,12 @@ export const Home = () => {
         {isLoading ? (
           <Loader />
         ) : (
-          lots && lots.length > 0 ?
+          showableLots && showableLots.length > 0 ?
             <LotContainer lots={showableLots} display={displayMode.display} lotStyle={displayMode.lotStyle} />
             : "Жодних лотів по цій категорії"
         )}
-        {lots.length >= pagination.page * pagination.pageSize ? (
-          isLoading ? (
-            ""
-          ) : (
+        {
+          showableLots.length >= pagination.page * pagination.pageSize && !isLoading ? (
             <LoadMoreButton
               curPage={pagination.page}
               setCurPage={(newPage) =>
@@ -122,10 +136,9 @@ export const Home = () => {
                   page: newPage,
                 }))
               }
-              limit={pagination.perPage}
             />
-          )
-        ) : null}
+          ) : null
+        }
       </div>
 
       <div id="howItW" className={`${css.mainCont} ${css.borderRadius24}`}>

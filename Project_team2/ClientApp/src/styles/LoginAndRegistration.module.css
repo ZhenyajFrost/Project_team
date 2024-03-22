@@ -3,6 +3,25 @@
 form {
   display: flex;
   flex-wrap: nowrap;
+  width: 100%
+
+}
+
+.contBlock{
+  display: flex;
+  justify-content: center;
+  position: relative; /* If you need to position the pseudo-elements absolutely within */
+  margin: 10px 0px;
+}
+
+.contBlock::before,
+.contBlock::after {
+  content: ""; /* Necessary for the pseudo-elements to show */
+  display: block; /* Makes the pseudo-elements behave like blocks, allowing you to set their width and height */
+  height: 1px; /* Height of the horizontal line */
+  width: 100%; /* Width of the horizontal line. Adjust as needed */
+  background: var(--borderColor); /* Color of the line. Change as you like */
+  margin: 10px 24px; /* Spacing above and below the lines. Adjust as needed */
 }
 
 .container {
@@ -12,6 +31,7 @@ form {
 .containerVer {
   flex-direction: column;
   gap: 0.1vw;
+  
 }
 
 form {
@@ -25,18 +45,13 @@ form {
   min-width: 450px;
 }
 
-.contBlock {
-  margin: auto;
-}
-
 h2 {
-  margin-bottom: 24px;
+  margin-bottom: 24px !important;
 }
 
-div.text {
+div.text, div.text  p {
   display: inline-flex;
   cursor: pointer;
-  justify-content: end;
   font-family: Manrope;
   font-size: 14px;
   font-weight: 700;
@@ -46,4 +61,22 @@ div.text {
 
 .secondaryTxt {
   color: var(--secondaryTextColor);
+}
+
+
+
+@media (max-width: 400px) {
+  .form {
+    min-width: fit-content;
+    gap: 12px;
+  }
+  
+  h2{
+    margin-bottom: 12px !important;
+  }
+
+  .formDiv{
+    max-width: 380px;
+  }
+  
 }

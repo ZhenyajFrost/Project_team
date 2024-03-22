@@ -6,6 +6,7 @@ using System.Net.Mail;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Project_team2;
 
 public class LotSchedulingService : BackgroundService
 {

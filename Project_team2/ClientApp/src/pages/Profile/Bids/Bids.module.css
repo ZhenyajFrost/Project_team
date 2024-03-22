@@ -10,3 +10,18 @@
     flex-direction: row;
     justify-content: space-between;
 }
+
+.hr{
+    position: relative;
+}
+
+.hr::after {
+    content: ""; /* Required for the pseudo-element to be generated */
+    display: block; /* Makes it a block-level element, like <hr> */
+    width: 100%; /* Match the width of the container */
+    height: 1.5px; /* Height of the horizontal line */
+    background-color: var(--borderColor); /* Color of the line, can be adjusted as needed */
+    position: absolute;
+    bottom: -15px; /* Position at the bottom of the container */
+    left: 0; /* Align to the left edge of the container */
+}

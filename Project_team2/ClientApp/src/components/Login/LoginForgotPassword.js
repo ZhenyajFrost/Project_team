@@ -38,7 +38,7 @@ const LoginForgotPassword = ({ setForgotPass }) => {
   const onPasswordSubmit = async (e) => {
     e.preventDefault();
 
-    if(!validateForm(user)) return;
+    if (!validateForm(user)) return;
 
     await updatePassword(user.email, user.password);
 
@@ -54,69 +54,69 @@ const LoginForgotPassword = ({ setForgotPass }) => {
     setEmailSet(true);
   };
 
-  const onEmailConfirmed = () =>{
+  const onEmailConfirmed = () => {
     setEmailConfirmed(true);
     setEmailSet(false);
   }
 
   return (
     <div>
-      <h2>Вхід</h2>
-      {!emailSet? (
-        <div className={classes.container}>
-          <div className={classes.container}>
-            <form onSubmit={user.password === '' ? onEmailSubmit : onPasswordSubmit} className={classes.form}>
-              {emailConfirmed ?  (
-                <div className={classes.containerVer}>
-                  <label className={classes.label} htmlFor="email">
-                    Set Password:
-                  </label>
-                  {validationErrors.password && (
-                    <p className="error">{validationErrors.password}</p>
-                  )}
-                  <Input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Введіть password"
-                    value={user.password}
-                    onChange={handlePasswordChange}
-                    required />
-                </div>) :
-                (
+      {!emailSet ? (
+        <><h2>Вхід</h2>
+
+          <div className={classes.containerMain}>
+            <LoginSocMed />
+            <div className={classes.contBlock}>або</div>
+
+            <div className={classes.container}>
+              <form onSubmit={user.password === '' ? onEmailSubmit : onPasswordSubmit} className={classes.form}>
+                {emailConfirmed ? (
                   <div className={classes.containerVer}>
                     <label className={classes.label} htmlFor="email">
-                      Email:
+                      Set Password:
                     </label>
+                    {validationErrors.password && (
+                      <p className="error">{validationErrors.password}</p>
+                    )}
                     <Input
-                      type="email"
-                      id="email"
-                      name="email"
-                      placeholder="Введіть email"
-                      value={user.email}
-                      onChange={handleEmailChange}
+                      type="password"
+                      id="password"
+                      name="password"
+                      placeholder="Введіть password"
+                      value={user.password}
+                      onChange={handlePasswordChange}
                       required />
-                  </div>) 
-              }
+                  </div>) :
+                  (
+                    <div className={classes.containerVer}>
+                      <label className={classes.label} htmlFor="email">
+                        Email:
+                      </label>
+                      <Input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Введіть email"
+                        value={user.email}
+                        onChange={handleEmailChange}
+                        required />
+                    </div>)
+                }
 
-              <div style={{ textAlign: 'end' }}>
-                <div className="btn btn-light" onClick={() => setForgotPass(false)}>Згадав пароль</div>
-                <Button>Створити новий пароль</Button>
-              </div>
-            </form>
-          </div>
-
-          <div className={classes.contBlock}>або</div>
-
-          <LoginSocMed />
-        </div>) :
+                <div style={{ justifyContent: 'flex-end', display: 'flex', flexDirection:'row', gap: '1vw' }}>
+                  <div className="btn btn-light" style={{whiteSpace: 'nowrap'}} onClick={() => setForgotPass(false)}>Згадав пароль</div>
+                  <Button>Створити новий пароль</Button>
+                </div>
+              </form>
+            </div>
+          </div> </>) :
         <ConfirmEmail
           user={user}
           setEmailSent={setEmailConfirmed}
           setEmailSet={setEmailSet}
           isLogin={true}
-          setModalVisible={() => {}}
-          setModalLogVisible={() => {}}
+          setModalVisible={() => { }}
+          setModalLogVisible={() => { }}
           onEmailConfirmed={onEmailConfirmed}
         />
       }
