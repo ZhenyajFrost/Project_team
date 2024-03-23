@@ -29,7 +29,7 @@ function NavMenu() {
   const [forgotPass, setForgotPass] = useState(false);
 
   const [emailSent, setEmailSent] = useState(false);
-  const {user, token, isLoggined, setData} = store();
+  const {user, token, isLoggined, setData, logout} = store();
   // const [user, setUser] = useState(getLocalStorage("user"));
   // const [isLoggined, setIsLoggined] = useState(null);
   // const [token, setToken] = useState(null);
@@ -70,25 +70,10 @@ function NavMenu() {
   // }, [isLoggined]);
 
   const onExit = () => {
-    clearLocalStorage(
-      {
-        isLoggined: "isLoggined",
-        user: "user",
-        token: "token",
-        webSocketToken: "webSocketToken",
-      },
-      {
-        isLoggined: false,
-        user: {},
-        token: "",
-        webSocketToken: "",
-      }
-    );
-
-    setData();
+    logout();
 
     history.push("/");
-    window.location.reload();
+   // window.location.reload();
   };
 
   return (

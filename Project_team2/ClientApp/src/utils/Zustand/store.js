@@ -10,7 +10,7 @@ const store = create((set, get) => ({
   updateUser: (user) => set({ user }),
   setToken: (token) => set({ token }),
   login: () => set({ isLoggined: true }),
-  logout: () => set({ isLoggined: false }),
+  logout: () => set({ isLoggined: false, token:"", user:null, isBlocked:false }),
   blockUser: () => set({ isBlocked: true }),
   unblockUser: () => set({ isBlocked: false }),
 
