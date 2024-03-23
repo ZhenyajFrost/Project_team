@@ -7,7 +7,7 @@ import store from '../../utils/Zustand/store';
 const useBanUser = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { blockUser } = store();
+    const { updateData } = store();
 
     const banUser = async (email) => {
         setLoading(true);
@@ -16,12 +16,12 @@ const useBanUser = () => {
                 const response = await axios.post(`${AUTH_ENDPOINT}/ban_mail`, { email });
 
                 setTimeout(() => {
-                    blockUser();
+                    updateData({ isBlocked: false })
                 }, 1000 * 60 * 5);
-            } else {
-                Notiflix.Notify.info('Пошту заблоковано на 5 хв')
-
             }
+
+            Notiflix.Notify.info('Пошту заблоковано на 5 хв! Зачекайте')
+
         } catch (error) {
             Notiflix.Notify.failure(`Юзера не заблоковано! Тикніть для інформації`, () => {
                 Notiflix.Notify.info(`${error.response.data.message}`);
