@@ -12,7 +12,7 @@ import { WS_BASE_URL } from '../../API/apiConstant.js'
 const Login = ({ setModalVisible, setModalRegVisible, setForgotPass, setIsLoggined }) => {
   const [loginVal, setLoginVal] = useState('');
   const [password, setPassword] = useState('');
-  const {setData} = store();
+  const {setData, connectWebSocket} = store();
   const handleEmailChange = (e) => {
     setLoginVal(e.target.value);
   };
@@ -58,21 +58,7 @@ const Login = ({ setModalVisible, setModalRegVisible, setForgotPass, setIsLoggin
       
       setData({isLoggined:true, user, token:result.data.token, webSocketToken:result.data.webSocketToken})
 
-      const ws = new WebSocket(`${WS_BASE_URL}/connect?token=${result.data.webSocketToken}`);
-
-      ws.onopen = () => {
-        console.log('WebSocket connection established');
-      };
-
-      ws.onmessage = (event) => {
-        // При получении сообщения от сервера добавляем его в состояние
-        console.log("ws:", event.data)
-      };
-
-      ws.onclose = () => {
-        console.log('WebSocket connection closed');
-      };
-      //window.location.reload();
+      connectWebSocket(result.data.token);
 
     }).catch((err) => {
       Notiflix.Notify.failure(`Вхід з помилками! Тикніть для інформації`, () => {

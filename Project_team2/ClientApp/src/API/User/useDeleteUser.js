@@ -7,14 +7,14 @@ import store from '../../utils/Zustand/store';
 const useDeleteUser = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const {setData} = store();
+    const {clearAllData} = store();
     
     const deleteUser = async (token) => {
         setLoading(true);
         try {
             const response = await axios.post(`${EDIT_USER_ENDPOINT}/delete-user`, {token});
 
-            setData({});
+            clearAllData();
 
             Notiflix.Notify.success('Юзера успішно видалено')
         } catch (error) {
