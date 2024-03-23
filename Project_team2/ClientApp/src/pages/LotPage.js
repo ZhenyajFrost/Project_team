@@ -25,7 +25,7 @@ function LotPage() {
 
   const [modal, setModal] = useState(false);
   const [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
-  const [getLots, lots, isLoadingLots] = useGetUserLots();
+  const [getLots, lots, isLoadingLots] = useGetUserLots("");
   let [getHistory, history] = useGetLotsHistory();
   const cat = categories.find(
     (categ) => Number(categ.id) === Number(lot.category)
@@ -38,7 +38,9 @@ function LotPage() {
   }, []);
 
   useEffect(() => {
-    if (Number(lot.userId) && !lots) getLots(Number(lot.userId), 1, 10);else console.log("fuck");
+    if (Number(lot.userId) && !lots)
+      getLots(Number(lot.userId), 1, 10);
+    else console.log(lots);
   }, [lot, getLots, lots]);
 
   if (!isLoading && !error) {
@@ -120,16 +122,25 @@ function LotPage() {
                       {maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
                     </p>
                   </div>
-                  {getLocalStorage("user")?(maxBid &&
-                  maxBid.user &&
-                  Number(maxBid.user.id) ===
-                    Number(getLocalStorage("user").id) ? (
-                    "Не можна перебити свою ставку!"
+                  {getLocalStorage("user") ? (
+                    maxBid &&
+                    maxBid.user &&
+                    Number(maxBid.user.id) ===
+                      Number(getLocalStorage("user").id) ? (
+                      "Не можна перебити свою ставку!"
+                    ) : (
+                      <div
+                        className={css.buyBtn}
+                        onClick={() => setModal(true)}
+                      >
+                        Залишити ставку
+                      </div>
+                    )
                   ) : (
-                    <div className={css.buyBtn} onClick={() => setModal(true)}>
-                      Залишити ставку
-                    </div>
-                  )):<a href={"/lot/"+lot.id+"?modal=login"}>Зареєструйтесь щоб розмістити ставку</a>}
+                    <a href={"/lot/" + lot.id + "?modal=login"}>
+                      Зареєструйтесь щоб розмістити ставку
+                    </a>
+                  )}
                 </div>
 
                 <LikeButton lotId={id} />

@@ -20,19 +20,19 @@ function Filters({ onChange, initial }) {
     //перевірка ціни
     const minPrice = Number(params.minPrice);
     const maxPrice = Number(params.maxPrice);
-    if (isNaN(minPrice) || isNaN(maxPrice)) {
+    if ((minPrice&&isNaN(minPrice)) || (maxPrice && isNaN(maxPrice))) {
       Notiflix.Notify.failure("Будь ласка, оберіть нормальну ціну.");
       return;
     }
-    if (minPrice < 0) {
+    if (minPrice && minPrice < 0) {
       setParams({ ...params, minPrice: minPrice * -1 });
       return;
     }
-    if (maxPrice < 0) {
+    if (maxPrice && maxPrice < 0) {
       setParams({ ...params, maxPrice: maxPrice * -1 });
       return;
     }
-    if (maxPrice < minPrice) {
+    if (maxPrice && minPrice && maxPrice < minPrice) {
       Notiflix.Notify.failure("Ціна 'від' не може бути більшою, ніж ціна 'до'");
       return;
     }

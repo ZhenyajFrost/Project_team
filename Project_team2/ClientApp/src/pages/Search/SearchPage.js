@@ -39,8 +39,8 @@ function SearchPage(props) {
   }
 
   const initial = {
-    minPrice: 1,
-    maxPrice: 10000000,
+    minPrice: undefined,
+    maxPrice: undefined,
     region: "Будь-який",
     isNew: undefined,
     orderBy: "",
@@ -66,7 +66,7 @@ function SearchPage(props) {
         }
       }
     }
-    setChanged({...changed, ...res});
+    setChanged({ ...changed, ...res });
   }, [filter]);
 
   //fetch data
@@ -76,6 +76,16 @@ function SearchPage(props) {
       changed.timeTillEnd = formatDate(changed.timeTillEnd);
       getLots(curPage, perPage, changed);
       setOldFilter(changed);
+
+      let location = "?";
+      for (const key in changed) {
+        if (changed[key]) location += key + "=" + changed[key] + "&";
+      }
+      window.history.replaceState(
+        null,
+        "Exestic",
+        window.location.href.split("?")[0] + location
+      );
     };
     if (oldFilter !== changed && !isLoading) doFetching();
   }, [getLots, curPage, oldFilter, changed, isLoading]);
@@ -93,6 +103,7 @@ function SearchPage(props) {
     }
   }, []);
   const onFilterChange = (e) => {
+    console.log(e);
     setFilter({ ...filter, ...e });
   };
 

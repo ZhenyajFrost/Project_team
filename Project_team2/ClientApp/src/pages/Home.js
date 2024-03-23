@@ -64,7 +64,7 @@ export const Home = () => {
 
   const handleSearch = (newSearchQuery) => {
     if (newSearchQuery) {
-      history.push("search/" + newSearchQuery);
+      history.push("search?searchString=" + newSearchQuery);
     }
   };
 

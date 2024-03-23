@@ -2,17 +2,16 @@ import React, { useState } from "react";
 import axios from 'axios';
 import { LOTS_ENDPOINT } from '../../apiConstant';
 
-const useGetUserLots = () => {
+const useGetUserLots = (initLots=[]) => {
     const [isLoading, setLoading] = useState(false);
 
     const [error, setError] = useState(null);
-    const [lots, setLots] = useState([]);
+    const [lots, setLots] = useState(initLots);
     const [totalCount, setTotalCount] = useState();
     const [categoriesCount, setCategories] = useState();
 
     const getLots = async (userId, pageNumber, pageSize, filters) => {
         setLoading(true);
-
         try {
             const response = await axios.get(`${LOTS_ENDPOINT}/getUserLots`, {
                 params: {
