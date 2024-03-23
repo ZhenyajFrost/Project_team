@@ -78,6 +78,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
         [HttpPost("toggleNotificationsHelp")]
         public IActionResult ToggleNotificationsHelp([FromBody] ToggleNotificationsModel model)
         {
