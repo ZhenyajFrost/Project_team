@@ -38,7 +38,7 @@ function LotPage() {
   }, []);
 
   useEffect(() => {
-    if (Number(lot.userId) && !lots) getLots(Number(lot.userId), 1, 10);
+    if (Number(lot.userId) && !lots) getLots(Number(lot.userId), 1, 10);else console.log("fuck");
   }, [lot, getLots, lots]);
 
   if (!isLoading && !error) {
@@ -183,7 +183,7 @@ function LotPage() {
         </div>
         <div>
           <h2>Усі оголошення автора</h2>
-          {!isLoadingLots ? (
+          {isLoadingLots ? (
             <Loader />
           ) : lots.length > 0 ? (
             <LotsCarousel lots={lots} />
