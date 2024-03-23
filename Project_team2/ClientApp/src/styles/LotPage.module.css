@@ -56,11 +56,12 @@ svg {
 .lotChars div {
   display: flex;
   width: inherit;
+  overflow: hidden;
   justify-content: space-between;
 }
 
 .lotChars span {
-  width: 100px;
+  min-width: 100px;
   font-family: Manrope;
   font-size: 14px;
   font-weight: 400;
