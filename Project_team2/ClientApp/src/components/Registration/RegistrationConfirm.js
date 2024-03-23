@@ -42,7 +42,7 @@ function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setEmailSet
         setModalVisible(false);
         setModalLogVisible(true);
         setEmailSent(false);
-        setUser({});
+        //setUser({});
     }
 
     const onEmailChange = () => {

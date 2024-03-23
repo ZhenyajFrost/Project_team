@@ -7,11 +7,12 @@ import { setLocalStorage } from '../../utils/localStorage.js';
 import axios from 'axios'
 import { AUTH_ENDPOINT } from '../../API/apiConstant.js'
 import Notiflix from 'notiflix';
+import store from '../../utils/Zustand/store.js';
 
 const Login = ({ setModalVisible, setModalRegVisible, setForgotPass, setIsLoggined }) => {
   const [loginVal, setLoginVal] = useState('');
   const [password, setPassword] = useState('');
-
+  const {setData} = store();
   const handleEmailChange = (e) => {
     setLoginVal(e.target.value);
   };
@@ -55,11 +56,13 @@ const Login = ({ setModalVisible, setModalRegVisible, setForgotPass, setIsLoggin
         likedUsers: result.data.subscribedUserIds,
       }
 
-      setLocalStorage('user', user);
-      setLocalStorage('token', result.data.token);
-      setLocalStorage('webSocketToken', result.data.webSocketToken)
-      setLocalStorage('isLoggined', true);
-      setIsLoggined(true);
+      // setLocalStorage('user', user);
+      // setLocalStorage('token', result.data.token);
+      // setLocalStorage('webSocketToken', result.data.webSocketToken)
+      // setLocalStorage('isLoggined', true);
+      //setIsLoggined(true);
+
+      setData({isLoggined:true, user, token:result.data.token, webSocketToken:result.data.webSocketToken})
       //window.location.reload();
 
     }).catch((err) => {

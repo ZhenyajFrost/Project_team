@@ -21,6 +21,7 @@ import {
   getLocalStorage,
   clearLocalStorage,
 } from "../../../utils/localStorage.js";
+import store from "../../../utils/Zustand/store.js";
 
 function NavMenu() {
   const history = useHistory();
@@ -30,15 +31,15 @@ function NavMenu() {
   const [forgotPass, setForgotPass] = useState(false);
 
   const [emailSent, setEmailSent] = useState(false);
-
-  const [user, setUser] = useState(getLocalStorage("user"));
-  const [isLoggined, setIsLoggined] = useState(null);
-  const [token, setToken] = useState(null);
+  const {user, token, isLoggined, setData} = store();
+  // const [user, setUser] = useState(getLocalStorage("user"));
+  // const [isLoggined, setIsLoggined] = useState(null);
+  // const [token, setToken] = useState(null);
 
   useEffect(() => {
-    setToken(getLocalStorage("token"));
-    setUser(getLocalStorage("user"));
-    setIsLoggined(getLocalStorage("isLoggined"));
+    // setToken(getLocalStorage("token"));
+    // setUser(getLocalStorage("user"));
+    // setIsLoggined(getLocalStorage("isLoggined"));
 
     const modal = new URLSearchParams(window.location.search).get("modal");
 
@@ -65,10 +66,10 @@ function NavMenu() {
     console.log("token: " + token);
   }, []);
 
-  useEffect(() => {
-    setToken(getLocalStorage("token"));
-    setUser(getLocalStorage("user"));
-  }, [isLoggined]);
+  // useEffect(() => {
+  //   setToken(getLocalStorage("token"));
+  //   setUser(getLocalStorage("user"));
+  // }, [isLoggined]);
 
   const onExit = () => {
     clearLocalStorage(
@@ -86,9 +87,7 @@ function NavMenu() {
       }
     );
 
-    setIsLoggined(false);
-    setUser({});
-    setToken("");
+    setData();
 
     history.push("/");
     window.location.reload();
@@ -196,7 +195,7 @@ function NavMenu() {
             setModalVisible={setModalLogVisible}
             setModalRegVisible={setModalRegVisible}
             setForgotPass={setForgotPass}
-            setIsLoggined={setIsLoggined}
+            //setIsLoggined={setIsLoggined}
           />
         )}
       </ModalWindow>
@@ -205,7 +204,7 @@ function NavMenu() {
         {emailSent ? (
           <RegistrationConfirm
             user={user}
-            setUser={setUser}
+            setUser={(user)=>setData({user})}
             setModalVisible={setModalRegVisible}
             setModalLogVisible={setModalLogVisible}
             setEmailSent={setEmailSent}
@@ -215,7 +214,7 @@ function NavMenu() {
             user={user}
             setModalVisible={setModalRegVisible}
             setModalLogVisible={setModalLogVisible}
-            setUser={setUser}
+            setUser={(user)=>setData({user})}
             setEmailSent={setEmailSent}
           />
         )}
