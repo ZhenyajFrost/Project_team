@@ -32,8 +32,8 @@ function LotPage() {
     (categ) => Number(categ.id) === Number(lot.category)
   );
 
-  useState(async () => {
-    await getLotById(id, token);
+  useState(() => {
+    getLotById(id, token);
 
     getHistory(id);
   }, []);
@@ -41,7 +41,6 @@ function LotPage() {
   useEffect(() => {
     if (Number(lot.userId) && !lots)
       getLots(Number(lot.userId), 1, 10);
-    else console.log(lots);
   }, [lot, getLots, lots]);
 
   if (!isLoading && !error) {

@@ -27,9 +27,7 @@ const LocationSelector = ({
 
   useEffect(() => {
 
-    if (selectedRegion.value) {
-
-
+    if (selectedRegion && selectedRegion.value) {
       const selectedRegionValue = selectedRegion.value !== null ? selectedRegion.value.toLowerCase() : selectedRegion;
 
       const cities = regionCities.reduce((acc, region) => {

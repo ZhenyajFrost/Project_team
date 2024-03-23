@@ -24,19 +24,14 @@ export default function CreateLot({ data = {} }) {
     region: {},
     city: {},
   };
-  console.log(1)
 
   const [lot, setLot] = useState({ ...initialState, ...data });
   const {user} = store();
   const create = useCreateLot().createLot;
-  console.log(2)
   const update = useUpdateLot().updateLot;
-  console.log(lot);
-
 
   const onInput = (e) => {
     const { name, value } = e.target ? e.target : e;
-    console.log(4)
     if (name.includes("rice")) {
       if (Number(value) > 100000000) {
         Notify.failure("число не може перевищувати 100000000");
@@ -70,7 +65,6 @@ export default function CreateLot({ data = {} }) {
       lot.city = lot.city.label;
     }
     lot.userId = user.id;
-    //lot.timeTillEnd = ` ${new Date(lot.timeTillEnd).valueOf()}`;
     lot.timeTillEnd = new Date(
       new Date().setDate(new Date().getDate() + Number(lot.timeTillEnd))
     ).toISOString().replace("Z", "");
@@ -99,7 +93,6 @@ export default function CreateLot({ data = {} }) {
     }
   };
 
-  console.log(3)
 
   return (
     <div>
@@ -127,7 +120,7 @@ export default function CreateLot({ data = {} }) {
             onChange={(t) => {
               onInput({ name: "timeTillEnd", value: t });
             }}
-            value={lot.timeTillEnd}
+            value={lot.timeTillEnd ? lot.timeTillEnd : 1}
           />
         </div>
         <div className={css.createSection}>
