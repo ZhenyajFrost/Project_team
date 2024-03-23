@@ -1,47 +1,53 @@
-import { create } from "zustand";
-import { persist, createJSONStorage  } from "zustand/middleware";
+import create from "zustand";
 
-// Check if window object is defined (to prevent issues in non-browser environments)
-const sessionStorage =
-  typeof window !== "undefined"
-    ? createJSONStorage (window.sessionStorage)
-    : null;
+const store = create((set, get) => ({
+  user: null,
+  token: null,
+  isLoggined: false,
+  isBlocked: false,
 
+  setData: (data) => set(data),
+  updateUser: (user) => set({ user }),
+  setToken: (token) => set({ token }),
+  login: () => set({ isLoggined: true }),
+  logout: () => set({ isLoggined: false }),
+  blockUser: () => set({ isBlocked: true }),
+  unblockUser: () => set({ isBlocked: false }),
 
-const store = create(
-  persist(
-    (set) => ({
-      user: {},
+  initializeFromLocalStorage: () => {
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+    const storedisLoggined = localStorage.getItem("isLoggined");
+    const storedIsBlocked = localStorage.getItem("isBlocked");
+
+    set({
+      user: JSON.parse(storedUser),
+      token: storedToken,
+      isLoggined: JSON.parse(storedisLoggined),
+      isBlocked: JSON.parse(storedIsBlocked),
+    });
+  },
+
+  persistToLocalStorage: () => {
+    const { user, token, isLoggined, isBlocked } = get();
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
+    localStorage.setItem("isLoggined", JSON.stringify(isLoggined));
+    localStorage.setItem("isBlocked", JSON.stringify(isBlocked));
+  },
+  clearAllData: () => {
+    localStorage.clear();
+    set({
+      user: null,
+      token: null,
       isLoggined: false,
-      token: "",
       isBlocked: false,
-      setData: (data) =>
-        set(() => {
-          if (sessionStorage) {
-            sessionStorage.setItem("token", data.token);
-          }
-          return { ...data };
-        }),
-      updateData: (data) => set((state) => ({ ...state, ...data })),
-      updateUser: (data) =>
-        set((state) => ({ ...state, user: { ...state.user, ...data } })),
-      setIsBlocked: (data) => set((state) => ({ ...state, isBlocked: data })),
-    }),
-    {
-      name: "persistedStore",
-      getStorage: () => sessionStorage,
-      serialize: (state) => JSON.stringify(state),
-      deserialize: (str) => JSON.parse(str),
-    }
-  )
-);
+    });
+  },
+}));
 
-// Initialize token from sessionStorage if available
-if (sessionStorage) {
-  const storedToken = sessionStorage.getItem("token");
-  if (storedToken) {
-    store.setState({ token: storedToken });
-  }
-}
+store.getState().initializeFromLocalStorage();
+
+store.subscribe((state) => state.persistToLocalStorage());
 
 export default store;
