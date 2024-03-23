@@ -12,7 +12,7 @@ const store = create((set, get) => ({
   setToken: (token) => set({ token }),
   setwebSocketToken: (webSocketToken) => set({ webSocketToken }),
   login: () => set({ isLoggined: true }),
-  logout: () => set({ isLoggined: false, token:"", user:null, isBlocked:false,webSocketToken:null, }),
+  logout: () => set({ isLoggined: false, token:"", user:null, isBlocked:false, webSocketToken:null, }),
   blockUser: () => set({ isBlocked: true }),
   unblockUser: () => set({ isBlocked: false }),
 
@@ -21,21 +21,24 @@ const store = create((set, get) => ({
     const storedToken = localStorage.getItem("token");
     const storedisLoggined = localStorage.getItem("isLoggined");
     const storedIsBlocked = localStorage.getItem("isBlocked");
+    const webSocketToken = localStorage.getItem("webSocketToken");
 
     set({
       user: JSON.parse(storedUser),
       token: storedToken,
       isLoggined: JSON.parse(storedisLoggined),
       isBlocked: JSON.parse(storedIsBlocked),
+      webSocketToken
     });
   },
 
   persistToLocalStorage: () => {
-    const { user, token, isLoggined, isBlocked } = get();
+    const { user, token, isLoggined, isBlocked, webSocketToken } = get();
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
     localStorage.setItem("isLoggined", JSON.stringify(isLoggined));
     localStorage.setItem("isBlocked", JSON.stringify(isBlocked));
+    localStorage.setItem("webSocketToken", JSON.stringify(webSocketToken));
   },
   clearAllData: () => {
     localStorage.clear();
