@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { LOTS_ENDPOINT } from '../apiConstant';
-import { getLocalStorage } from '../../utils/localStorage';
 import Notiflix from 'notiflix';
-
+import store from '../../utils/Zustand/store';
 
 const useDeleteLot = () => {
-    const token = getLocalStorage('token')
+    const {token} = store()
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 

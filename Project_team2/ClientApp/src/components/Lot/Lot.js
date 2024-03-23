@@ -8,7 +8,7 @@ import Button from '../UI/Button/Button';
 import ModalWindow from '../ModalWindow/ModalWindow.js'
 import useApproveLot from "../../API/Lots/useApproveLot.js";
 import useDenyLot from "../../API/Lots/useDenyLot.js";
-import { getLocalStorage } from "../../utils/localStorage.js";
+import store from "../../utils/Zustand/store.js";
 
 function Lot({
   id,
@@ -26,7 +26,7 @@ function Lot({
 }) {
   const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date()) / 10000);
 
-  const token = getLocalStorage('token');
+ const {token} = store();
 
   const [modalVisible, setModalVisible] = useState(false)
   const [explanation, setExplanation] = useState("");

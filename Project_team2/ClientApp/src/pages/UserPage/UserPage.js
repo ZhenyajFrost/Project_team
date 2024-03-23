@@ -8,7 +8,6 @@ import { categoriesFromCategoriesCount } from '../../utils/categoriesFromCategor
 import Pagination from '../../components/UI/Pagination/Pagination.js';
 import useGetUserProfile from '../../API/User/Get/useGetUserProfile.js'
 import SubscribeButton from '../../components/UI/SubscribeButton/SubscribeButton.js';
-import { getLocalStorage } from '../../utils/localStorage.js';
 import { Redirect } from 'react-router-dom/cjs/react-router-dom.min.js';
 import useGetUserLots from '../../API/Lots/Get/useGetUserLots.js';
 
@@ -17,9 +16,10 @@ import Loader from '../../components/Loader/Loader.js';
 import Reputation from '../../components/UserShort/Reputation.js';
 
 import useWindowWidth from '../../API/useWindowWidth.js'
+import store from '../../utils/Zustand/store.js';
 
 function UserPage() {
-    const thisUser = getLocalStorage('user');
+    const thisUser = store().user;
     const thisUserId = thisUser ? thisUser.id : null;
 
     const width = useWindowWidth();

@@ -16,13 +16,14 @@ import ModalWindow from "../components/ModalWindow/ModalWindow";
 import BuyLotModal from "../components/BuyLotModal/BuyLotModal.js";
 import Bid from "../components/Bid/Bid.js";
 import useGetUserLots from "../API/Lots/Get/useGetUserLots.js";
-import { getLocalStorage } from "../utils/localStorage.js";
+
 import LotsCarousel from "../components/Carousel/LotsCarousel/LotsCarousel.js";
 import { NavLink } from "react-router-dom/cjs/react-router-dom.min.js";
+import store from "../utils/Zustand/store.js";
 
 function LotPage() {
   const id = parseInt(window.location.href.split("/").pop(), 10);
-
+  const {user:me} = store();
   const [modal, setModal] = useState(false);
   const [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
   const [getLots, lots, isLoadingLots] = useGetUserLots("");
@@ -122,11 +123,11 @@ function LotPage() {
                       {maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
                     </p>
                   </div>
-                  {getLocalStorage("user") ? (
+                  {me ? (
                     maxBid &&
                     maxBid.user &&
                     Number(maxBid.user.id) ===
-                      Number(getLocalStorage("user").id) ? (
+                      Number(me.id) ? (
                       "Не можна перебити свою ставку!"
                     ) : (
                       <div
@@ -208,7 +209,7 @@ function LotPage() {
             setVisible={setModal}
             children={
               <BuyLotModal
-                userId={getLocalStorage("user").id}
+                userId={me.id}
                 lotUserId={lot.userId}
                 killMyself={() => setModal(false)}
                 maxBid={maxBid}

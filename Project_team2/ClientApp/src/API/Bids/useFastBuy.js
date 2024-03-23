@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { BIDS_ENDPOINT } from "../apiConstant";
 import Notiflix from "notiflix";
-import { getLocalStorage } from "../../utils/localStorage";
+import store from "../../utils/Zustand/store";
 
 const useFastBuy = () => {
     const [isLoading, setLoading] = useState(false);

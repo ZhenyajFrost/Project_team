@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { LOTS_ENDPOINT } from '../apiConstant';
-import { setLocalStorage, getLocalStorage } from '../../utils/localStorage';
 import Notiflix from 'notiflix';
+import store from '../../utils/Zustand/store';
 
 const useLikeLot = () => {
     const [isLoading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ const useLikeLot = () => {
             const response = await axios.post(`${LOTS_ENDPOINT}/toggleLike`, {token, lotId});
             console.log('Lot successfully liked: ', response.data);
 
-            const user = getLocalStorage('user');
+            const {user, updateUser} = store()
             let updatedLikedLotIds = [];
 
             if (user.likedLotIds.includes(lotId)) {
@@ -24,8 +24,7 @@ const useLikeLot = () => {
                 updatedLikedLotIds = [...user.likedLotIds, lotId];
             }
 
-            setLocalStorage('user', {
-                ...user,
+            updateUser( {
                 likedLotIds: updatedLikedLotIds
             });
 

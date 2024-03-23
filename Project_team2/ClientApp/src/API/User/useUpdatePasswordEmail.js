@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { EDIT_USER_ENDPOINT } from '../apiConstant';
-import { setLocalStorage, getLocalStorage } from '../../utils/localStorage';
 import Notiflix from 'notiflix';
 
 const useUpdatePasswordEmail = () => {

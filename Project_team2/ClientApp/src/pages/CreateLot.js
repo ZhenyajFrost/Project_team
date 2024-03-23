@@ -4,12 +4,12 @@ import CategorySelector from "../components/Genesis/CategorySelector/CategorySel
 import MultiplePhotoSelector from "../components/Genesis/MultiplePhotoSelector/MultiplePhotoSelector";
 import StatePicker from "../components/Genesis/StatePicker/StatePicker";
 import LocationSelector from "../components/LocationSelector/LocationSelector";
-import { getLocalStorage } from "../utils/localStorage";
 import css from "../styles/Create.module.css";
 import useCreateLot from "../API/Lots/useCreateLot";
 import useUpdateLot from "../API/Lots/useUpdateLot";
 import { Notify } from "notiflix";
 import TimeSelector from "../components/Genesis/TimeSelector/TimeSelector";
+import store from "../utils/Zustand/store";
 
 export default function CreateLot({ data = {} }) {
   const initialState = {
@@ -32,7 +32,7 @@ export default function CreateLot({ data = {} }) {
   console.log(lot);
 
   useEffect(() => {
-    const svd = getLocalStorage("user");
+    const svd = store().user;
     if (svd) setUser(svd);
   }, []);
   const onInput = (e) => {

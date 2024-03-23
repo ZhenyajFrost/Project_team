@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import css from './LikeButton.module.css';
-import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage';
 import svg from '../../../images/svgDef.svg';
 import useLikeLot from '../../../API/Lots/useLikeLot';
 import Notiflix from 'notiflix';
+import store from '../../../utils/Zustand/store';
 
 
 const LikeButton = ({ lotId }) => {
-    const user =  getLocalStorage('user');
-    const token = getLocalStorage('token');
+   const {token, user} = store();
 
     const isLotLiked = () => {
         if(user)

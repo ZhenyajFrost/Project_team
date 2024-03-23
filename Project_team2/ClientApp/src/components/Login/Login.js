@@ -3,7 +3,6 @@ import Button from '../UI/Button/Button.js'
 import Input from '../UI/Input/Input.js'
 import LoginSocMed from '../LoginSocMed/LoginSocMed.js'
 import classes from '../../styles/LoginAndRegistration.module.css'
-import { setLocalStorage } from '../../utils/localStorage.js';
 import axios from 'axios'
 import { AUTH_ENDPOINT } from '../../API/apiConstant.js'
 import Notiflix from 'notiflix';

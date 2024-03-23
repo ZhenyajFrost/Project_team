@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Button from '../UI/Button/Button';
 import css from "./ImageUpload.module.css"
-import { getLocalStorage } from "../../utils/localStorage.js"
 import useUpdateUser from '../../API/User/useUpdateUser.js'
+import store from '../../utils/Zustand/store.js';
 
 const ImageUpload = () => {
-  const user = getLocalStorage('user');
-  const token = getLocalStorage('token');
+  const {user,token} = store()
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null); // State to hold the preview URL
 

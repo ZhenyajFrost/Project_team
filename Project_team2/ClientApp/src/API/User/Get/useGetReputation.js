@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { EDIT_USER_ENDPOINT} from '../../apiConstant';
-import { getLocalStorage } from '../../../utils/localStorage';
 
 const useGetUserReputation = () => {
-    const token = getLocalStorage('token');
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [reput, setReput] = useState([]);

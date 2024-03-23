@@ -17,8 +17,6 @@ import svg from "../../../images/svgDef.svg";
 import cssMod from "./css.module.css";
 
 import {
-  setLocalStorage,
-  getLocalStorage,
   clearLocalStorage,
 } from "../../../utils/localStorage.js";
 import store from "../../../utils/Zustand/store.js";

@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import css from './LikeButton.module.css';
-import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage';
 import svg from '../../../images/svgDef.svg';
 import useSubscribeUser from '../../../API/User/useSubscribeUser'
 import Notiflix from 'notiflix';
 import { timeout } from 'workbox-core/_private';
+import store from '../../../utils/Zustand/store';
 
 
 const UserLikeButton = ({ userId, className }) => {
     const combinedClasses = `${css.btn} ${className || ''}`;
-    const user = getLocalStorage('user');
+    const {user, token} = store()
     const likedUsers = user ? user.likedUsers : null;
-    
-    const token = getLocalStorage('token');
 
     const isUserLiked = () => {
         if (likedUsers)

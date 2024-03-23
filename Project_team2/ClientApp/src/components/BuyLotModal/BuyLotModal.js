@@ -3,11 +3,11 @@ import css from "../../styles/LotPage.module.css";
 import style from "./style.module.css";
 import { Notify } from "notiflix";
 import usePlaceBid from "../../API/Bids/usePlaceBid";
-import { getLocalStorage } from "../../utils/localStorage";
+import store from "../../utils/Zustand/store";
 import useFastBuy from "../../API/Bids/useFastBuy";
 
 function BuyLotModal({ userId, lotUserId, lotId, maxBid, minStep, minPrice, sellOn, killMyself }) {
-  const token = getLocalStorage("token");
+  const {token} = store()
   const [price, setPrice] = useState(
     Math.max(minPrice, maxBid.price) + minStep
   );

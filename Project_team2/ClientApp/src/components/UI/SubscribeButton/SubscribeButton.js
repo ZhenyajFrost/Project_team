@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import css from './SubscribeButton.module.css';
-import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage';
 import svg from '../../../images/svgDef.svg';
 import useLikeLot from '../../../API/Lots/useLikeLot';
 import useSubscribeUser from '../../../API/User/useSubscribeUser';
 import Notiflix from 'notiflix';
 import Button from '../Button/Button';
+import store from '../../../utils/Zustand/store';
 
 const SubscribeButton = ({ userId, style = 'default' }) => {
-    const user = getLocalStorage('user');
+    const {user,token} = store()
     const likedUsers = user ? user.likedUsers : null;
 
-    const token = getLocalStorage('token');
 
     const isUserLiked = () => {
         if (likedUsers)

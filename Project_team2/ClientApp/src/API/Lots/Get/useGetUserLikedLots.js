@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import axios from 'axios';
 import { LOTS_ENDPOINT } from '../../apiConstant';
-import { getLocalStorage } from "../../../utils/localStorage";
+import store from "../../../utils/Zustand/store";
 
 const useGetLotsByUser = () => {
-    const token = getLocalStorage('token');
+    const {token} = store
     const [isLoading, setLoading] = useState(false);
 
     const [error, setError] = useState(null);

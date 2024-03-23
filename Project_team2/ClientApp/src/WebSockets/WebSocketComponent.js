@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { WS_BASE_URL } from '../API/apiConstant';
-import { getLocalStorage } from '../utils/localStorage';
+import store from '../utils/Zustand/store';
 
 function WebSocketComponent() {
   const [webSocket, setWebSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
-  const webSocketToken = getLocalStorage('webSocketToken')
+  const {webSocketToken} = store()
 
   // Устанавливаем соединение при монтировании компонента
   useEffect(() => {

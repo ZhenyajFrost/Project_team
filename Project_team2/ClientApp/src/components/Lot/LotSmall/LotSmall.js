@@ -6,11 +6,11 @@ import { formatTime } from "../../../utils/formatTime";
 import css from "./LotSmall.module.css"
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
 import useDeleteLot from "../../../API/Lots/useDeleteLot";
-import { getLocalStorage } from "../../../utils/localStorage";
 import useUnactiveLot from "../../../API/Lots/Status/useUnactiveLot";
 import useArchiveLot from "../../../API/Lots/Status/useArchiveLot";
 import useUpdateLot from '../../../API/Lots/useUpdateLot';
 import LikeButton from '../../UI/LikeButton/LikeButton'
+import store from "../../../utils/Zustand/store";
 
 function LotSmall({
   id,
@@ -24,9 +24,9 @@ function LotSmall({
   status
 }) {
   const history = useHistory();
-  const token = getLocalStorage('token');
+ const {token, user} = store();
 
-  const isLiked = getLocalStorage('user').likedLotIds.includes(id);
+  const isLiked = user.likedLotIds.includes(id);
 
   const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date()) / 1000);
   const { deleteLot, isLoading, error } = useDeleteLot();
@@ -68,7 +68,7 @@ function LotSmall({
   }
 
   return (
-    <div className={css.lot} onMouseOver={() => {setDots(userId == getLocalStorage("user").id); console.log(getLocalStorage("user").id, userId)}} onMouseLeave={() => setDots(false)}>
+    <div className={css.lot} onMouseOver={() => {setDots(userId == user.id);}} onMouseLeave={() => setDots(false)}>
 
       <div className={`${css.dots}`}>
         {

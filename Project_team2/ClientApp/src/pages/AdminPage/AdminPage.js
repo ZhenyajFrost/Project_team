@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import LotContainer from "../../components/UI/LotContainer/LotContainer";
 import useGetUnapprovedLots from "../../API/Lots/Get/useGetUnapprovedLots";
-import { getLocalStorage } from "../../utils/localStorage";
+import store from "../../utils/Zustand/store";
 import Loader from "../../components/Loader/Loader";
 import WebSocketComponent from "../../WebSockets/WebSocketComponent";
 
 export default function AdminPage() {
   const [getLots, lots, isLoading, error] = useGetUnapprovedLots();
-  const token = getLocalStorage('token');
+ const {token} = store();
 
   useEffect(async() => {
     await getLots(token);
