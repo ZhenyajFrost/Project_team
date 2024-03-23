@@ -9,12 +9,12 @@ import store from '../../../utils/Zustand/store';
 
 const UserLikeButton = ({ userId, className }) => {
     const combinedClasses = `${css.btn} ${className || ''}`;
-    const {user, token, setSubscribedUsers} = store()
-    const subscribedUsers = user ? user.subscribedUsers : null;
+    const {user, token, setlikedUsers} = store()
+    const likedUsers = user ? user.likedUsers : null;
 
     const isUserLiked = () => {
-        if (subscribedUsers)
-            return subscribedUsers.some(id => Number(userId) === Number(id));
+        if (likedUsers)
+            return likedUsers.some(id => Number(userId) === Number(id));
         else
             return false
     }
@@ -25,12 +25,12 @@ const UserLikeButton = ({ userId, className }) => {
 
     useEffect(() => {
         setIsLiked(isUserLiked());
-    }, [subscribedUsers]);
+    }, [likedUsers]);
 
     const handleLike = async () => {
         if (token) {
             setIsLiked(prev => !prev)
-            await likeUser(token, userId, user, setSubscribedUsers)
+            await likeUser(token, userId, user, setlikedUsers)
         }
         else {
             Notiflix.Notify.info("Увійдіть у профіль спочатку");
