@@ -13,6 +13,7 @@ using System.Security.Cryptography;
 using System.Net.Mail;
 using System.Net;
 using System.Net.Http;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace Project2.Controllers
 {
@@ -1084,6 +1085,7 @@ namespace Project2.Controllers
         [HttpPost("reportLot")]
         public async Task<IActionResult> ReportLot([FromBody] ReportLotModel model)
         {
+            var userId = ExtractUserIdFromToken(model.Token);
             try
             {
                 // Создаем HTTP клиент
@@ -1095,6 +1097,7 @@ namespace Project2.Controllers
                 // Формируем данные для отправки
                 var content = new FormUrlEncodedContent(new[]
                 {
+                new KeyValuePair<string, string>("UserId", userId.ToString()),
                 new KeyValuePair<string, string>("lotId", model.LotId.ToString()),
                 new KeyValuePair<string, string>("reportText", model.ReportText),
                 // Добавьте другие необходимые данные
@@ -1512,7 +1515,15 @@ namespace Project2.Controllers
         [HttpPost("getLotById/{id}")]
         public IActionResult GetLotById([FromBody] TokenModel model, int id)
         {
-            var userId = ExtractUserIdFromToken(model.Token);
+            string token = model?.Token; // Проверяем, передан ли токен
+            string userId = null;
+
+            // Если передан токен, извлекаем из него идентификатор пользователя
+            if (!string.IsNullOrEmpty(token))
+            {
+                userId = ExtractUserIdFromToken(token);
+            }
+
             try
             {
                 Lot lot = null;
@@ -1524,46 +1535,45 @@ namespace Project2.Controllers
                 {
                     connection.Open();
 
-                    // SQL query to fetch the lot details
                     string query = @"
-            SELECT 
-                l.*, 
-                u1.LastLogin AS OwnersLastLogin, 
-                u1.RegistrationTime AS OwnersRegistrationTime, 
-                u1.Avatar AS OwnersAvatar, 
-                u1.Id AS OwnersUserId,
-                u1.FirstName AS OwnersFirstName,
-                u1.LastName AS OwnersLastName,
-                u1.Login AS OwnersLogin,
-                u1.Email AS OwnersEmail,
-                u2.LastLogin AS MaxBidsLastLogin, 
-                u2.RegistrationTime AS MaxBidsRegistrationTime, 
-                u2.Avatar AS MaxBidsAvatar, 
-                u2.Id AS MaxBidsUserId,
-                u2.FirstName AS MaxBidsFirstName,
-                u2.LastName AS MaxBidsLastName,
-                u2.Login AS MaxBidsLogin,
-                u2.Email AS MaxBidsEmail,
-                b.MaxPrice AS MaxBidPrice
-            FROM 
-                Lots l
-            LEFT JOIN Users u1 ON l.UserId = u1.Id
-            LEFT JOIN 
-                (
-                    SELECT 
-                        LotId, 
-                        MAX(BidAmount) AS MaxPrice 
-                    FROM 
-                        Bids 
-                    GROUP BY 
-                        LotId
-                ) b ON l.Id = b.LotId
-            LEFT JOIN 
-                Bids b2 ON l.Id = b2.LotId AND b.MaxPrice = b2.BidAmount
-            LEFT JOIN 
-                Users u2 ON b2.UserId = u2.Id
-            WHERE 
-                l.Id = @id";
+                SELECT 
+                    l.*, 
+                    u1.LastLogin AS OwnersLastLogin, 
+                    u1.RegistrationTime AS OwnersRegistrationTime, 
+                    u1.Avatar AS OwnersAvatar, 
+                    u1.Id AS OwnersUserId,
+                    u1.FirstName AS OwnersFirstName,
+                    u1.LastName AS OwnersLastName,
+                    u1.Login AS OwnersLogin,
+                    u1.Email AS OwnersEmail,
+                    u2.LastLogin AS MaxBidsLastLogin, 
+                    u2.RegistrationTime AS MaxBidsRegistrationTime, 
+                    u2.Avatar AS MaxBidsAvatar, 
+                    u2.Id AS MaxBidsUserId,
+                    u2.FirstName AS MaxBidsFirstName,
+                    u2.LastName AS MaxBidsLastName,
+                    u2.Login AS MaxBidsLogin,
+                    u2.Email AS MaxBidsEmail,
+                    b.MaxPrice AS MaxBidPrice
+                FROM 
+                    Lots l
+                LEFT JOIN Users u1 ON l.UserId = u1.Id
+                LEFT JOIN 
+                    (
+                        SELECT 
+                            LotId, 
+                            MAX(BidAmount) AS MaxPrice 
+                        FROM 
+                            Bids 
+                        GROUP BY 
+                            LotId
+                    ) b ON l.Id = b.LotId
+                LEFT JOIN 
+                    Bids b2 ON l.Id = b2.LotId AND b.MaxPrice = b2.BidAmount
+                LEFT JOIN 
+                    Users u2 ON b2.UserId = u2.Id
+                WHERE 
+                    l.Id = @id";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
@@ -1573,23 +1583,27 @@ namespace Project2.Controllers
                         {
                             if (reader.Read())
                             {
-                                // Check if the lot is archived or inactive
                                 bool isArchived = Convert.ToBoolean(reader["Archive"]);
                                 bool isInactive = Convert.ToBoolean(reader["Unactive"]);
 
-                                // Check if the user is the owner of the lot
-                                if (isArchived || isInactive)
+                                // Если передан токен, проверяем, является ли пользователь владельцем лота или администратором
+                                if (!string.IsNullOrEmpty(token))
                                 {
                                     if (!(userId == reader["UserId"].ToString() || IsAdmin(reader["UserId"].ToString())))
                                     {
                                         return NotFound(new { message = "Lot not found" });
                                     }
                                 }
+                                else // Если токен не передан, проверяем, является ли лот архивным или неактивным
+                                {
+                                    if (isArchived || isInactive)
+                                    {
+                                        return NotFound(new { message = "Lot not found" });
+                                    }
+                                }
 
-                                // Populate Lot object
                                 lot = new Lot(reader);
 
-                                // Populate Owner object
                                 owner = new User
                                 {
                                     LastLogin = reader["OwnersLastLogin"].ToString(),
@@ -1602,7 +1616,6 @@ namespace Project2.Controllers
                                     Email = reader["OwnersEmail"].ToString()
                                 };
 
-                                // Populate MaxBidsUser object if available
                                 if (!reader.IsDBNull(reader.GetOrdinal("MaxBidsLastLogin")))
                                 {
                                     maxBidsUser = new User
@@ -1618,7 +1631,6 @@ namespace Project2.Controllers
                                     };
                                 }
 
-                                // Get the MaxBidPrice
                                 if (!reader.IsDBNull(reader.GetOrdinal("MaxBidPrice")))
                                 {
                                     maxBidPrice = Convert.ToDecimal(reader["MaxBidPrice"]);
@@ -1632,15 +1644,14 @@ namespace Project2.Controllers
                     }
                 }
 
-                // Increment the Views for the lot
                 using (MySqlConnection updateConnection = new MySqlConnection(_connString))
                 {
                     updateConnection.Open();
 
                     string updateViewsQuery = @"
-            UPDATE Lots 
-            SET Views = Views + 1 
-            WHERE Id = @id";
+                UPDATE Lots 
+                SET Views = Views + 1 
+                WHERE Id = @id";
 
                     using (MySqlCommand updateCommand = new MySqlCommand(updateViewsQuery, updateConnection))
                     {
@@ -1649,7 +1660,6 @@ namespace Project2.Controllers
                     }
                 }
 
-                // Return the lot details along with updated Views
                 return Ok(new { Lot = lot, Owner = owner, MaxBidsUser = maxBidsUser, MaxBidPrice = maxBidPrice });
             }
             catch (Exception ex)
