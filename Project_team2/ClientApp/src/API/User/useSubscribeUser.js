@@ -8,7 +8,7 @@ const useSubscribeUser = () => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const subscribeUser = async (token, userId) => {
+  const subscribeUser = async (token, userId, user, setSubscribedUsers) => {
     setLoading(true);
 
     try {
@@ -17,27 +17,24 @@ const useSubscribeUser = () => {
         { token, subscribedToId: userId }
       );
 
-      const { user, updateUser } = store();
-      let updatedLikedUsers = [];
+      let updatedsubscribedUsers = [];
 
-      if (user.likedUsers.includes(Number(userId))) {
-        updatedLikedUsers = user.likedUsers.filter(
+      if (user.subscribedUsers.includes(Number(userId))) {
+        updatedsubscribedUsers = user.subscribedUsers.filter(
           (id) => Number(id) !== Number(userId)
         );
       } else {
-        updatedLikedUsers = [...user.likedUsers, Number(userId)];
+        updatedsubscribedUsers = [...user.subscribedUsers, Number(userId)];
       }
 
-      updateUser({
-        likedUsers: updatedLikedUsers,
-      });
+      setSubscribedUsers(updatedsubscribedUsers);
 
       Notiflix.Notify.success("На користувача успішно підписано");
     } catch (error) {
       Notiflix.Notify.failure(
         `На користувача не підписано! Тикніть для інформації`,
         () => {
-          Notiflix.Notify.info(`${error.response.data.message}`);
+          Notiflix.Notify.info(`${error}`);
         }
       );
       setError(error);

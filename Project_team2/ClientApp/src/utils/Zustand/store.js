@@ -14,6 +14,7 @@ const store = create((set, get) => ({
   updateUser: (user) => set((state) => ({ user: { ...state.user, ...user } })),
   setToken: (token) => set({ token }),
   setLikedLotsId: (likedLotIds) =>set({ user:{...get().user, likedLotIds} }),
+  setSubscribedUsers: (subscribedUsers) =>set({ user:{...get().user, subscribedUsers} }),
   setwebSocketToken: (webSocketToken) => set({ webSocketToken }),
   setwebSocket: (webSocket) => set({ webSocket }),
   login: () => set({ isLoggined: true }),
