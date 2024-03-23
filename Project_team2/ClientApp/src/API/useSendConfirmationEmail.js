@@ -16,10 +16,16 @@ const useSendConfirmationEmail = () => {
 
       setError(null);
 
-      const response = await axios.post(`${AUTH_ENDPOINT}/send_verification_code`, { email });
-      console.log('Email successfully sent:', response.data);
+      if(!store.getState().isBlocked){
+        const response = await axios.post(`${AUTH_ENDPOINT}/send_verification_code`, { email });
+        console.log('Email successfully sent:', response.data);
+  
+        setConfirmCode(response.data.verificationCode);
+      }
+      else{
+        Notiflix.Notify.info("Пошту заблоковано")
+      }
 
-      setConfirmCode(response.data.verificationCode);
 
 
     } catch (err) {

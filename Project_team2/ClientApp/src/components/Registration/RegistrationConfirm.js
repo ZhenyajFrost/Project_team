@@ -16,7 +16,7 @@ function RegistrationConfirm({ user, isLogin, setEmailSent, setEmailSet, setModa
     const { sendEmail, loading, error, confirmCode } = useSendConfirmationEmail();
     const [banUser] = useBanUser()
 
-    const { updateData } = store()
+    const { blockUser } = store()
 
     const [limitSend, setLimitSend] = useState(3);
 
@@ -25,6 +25,7 @@ function RegistrationConfirm({ user, isLogin, setEmailSent, setEmailSet, setModa
     });
 
     useEffect(() => {
+        
         const fetchData = async () => {
             await sendEmail(user.email);
         };
@@ -37,7 +38,7 @@ function RegistrationConfirm({ user, isLogin, setEmailSent, setEmailSet, setModa
         setLimitSend(prev => prev - 1);
 
         console.log("limit", limitSend)
-        console.log('isBlocked',store.getState().isBlocked)
+        console.log('isBlocked',store.isBlocked)
 
         if (limitSend > 0 && !store.getState().isBlocked) {
             Notiflix.Notify.info(`Залишилось спроб: ${limitSend - 1}`)
@@ -46,7 +47,7 @@ function RegistrationConfirm({ user, isLogin, setEmailSent, setEmailSet, setModa
         }
         else {
             await banUser(user.email);
-            updateData({isBlocked: true })
+            blockUser();
 
             setLimitSend(3);
         }
