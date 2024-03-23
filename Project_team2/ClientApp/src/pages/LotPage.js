@@ -18,6 +18,7 @@ import Bid from "../components/Bid/Bid.js";
 import useGetUserLots from "../API/Lots/Get/useGetUserLots.js";
 import { getLocalStorage } from "../utils/localStorage.js";
 import LotsCarousel from "../components/Carousel/LotsCarousel/LotsCarousel.js";
+import { NavLink } from "react-router-dom/cjs/react-router-dom.min.js";
 
 function LotPage() {
   const id = parseInt(window.location.href.split("/").pop(), 10);
@@ -36,9 +37,9 @@ function LotPage() {
     getHistory(id);
   }, []);
 
-  useEffect(async () => {
-    await getLots(Number(lot.userId), 1, 10);
-  }, [lot.userId])
+  useEffect(() => {
+    if (Number(lot.userId) && !lots) getLots(Number(lot.userId), 1, 10);
+  }, [lot, getLots, lots]);
 
   if (!isLoading && !error) {
     const lotInfo = {
@@ -97,10 +98,11 @@ function LotPage() {
                   {lot.winnerUserId
                     ? `Користувач ${maxBid.user.login} переміг`
                     : `Наразі 
-                  ${maxBid.user
+                  ${
+                    maxBid.user
                       ? `користувач: ${maxBid.user.login} перемагає`
                       : `переможця немає`
-                    }`}
+                  }`}
                 </p>
                 <p>
                   <svg>
@@ -118,14 +120,16 @@ function LotPage() {
                       {maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
                     </p>
                   </div>
-                  {maxBid && maxBid.user && Number(maxBid.user.id) ===
+                  {getLocalStorage("user")?(maxBid &&
+                  maxBid.user &&
+                  Number(maxBid.user.id) ===
                     Number(getLocalStorage("user").id) ? (
                     "Не можна перебити свою ставку!"
                   ) : (
                     <div className={css.buyBtn} onClick={() => setModal(true)}>
                       Залишити ставку
                     </div>
-                  )}
+                  )):<a href={"/lot/"+lot.id+"?modal=login"}>Зареєструйтесь щоб розмістити ставку</a>}
                 </div>
 
                 <LikeButton lotId={id} />
@@ -179,7 +183,13 @@ function LotPage() {
         </div>
         <div>
           <h2>Усі оголошення автора</h2>
-          {!isLoadingLots ? <Loader /> : (lots.length > 0 ? <LotsCarousel lots={lots} /> : <h4>В цього користувача немає інших лотів</h4>)}
+          {!isLoadingLots ? (
+            <Loader />
+          ) : lots.length > 0 ? (
+            <LotsCarousel lots={lots} />
+          ) : (
+            <h4>В цього користувача немає інших лотів</h4>
+          )}
         </div>
         {modal ? (
           <ModalWindow
