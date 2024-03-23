@@ -1512,30 +1512,31 @@ namespace Project2.Controllers
         }
 
 
-        [HttpPost("getLotById/{id}")]
-        public IActionResult GetLotById([FromBody] TokenModel model, int id)
+       [HttpPost("getLotById/{id}")]
+public IActionResult GetLotById([FromBody] TokenModel model, int id)
+{
+    string token = model?.Token; // Проверяем, передан ли токен
+    string userId = null;
+
+    // Если передан токен, извлекаем из него идентификатор пользователя
+    if (!string.IsNullOrEmpty(token))
+    {
+        userId = ExtractUserIdFromToken(token);
+    }
+
+    try
+    {
+        Lot lot = null;
+        User owner = null;
+        User maxBidsUser = null;
+        decimal maxBidPrice = 0;
+        bool isAdmin = false;
+
+        using (MySqlConnection connection = new MySqlConnection(_connString))
         {
-            string token = model?.Token; // Проверяем, передан ли токен
-            string userId = null;
+            connection.Open();
 
-            // Если передан токен, извлекаем из него идентификатор пользователя
-            if (!string.IsNullOrEmpty(token))
-            {
-                userId = ExtractUserIdFromToken(token);
-            }
-
-            try
-            {
-                Lot lot = null;
-                User owner = null;
-                User maxBidsUser = null;
-                decimal maxBidPrice = 0;
-
-                using (MySqlConnection connection = new MySqlConnection(_connString))
-                {
-                    connection.Open();
-
-                    string query = @"
+            string query = @"
                 SELECT 
                     l.*, 
                     u1.LastLogin AS OwnersLastLogin, 
@@ -1575,90 +1576,95 @@ namespace Project2.Controllers
                 WHERE 
                     l.Id = @id";
 
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@id", id);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
                     {
-                        command.Parameters.AddWithValue("@id", id);
+                        bool isArchived = Convert.ToBoolean(reader["Archive"]);
+                        bool isInactive = Convert.ToBoolean(reader["Unactive"]);
 
-                        using (MySqlDataReader reader = command.ExecuteReader())
+                        // Если передан токен и это администратор или пользователь владеет лотом, разрешаем доступ к архивным и неактивным лотам
+                        if (!string.IsNullOrEmpty(token))
                         {
-                            if (reader.Read())
+                            isAdmin = IsAdmin(userId);
+                            string lotUserId = reader["UserId"].ToString();
+                            if (!isAdmin && userId != lotUserId)
                             {
-                                bool isArchived = Convert.ToBoolean(reader["Archive"]);
-                                bool isInactive = Convert.ToBoolean(reader["Unactive"]);
-
-                                // Если передан токен, проверяем, является ли пользователь владельцем лота или администратором
-                                if (!string.IsNullOrEmpty(token))
+                                if (isArchived || isInactive)
                                 {
-                                    if (!(userId == reader["UserId"].ToString() || IsAdmin(reader["UserId"].ToString())))
-                                    {
-                                        return NotFound(new { message = "Lot not found" });
-                                    }
-                                }
-                                else // Если токен не передан, проверяем, является ли лот архивным или неактивным
-                                {
-                                    if (isArchived || isInactive)
-                                    {
-                                        return NotFound(new { message = "Lot not found" });
-                                    }
-                                }
-
-                                lot = new Lot(reader);
-
-                                owner = new User
-                                {
-                                    LastLogin = reader["OwnersLastLogin"].ToString(),
-                                    RegistrationTime = reader["OwnersRegistrationTime"].ToString(),
-                                    Avatar = reader["OwnersAvatar"].ToString(),
-                                    Id = reader["OwnersUserId"].ToString(),
-                                    FirstName = reader["OwnersFirstName"].ToString(),
-                                    LastName = reader["OwnersLastName"].ToString(),
-                                    Login = reader["OwnersLogin"].ToString(),
-                                    Email = reader["OwnersEmail"].ToString()
-                                };
-
-                                if (!reader.IsDBNull(reader.GetOrdinal("MaxBidsLastLogin")))
-                                {
-                                    maxBidsUser = new User
-                                    {
-                                        LastLogin = reader["MaxBidsLastLogin"].ToString(),
-                                        RegistrationTime = reader["MaxBidsRegistrationTime"].ToString(),
-                                        Avatar = reader["MaxBidsAvatar"].ToString(),
-                                        Id = reader["MaxBidsUserId"].ToString(),
-                                        FirstName = reader["MaxBidsFirstName"].ToString(),
-                                        LastName = reader["MaxBidsLastName"].ToString(),
-                                        Login = reader["MaxBidsLogin"].ToString(),
-                                        Email = reader["MaxBidsEmail"].ToString()
-                                    };
-                                }
-
-                                if (!reader.IsDBNull(reader.GetOrdinal("MaxBidPrice")))
-                                {
-                                    maxBidPrice = Convert.ToDecimal(reader["MaxBidPrice"]);
+                                    return NotFound(new { message = "Lot not found" });
                                 }
                             }
-                            else
+                        }
+                        else // Если токен не передан, запрещаем доступ к архивным и неактивным лотам
+                        {
+                            if (isArchived || isInactive)
                             {
                                 return NotFound(new { message = "Lot not found" });
                             }
                         }
+
+                        lot = new Lot(reader);
+
+                        owner = new User
+                        {
+                            LastLogin = reader["OwnersLastLogin"].ToString(),
+                            RegistrationTime = reader["OwnersRegistrationTime"].ToString(),
+                            Avatar = reader["OwnersAvatar"].ToString(),
+                            Id = reader["OwnersUserId"].ToString(),
+                            FirstName = reader["OwnersFirstName"].ToString(),
+                            LastName = reader["OwnersLastName"].ToString(),
+                            Login = reader["OwnersLogin"].ToString(),
+                            Email = reader["OwnersEmail"].ToString()
+                        };
+
+                        if (!reader.IsDBNull(reader.GetOrdinal("MaxBidsLastLogin")))
+                        {
+                            maxBidsUser = new User
+                            {
+                                LastLogin = reader["MaxBidsLastLogin"].ToString(),
+                                RegistrationTime = reader["MaxBidsRegistrationTime"].ToString(),
+                                Avatar = reader["MaxBidsAvatar"].ToString(),
+                                Id = reader["MaxBidsUserId"].ToString(),
+                                FirstName = reader["MaxBidsFirstName"].ToString(),
+                                LastName = reader["MaxBidsLastName"].ToString(),
+                                Login = reader["MaxBidsLogin"].ToString(),
+                                Email = reader["MaxBidsEmail"].ToString()
+                            };
+                        }
+
+                        if (!reader.IsDBNull(reader.GetOrdinal("MaxBidPrice")))
+                        {
+                            maxBidPrice = Convert.ToDecimal(reader["MaxBidPrice"]);
+                        }
+                    }
+                    else
+                    {
+                        return NotFound(new { message = "Lot not found" });
                     }
                 }
+            }
+        }
 
-                using (MySqlConnection updateConnection = new MySqlConnection(_connString))
-                {
-                    updateConnection.Open();
+        using (MySqlConnection updateConnection = new MySqlConnection(_connString))
+        {
+            updateConnection.Open();
 
-                    string updateViewsQuery = @"
+            string updateViewsQuery = @"
                 UPDATE Lots 
                 SET Views = Views + 1 
                 WHERE Id = @id";
 
-                    using (MySqlCommand updateCommand = new MySqlCommand(updateViewsQuery, updateConnection))
-                    {
-                        updateCommand.Parameters.AddWithValue("@id", id);
-                        updateCommand.ExecuteNonQuery();
-                    }
-                }
+            using (MySqlCommand updateCommand = new MySqlCommand(updateViewsQuery, updateConnection))
+            {
+                updateCommand.Parameters.AddWithValue("@id", id);
+                updateCommand.ExecuteNonQuery();
+            }
+        }
 
                 return Ok(new { Lot = lot, Owner = owner, MaxBidsUser = maxBidsUser, MaxBidPrice = maxBidPrice });
             }
@@ -1668,6 +1674,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
 
 
 
