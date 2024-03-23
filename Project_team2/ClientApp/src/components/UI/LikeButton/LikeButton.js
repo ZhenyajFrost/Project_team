@@ -7,7 +7,7 @@ import store from '../../../utils/Zustand/store';
 
 
 const LikeButton = ({ lotId }) => {
-   const {token, user} = store();
+   const {token, user, setLikedLotsId} = store();
 
     const isLotLiked = () => {
         if(user && user.likedLotIds)
@@ -27,7 +27,7 @@ const LikeButton = ({ lotId }) => {
     const handleLike = async () => {
         if (token) {
             setIsLiked(prev => !prev)
-            await likeLot(token, lotId)
+            await likeLot(token, lotId, user, setLikedLotsId)
         }
         else {
             Notiflix.Notify.info("Увійдіть у профіль спочатку");

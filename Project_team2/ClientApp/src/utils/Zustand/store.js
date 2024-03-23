@@ -8,12 +8,12 @@ const store = create((set, get) => ({
   isBlocked: false,
   webSocketToken: null,
   webSocket: null,
-  likedLots:[],
-  setLikedLots: (likedLots)=>set({likedLots}),
+
   setData: (data) => set(data),
-  updateData: (data) => set({...get(),...data}),
+  updateData: (data) => set({ ...get(), ...data }),
   updateUser: (user) => set((state) => ({ user: { ...state.user, ...user } })),
   setToken: (token) => set({ token }),
+  setLikedLotsId: (likedLotIds) =>set({ user:{...get().user, likedLotIds} }),
   setwebSocketToken: (webSocketToken) => set({ webSocketToken }),
   setwebSocket: (webSocket) => set({ webSocket }),
   login: () => set({ isLoggined: true }),
@@ -23,7 +23,14 @@ const store = create((set, get) => ({
       //webSocket.close(); // Close the WebSocket connection if it exists
     }
     // Then, update the state to reflect the logout process
-    set({ isLoggined: false, token: "", user: null, isBlocked: false, webSocketToken: null, webSocket: null });
+    set({
+      isLoggined: false,
+      token: "",
+      user: null,
+      isBlocked: false,
+      webSocketToken: null,
+      webSocket: null,
+    });
   },
   blockUser: () => set({ isBlocked: true }),
   unblockUser: () => set({ isBlocked: false }),
@@ -32,10 +39,10 @@ const store = create((set, get) => ({
     const webSocket = new WebSocket(`${WS_BASE_URL}/connect?token=${token}`);
 
     webSocket.onopen = () => {
-      console.log('WebSocket Connected');
+      console.log("WebSocket Connected");
     };
     webSocket.onclose = () => {
-      console.log('WebSocket Disconnected');
+      console.log("WebSocket Disconnected");
     };
 
     set({ webSocket });
@@ -55,18 +62,28 @@ const store = create((set, get) => ({
       isLoggined: JSON.parse(storedisLoggined),
       isBlocked: JSON.parse(storedIsBlocked),
       webSocketToken,
-      webSocket: JSON.parse(webSocket)
+      webSocket: JSON.parse(webSocket),
     });
   },
 
   persistToLocalStorage: () => {
-    const { user, token, isLoggined, isBlocked, webSocketToken, webSocket } = get();
+    const {
+      user,
+      token,
+      isLoggined,
+      isBlocked,
+      webSocketToken,
+      webSocket,
+      likedLotsId,
+    } = get();
+    console.log(get());
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
     localStorage.setItem("isLoggined", JSON.stringify(isLoggined));
     localStorage.setItem("isBlocked", JSON.stringify(isBlocked));
     localStorage.setItem("webSocketToken", webSocketToken);
-    localStorage.setItem("webSocket", JSON.stringify(webSocket))
+    localStorage.setItem("webSocket", JSON.stringify(webSocket));
+    localStorage.setItem("likedLotsId", JSON.stringify(likedLotsId));
   },
   clearAllData: () => {
     localStorage.clear();
@@ -76,7 +93,7 @@ const store = create((set, get) => ({
       isLoggined: false,
       isBlocked: false,
       webSocketToken: null,
-      webSocket: null
+      webSocket: null,
     });
   },
 }));
