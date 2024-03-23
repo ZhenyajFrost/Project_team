@@ -4,7 +4,7 @@ import { LOTS_ENDPOINT } from '../../apiConstant';
 import store from "../../../utils/Zustand/store";
 
 const useGetLotsByUser = () => {
-    const {token} = store
+    const token = store.getState().token
     const [isLoading, setLoading] = useState(false);
 
     const [error, setError] = useState(null);
