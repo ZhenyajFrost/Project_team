@@ -65,7 +65,6 @@ export default function CreateLot({ data = {} }) {
       lot.city = lot.city.label;
     }
     lot.userId = user.id;
-    //lot.timeTillEnd = ` ${new Date(lot.timeTillEnd).valueOf()}`;
     lot.timeTillEnd = new Date(
       new Date().setDate(new Date().getDate() + Number(lot.timeTillEnd))
     ).toISOString().replace("Z", "");
@@ -121,7 +120,7 @@ export default function CreateLot({ data = {} }) {
             onChange={(t) => {
               onInput({ name: "timeTillEnd", value: t });
             }}
-            value={lot.timeTillEnd}
+            value={lot.timeTillEnd ? lot.timeTillEnd : 1}
           />
         </div>
         <div className={css.createSection}>
