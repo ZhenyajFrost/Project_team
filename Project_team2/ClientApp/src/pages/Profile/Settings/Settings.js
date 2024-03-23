@@ -243,7 +243,7 @@ function Settings() {
 
         await updateEmail(token, dataToUpdate);
 
-        window.location.reload();
+        //window.location.reload();
         setFormData((prev) => ({
             ...prev,
             oldPassword: ''
@@ -268,7 +268,7 @@ function Settings() {
     const handleDeleteProfile = async () => {
         history.push('/');
         await deleteUser(token);
-        window.location.reload();
+        //window.location.reload();
     }
 
     return (

@@ -9,7 +9,7 @@ const store = create((set, get) => ({
 
   setData: (data) => set(data),
   updateData: (data) => set({...get(),...data}),
-  updateUser: (user) => set({  ...get(), user, }),
+  updateUser: (user) => set((state) => ({ user: { ...state.user, ...user } })),
   setToken: (token) => set({ token }),
   setwebSocketToken: (webSocketToken) => set({ webSocketToken }),
   login: () => set({ isLoggined: true }),

@@ -70,7 +70,7 @@ const ImageUpload = () => {
         const data = await response.json();
 
         updateUser(token, { avatar: data.url });
-        window.location.reload();
+        //window.location.reload();
 
       } catch (error) {
         console.error(error);

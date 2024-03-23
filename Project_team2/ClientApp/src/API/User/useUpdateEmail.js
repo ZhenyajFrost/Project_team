@@ -8,6 +8,7 @@ const useUpdateEmail = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const {updateUser} = store();
+    
     const updateEmail = async (token, fieldsToUpdate) => {
         setLoading(true);
 
