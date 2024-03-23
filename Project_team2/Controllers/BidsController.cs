@@ -464,23 +464,7 @@ namespace Project2.Controllers
                                 return BadRequest(new { message = "Lot is not active" });
                             }
 
-                            // Проверяем, что ставки не разрешены
-                            if (!allowBids)
-                            {
-                                // Продолжаем выполнение метода, так как это разрешено, когда Active = true и Allow Bids = false
-                                Console.WriteLine("Bidding is not allowed but continuing with the purchase process.");
-
-                                // Теперь мы можем проверить, равна ли ставка цене товара
-                                if (model.BidAmount != price)
-                                {
-                                    return BadRequest(new { message = "Bid amount must be equal to the price of the item" });
-                                }
-                            }
-                            else
-                            {
-                                // Если ставки разрешены, возвращаем ошибку
-                                return BadRequest(new { message = "You cannot buy this item after the auction has started" });
-                            }
+                           
 
                             // Добавляем ставку в таблицу Bids
                             using (MySqlConnection connectionForInsertBid = new MySqlConnection(_connString))
