@@ -25,7 +25,7 @@ namespace Project2.Controllers
         private readonly int _smtpPort;
         private readonly string _smtpUsername;
         private readonly string _smtpPassword;
-        
+        private readonly long _chatId;
         public LotsController()
         {
             _connString = Config.MySqlConnection;
@@ -33,6 +33,7 @@ namespace Project2.Controllers
             _smtpPort = Config.SmtpPort;
             _smtpUsername = Config.SmtpUsername;
             _smtpPassword = Config.SmtpPassword;
+            _chatId = Config.ChatId;
         }
         public string ExtractUserIdFromToken(string token)
         {
@@ -1072,6 +1073,91 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
+    
+
+[HttpPost("reportLot")]
+    public async Task<IActionResult> ReportLot([FromBody] ReportLotModel model)
+    {
+        try
+        {
+            // Получаем информацию о лоте
+            Lot lot;
+            UserProfile user;
+            using (MySqlConnection connection = new MySqlConnection(_connString))
+            {
+                await connection.OpenAsync();
+
+                string lotQuery = "SELECT * FROM Lots WHERE Id = @LotId";
+                using (MySqlCommand lotCommand = new MySqlCommand(lotQuery, connection))
+                {
+                    lotCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                    using (MySqlDataReader lotReader = await lotCommand.ExecuteReaderAsync())
+                    {
+                        if (lotReader.Read())
+                        {
+                            lot = new Lot(lotReader);
+                        }
+                        else
+                        {
+                            return BadRequest(new { message = "Lot not found" });
+                        }
+                    }
+                }
+
+                // Получаем информацию о пользователе, отправившем жалобу
+                string userQuery = "SELECT * FROM Users WHERE Token = @Token";
+                using (MySqlCommand userCommand = new MySqlCommand(userQuery, connection))
+                {
+                    userCommand.Parameters.AddWithValue("@Token", model.Token);
+                    using (MySqlDataReader userReader = await userCommand.ExecuteReaderAsync())
+                    {
+                        if (userReader.Read())
+                        {
+                            user = new UserProfile(userReader);
+                        }
+                        else
+                        {
+                            return BadRequest(new { message = "User not found" });
+                        }
+                    }
+                }
+            }
+
+            // Формируем сообщение для Telegram
+            string lotUrl = $"https://localhost:44424/lot/{lot.Id}";
+            string message = $"Reported Lot:\nLot ID: {lot.Id}\nLot Title: {lot.Title}\nReport Text: {model.ReportText}\nUser ID: {user.Id}\nUser Name: {user.FirstName} {user.LastName}\nUser Email: {user.Email}\nLot URL: {lotUrl}";
+
+            // Отправляем уведомление в Telegram
+            await NotifyTelegramChat(message);
+
+            return Ok(new { message = "Report sent successfully" });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in ReportLot method: {ex}");
+            return StatusCode(500, new { message = "Internal Server Error. Please try again later." });
+        }
+    }
+
+
+    private async Task NotifyTelegramChat(string message)
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    string apiUrl = $"https://api.telegram.org/bot6693790489:AAHzRPq9DZzY_mfRoyqYZm6_Z0q9nkCHqIk/sendMessage?chat_id={_chatId}&text={message}";
+                    await client.GetStringAsync(apiUrl);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending notification to Telegram chat: {ex}");
+            }
+        }
+
+
         [HttpPost("paymentResult")]
         public IActionResult IsWaitingDelivery([FromBody] DeliveryStatusModel request)
         {
@@ -1108,7 +1194,7 @@ namespace Project2.Controllers
                     }
 
                     // Устанавливаем статус лота
-                    string updateQuery = "UPDATE Lots SET Active = false, Unactive = false, AllowBids = false, Archive = false, isWaitingPayment = false, isWaitingDelivery = true WHERE Id = @id";
+                    string updateQuery = "UPDATE Lots SET Active = false, Unactive = false, AllowBids = false, Archive = true, isWaitingPayment = false, isWaitingDelivery = true WHERE Id = @id";
                     using (MySqlCommand command = new MySqlCommand(updateQuery, connection))
                     {
                         command.Parameters.AddWithValue("@id", request.LotId);
@@ -1419,12 +1505,33 @@ namespace Project2.Controllers
         }
 
 
-
-
-
-        [HttpGet("getLotById/{id}")]
-        public IActionResult GetLotById(int id)
+        private bool IsAdmin(string userId)
         {
+            using (MySqlConnection connection = new MySqlConnection(_connString))
+            {
+                connection.Open();
+
+                string query = "SELECT isAdmin FROM Users WHERE Id = @userId";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@userId", userId);
+
+                    object result = command.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        return Convert.ToBoolean(result);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+
+        [HttpPost("getLotById/{id}")]
+        public IActionResult GetLotById([FromBody] string Token, int id)
+        {
+            var userId = ExtractUserIdFromToken(Token);
             try
             {
                 Lot lot = null;
@@ -1438,44 +1545,44 @@ namespace Project2.Controllers
 
                     // SQL query to fetch the lot details
                     string query = @"
-                SELECT 
-                    l.*, 
-                    u1.LastLogin AS OwnersLastLogin, 
-                    u1.RegistrationTime AS OwnersRegistrationTime, 
-                    u1.Avatar AS OwnersAvatar, 
-                    u1.Id AS OwnersUserId,
-                    u1.FirstName AS OwnersFirstName,
-                    u1.LastName AS OwnersLastName,
-                    u1.Login AS OwnersLogin,
-                    u1.Email AS OwnersEmail,
-                    u2.LastLogin AS MaxBidsLastLogin, 
-                    u2.RegistrationTime AS MaxBidsRegistrationTime, 
-                    u2.Avatar AS MaxBidsAvatar, 
-                    u2.Id AS MaxBidsUserId,
-                    u2.FirstName AS MaxBidsFirstName,
-                    u2.LastName AS MaxBidsLastName,
-                    u2.Login AS MaxBidsLogin,
-                    u2.Email AS MaxBidsEmail,
-                    b.MaxPrice AS MaxBidPrice
-                FROM 
-                    Lots l
-                LEFT JOIN Users u1 ON l.UserId = u1.Id
-                LEFT JOIN 
-                    (
-                        SELECT 
-                            LotId, 
-                            MAX(BidAmount) AS MaxPrice 
-                        FROM 
-                            Bids 
-                        GROUP BY 
-                            LotId
-                    ) b ON l.Id = b.LotId
-                LEFT JOIN 
-                    Bids b2 ON l.Id = b2.LotId AND b.MaxPrice = b2.BidAmount
-                LEFT JOIN 
-                    Users u2 ON b2.UserId = u2.Id
-                WHERE 
-                    l.Id = @id";
+            SELECT 
+                l.*, 
+                u1.LastLogin AS OwnersLastLogin, 
+                u1.RegistrationTime AS OwnersRegistrationTime, 
+                u1.Avatar AS OwnersAvatar, 
+                u1.Id AS OwnersUserId,
+                u1.FirstName AS OwnersFirstName,
+                u1.LastName AS OwnersLastName,
+                u1.Login AS OwnersLogin,
+                u1.Email AS OwnersEmail,
+                u2.LastLogin AS MaxBidsLastLogin, 
+                u2.RegistrationTime AS MaxBidsRegistrationTime, 
+                u2.Avatar AS MaxBidsAvatar, 
+                u2.Id AS MaxBidsUserId,
+                u2.FirstName AS MaxBidsFirstName,
+                u2.LastName AS MaxBidsLastName,
+                u2.Login AS MaxBidsLogin,
+                u2.Email AS MaxBidsEmail,
+                b.MaxPrice AS MaxBidPrice
+            FROM 
+                Lots l
+            LEFT JOIN Users u1 ON l.UserId = u1.Id
+            LEFT JOIN 
+                (
+                    SELECT 
+                        LotId, 
+                        MAX(BidAmount) AS MaxPrice 
+                    FROM 
+                        Bids 
+                    GROUP BY 
+                        LotId
+                ) b ON l.Id = b.LotId
+            LEFT JOIN 
+                Bids b2 ON l.Id = b2.LotId AND b.MaxPrice = b2.BidAmount
+            LEFT JOIN 
+                Users u2 ON b2.UserId = u2.Id
+            WHERE 
+                l.Id = @id";
 
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
@@ -1489,9 +1596,13 @@ namespace Project2.Controllers
                                 bool isArchived = Convert.ToBoolean(reader["Archive"]);
                                 bool isInactive = Convert.ToBoolean(reader["Unactive"]);
 
+                                // Check if the user is the owner of the lot
                                 if (isArchived || isInactive)
                                 {
-                                    return NotFound(new { message = "Lot not found" });
+                                    if (!(userId == reader["UserId"].ToString() || IsAdmin(reader["UserId"].ToString())))
+                                    {
+                                        return NotFound(new { message = "Lot not found" });
+                                    }
                                 }
 
                                 // Populate Lot object
@@ -1546,9 +1657,9 @@ namespace Project2.Controllers
                     updateConnection.Open();
 
                     string updateViewsQuery = @"
-                UPDATE Lots 
-                SET Views = Views + 1 
-                WHERE Id = @id";
+            UPDATE Lots 
+            SET Views = Views + 1 
+            WHERE Id = @id";
 
                     using (MySqlCommand updateCommand = new MySqlCommand(updateViewsQuery, updateConnection))
                     {
@@ -1566,6 +1677,8 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
+
 
 
 
@@ -1591,7 +1704,7 @@ namespace Project2.Controllers
                 {
                     connection.Open();
 
-                    string query = "SELECT * FROM Lots WHERE Approved = false";
+                    string query = "SELECT * FROM Lots WHERE Approved = false AND Archive = false";
 
                     List<Lot> unapprovedLots = new List<Lot>();
 
@@ -1914,6 +2027,12 @@ namespace Project2.Controllers
         }
 
 
+    }
+    public class ReportLotModel
+    {
+        public int LotId { get; set; }
+        public string ReportText { get; set; }
+        public string Token { get; set; }
     }
 
     public class DenyLotRequest

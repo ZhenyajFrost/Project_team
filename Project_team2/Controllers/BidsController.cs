@@ -252,139 +252,6 @@ namespace Project2.Controllers
 
 
 
-
-
-
-
-
-        //[HttpPost("getUserBids")]
-        //public IActionResult GetUserBids([FromBody] UserBidsRequestModel model)
-        //{
-        //    var userId = ExtractUserIdFromToken(model.Token);
-        //    int page = model.Page;
-        //    int pageSize = model.PageSize;
-
-        //    try
-        //    {
-        //        using (MySqlConnection connection = new MySqlConnection(_connString))
-        //        {
-        //            connection.Open();
-
-        //            MySqlCommand command = new MySqlCommand();
-        //            command.Connection = connection;
-
-        //            StringBuilder queryBuilder = new StringBuilder();
-        //            queryBuilder.Append(@"SELECT 
-        //        l.*, 
-        //        b.BidAmount, 
-        //        u.*
-        //    FROM 
-        //        Lots l
-        //    INNER JOIN (
-        //        SELECT 
-        //            LotId, 
-        //            MAX(BidAmount) AS MaxBidAmount
-        //        FROM 
-        //            Bids
-        //        GROUP BY 
-        //            LotId
-        //    ) max_bids ON l.Id = max_bids.LotId
-        //    INNER JOIN Bids b ON max_bids.LotId = b.LotId AND max_bids.MaxBidAmount = b.BidAmount
-        //    INNER JOIN Users u ON b.UserId = u.Id");
-
-
-        //            if (model.MaxPrice.HasValue)
-        //            {
-        //                queryBuilder.Append(" AND l.price <= @MaxPrice");
-
-        //                command.Parameters.AddWithValue("@MaxPrice", model.MaxPrice);
-        //            }
-        //            // Добавляем остальные фильтры
-        //            if (!string.IsNullOrWhiteSpace(model.SearchQuery))
-        //            {
-        //                queryBuilder.Append(" AND (l.Title LIKE @SearchQuery OR l.ShortDescription LIKE @SearchQuery)");
-        //                command.Parameters.AddWithValue("@SearchQuery", $"%{model.SearchQuery}%");
-        //            }
-
-        //            if (!string.IsNullOrWhiteSpace(model.Category))
-        //            {
-        //                queryBuilder.Append(" AND l.Category = @Category");
-        //                command.Parameters.AddWithValue("@Category", model.Category);
-        //            }
-
-        //            if (model.MinPrice.HasValue)
-        //            {
-        //                queryBuilder.Append(" AND l.Price >= @MinPrice");
-        //                command.Parameters.AddWithValue("@MinPrice", model.MinPrice);
-        //            }
-
-        //            if (!string.IsNullOrWhiteSpace(model.Region))
-        //            {
-        //                queryBuilder.Append(" AND l.Region = @Region");
-        //                command.Parameters.AddWithValue("@Region", model.Region);
-        //            }
-
-        //            if (!string.IsNullOrWhiteSpace(model.City))
-        //            {
-        //                queryBuilder.Append(" AND l.City = @City");
-        //                command.Parameters.AddWithValue("@City", model.City);
-        //            }
-
-        //            if (model.IsNew.HasValue)
-        //            {
-        //                queryBuilder.Append(" AND l.IsNew = @IsNew");
-        //                command.Parameters.AddWithValue("@IsNew", model.IsNew);
-        //            }
-
-        //            if (model.TimeTillEnd.HasValue)
-        //            {
-        //                queryBuilder.Append(" AND l.TimeTillEnd <= @TimeTillEnd");
-        //                command.Parameters.AddWithValue("@TimeTillEnd", model.TimeTillEnd);
-        //            }
-
-        //            // Добавляем сортировку
-        //            if (!string.IsNullOrWhiteSpace(model.OrderBy) && model.Ascending.HasValue)
-        //            {
-        //                string sortOrder = model.Ascending.Value ? "ASC" : "DESC";
-        //                queryBuilder.Append($" ORDER BY {model.OrderBy} {sortOrder}");
-        //            }
-
-        //            queryBuilder.Append(" LIMIT @Offset, @PageSize");
-        //            command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
-        //            command.Parameters.AddWithValue("@PageSize", pageSize);
-
-        //            command.CommandText = queryBuilder.ToString();
-
-        //            using (MySqlDataReader reader = command.ExecuteReader())
-        //            {
-        //                List<LotWithMaxBid> userBids = new List<LotWithMaxBid>();
-
-        //                while (reader.Read())
-        //                {
-        //                    Lot lot = new Lot(reader);
-        //                    decimal bidAmount = Convert.ToDecimal(reader["BidAmount"]);
-        //                    UserProfile userProfile = new UserProfile(reader);
-
-        //                    userBids.Add(new LotWithMaxBid(lot, bidAmount, userProfile));
-        //                }
-
-        //                // Возвращаем результат с пагинацией и общим количеством найденных лотов
-        //                return Ok(new
-        //                {
-        //                    totalPages = (int)Math.Ceiling((double)userBids.Count / pageSize),
-        //                    totalRecords = userBids.Count,
-        //                    userBids = userBids
-        //                });
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Error in GetUserBids method: {ex.ToString()}");
-        //        return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
-        //    }
-        //}
-
         [HttpPost("getUserBids")]
         public IActionResult GetUserBids([FromBody] UserBidsRequestModel model)
         {
@@ -539,7 +406,19 @@ namespace Project2.Controllers
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     await connection.OpenAsync();
+                    // Проверяем наличие ставок для данного лота
+                    string checkBidsQuery = "SELECT COUNT(*) FROM Bids WHERE LotId = @LotId";
+                    using (MySqlCommand checkBidsCommand = new MySqlCommand(checkBidsQuery, connection))
+                    {
+                        checkBidsCommand.Parameters.AddWithValue("@LotId", model.LotId);
+                        int bidCount = Convert.ToInt32(await checkBidsCommand.ExecuteScalarAsync());
 
+                        // Если есть хотя бы одна ставка, возвращаем ошибку
+                        if (bidCount > 0)
+                        {
+                            return BadRequest(new { message = "Bids already exist for this lot" });
+                        }
+                    }
                     // Начинаем транзакцию
                     using (MySqlTransaction transaction = await connection.BeginTransactionAsync())
                     {
@@ -623,7 +502,7 @@ namespace Project2.Controllers
                                 await connectionForUpdateLot.OpenAsync();
                                 using (MySqlCommand updateLotCommand = connectionForUpdateLot.CreateCommand())
                                 {
-                                    updateLotCommand.CommandText = "UPDATE Lots SET WinnerUserId = @WinnerUserId, Active = false, AllowBids = false, isWaitingPayment = true WHERE Id = @LotId";
+                                    updateLotCommand.CommandText = "UPDATE Lots SET WinnerUserId = @WinnerUserId, Active = false, AllowBids = false, Unactive = true, isWaitingPayment = true WHERE Id = @LotId";
                                     updateLotCommand.Parameters.AddWithValue("@LotId", model.LotId);
                                     updateLotCommand.Parameters.AddWithValue("@WinnerUserId", userId);
                                     await updateLotCommand.ExecuteNonQueryAsync();
