@@ -1,7 +1,8 @@
-.path{
-    display:  flex;
+.path {
+  display: flex;
+  align-items: center;
 }
-.path svg{
-    width: 24px;
-    height: 24px;
+.path svg {
+  width: 24px;
+  height: 24px;
 }
