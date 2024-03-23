@@ -23,7 +23,7 @@ import store from "../utils/Zustand/store.js";
 
 function LotPage() {
   const id = parseInt(window.location.href.split("/").pop(), 10);
-  const {user:me} = store();
+  const {user:me, token} = store();
   const [modal, setModal] = useState(false);
   const [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
   const [getLots, lots, isLoadingLots] = useGetUserLots("");
@@ -33,7 +33,7 @@ function LotPage() {
   );
 
   useState(async () => {
-    await getLotById(id);
+    await getLotById(id, token);
 
     getHistory(id);
   }, []);
