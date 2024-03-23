@@ -12,6 +12,7 @@ using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 using System.Net.Mail;
 using System.Net;
+using System.Net.Http;
 
 namespace Project2.Controllers
 {
@@ -19,6 +20,9 @@ namespace Project2.Controllers
     [ApiController]
     public class LotsController : ControllerBase
     {
+        private readonly IHttpClientFactory _httpClientFactory;
+
+      
         private readonly ILogger<LotSchedulingService> _logger;
         private readonly string _connString;
         private readonly string _smtpServer;
@@ -26,8 +30,9 @@ namespace Project2.Controllers
         private readonly string _smtpUsername;
         private readonly string _smtpPassword;
         private readonly long _chatId;
-        public LotsController()
+        public LotsController(IHttpClientFactory httpClientFactory, IConfiguration config)
         {
+            _httpClientFactory = httpClientFactory;
             _connString = Config.MySqlConnection;
             _smtpServer = Config.SmtpServer;
             _smtpPort = Config.SmtpPort;
@@ -1074,71 +1079,47 @@ namespace Project2.Controllers
             }
         }
 
-    
 
-[HttpPost("reportLot")]
-    public async Task<IActionResult> ReportLot([FromBody] ReportLotModel model)
-    {
-        try
+
+        [HttpPost("reportLot")]
+        public async Task<IActionResult> ReportLot([FromBody] ReportLotModel model)
         {
-            // Получаем информацию о лоте
-            Lot lot;
-            UserProfile user;
-            using (MySqlConnection connection = new MySqlConnection(_connString))
+            try
             {
-                await connection.OpenAsync();
+                // Создаем HTTP клиент
+                var client = _httpClientFactory.CreateClient();
 
-                string lotQuery = "SELECT * FROM Lots WHERE Id = @LotId";
-                using (MySqlCommand lotCommand = new MySqlCommand(lotQuery, connection))
+                // Формируем URL для запроса к Python-боту
+                string botUrl = "http://localhost:8080/receive_report";
+
+                // Формируем данные для отправки
+                var content = new FormUrlEncodedContent(new[]
                 {
-                    lotCommand.Parameters.AddWithValue("@LotId", model.LotId);
-                    using (MySqlDataReader lotReader = await lotCommand.ExecuteReaderAsync())
-                    {
-                        if (lotReader.Read())
-                        {
-                            lot = new Lot(lotReader);
-                        }
-                        else
-                        {
-                            return BadRequest(new { message = "Lot not found" });
-                        }
-                    }
+                new KeyValuePair<string, string>("lotId", model.LotId.ToString()),
+                new KeyValuePair<string, string>("reportText", model.ReportText),
+                // Добавьте другие необходимые данные
+            });
+
+                // Отправляем HTTP POST запрос на Python-бот
+                HttpResponseMessage response = await client.PostAsync(botUrl, content);
+
+                // Проверяем ответ и возвращаем результат
+                if (response.IsSuccessStatusCode)
+                {
+                    return Ok(new { message = "Report sent successfully" });
                 }
-
-                // Получаем информацию о пользователе, отправившем жалобу
-                string userQuery = "SELECT * FROM Users WHERE Token = @Token";
-                using (MySqlCommand userCommand = new MySqlCommand(userQuery, connection))
+                else
                 {
-                    userCommand.Parameters.AddWithValue("@Token", model.Token);
-                    using (MySqlDataReader userReader = await userCommand.ExecuteReaderAsync())
-                    {
-                        if (userReader.Read())
-                        {
-                            user = new UserProfile(userReader);
-                        }
-                        else
-                        {
-                            return BadRequest(new { message = "User not found" });
-                        }
-                    }
+                    return BadRequest(new { message = "Failed to send report" });
                 }
             }
-
-            // Формируем сообщение для Telegram
-            string lotUrl = $"https://localhost:44424/lot/{lot.Id}";
-            string message = $"Reported Lot:\nLot ID: {lot.Id}\nLot Title: {lot.Title}\nReport Text: {model.ReportText}\nUser ID: {user.Id}\nUser Name: {user.FirstName} {user.LastName}\nUser Email: {user.Email}\nLot URL: {lotUrl}";
-
-            // Отправляем уведомление в Telegram
-            await NotifyTelegramChat(message);
-
-            return Ok(new { message = "Report sent successfully" });
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in ReportLot method: {ex}");
+                return StatusCode(500, new { message = "Internal Server Error. Please try again later." });
+            }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error in ReportLot method: {ex}");
-            return StatusCode(500, new { message = "Internal Server Error. Please try again later." });
-        }
-    }
+    
 
 
     private async Task NotifyTelegramChat(string message)
@@ -1529,9 +1510,9 @@ namespace Project2.Controllers
 
 
         [HttpPost("getLotById/{id}")]
-        public IActionResult GetLotById([FromBody] string Token, int id)
+        public IActionResult GetLotById([FromBody] TokenModel model, int id)
         {
-            var userId = ExtractUserIdFromToken(Token);
+            var userId = ExtractUserIdFromToken(model.Token);
             try
             {
                 Lot lot = null;
@@ -2166,5 +2147,8 @@ namespace Project2.Controllers
         public string Index { get; set; }
         public string DeliveryService { get; set; }
     }
-
+    public class TokenModel
+    {
+        public string Token { get; set; }
+    }
 }

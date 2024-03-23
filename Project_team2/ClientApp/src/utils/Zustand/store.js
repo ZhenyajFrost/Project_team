@@ -18,8 +18,8 @@ const store = create((set, get) => ({
   login: () => set({ isLoggined: true }),
   logout: () => {
     const { webSocket } = get(); // Get the current state, including the webSocket if it exists
-    if (webSocket) {
-      webSocket.close(); // Close the WebSocket connection if it exists
+    if (webSocket !== null) {
+      //webSocket.close(); // Close the WebSocket connection if it exists
     }
     // Then, update the state to reflect the logout process
     set({ isLoggined: false, token: "", user: null, isBlocked: false, webSocketToken: null, webSocket: null });

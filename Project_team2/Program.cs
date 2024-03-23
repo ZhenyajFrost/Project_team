@@ -71,7 +71,7 @@ builder.Services.AddHostedService<LotSchedulingService>(sp =>
 
 // Регистрация WebSocketServer как Singleton, чтобы его можно было внедрить
 builder.Services.AddSingleton<WebSocketServer>();
-
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

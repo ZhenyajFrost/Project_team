@@ -58,7 +58,7 @@ const Login = ({ setModalVisible, setModalRegVisible, setForgotPass, setIsLoggin
       
       setData({isLoggined:true, user, token:result.data.token, webSocketToken:result.data.webSocketToken})
 
-      connectWebSocket(result.data.token);
+      connectWebSocket(result.data.webSocketToken);
 
     }).catch((err) => {
       Notiflix.Notify.failure(`Вхід з помилками! Тикніть для інформації`, () => {
