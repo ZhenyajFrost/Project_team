@@ -40,7 +40,7 @@ const SubscribeButton = ({ userId, style = 'default' }) => {
     return (
         <>
             {style === 'small' ? (
-                <div className={css.btn} onClick={handleLike}>
+                <div className={`${css.btn} ${css.btn}small`} onClick={handleLike}>
                     <svg>
                         <use href={`${svg}#${isLiked ? 'liked' : 'unliked'}`} />
                     </svg>
