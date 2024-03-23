@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { LOTS_ENDPOINT } from "../../apiConstant";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { getLocalStorage } from "../../../utils/localStorage";
 
 const useGetLotById = () => {
   const [isLoading, setLoading] = useState(false);
@@ -13,10 +14,11 @@ const useGetLotById = () => {
 
 
   const getLotById = async (lotId) => {
-
+    const token = getLocalStorage('token');
+    
     setLoading(true);
     try {
-      const response = await axios.get(`${LOTS_ENDPOINT}/getLotById/${lotId}`);
+      const response = await axios.post(`${LOTS_ENDPOINT}/getLotById/${lotId}`, {token});
 
       console.log(response);
 

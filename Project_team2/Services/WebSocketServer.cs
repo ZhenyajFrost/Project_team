@@ -23,7 +23,6 @@ public class WebSocketServer
         {
             WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
             _sockets.TryAdd(userToken, webSocket);
-            System.Console.WriteLine($"WebSocket connection established. ID: {userToken}");
             _logger.LogInformation($"WebSocket connection established. ID: {userToken}");
 
             try
@@ -34,7 +33,6 @@ public class WebSocketServer
             {
                 _sockets.TryRemove(userToken, out var _);
                 _logger.LogInformation($"WebSocket connection closed. ID: {userToken}");
-                System.Console.WriteLine($"WebSocket connection closed. ID: {userToken}");
 
             }
         }
@@ -52,6 +50,7 @@ public class WebSocketServer
         while (!result.CloseStatus.HasValue)
         {
             var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+
             _logger.LogInformation($"Received message: \"{message}\" from ID: {connectionId}");
 
             var serverMsg = Encoding.UTF8.GetBytes($"Server: Hello. You said: \"{message}\"");
