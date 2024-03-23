@@ -24,19 +24,14 @@ export default function CreateLot({ data = {} }) {
     region: {},
     city: {},
   };
-  console.log(1)
 
   const [lot, setLot] = useState({ ...initialState, ...data });
   const {user} = store();
   const create = useCreateLot().createLot;
-  console.log(2)
   const update = useUpdateLot().updateLot;
-  console.log(lot);
-
 
   const onInput = (e) => {
     const { name, value } = e.target ? e.target : e;
-    console.log(4)
     if (name.includes("rice")) {
       if (Number(value) > 100000000) {
         Notify.failure("число не може перевищувати 100000000");
@@ -99,7 +94,6 @@ export default function CreateLot({ data = {} }) {
     }
   };
 
-  console.log(3)
 
   return (
     <div>
