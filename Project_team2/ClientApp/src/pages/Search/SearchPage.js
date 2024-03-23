@@ -13,16 +13,17 @@ import Pagination from "../../components/UI/Pagination/Pagination";
 import DisplayChoose from "../../components/UI/DisplayChoose/DisplayChoose";
 
 function SearchPage(props) {
-  const querry = decodeURI(
-    window.location.href.split("/search")[1].split("?")[0].replace("/", "")
-  );
   function formatDate(date) {
+
+    console.log(date);
     if (!date || !date.getFullYear) {
       if (!date || date < 0) {
         return;
       }
       const today = new Date(Date.now());
-
+      if(isNaN(Number(date))){
+        return date;
+      }
       date = new Date(
         new Date().setDate(Number(today.getDate()) + Number(date))
       );
@@ -45,7 +46,19 @@ function SearchPage(props) {
     isNew: undefined,
     orderBy: "",
     timeTillEnd: undefined,
-    searchString: querry,
+    searchString: undefined,
+  };
+  const types = {
+    minPrice: (e) => Number(e),
+    maxPrice: (e) => Number(e),
+    region: (e) => e,
+    isNew: (e) => e === "true",
+    ascending: (e) => e === "true",
+    orderBy: (e) => e,
+    timeTillEnd: (e) => new Date(e),
+    searchString: (e) => e,
+    category: (e) => e,
+    
   };
   const [oldFilter, setOldFilter] = useState({});
   const [filter, setFilter] = useState({ ...initial });
@@ -54,6 +67,23 @@ function SearchPage(props) {
   const perPage = 7;
   const [getLots, lots, totalCount, isLoading, error] = useGetLots();
   const [changed, setChanged] = useState({});
+
+  //get data from url
+  useEffect(() => {
+    let args = window.location.href.split("?")[1];
+    if (args) {
+      args = args.split("/")[0];
+      const obj = {};
+      args.split("&").forEach((v) => {
+        const key = v.split("=")[0];
+        const value = v.split("=")[1];
+
+        if (key) obj[key] = types[key](value);
+      });
+      console.log(obj);
+      setFilter(obj);
+    }
+  }, []);
 
   useEffect(() => {
     const res = {};
@@ -70,40 +100,27 @@ function SearchPage(props) {
   }, [filter]);
 
   //fetch data
-  useEffect(() => {
-    const doFetching = () => {
-      setCurPage(1);
-      changed.timeTillEnd = formatDate(changed.timeTillEnd);
-      getLots(curPage, perPage, changed);
-      setOldFilter(changed);
+  const doFetching = (searchString) => {
+    setCurPage(1);
+    changed.timeTillEnd = formatDate(changed.timeTillEnd);
+    changed.searchString = searchString;
+    getLots(curPage, perPage, changed);
+    setOldFilter(changed);
 
-      let location = "?";
-      for (const key in changed) {
-        if (changed[key]) location += key + "=" + changed[key] + "&";
-      }
-      window.history.replaceState(
-        null,
-        "Exestic",
-        window.location.href.split("?")[0] + location
-      );
-    };
-    if (oldFilter !== changed && !isLoading) doFetching();
-  }, [getLots, curPage, oldFilter, changed, isLoading]);
-
-  //get data from url
-  useEffect(() => {
-    let args = window.location.href.split("?")[1];
-    if (args) {
-      args = args.split("/")[0];
-      const obj = {};
-      args.split("&").forEach((v) => {
-        obj[v.split("=")[0]] = v.split("=")[1];
-      });
-      onFilterChange(obj);
+    let location = "?";
+    for (const key in changed) {
+      if (changed[key]) location += key + "=" + changed[key] + "&";
     }
-  }, []);
+    window.history.replaceState(
+      null,
+      "Exestic",
+      window.location.href.split("?")[0] + location
+    );
+  };
+  useEffect(()=>{
+    doFetching(filter.searchString)
+  }, [changed])
   const onFilterChange = (e) => {
-    console.log(e);
     setFilter({ ...filter, ...e });
   };
 
@@ -112,13 +129,10 @@ function SearchPage(props) {
       <div className={css.searchContainer}>
         <div className={css.searchFieldWrap}>
           <label className={css.searchFieldLabel}>Пошук</label>
-          <InputSearch
-            onSearch={(e) => setFilter({ ...filter, searchString: e })}
-            value={filter.searchString}
-          />
+          <InputSearch onSearch={doFetching} value={filter.searchString} />
         </div>
         <p className={css.head}>Фільтри</p>
-        <Filters onChange={onFilterChange} initial={filter} />
+        <Filters onChange={onFilterChange} current={filter}/>
         <hr />
         <div className={css.upThing}>
           <NavLink href="/">На головну</NavLink>

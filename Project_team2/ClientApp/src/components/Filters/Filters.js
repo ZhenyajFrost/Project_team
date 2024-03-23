@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import regions from "../../Data/regions.json";
 import cts from "../../Data/categories.json";
 import css from "./styles.module.css";
-import Notiflix, { Notify } from "notiflix";
+import { Notify } from "notiflix";
 
-function Filters({ onChange, initial }) {
+function Filters({ onChange, current }) {
   const [categories, setCategories] = useState([
     { title: "Будь-яка категорія", id: -1, imgId: "any" },
     ...cts,
@@ -13,15 +13,29 @@ function Filters({ onChange, initial }) {
     minPrice: 1,
     maxPrice: 10000000,
     region: "Будь-який",
-    ...initial,
   });
-  
+
+  useEffect(() => {
+    let args = window.location.href.split("?")[1];
+    if (args) {
+      args = args.split("/")[0];
+      const obj = {};
+      args.split("&").forEach((v) => {
+        const key = v.split("=")[0];
+        const value = decodeURIComponent(v.split("=")[1]);
+
+        if (key) obj[key] = value;
+      });
+      setParams(obj);
+    }
+  }, []);
+
   useEffect(() => {
     //перевірка ціни
     const minPrice = Number(params.minPrice);
     const maxPrice = Number(params.maxPrice);
-    if ((minPrice&&isNaN(minPrice)) || (maxPrice && isNaN(maxPrice))) {
-      Notiflix.Notify.failure("Будь ласка, оберіть нормальну ціну.");
+    if ((minPrice && isNaN(minPrice)) || (maxPrice && isNaN(maxPrice))) {
+      Notify.failure("Будь ласка, оберіть нормальну ціну.");
       return;
     }
     if (minPrice && minPrice < 0) {
@@ -33,11 +47,12 @@ function Filters({ onChange, initial }) {
       return;
     }
     if (maxPrice && minPrice && maxPrice < minPrice) {
-      Notiflix.Notify.failure("Ціна 'від' не може бути більшою, ніж ціна 'до'");
+      Notify.failure("Ціна 'від' не може бути більшою, ніж ціна 'до'");
       return;
     }
+
     for (let a in params) {
-      if (params[a] !== initial[a] && params[a]) {
+      if (params[a] && current[a] != params[a]) {
         onChange(params);
         return;
       }
@@ -45,7 +60,7 @@ function Filters({ onChange, initial }) {
   }, [params, categories, onChange]);
 
   const selCat = categories.find(
-    (v) => Number(v.id) === Number(initial.category)
+    (v) => Number(v.id) === Number(params.category)
   );
 
   return (
@@ -54,13 +69,13 @@ function Filters({ onChange, initial }) {
         Нові лоти за
         <select
           className={css.inputEl}
-          value={initial.category}
+          value={params.category}
           onChange={(e) => {
             setParams({ ...params, category: e.target.value });
           }}
         >
           {selCat ? (
-            <option value={initial.category}>{selCat.title}</option>
+            <option value={params.category}>{selCat.title}</option>
           ) : (
             ""
           )}
@@ -104,6 +119,9 @@ function Filters({ onChange, initial }) {
           onChange={(e) => {
             setParams({ ...params, timeTillEnd: e.target.value });
           }}
+          value={Math.ceil(
+            (new Date(params.timeTillEnd) - new Date()) / (1000 * 60 * 60 * 24)
+          )}
         >
           <option value={-1}>Всі оголошення</option>
           <option value={1}>1 дня</option>
@@ -119,6 +137,7 @@ function Filters({ onChange, initial }) {
         Регіон:
         <select
           className={css.inputEl}
+          value={params.region}
           onChange={(e) => {
             setParams({ ...params, region: e.target.value });
           }}
