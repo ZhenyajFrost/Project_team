@@ -31,7 +31,9 @@ export const Home = () => {
 
   const displayMode = width <= 768 ? { display: 'listWrap', lotStyle: 'small' } : { display: 'grid-2col', lotStyle: undefined };
 
+  const [selectedCat, setSelectedCat] = useState(categories[0]);
 
+  
   useEffect(() => {
     const fetchData = async () => {
       await getLots(pagination.page, pagination.pageSize, {
@@ -62,13 +64,15 @@ export const Home = () => {
     }
   }, [lots]);
 
+  useEffect(() => {
+    setShowableLots([]);
+  }, [selectedCat])
+
   const handleSearch = (newSearchQuery) => {
     if (newSearchQuery) {
       history.push("search?searchString=" + newSearchQuery);
     }
   };
-
-  const [selectedCat, setSelectedCat] = useState(categories[0]);
 
   const onCategoryChange = (cat) => {
     setSelectedCat(cat);

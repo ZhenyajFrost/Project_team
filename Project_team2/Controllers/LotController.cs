@@ -1080,8 +1080,6 @@ namespace Project2.Controllers
             }
         }
 
-
-
         [HttpPost("reportLot")]
         public async Task<IActionResult> ReportLot([FromBody] ReportLotModel model)
         {
