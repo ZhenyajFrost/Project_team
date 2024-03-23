@@ -7,7 +7,7 @@ import store from '../../utils/Zustand/store';
 const useBanUser = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { updateData } = store();
+    const { unblockUser } = store();
 
     const banUser = async (email) => {
         setLoading(true);
@@ -16,7 +16,7 @@ const useBanUser = () => {
                 const response = await axios.post(`${AUTH_ENDPOINT}/ban_mail`, { email });
 
                 setTimeout(() => {
-                    updateData({ isBlocked: false })
+                    unblockUser();
                 }, 1000 * 60 * 5);
             }
 
