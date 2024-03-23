@@ -372,7 +372,18 @@ namespace Project2.Controllers
                             }
                         }
                     }
+                    // Проверяем, существует ли пользователь с такой электронной почтой
+                    string checkEmailQuery = "SELECT COUNT(*) FROM Users WHERE Email = @email";
+                    using (MySqlCommand checkEmailCommand = new MySqlCommand(checkEmailQuery, connection))
+                    {
+                        checkEmailCommand.Parameters.AddWithValue("@email", model.Email);
+                        int userCount = Convert.ToInt32(checkEmailCommand.ExecuteScalar());
 
+                        if (userCount > 0)
+                        {
+                            return BadRequest(new { message = "User with this email already exists" });
+                        }
+                    }
                     // Если пользователь не существует, выполняем регистрацию
                     string TempPass;
                     string query = "INSERT INTO Users (Login, Email, Avatar, RegistrationTime, Password";
@@ -660,8 +671,30 @@ namespace Project2.Controllers
         {
             try
             {
+                // Проверяем, есть ли почта в таблице заблокированных
+                string checkBlockedQuery = "SELECT ExpiryTime FROM BlockedEmails WHERE Email = @email";
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+                    using (MySqlCommand checkBlockedCommand = new MySqlCommand(checkBlockedQuery, connection))
+                    {
+                        checkBlockedCommand.Parameters.AddWithValue("@email", model.Email);
+                        var expiryTime = checkBlockedCommand.ExecuteScalar();
+                        if (expiryTime != null && (DateTime)expiryTime > DateTime.UtcNow)
+                        {
+                            // Почта заблокирована, возвращаем ошибку с временем окончания блокировки
+                            return BadRequest(new { message = "Email is blocked until: " + ((DateTime)expiryTime).ToString("yyyy-MM-dd HH:mm:ss") });
+                        }
+                    }
+                }
+
+                // Генерируем код верификации
                 string verificationCode = GenerateVerificationCode();
+
+                // Отправляем письмо с кодом верификации
                 SendEmail(model.Email, "Код верификации", $"Ваш код верификации: {verificationCode}");
+
+                // Возвращаем код верификации
                 return Ok(new { verificationCode });
             }
             catch (Exception ex)
@@ -670,6 +703,38 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Внутренняя ошибка сервера. Исключение: {ex.Message}" });
             }
         }
+
+        [HttpPost("ban_mail")]
+        public IActionResult BanMail([FromBody] EmailModel model)
+        {
+            try
+            {
+                // Вычисляем время окончания блокировки (текущее время + 5 минут)
+                DateTime expiryTime = DateTime.UtcNow.AddMinutes(5);
+
+                // Добавляем почту в таблицу заблокированных с установленным временем блокировки
+                string insertQuery = "INSERT INTO BlockedEmails (Email, ExpiryTime) VALUES (@email, @expiryTime)";
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+                    using (MySqlCommand insertCommand = new MySqlCommand(insertQuery, connection))
+                    {
+                        insertCommand.Parameters.AddWithValue("@email", model.Email);
+                        insertCommand.Parameters.AddWithValue("@expiryTime", expiryTime);
+                        insertCommand.ExecuteNonQuery();
+                    }
+                }
+
+                return Ok(new { message = "Email is banned for 5 minutes" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка в методе BanMail: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Внутренняя ошибка сервера. Исключение: {ex.Message}" });
+            }
+        }
+
+
 
         private string GenerateVerificationCode()
         {
