@@ -5,12 +5,14 @@ const store = create((set, get) => ({
   token: null,
   isLoggined: false,
   isBlocked: false,
+  webSocketToken:null,
 
   setData: (data) => set(data),
   updateUser: (user) => set({ user }),
   setToken: (token) => set({ token }),
+  setwebSocketToken: (webSocketToken) => set({ webSocketToken }),
   login: () => set({ isLoggined: true }),
-  logout: () => set({ isLoggined: false, token:"", user:null, isBlocked:false }),
+  logout: () => set({ isLoggined: false, token:"", user:null, isBlocked:false,webSocketToken:null, }),
   blockUser: () => set({ isBlocked: true }),
   unblockUser: () => set({ isBlocked: false }),
 
