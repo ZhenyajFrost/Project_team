@@ -8,7 +8,8 @@ const store = create((set, get) => ({
   isBlocked: false,
   webSocketToken: null,
   webSocket: null,
-
+  likedLots:[],
+  setLikedLots: (likedLots)=>set({likedLots}),
   setData: (data) => set(data),
   updateData: (data) => set({...get(),...data}),
   updateUser: (user) => set((state) => ({ user: { ...state.user, ...user } })),
