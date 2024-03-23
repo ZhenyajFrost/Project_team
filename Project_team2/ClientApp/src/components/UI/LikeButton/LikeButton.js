@@ -10,7 +10,7 @@ const LikeButton = ({ lotId }) => {
    const {token, user} = store();
 
     const isLotLiked = () => {
-        if(user)
+        if(user && user.likedLotIds)
             return user.likedLotIds.some(id => lotId === id);
         else
             return false
