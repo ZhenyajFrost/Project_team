@@ -49,13 +49,13 @@ const store = create((set, get) => ({
     set({ webSocket });
   },
 
-  initializeFromLocalStorage: () => {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
-    const storedisLoggined = localStorage.getItem("isLoggined");
-    const storedIsBlocked = localStorage.getItem("isBlocked");
-    const webSocketToken = localStorage.getItem("webSocketToken");
-    const webSocket = localStorage.getItem("webSocket");
+  initializeFromsessionStorage: () => {
+    const storedUser = sessionStorage.getItem("user");
+    const storedToken = sessionStorage.getItem("token");
+    const storedisLoggined = sessionStorage.getItem("isLoggined");
+    const storedIsBlocked = sessionStorage.getItem("isBlocked");
+    const webSocketToken = sessionStorage.getItem("webSocketToken");
+    const webSocket = sessionStorage.getItem("webSocket");
 
     set({
       user: JSON.parse(storedUser),
@@ -67,7 +67,7 @@ const store = create((set, get) => ({
     });
   },
 
-  persistToLocalStorage: () => {
+  persistTosessionStorage: () => {
     const {
       user,
       token,
@@ -78,16 +78,16 @@ const store = create((set, get) => ({
       likedLotsId,
     } = get();
     console.log(get());
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("token", token);
-    localStorage.setItem("isLoggined", JSON.stringify(isLoggined));
-    localStorage.setItem("isBlocked", JSON.stringify(isBlocked));
-    localStorage.setItem("webSocketToken", webSocketToken);
-    localStorage.setItem("webSocket", JSON.stringify(webSocket));
-    localStorage.setItem("likedLotsId", JSON.stringify(likedLotsId));
+    sessionStorage.setItem("user", JSON.stringify(user));
+    sessionStorage.setItem("token", token);
+    sessionStorage.setItem("isLoggined", JSON.stringify(isLoggined));
+    sessionStorage.setItem("isBlocked", JSON.stringify(isBlocked));
+    sessionStorage.setItem("webSocketToken", webSocketToken);
+    sessionStorage.setItem("webSocket", JSON.stringify(webSocket));
+    sessionStorage.setItem("likedLotsId", JSON.stringify(likedLotsId));
   },
   clearAllData: () => {
-    localStorage.clear();
+    sessionStorage.clear();
     set({
       user: null,
       token: null,
@@ -99,8 +99,8 @@ const store = create((set, get) => ({
   },
 }));
 
-store.getState().initializeFromLocalStorage();
+store.getState().initializeFromsessionStorage();
 
-store.subscribe((state) => state.persistToLocalStorage());
+store.subscribe((state) => state.persistTosessionStorage());
 
 export default store;
