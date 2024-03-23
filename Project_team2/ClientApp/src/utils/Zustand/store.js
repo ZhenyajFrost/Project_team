@@ -6,6 +6,9 @@ const store = create((set) => ({
   token:"",
   isBlocked: false,
   setData: (data) => set((state) => ({ ...data})),
+  updateData: (data) => set((state) => ({...state, ...data})),
+  updateUser: (data) => set((state) => ({...state, user:{...state.user, ...data}})),
+  
 }))
 
 export default store;

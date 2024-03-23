@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { EDIT_USER_ENDPOINT} from '../../apiConstant';
-import { getLocalStorage } from '../../../utils/localStorage';
+import store from '../../../utils/Zustand/store';
 
 const useGetUserSubscriptions = () => {
-    const token = getLocalStorage('token');
+   const {token} = store();
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [likedUsers, setLikedUsers] = useState([]);

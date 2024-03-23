@@ -1,24 +1,21 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { EDIT_USER_ENDPOINT } from '../apiConstant';
-import { setLocalStorage, getLocalStorage } from '../../utils/localStorage';
 import Notiflix from 'notiflix';
+import store from '../../utils/Zustand/store';
 
 const useUpdateEmail = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
+    const {updateUser} = store();
     const updateEmail = async (token, fieldsToUpdate) => {
         setLoading(true);
 
         try {
             const response = await axios.post(`${EDIT_USER_ENDPOINT}/update-email`, {token, password: fieldsToUpdate.password, currentEmail: fieldsToUpdate.currentEmail, newEmail: fieldsToUpdate.newEmail} );
-            console.log('Email successfully updated: ', response.data);
+            // console.log('Email successfully updated: ', response.data);
             
-            setLocalStorage('user', {
-                ...getLocalStorage('user'),
-                email: fieldsToUpdate.newEmail
-            })
+            updateUser({email:fieldsToUpdate.newEmail})
             Notiflix.Notify.success('Пошта успішно оновленна')
         } catch (error) {
             Notiflix.Notify.failure(`Пошта не оновленна! Тикніть для інформації`, () => {

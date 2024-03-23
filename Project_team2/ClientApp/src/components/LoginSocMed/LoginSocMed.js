@@ -3,14 +3,14 @@ import classes from './LoginSocMed.module.css';
 import google from './images/google.svg';
 import axios from 'axios';
 import Notiflix from 'notiflix';
-import { setLocalStorage } from '../../utils/localStorage';
 import { AUTH_ENDPOINT, GOOGLE_CLIENT_ID } from '../../API/apiConstant';
 import { GoogleLogin } from 'react-google-login';
 import { gapi } from 'gapi-script';
+import store from '../../utils/Zustand/store';
 
 const LoginSocMed = () => {
   // Success handler for both login and logout
-
+  const {setData} = store();
   const onSuccess = (response) => {
     if (response.profileObj) { // Login success
       console.log(response);
@@ -35,10 +35,8 @@ const LoginSocMed = () => {
             likedUsers: result.data.subscribedUserIds,
           };
 
-          setLocalStorage('user', userData);
-          setLocalStorage('token', result.data.token);
-          setLocalStorage('webSocketToken', result.data.webSocketToken)
-          setLocalStorage('isLoggined', true);
+          setData({user:userData, token:result.data.token, webSocketToken:result.data.webSocketToken, isLoggined:true})
+  
 
           Notiflix.Notify.success("Вхід успішний!");
           setTimeout(() => window.location.reload(), 3000);

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { LOTS_ENDPOINT } from '../../../API/apiConstant';
-import { setLocalStorage, getLocalStorage } from '../../../utils/localStorage';
 import Notiflix from 'notiflix';
 
 const useArchiveLot = () => {

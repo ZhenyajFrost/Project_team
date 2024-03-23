@@ -7,13 +7,13 @@ import FilterCategory from '../../../components/FilterCategory/FilterCategory.js
 import LotContainer from '../../../components/UI/LotContainer/LotContainer.js'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom';
 import useGetLotsByUser from '../../../API/Lots/Get/useGetLotsByUser.js';
-import { getLocalStorage } from '../../../utils/localStorage.js';
 import { categoriesFromCategoriesCount } from '../../../utils/categoriesFromCategoriesCount.js';
 import Pagination from '../../../components/UI/Pagination/Pagination.js';
 import Loader from '../../../components/Loader/Loader.js'
+import store from '../../../utils/Zustand/store.js';
 
 function Lots() {
-    const user = getLocalStorage('user');
+    const {user} = store()
     const history = useHistory();
     const [activeTab, setActiveTab] = useState(sessionStorage.getItem('activeTab') || 'active');
 

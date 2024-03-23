@@ -16,8 +16,6 @@ import Button from '../../../components/UI/Button/Button.js';
 import PhoneInput from '../../../components/UI/PhoneInput/PhoneInput.js';
 import Checkbox from '../../../components/UI/Checkbox/Checkbox.js';
 import ModalWindow from "../../../components/ModalWindow/ModalWindow.js";
-
-import { getLocalStorage, setLocalStorage } from '../../../utils/localStorage.js';
 import ImageUpload from '../../../components/ImageUpload/ImageUpload.js';
 import useUpdateUser from '../../../API/User/useUpdateUser.js';
 import useUpdatePasswordToken from '../../../API/User/useUpdatePasswordToken.js';
@@ -27,6 +25,7 @@ import { State, City } from 'country-state-city';
 import useDeleteUser from '../../../API/User/useDeleteUser.js';
 import { useHistory } from 'react-router-dom/cjs/react-router-dom';
 import EmailConfirm from '../../../components/EmailConfirm/EmailConfirm.js';
+import store from '../../../utils/Zustand/store.js';
 
 const CustomAccordion = styled(Accordion)({
     '&&': {
@@ -66,8 +65,7 @@ const CustomAccordionDetails = styled(AccordionDetails)({
 });
 
 function Settings() {
-    const user = getLocalStorage('user');
-    const token = getLocalStorage('token');
+    const {user,token} = store()
 
     const history = useHistory();
     const [modalEmailVisible, setModalEmailVisible] = useState(false)

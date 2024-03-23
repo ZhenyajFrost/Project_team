@@ -12,7 +12,7 @@ import Notiflix from 'notiflix';
 
 import usePaymentResult from '../../../API/PayPal/usePaymentResult.js'
 import DeliveryRadioGroup from '../../DeliveryRadioGroup/DeliveryRadioGroup.js'
-import { getLocalStorage } from "../../../utils/localStorage.js";
+import store from "../../../utils/Zustand/store.js";
 
 function BidLot({ bid }) {
     const history = useHistory();
@@ -22,7 +22,7 @@ function BidLot({ bid }) {
     const [delivery, setDelivery] = useState({});
 
     const [isPayed, setIsPayed] = useState(false);
-
+    const {user} = store();
     const [ttl, setTtl] = useState((new Date(bid.lot.timeTillEnd) - new Date()) / 1000 > 0 ? (new Date(bid.lot.timeTillEnd) - new Date()) / 1000 : 0);
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -66,7 +66,7 @@ function BidLot({ bid }) {
                 <h3 className={`${css.lotTitle}`}>{bid.lot.title}</h3>
                 <p className={css.lotDesc}>{bid.lot.shortDescription}</p>
 
-                {bid.lot.winnerUserId === getLocalStorage('user').id ?
+                {bid.lot.winnerUserId === user.id ?
                     <div className={css.winner}>
                         <div className={css.title}>
                             <svg style={{ width: "32px", height: "32px" }}>
@@ -106,7 +106,7 @@ function BidLot({ bid }) {
                             {`м. ${bid.lot.city ? bid.lot.city : "Місто"}`}
                         </p>
                     </div>
-                    {bid.lot.isWaitingPayment && bid.lot.winnerUserId === getLocalStorage('user').id ?
+                    {bid.lot.isWaitingPayment && bid.lot.winnerUserId === user.id ?
                         <Button onClick={() => setModalVisible(true)}> Оформити лот</Button> :
                         <></>
                     }

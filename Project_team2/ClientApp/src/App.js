@@ -13,18 +13,17 @@ import EditPage from "./pages/Edit/EditPage.js";
 
 import ProfileLayout from "./pages/Profile/ProfileLayout.js";
 import RestrictedPath from "./components/RestrictedPath/RestrictedPath.js";
-import { getLocalStorage } from "./utils/localStorage.js";
 import AdminPage from "./pages/AdminPage/AdminPage.js";
 import { HowItWorks as HowItWorksPage } from "./pages/HowItWorks/HowItWorks.js";
 import UserPage from "./pages/UserPage/UserPage.js";
 import ProfileBids from "./pages/Profile/Bids/Bids.js";
 import Page404 from "./pages/404/Page404.js";
+import store from "./utils/Zustand/store.js";
 
-export default class App extends Component {
-  static displayName = App.name;
-  render() {
-    const user = getLocalStorage("user");
-    const isLoggined = getLocalStorage("isLoggined");
+const App =()=> {
+  //static displayName = App.name;
+
+    const {user, isLoggined}=store();
 
     return (
       <Layout>
@@ -122,5 +121,6 @@ export default class App extends Component {
         </Switch>
       </Layout>
     );
-  }
+  
 }
+export default App;
