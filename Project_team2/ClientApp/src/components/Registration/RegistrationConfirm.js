@@ -7,14 +7,21 @@ import Input from "../UI/Input/Input.js";
 import useSendConfirmationEmail from "../../API/useSendConfirmationEmail.js";
 import { AUTH_ENDPOINT } from '../../API/apiConstant'
 import Notiflix from "notiflix";
+import useBanUser from "../../API/User/useBanUser.js";
+import store from "../../utils/Zustand/store.js";
 
 
-function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setEmailSet, setModalVisible, setModalLogVisible, onEmailConfirmed }) {
+function RegistrationConfirm({ user, isLogin, setEmailSent, setEmailSet, setModalVisible, setModalLogVisible, onEmailConfirmed }) {
     const [code, setCode] = useState('');
     const { sendEmail, loading, error, confirmCode } = useSendConfirmationEmail();
+    const [banUser] = useBanUser()
+
+    const { setData } = store()
+
+    const [limitSend, setLimitSend] = useState(3);
 
     Notiflix.Notify.init({
-        timeout: 4000,
+        timeout: 3000,
     });
 
     useEffect(() => {
@@ -27,7 +34,24 @@ function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setEmailSet
     }, []);
 
     const onSendEmailAgain = async () => {
-        await sendEmail(user.email);
+        setLimitSend(prev => prev - 1);
+
+        console.log("limit", limitSend)
+        console.log('isBlocked',store.getState().isBlocked)
+
+        if (limitSend > 0 && !store.getInitialState().isBlocked) {
+            Notiflix.Notify.info(`Залишилось спроб: ${limitSend - 1}`)
+
+            await sendEmail(user.email);
+        }
+        else {
+            await banUser(user.email);
+            setData(prev => ({ ...prev, isBlocked: true }))
+
+            setLimitSend(3);
+        }
+
+
     }
 
     useEffect(() => {
@@ -93,7 +117,7 @@ function RegistrationConfirm({ user, setUser, isLogin, setEmailSent, setEmailSet
                         <div className={classes.container} style={{ flexDirection: 'column', gap: '0.5vw' }}>
                             <div>
                                 <p className={classes.secondaryTxt}> {loading ? "Sending..." : "Ми відправили код на вашу почту"}<br />
-                                    <p style={{fontWeight: '700'}}>{user.email}</p>
+                                    <p style={{ fontWeight: '700' }}>{user.email}</p>
                                 </p>
                                 <div className={classes.container + ' ' + classes.text}>
                                     <p onClick={onEmailChange}>Змінити пошту</p>

@@ -3,11 +3,12 @@ import Button from '../UI/Button/Button.js'
 import Input from '../UI/Input/Input.js'
 import LoginSocMed from '../LoginSocMed/LoginSocMed.js'
 import classes from '../../styles/LoginAndRegistration.module.css'
-import { setLocalStorage } from '../../utils/localStorage.js';
+import { getLocalStorage, setLocalStorage } from '../../utils/localStorage.js';
 import axios from 'axios'
 import { AUTH_ENDPOINT } from '../../API/apiConstant.js'
 import Notiflix from 'notiflix';
 import store from '../../utils/Zustand/store.js';
+import { WS_BASE_URL } from '../../API/apiConstant.js'
 
 const Login = ({ setModalVisible, setModalRegVisible, setForgotPass, setIsLoggined }) => {
   const [loginVal, setLoginVal] = useState('');
@@ -55,14 +56,23 @@ const Login = ({ setModalVisible, setModalRegVisible, setForgotPass, setIsLoggin
         likedLotIds: result.data.likedLotIds,
         likedUsers: result.data.subscribedUserIds,
       }
-
-      // setLocalStorage('user', user);
-      // setLocalStorage('token', result.data.token);
-      // setLocalStorage('webSocketToken', result.data.webSocketToken)
-      // setLocalStorage('isLoggined', true);
-      //setIsLoggined(true);
-
+      
       setData({isLoggined:true, user, token:result.data.token, webSocketToken:result.data.webSocketToken})
+
+      const ws = new WebSocket(`${WS_BASE_URL}/connect?token=${result.data.webSocketToken}`);
+
+      ws.onopen = () => {
+        console.log('WebSocket connection established');
+      };
+
+      ws.onmessage = (event) => {
+        // При получении сообщения от сервера добавляем его в состояние
+        console.log("ws:", event.data)
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket connection closed');
+      };
       //window.location.reload();
 
     }).catch((err) => {
@@ -74,6 +84,7 @@ const Login = ({ setModalVisible, setModalRegVisible, setForgotPass, setIsLoggin
     setModalVisible(false);
     setLoginVal("");
     setPassword("");
+
   };
 
   return (
