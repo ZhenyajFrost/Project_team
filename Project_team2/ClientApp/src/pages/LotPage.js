@@ -18,7 +18,6 @@ import Bid from "../components/Bid/Bid.js";
 import useGetUserLots from "../API/Lots/Get/useGetUserLots.js";
 
 import LotsCarousel from "../components/Carousel/LotsCarousel/LotsCarousel.js";
-import { NavLink } from "react-router-dom/cjs/react-router-dom.min.js";
 import store from "../utils/Zustand/store.js";
 
 function LotPage() {
@@ -153,7 +152,7 @@ function LotPage() {
                 {Object.keys(lotInfo).map((v) => (
                   <div>
                     <span key={nanoid()}>{v}:</span>
-                    <span key={nanoid()}>{lotInfo[v]}</span>
+                    <span key={nanoid()} style={{textWrap:"nowrap", textAlign:"right"}}>{lotInfo[v]}</span>
                   </div>
                 ))}
               </div>

@@ -8,7 +8,7 @@ const useSubscribeUser = () => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const subscribeUser = async (token, userId, user, setSubscribedUsers) => {
+  const subscribeUser = async (token, userId, user, setlikedUsers) => {
     setLoading(true);
 
     try {
@@ -17,17 +17,17 @@ const useSubscribeUser = () => {
         { token, subscribedToId: userId }
       );
 
-      let updatedsubscribedUsers = [];
+      let updatedlikedUsers = [];
 
-      if (user.subscribedUsers.includes(Number(userId))) {
-        updatedsubscribedUsers = user.subscribedUsers.filter(
+      if (user.likedUsers.includes(Number(userId))) {
+        updatedlikedUsers = user.likedUsers.filter(
           (id) => Number(id) !== Number(userId)
         );
       } else {
-        updatedsubscribedUsers = [...user.subscribedUsers, Number(userId)];
+        updatedlikedUsers = [...user.likedUsers, Number(userId)];
       }
 
-      setSubscribedUsers(updatedsubscribedUsers);
+      setlikedUsers(updatedlikedUsers);
 
       Notiflix.Notify.success("На користувача успішно підписано");
     } catch (error) {
