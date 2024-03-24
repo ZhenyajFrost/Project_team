@@ -8,12 +8,13 @@ const store = create((set, get) => ({
   isBlocked: false,
   webSocketToken: null,
   webSocket: null,
-
+  likedLotIds:[],
+  likedUsers:[],
   setData: (data) => set(data),
   updateData: (data) => set({ ...get(), ...data }),
   updateUser: (user) => set((state) => ({ user: { ...state.user, ...user } })),
   setToken: (token) => set({ token }),
-  setLikedLotsId: (likedLotIds) =>set({ user:{...get().user, likedLotIds} }),
+  setlikedLotIds: (likedLotIds) =>set({ user:{...get().user, likedLotIds} }),
   setlikedUsers: (likedUsers) =>set({ user:{...get().user, likedUsers} }),
   setwebSocketToken: (webSocketToken) => set({ webSocketToken }),
   setwebSocket: (webSocket) => set({ webSocket }),
@@ -56,7 +57,8 @@ const store = create((set, get) => ({
     const storedIsBlocked = sessionStorage.getItem("isBlocked");
     const webSocketToken = sessionStorage.getItem("webSocketToken");
     const webSocket = sessionStorage.getItem("webSocket");
-
+    const likedUsers = sessionStorage.getItem("likedUsers");
+    const likedLotIds = sessionStorage.getItem("likedLotIds");
     set({
       user: JSON.parse(storedUser),
       token: storedToken,
@@ -64,6 +66,8 @@ const store = create((set, get) => ({
       isBlocked: JSON.parse(storedIsBlocked),
       webSocketToken,
       webSocket: JSON.parse(webSocket),
+      likedUsers: JSON.parse(likedUsers),
+      likedLotIds: JSON.parse(likedLotIds) ? JSON.parse(likedLotIds) : [],
     });
   },
 
@@ -75,16 +79,17 @@ const store = create((set, get) => ({
       isBlocked,
       webSocketToken,
       webSocket,
-      likedLotsId,
+      likedLotIds,
+      likedUsers
     } = get();
-    console.log(get());
     sessionStorage.setItem("user", JSON.stringify(user));
     sessionStorage.setItem("token", token);
     sessionStorage.setItem("isLoggined", JSON.stringify(isLoggined));
     sessionStorage.setItem("isBlocked", JSON.stringify(isBlocked));
     sessionStorage.setItem("webSocketToken", webSocketToken);
     sessionStorage.setItem("webSocket", JSON.stringify(webSocket));
-    sessionStorage.setItem("likedLotsId", JSON.stringify(likedLotsId));
+    sessionStorage.setItem("likedLotIds", JSON.stringify(likedLotIds));
+    sessionStorage.setItem("likedUsers", JSON.stringify(likedUsers));
   },
   clearAllData: () => {
     sessionStorage.clear();

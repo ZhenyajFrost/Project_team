@@ -22,7 +22,7 @@ import store from "../utils/Zustand/store.js";
 
 function LotPage() {
   const id = parseInt(window.location.href.split("/").pop(), 10);
-  const {user:me, token} = store();
+  const { user: me, token } = store();
   const [modal, setModal] = useState(false);
   const [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
   const [getLots, lots, isLoadingLots] = useGetUserLots("");
@@ -38,8 +38,7 @@ function LotPage() {
   }, []);
 
   useEffect(() => {
-    if (Number(lot.userId) && !lots)
-      getLots(Number(lot.userId), 1, 10);
+    if (Number(lot.userId) && !lots) getLots(Number(lot.userId), 1, 10);
   }, [lot, getLots, lots]);
 
   if (!isLoading && !error) {
@@ -49,8 +48,8 @@ function LotPage() {
       Стан: lot.isNew ? "Новий" : "б/у",
     };
     return (
-      <div>
-        <LotPath
+      <div className={css.big}>
+        {/* <LotPath
           path={[
             {
               name: cat ? cat.title : "Категорія",
@@ -58,7 +57,8 @@ function LotPage() {
             },
             { name: lot.title, path: "" },
           ]}
-        />
+        /> */}
+        {window.screen.width <= 768 ? <h2>{lot.title}</h2> : null}
         <div className={css.cont}>
           <div className={css.left}>
             <div className={css.sideThing}>
@@ -71,6 +71,63 @@ function LotPage() {
                 <div>Поскаржитись</div>
               </div>
             </div>
+            {window.screen.width <= 768 ? (
+              <div className={css.splitContainer}>
+                <div className={css.sides}>
+                  <p>
+                    {lot.winnerUserId
+                      ? `Користувач ${maxBid.user.login} переміг`
+                      : `Наразі 
+                  ${
+                    maxBid.user
+                      ? ` перемагає ${maxBid.user.login}`
+                      : `переможця немає`
+                  }`}
+                  </p>
+                  <p>
+                    <svg>
+                      <use href={`${svg}#schedule`} />
+                    </svg>
+                    {formatTime(
+                      (new Date(lot.timeTillEnd) - new Date()) / 1000
+                    )}
+                  </p>
+                </div>
+                <hr />
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <div className={css.priceCont}>
+                    <div>
+                      <p className={css.priceTag}>Остання ставка</p>
+                      <p className={css.price}>
+                        {maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
+                      </p>
+                    </div>
+                    {me ? (
+                      maxBid &&
+                      maxBid.user &&
+                      Number(maxBid.user.id) === Number(me.id) ? (
+                        "Не можна перебити свою ставку!"
+                      ) : (
+                        <div
+                          className={css.buyBtn}
+                          onClick={() => setModal(true)}
+                        >
+                          Залишити ставку
+                        </div>
+                      )
+                    ) : (
+                      <a href={"/lot/" + lot.id + "?modal=login"}>
+                        Зареєструйтесь щоб розмістити ставку
+                      </a>
+                    )}
+                  </div>
+
+                  <LikeButton lotId={id} />
+                </div>
+              </div>
+            ) : null}
             <div className={css.splitContainer}>
               <h2>Історія ставок</h2>
               {history ? (
@@ -86,65 +143,70 @@ function LotPage() {
                   "Тут поки пусто, будьте першими, хто зробить ставку :)"
                 )
               ) : (
-                <h1>dd</h1>
+                null
               )}
             </div>
           </div>
 
-          <div>
-            <h2>{lot.title}</h2>
-            <div className={css.splitContainer}>
-              <div className={css.sides}>
-                <p>
-                  {lot.winnerUserId
-                    ? `Користувач ${maxBid.user.login} переміг`
-                    : `Наразі 
+          <div className={css.rigthThing}>
+            {window.screen.width > 768 ? <h2>{lot.title}</h2> : null}
+            {window.screen.width > 768 ? (
+              <div className={css.splitContainer}>
+                <div className={css.sides}>
+                  <p>
+                    {lot.winnerUserId
+                      ? `Користувач ${maxBid.user.login} переміг`
+                      : `Наразі 
                   ${
                     maxBid.user
                       ? `користувач: ${maxBid.user.login} перемагає`
                       : `переможця немає`
                   }`}
-                </p>
-                <p>
-                  <svg>
-                    <use href={`${svg}#schedule`} />
-                  </svg>
-                  {formatTime((new Date(lot.timeTillEnd) - new Date()) / 1000)}
-                </p>
-              </div>
-              <hr />
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div className={css.priceCont}>
-                  <div>
-                    <p className={css.priceTag}>Остання ставка</p>
-                    <p className={css.price}>
-                      {maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
-                    </p>
-                  </div>
-                  {me ? (
-                    maxBid &&
-                    maxBid.user &&
-                    Number(maxBid.user.id) ===
-                      Number(me.id) ? (
-                      "Не можна перебити свою ставку!"
-                    ) : (
-                      <div
-                        className={css.buyBtn}
-                        onClick={() => setModal(true)}
-                      >
-                        Залишити ставку
-                      </div>
-                    )
-                  ) : (
-                    <a href={"/lot/" + lot.id + "?modal=login"}>
-                      Зареєструйтесь щоб розмістити ставку
-                    </a>
-                  )}
+                  </p>
+                  <p>
+                    <svg>
+                      <use href={`${svg}#schedule`} />
+                    </svg>
+                    {formatTime(
+                      (new Date(lot.timeTillEnd) - new Date()) / 1000
+                    )}
+                  </p>
                 </div>
+                <hr />
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <div className={css.priceCont}>
+                    <div>
+                      <p className={css.priceTag}>Остання ставка</p>
+                      <p className={css.price}>
+                        {maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
+                      </p>
+                    </div>
+                    {me ? (
+                      maxBid &&
+                      maxBid.user &&
+                      Number(maxBid.user.id) === Number(me.id) ? (
+                        "Не можна перебити свою ставку!"
+                      ) : (
+                        <div
+                          className={css.buyBtn}
+                          onClick={() => setModal(true)}
+                        >
+                          Залишити ставку
+                        </div>
+                      )
+                    ) : (
+                      <a href={"/lot/" + lot.id + "?modal=login"}>
+                        Зареєструйтесь щоб розмістити ставку
+                      </a>
+                    )}
+                  </div>
 
-                <LikeButton lotId={id} />
+                  <LikeButton lotId={id} />
+                </div>
               </div>
-            </div>
+            ) : null}
 
             <div className={css.splitContainer}>
               <p>Детальніше про лот:</p>
@@ -152,7 +214,12 @@ function LotPage() {
                 {Object.keys(lotInfo).map((v) => (
                   <div>
                     <span key={nanoid()}>{v}:</span>
-                    <span key={nanoid()} style={{textWrap:"nowrap", textAlign:"right"}}>{lotInfo[v]}</span>
+                    <span
+                      key={nanoid()}
+                      style={{ textWrap: "nowrap", textAlign: "right" }}
+                    >
+                      {lotInfo[v]}
+                    </span>
                   </div>
                 ))}
               </div>
