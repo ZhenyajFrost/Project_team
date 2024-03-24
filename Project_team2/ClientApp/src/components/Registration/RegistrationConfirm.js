@@ -10,6 +10,9 @@ import Notiflix from "notiflix";
 import useBanUser from "../../API/User/useBanUser.js";
 import store from "../../utils/Zustand/store.js";
 
+Notiflix.Notify.init({
+    timeout: 2000,
+});
 
 function RegistrationConfirm({ user, isLogin, setEmailSent, setEmailSet, setModalVisible, setModalLogVisible, onEmailConfirmed }) {
     const [code, setCode] = useState('');
@@ -20,9 +23,7 @@ function RegistrationConfirm({ user, isLogin, setEmailSent, setEmailSet, setModa
 
     const [limitSend, setLimitSend] = useState(3);
 
-    Notiflix.Notify.init({
-        timeout: 3000,
-    });
+
 
     useEffect(() => {
         
