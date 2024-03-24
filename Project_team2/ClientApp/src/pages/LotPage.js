@@ -25,10 +25,10 @@ function LotPage() {
   const { user: me, token } = store();
   const [modal, setModal] = useState(false);
   const [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
-  const [getLots, lots, isLoadingLots] = useGetUserLots("");
+  const [getLots, lots, totalCount, catcount, isLoadingLots] = useGetUserLots("");
   let [getHistory, history] = useGetLotsHistory();
 
-
+  console.log(isLoadingLots);
   useState(() => {
     getLotById(id, token);
 
