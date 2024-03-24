@@ -11,7 +11,6 @@ import { nanoid } from "nanoid";
 import useGetLotById from "../API/Lots/Get/useGetLotById.js";
 import useGetLotsHistory from "../API/Lots/Get/useGetLotsHistory.js";
 import LikeButton from "../components/UI/LikeButton/LikeButton.js";
-import categories from "../Data/categories.json";
 import ModalWindow from "../components/ModalWindow/ModalWindow";
 import BuyLotModal from "../components/BuyLotModal/BuyLotModal.js";
 import Bid from "../components/Bid/Bid.js";
@@ -19,11 +18,14 @@ import useGetUserLots from "../API/Lots/Get/useGetUserLots.js";
 
 import LotsCarousel from "../components/Carousel/LotsCarousel/LotsCarousel.js";
 import store from "../utils/Zustand/store.js";
+import Report from "../components/Report/Report.js";
+import Notiflix from "notiflix";
 
 function LotPage() {
   const id = parseInt(window.location.href.split("/").pop(), 10);
   const { user: me, token } = store();
   const [modal, setModal] = useState(false);
+  const [report, setReport] = useState(false)
   const [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
   const [getLots, lots, isLoadingLots] = useGetUserLots("");
   let [getHistory, history] = useGetLotsHistory();
@@ -38,7 +40,7 @@ function LotPage() {
   useEffect(() => {
     if (Number(lot.userId) && !lots) getLots(Number(lot.userId), 1, 10);
   }, [lot, getLots, lots]);
-  if(!error && !isLoading && !lot.id){
+  if (!error && !isLoading && !lot.id) {
     return <h1>Щось пішло не так, спробуйте ще раз</h1>
   }
   if (!isLoading && !error) {
@@ -68,7 +70,7 @@ function LotPage() {
               <hr />
               <div className={css.sides}>
                 <div>Перегляди: {lot.views}</div>
-                <div>Поскаржитись</div>
+                <div className={css.report} onClick={() => setReport(true)}>Поскаржитись</div>
               </div>
             </div>
             {window.screen.width <= 768 ? (
@@ -78,11 +80,10 @@ function LotPage() {
                     {lot.winnerUserId
                       ? `Користувач ${maxBid.user.login} переміг`
                       : `Наразі 
-                  ${
-                    maxBid.user
-                      ? ` перемагає ${maxBid.user.login}`
-                      : `переможця немає`
-                  }`}
+                  ${maxBid.user
+                        ? ` перемагає ${maxBid.user.login}`
+                        : `переможця немає`
+                      }`}
                   </p>
                   <p>
                     <svg>
@@ -106,8 +107,8 @@ function LotPage() {
                     </div>
                     {me ? (
                       maxBid &&
-                      maxBid.user &&
-                      Number(maxBid.user.id) === Number(me.id) ? (
+                        maxBid.user &&
+                        Number(maxBid.user.id) === Number(me.id) ? (
                         "Не можна перебити свою ставку!"
                       ) : (
                         <div
@@ -157,11 +158,10 @@ function LotPage() {
                     {lot.winnerUserId
                       ? `Користувач ${maxBid.user.login} переміг`
                       : `Наразі 
-                  ${
-                    maxBid.user
-                      ? `користувач: ${maxBid.user.login} перемагає`
-                      : `переможця немає`
-                  }`}
+                  ${maxBid.user
+                        ? `користувач: ${maxBid.user.login} перемагає`
+                        : `переможця немає`
+                      }`}
                   </p>
                   <p>
                     <svg>
@@ -185,8 +185,8 @@ function LotPage() {
                     </div>
                     {me ? (
                       maxBid &&
-                      maxBid.user &&
-                      Number(maxBid.user.id) === Number(me.id) ? (
+                        maxBid.user &&
+                        Number(maxBid.user.id) === Number(me.id) ? (
                         "Не можна перебити свою ставку!"
                       ) : (
                         <div
@@ -286,6 +286,21 @@ function LotPage() {
             }
           />
         ) : null}
+
+        {report ? (
+          me  ? (
+            <ModalWindow visible={report} setVisible={setReport}>
+              <Report lotId={lot.id} />
+            </ModalWindow>
+          ) : (
+            setReport(false),
+            Notiflix.Notify.info("Увійдіть в акаунт")
+          )
+        ) : (
+         <></>
+        )}
+
+
       </div>
     );
   } else return <Loader />;
