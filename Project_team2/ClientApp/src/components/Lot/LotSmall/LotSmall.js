@@ -61,14 +61,10 @@ function LotSmall({
       }
     }
 
-    setTimeout(() => {
-      //window.location.reload();
-    }, 1000);
-
   }
 
   return (
-    <div className={css.lot} onMouseOver={() => {setDots(userId == user.id);}} onMouseLeave={() => setDots(false)}>
+    <div className={css.lot} onMouseOver={() => {setDots(user && userId == user.id);}} onMouseLeave={() => setDots(false)}>
 
       <div className={`${css.dots}`}>
         {
