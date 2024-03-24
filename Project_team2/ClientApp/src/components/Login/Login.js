@@ -9,6 +9,10 @@ import Notiflix from 'notiflix';
 import store from '../../utils/Zustand/store.js';
 import { WS_BASE_URL } from '../../API/apiConstant.js'
 
+Notiflix.Notify.init({
+  timeout: 2000,
+});
+
 const Login = ({ setModalVisible, setModalRegVisible, setForgotPass, setIsLoggined }) => {
   const [loginVal, setLoginVal] = useState('');
   const [password, setPassword] = useState('');
