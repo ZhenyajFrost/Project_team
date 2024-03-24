@@ -26,7 +26,7 @@ function LotSmall({
   const history = useHistory();
  const {token, user} = store();
 
-  const isLiked = user.likedLotIds.includes(id);
+  const isLiked = user ? user.likedLotIds.includes(id) : false;
 
   const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date()) / 1000);
   const { deleteLot, isLoading, error } = useDeleteLot();
@@ -61,14 +61,10 @@ function LotSmall({
       }
     }
 
-    setTimeout(() => {
-      //window.location.reload();
-    }, 1000);
-
   }
 
   return (
-    <div className={css.lot} onMouseOver={() => {setDots(userId == user.id);}} onMouseLeave={() => setDots(false)}>
+    <div className={css.lot} onMouseOver={() => {setDots(user && userId == user.id);}} onMouseLeave={() => setDots(false)}>
 
       <div className={`${css.dots}`}>
         {

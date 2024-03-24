@@ -26,7 +26,7 @@ export default function CreateLot({ data = {} }) {
   };
 
   const [lot, setLot] = useState({ ...initialState, ...data });
-  const {user} = store();
+  const { user } = store();
   const create = useCreateLot().createLot;
   const update = useUpdateLot().updateLot;
 
@@ -45,7 +45,10 @@ export default function CreateLot({ data = {} }) {
   };
   const onSubmit = (e) => {
     e.preventDefault();
-
+    if(lot.active || lot.isWaitingPayment){
+      Notify.failure("Не можна редагувати активний лот");
+      return;
+    }
     for (let a of Object.keys(initialState)) {
       if (!lot[a] && a != "isNew") {
         Notify.failure(`поле ${a} не заповнене`);
@@ -65,9 +68,12 @@ export default function CreateLot({ data = {} }) {
       lot.city = lot.city.label;
     }
     lot.userId = user.id;
-    lot.timeTillEnd = new Date(
-      new Date().setDate(new Date().getDate() + Number(lot.timeTillEnd))
-    ).toISOString().replace("Z", "");
+    if (!isNaN(lot.timeTillEnd))
+      lot.timeTillEnd = new Date(
+        new Date().setDate(new Date().getDate() + Number(lot.timeTillEnd))
+      )
+        .toISOString()
+        .replace("Z", "");
 
     lot.category = lot.category.id;
 
@@ -81,7 +87,7 @@ export default function CreateLot({ data = {} }) {
       }
       update(lot.id, answ).then((v) => {
         Notify.success("Лот оновлено успішно");
-        
+
         window.location.href = "/profile/lots";
         // setLot({});
       });
@@ -92,7 +98,6 @@ export default function CreateLot({ data = {} }) {
       });
     }
   };
-
 
   return (
     <div>
@@ -211,7 +216,9 @@ export default function CreateLot({ data = {} }) {
             onCityChange={(e) => onInput({ name: "city", value: e })}
             selectedRegion={lot.region}
             selectedCity={lot.city}
-            handleOnClick={() => {''}}
+            handleOnClick={() => {
+              "";
+            }}
           />
         </div>
         <div className={css.createSection}>
@@ -232,7 +239,7 @@ export default function CreateLot({ data = {} }) {
         </div>
         <div className={css.createSection}>
           <div className={css.fincont}>
-            <button className={css.final} type="submit">
+            <button className={css.final} type="submit" disabled={lot.active && lot.isWaitingPayment}>
               {data.id ? "Змінити" : "Опублікувати"}
             </button>
           </div>

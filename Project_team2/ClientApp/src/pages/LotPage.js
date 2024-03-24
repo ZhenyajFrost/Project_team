@@ -27,9 +27,7 @@ function LotPage() {
   const [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
   const [getLots, lots, isLoadingLots] = useGetUserLots("");
   let [getHistory, history] = useGetLotsHistory();
-  const cat = categories.find(
-    (categ) => Number(categ.id) === Number(lot.category)
-  );
+
 
   useState(() => {
     getLotById(id, token);
@@ -40,7 +38,9 @@ function LotPage() {
   useEffect(() => {
     if (Number(lot.userId) && !lots) getLots(Number(lot.userId), 1, 10);
   }, [lot, getLots, lots]);
-
+  if(!error && !isLoading && !lot.id){
+    return <h1>Щось пішло не так, спробуйте ще раз</h1>
+  }
   if (!isLoading && !error) {
     const lotInfo = {
       Область: lot.region ? lot.region : "Невідоме",
