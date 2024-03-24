@@ -14,10 +14,10 @@ const useGetLotById = () => {
 
   const getLotById = async (lotId, token) => {
 
-    
+
     setLoading(true);
     try {
-      const response = await axios.post(`${LOTS_ENDPOINT}/getLotById/${lotId}`, {token});
+      const response = await axios.post(`${LOTS_ENDPOINT}/getLotById/${lotId}`, token ?  { token } : {token:'0' });
 
       console.log(response);
 
@@ -43,8 +43,8 @@ const useGetLotById = () => {
       if (error.response.status === 404) {
         history.push('/404');
         return
-    }
-    
+      }
+
       setError(error);
     } finally {
       setLoading(false);

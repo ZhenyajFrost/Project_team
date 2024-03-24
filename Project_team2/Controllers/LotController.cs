@@ -1511,13 +1511,13 @@ namespace Project2.Controllers
 
 
        [HttpPost("getLotById/{id}")]
-public IActionResult GetLotById([FromBody] TokenModel model, int id)
+public IActionResult GetLotById([FromBody] TokenModel? model, int id)
 {
     string token = model?.Token; // Проверяем, передан ли токен
     string userId = null;
 
     // Если передан токен, извлекаем из него идентификатор пользователя
-    if (!string.IsNullOrEmpty(token))
+    if (!string.IsNullOrEmpty(token) && !token.StartsWith('0'))
     {
         userId = ExtractUserIdFromToken(token);
     }
