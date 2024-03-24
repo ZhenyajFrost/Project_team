@@ -55,7 +55,7 @@ svg {
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
-  width: 40vw;
+  width: min(40vw 100%);
   flex-direction: column;
 
 }
@@ -119,7 +119,7 @@ svg {
   cursor: pointer;
 }
 
-@media screen and (max-width: 767px) {
+@media screen and (max-width:769px) {
   .sides {
   }
   .cont {

@@ -8,7 +8,7 @@ const useLikeLot = () => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const likeLot = async (token, lotId, user, setLikedLotsId) => {
+  const likeLot = async (token, lotId, user, setlikedLotIds) => {
     setLoading(true);
 
     try {
@@ -24,7 +24,7 @@ const useLikeLot = () => {
         updatedLikedLotIds = [...user.likedLotIds, lotId];
       }
       console.log(updatedLikedLotIds);
-      setLikedLotsId(updatedLikedLotIds);
+      setlikedLotIds(updatedLikedLotIds);
 
       Notiflix.Notify.success("Лот успішно вподобаєно");
     } catch (error) {
