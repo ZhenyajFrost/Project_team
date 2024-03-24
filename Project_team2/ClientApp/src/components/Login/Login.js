@@ -60,7 +60,8 @@ const Login = ({ setModalVisible, setModalRegVisible, setForgotPass, setIsLoggin
         likedUsers: result.data.subscribedUserIds,
       }
       
-      setData({isLoggined:true, user, token:result.data.token, webSocketToken:result.data.webSocketToken})
+      setData({isLoggined:true, user, token:result.data.token, webSocketToken:result.data.webSocketToken})                
+      Notiflix.Notify.success("Ви успішно увійшли в акаунт!")
 
       connectWebSocket(result.data.webSocketToken);
 
