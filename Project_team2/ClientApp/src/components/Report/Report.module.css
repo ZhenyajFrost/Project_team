@@ -1,0 +1,34 @@
+.tick {
+  display: flex;
+  justify-content: space-between;
+}
+.tick::after {
+  content: "✔";
+}
+.lotCat p {
+  font-family: Manrope;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 21.86px;
+  text-align: left;
+}
+.lotCat {
+  margin-bottom: 50px;
+}
+.title {
+  font-family: Manrope;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32.78px;
+  text-align: left;
+  margin-bottom: 50px;
+}
+.inp, .inp:focus {
+  width: 95%;
+  height: 124px;
+  padding: 7px;
+  margin: auto;
+
+  border: 1px solid var(--borderColor);
+  border-radius: 24px;
+}
