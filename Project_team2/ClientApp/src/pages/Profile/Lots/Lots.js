@@ -13,7 +13,7 @@ import Loader from '../../../components/Loader/Loader.js'
 import store from '../../../utils/Zustand/store.js';
 
 function Lots() {
-    const {user} = store()
+    const { user } = store()
     const history = useHistory();
     const [activeTab, setActiveTab] = useState(sessionStorage.getItem('activeTab') || 'active');
 
@@ -118,11 +118,9 @@ function Lots() {
                 </ul>
 
                 <Button className={css.btn} onClick={handleAddButton}>
-                    <p>
-                        <svg>
-                            <use href={`${svg}#plus`} />
-                        </svg> Додати оголошення
-                    </p>
+                    <svg style={{ width: '24px', height: '24px' }}>
+                        <use href={`${svg}#plus`} />
+                    </svg> Додати оголошення
                 </Button>
             </div>
 
