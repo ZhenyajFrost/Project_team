@@ -19,7 +19,7 @@ const LoginSocMed = () => {
         name: undefined, // remove googleId if you don't want to send it to the backend
       };
 
-      const isUserLoggedIn = localStorage.getItem('isLoggined') === 'true';
+      const isUserLoggedIn = sessionStorage.getItem('isLoggined') === 'true';
 
       if (isUserLoggedIn)
         return;

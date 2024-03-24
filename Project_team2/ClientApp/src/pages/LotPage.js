@@ -16,12 +16,16 @@ import BuyLotModal from "../components/BuyLotModal/BuyLotModal.js";
 import Bid from "../components/Bid/Bid.js";
 import useGetUserLots from "../API/Lots/Get/useGetUserLots.js";
 
+import { WS_BASE_URL } from "../API/apiConstant.js";
+import useBidUpdatesWebSocket from '../API/useBidUpdatesWebSocket'; // Импортируем наш хук
+
 import LotsCarousel from "../components/Carousel/LotsCarousel/LotsCarousel.js";
 import store from "../utils/Zustand/store.js";
 import Report from "../components/Report/Report.js";
 import Notiflix from "notiflix";
 
 function LotPage() {
+
   const id = parseInt(window.location.href.split("/").pop(), 10);
   const { user: me, token } = store();
   const [modal, setModal] = useState(false);
@@ -30,16 +34,23 @@ function LotPage() {
   const [getLots, lots, totalCount, catcount, isLoadingLots] = useGetUserLots("");
   let [getHistory, history] = useGetLotsHistory();
 
-  console.log(isLoadingLots);
-  useState(() => {
+  useEffect(() => {
     getLotById(id, token);
-
     getHistory(id);
-  }, []);
+
+    const intervalId = setInterval(() => {
+        getHistory(id);
+    }, 3000);
+
+    // Возвращаем функцию очистки, чтобы остановить интервал при размонтировании компонента
+    return () => clearInterval(intervalId);
+}, []);
 
   useEffect(() => {
     if (Number(lot.userId) && !lots) getLots(Number(lot.userId), 1, 10);
   }, [lot, getLots, lots]);
+
+  
   if (!error && !isLoading && !lot.id) {
     return <h1>Щось пішло не так, спробуйте ще раз</h1>
   }
@@ -49,6 +60,7 @@ function LotPage() {
       Місто: lot.city ? lot.city : "Невідоме",
       Стан: lot.isNew ? "Новий" : "б/у",
     };
+
     return (
       <div className={css.big}>
         {/* <LotPath
