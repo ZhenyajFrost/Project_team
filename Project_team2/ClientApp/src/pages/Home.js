@@ -131,7 +131,7 @@ export const Home = () => {
             : "Жодних лотів по цій категорії"
         )}
         {
-          showableLots.length >= pagination.page * pagination.pageSize && !isLoading ? (
+          showableLots.length < totalCount ? (
             <LoadMoreButton
               curPage={pagination.page}
               setCurPage={(newPage) =>

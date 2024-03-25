@@ -26,7 +26,7 @@ function LotSmall({
   const history = useHistory();
  const {token, user} = store();
 
-  const isLiked = user ? user.likedLotIds.includes(id) : false;
+  const isLiked = user && user.likedLotIds ? user.likedLotIds.includes(id) : false;
 
   const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date()) / 1000);
   const { deleteLot, isLoading, error } = useDeleteLot();
