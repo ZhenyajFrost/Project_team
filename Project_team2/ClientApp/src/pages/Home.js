@@ -191,7 +191,7 @@ export const Home = () => {
         <div className={`${css.containerQuest}`}>
           <div className={`${css.elementQuest} ${css.borderRadius24} `}>
             <div className={`${css.headerQuest} ${css.flexColumn}`}>
-              <div className={css.arrowQuest}>
+              <div className={css.arrowQuest} onClick={() => history.push('/howItWorks')}>
                 <svg>
                   <use href={`${svg}#arrow_outward`} />
                 </svg>
@@ -204,7 +204,7 @@ export const Home = () => {
           </div>
           <div className={`${css.elementQuest} ${css.borderRadius24}`}>
             <div className={`${css.headerQuest} ${css.flexColumn}`}>
-              <div className={css.arrowQuest}>
+              <div className={css.arrowQuest} onClick={() => history.push('/howItWorks')}>
                 <svg>
                   <use href={`${svg}#arrow_outward`} />
                 </svg>
@@ -217,7 +217,7 @@ export const Home = () => {
           </div>
           <div className={`${css.elementQuest} ${css.borderRadius24}`}>
             <div className={`${css.headerQuest} ${css.flexColumn}`}>
-              <div className={css.arrowQuest}>
+              <div className={css.arrowQuest} onClick={() => history.push('/howItWorks')}>
                 <svg>
                   <use href={`${svg}#arrow_outward`} />
                 </svg>
