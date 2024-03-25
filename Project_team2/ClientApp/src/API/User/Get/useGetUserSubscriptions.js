@@ -14,6 +14,7 @@ const useGetUserSubscriptions = () => {
         try {
             const response = await axios.post(`${EDIT_USER_ENDPOINT}/likedUsers`, {token});
             console.log('User Subscriptions successfully retrieved: ', response.data);
+            
             setLikedUsers(response.data)
         } catch (error) {
             console.error('Getting User Subscriptions failed: ', error);

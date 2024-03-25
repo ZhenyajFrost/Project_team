@@ -1,27 +1,26 @@
 ﻿import React, { useEffect, useState } from "react";
-import PostServiceComponent from "../components/PostService/PostService.js";
-import css from "../styles/LotPage.module.css";
-import Loader from "../components/Loader/Loader";
-import LotPath from "../components/LotPath/LotPath";
-import PictureCarousel from "../components/PictureCarousel/PictureCarousel";
-import svg from "../images/svgDef.svg";
-import { formatTime } from "../utils/formatTime";
-import UserShort from "../components/UserShort/UserShort.js";
+import PostServiceComponent from "../../components/PostService/PostService.js";
+import css from "./LotPage.module.css";
+import Loader from "../../components/Loader/Loader.js";
+import PictureCarousel from "../../components/LotPage/PictureCarousel/PictureCarousel.js";
+import svg from "../../images/svgDef.svg";
+import { formatTime } from "../../utils/formatTime.js";
+import UserShort from "../../components/UserShort/UserShort.js";
 import { nanoid } from "nanoid";
-import useGetLotById from "../API/Lots/Get/useGetLotById.js";
-import useGetLotsHistory from "../API/Lots/Get/useGetLotsHistory.js";
-import LikeButton from "../components/UI/LikeButton/LikeButton.js";
-import ModalWindow from "../components/ModalWindow/ModalWindow";
-import BuyLotModal from "../components/BuyLotModal/BuyLotModal.js";
-import Bid from "../components/Bid/Bid.js";
-import useGetUserLots from "../API/Lots/Get/useGetUserLots.js";
+import useGetLotById from "../../API/Lots/Get/useGetLotById.js";
+import useGetLotsHistory from "../../API/Lots/Get/useGetLotsHistory.js";
+import LikeButton from "../../components/UI/LikeButton/LikeButton.js";
+import ModalWindow from "../../components/ModalWindow/ModalWindow.js";
+import BuyLotModal from "../../components/LotPage/BuyLotModal/BuyLotModal.js";
+import Bid from "../../components/Bid/Bid.js";
+import useGetUserLots from "../../API/Lots/Get/useGetUserLots.js";
 
-import { WS_BASE_URL } from "../API/apiConstant.js";
-import useBidUpdatesWebSocket from '../API/useBidUpdatesWebSocket'; // Импортируем наш хук
+import { WS_BASE_URL } from "../../API/apiConstant.js";
+import useBidUpdatesWebSocket from '../../API/useBidUpdatesWebSocket.js'; // Импортируем наш хук
 
-import LotsCarousel from "../components/Carousel/LotsCarousel/LotsCarousel.js";
-import store from "../utils/Zustand/store.js";
-import Report from "../components/Report/Report.js";
+import LotsCarousel from "../../components/Carousel/LotsCarousel/LotsCarousel.js";
+import store from "../../utils/Zustand/store.js";
+import Report from "../../components/Report/Report.js";
 import Notiflix from "notiflix";
 
 function LotPage() {
@@ -42,7 +41,6 @@ function LotPage() {
         getHistory(id);
     }, 3000);
 
-    // Возвращаем функцию очистки, чтобы остановить интервал при размонтировании компонента
     return () => clearInterval(intervalId);
 }, []);
 
@@ -72,7 +70,7 @@ function LotPage() {
             { name: lot.title, path: "" },
           ]}
         /> */}
-        {window.screen.width <= 768 ? <h2>{lot.title}</h2> : null}
+        {window.screen.width <= 768 ? <h2 style={{marginLeft:"10px"}}>{lot.title}</h2> : null}
         <div className={css.cont}>
           <div className={css.left}>
             <div className={css.sideThing}>
@@ -112,7 +110,7 @@ function LotPage() {
                 >
                   <div className={css.priceCont}>
                     <div>
-                      <p className={css.priceTag}>Остання ставка</p>
+                      <p className={css.priceTag}>Поточна ставка</p>
                       <p className={css.price}>
                         {maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
                       </p>
@@ -190,7 +188,7 @@ function LotPage() {
                 >
                   <div className={css.priceCont}>
                     <div>
-                      <p className={css.priceTag}>Остання ставка</p>
+                      <p className={css.priceTag}>Поточна ставка</p>
                       <p className={css.price}>
                         {maxBid.price === 0 ? lot.minPrice : maxBid.price}₴
                       </p>
@@ -271,11 +269,10 @@ function LotPage() {
           </div>
         </div>
         <div>
-          <h2>Усі оголошення автора</h2>
           {isLoadingLots ? (
             <Loader />
-          ) : lots.length > 0 ? (
-            <LotsCarousel lots={lots} />
+          ) : lots.length > 1 ? (
+            <LotsCarousel lots={lots.filter(v=>v.id!==lot.id)} userId={user.id} />
           ) : (
             <h4>В цього користувача немає інших лотів</h4>
           )}

@@ -3,8 +3,7 @@
   position: relative;
 }
 .selectedImg {
-  min-width: 600px;
-  max-width: 600px;
+  width: 600px;
   height: 400px;
   border-radius: 24px;
 }
@@ -49,11 +48,10 @@
 }
 
 
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 769px) {
   .selectedImg{
-    width: 90vw;
-    height: 400px;
-    border-radius: 24px;
+    width: 100%;
+    margin: auto  ;
   }
 
 }

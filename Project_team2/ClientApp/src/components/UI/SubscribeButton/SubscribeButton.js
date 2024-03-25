@@ -8,7 +8,7 @@ import Button from '../Button/Button';
 import store from '../../../utils/Zustand/store';
 
 const SubscribeButton = ({ userId, style = 'default' }) => {
-    const {user,token, setSubscribedUsers} = store()
+    const {user,token, setlikedUsers} = store()
     const likedUsers = user ? user.likedUsers : null;
 
 
@@ -30,7 +30,7 @@ const SubscribeButton = ({ userId, style = 'default' }) => {
     const handleLike = async () => {
         if (token) {
             setIsLiked(prev => !prev)
-            await subscribeUser(token, userId, user, setSubscribedUsers)
+            await subscribeUser(token, userId, user, setlikedUsers)
         }
         else {
             Notiflix.Notify.info("Увійдіть у профіль спочатку");

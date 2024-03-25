@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import css from "../../styles/LotPage.module.css";
+import css from "../../../pages/LotPage/LotPage.module.css";
 import style from "./style.module.css";
 import { Notify } from "notiflix";
-import usePlaceBid from "../../API/Bids/usePlaceBid";
-import store from "../../utils/Zustand/store";
-import useFastBuy from "../../API/Bids/useFastBuy";
+import usePlaceBid from "../../../API/Bids/usePlaceBid";
+import store from "../../../utils/Zustand/store";
+import useFastBuy from "../../../API/Bids/useFastBuy";
 
 function BuyLotModal({ userId, lotUserId, lotId, maxBid, minStep, minPrice, sellOn, killMyself }) {
   const {token} = store()
@@ -19,6 +19,7 @@ function BuyLotModal({ userId, lotUserId, lotId, maxBid, minStep, minPrice, sell
 
   const handleFastBuy = async () => {
     await fastBuy(lotId, sellOn, token);
+    killMyself();
   }
   
   
@@ -70,7 +71,7 @@ function BuyLotModal({ userId, lotUserId, lotId, maxBid, minStep, minPrice, sell
         />
 
         <div className={css.buyBtn} onClick={buy}>
-          Залишити ставку
+          Зробити ставку
         </div>
       </div>
       <div className={style.bidCont}>

@@ -95,12 +95,11 @@ svg {
 }
 
 .price {
-  font-family: Manrope;
-  font-size: 64px;
-  font-weight: 600;
-  line-height: 38.4px;
-  text-align: left;
-  size:2em;
+  font-family: Lato !important;
+  font-size: 28px !important;
+  font-weight: 600 !important;
+  line-height: 38.4px !important;
+  text-align: left !important;
 }
 .priceTag {
   font-family: Manrope;
@@ -120,8 +119,6 @@ svg {
 }
 
 @media screen and (max-width:769px) {
-  .sides {
-  }
   .cont {
     display: flex;
     flex-wrap: wrap;
@@ -138,6 +135,39 @@ svg {
   }
   .lotChars div{
     width: inherit;
+  }
+  .priceTag{
+    margin-bottom: 5px;
+  }
+}
+@media screen and (max-width:376px) {
+  .splitContainer .sides{
+    flex-direction: column;
+    width: inherit;
+
+  }
+  .splitContainer .sides p{
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+    width: inherit;
+    height: 25px;
+    overflow: hidden;
+    width: 80vw;
+  }
+  .priceCont{
+    flex-direction: column;
+    justify-items: left;
+    max-width: 70vw;
+    width: 70vw;
+  }
+  .priceCont div:not(.buyBtn) {
+    width: inherit;
+  }
+  .buyBtn{
+    max-width: none;
+    width: 80vw;
+    text-align: center;
+    margin-left: auto;  
   }
 }
 .big{

@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {useRef, useState } from "react";
 import { nanoid } from "nanoid";
 import css from "./style.module.css";
-import svg from "../../images/svgDef.svg";
+import svg from "../../../images/svgDef.svg";
 
 function PictureCarousel({ images }) {
   const [order, setOrder] = useState(images);
@@ -17,8 +17,7 @@ function PictureCarousel({ images }) {
               prev();
               setTimeout(() => moveBkwrd(i + 1), (i+1)*750);
             }
-          };
-    
+          };   
        
           moveBkwrd(0);
     } else {

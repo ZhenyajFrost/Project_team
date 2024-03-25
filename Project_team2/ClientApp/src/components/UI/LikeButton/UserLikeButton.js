@@ -27,7 +27,8 @@ const UserLikeButton = ({ userId, className }) => {
 
   const handleLike = async () => {
     if (token) {
-      setIsLiked((prev) => !prev);
+      setIsLiked((prev) => !prev);;
+
       await likeUser(token, userId, user, setlikedUsers);
     } else {
       Notiflix.Notify.info("Увійдіть у профіль спочатку");

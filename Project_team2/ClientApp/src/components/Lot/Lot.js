@@ -4,8 +4,8 @@ import css from "./Lot.module.css";
 import MoneySvg from "../../images/svgDef.svg";
 import { NavLink } from "react-router-dom";
 import { formatTime } from "../../utils/formatTime";
-import Button from '../UI/Button/Button';
-import ModalWindow from '../ModalWindow/ModalWindow.js'
+import Button from "../UI/Button/Button";
+import ModalWindow from "../ModalWindow/ModalWindow.js";
 import useApproveLot from "../../API/Lots/useApproveLot.js";
 import useDenyLot from "../../API/Lots/useDenyLot.js";
 import store from "../../utils/Zustand/store.js";
@@ -22,13 +22,14 @@ function Lot({
   openModal,
   city,
   isAdmin,
-  isApproved
+  isApproved,
+  style = "default",
 }) {
   const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date()) / 10000);
 
- const {token} = store();
+  const { token } = store();
 
-  const [modalVisible, setModalVisible] = useState(false)
+  const [modalVisible, setModalVisible] = useState(false);
   const [explanation, setExplanation] = useState("");
   const _isApproved = isApproved === undefined ? true : isApproved;
 
@@ -47,68 +48,78 @@ function Lot({
     const data = {
       token: token,
       lotId: id,
-      explanation: `${explanation} \tЛот переведено до Архіву`
-    }
+      explanation: `${explanation} \tЛот переведено до Архіву`,
+    };
 
     await denyLot(data);
     setIsChecked(true);
 
-    console.log(`Send data: id ${data.lotId} explanation ${data.explanation}`) //TO SERVER 
-  }
+    console.log(`Send data: id ${data.lotId} explanation ${data.explanation}`); //TO SERVER
+  };
 
   const handleApproveClick = async () => {
     await approveLot(token, id);
 
-    if (!error)
-      setIsChecked(true);
+    if (!error) setIsChecked(true);
 
     console.log(`Lot ${id} applroved`); //LOGIC TO SERVER
-  }
+  };
 
   return (
-    <div className={`${css.lot} ${isChecked ? css.checked : ""}`}>
-      <img
-        src={
-          imageURLs[0]
-        }
-        className={css.lotImage}
-        alt="oleg"
-      />
+    <div
+      className={`${css.lot} ${isChecked ? css.checked : ""} ${
+        style === "default" ? "" : css[style]
+      }`}
+    >
+      <img src={imageURLs[0]} className={css.lotImage} alt="oleg" />
       <div className={css.lotText}>
         <h3 className={`${css.lotTitle}`}>{title}</h3>
         <p className={css.lotDesc}>{shortDescription}</p>
 
         <div className={css.lotInfo}>
-          <p>
+          <p className={css.money}>
             <svg>
               <use href={`${MoneySvg}#attach_money`} />
             </svg>
             {price}
           </p>
-          <p>
+          <p className={css.time}>
             <svg>
               <use href={`${MoneySvg}#schedule`} />
             </svg>
             {formatTime(ttl)}
           </p>
-          <p>
+          <p className={css.place}>
             <svg>
               <use href={`${MoneySvg}#location`} />
             </svg>
-            {`м. ${city ? city : "Місто"}`}
+            {`м. ${city}`}
           </p>
-          <NavLink to={"/lot/" + id} className={css.arrowOutward}>
+          <NavLink
+            to={"/lot/" + id}
+            className={css.arrowOutward}
+            onClick={() => {
+              window.location.reload();
+            }}
+          >
             <svg>
               <use href={`${MoneySvg}#arrow_outward`} />
             </svg>
           </NavLink>
         </div>
       </div>
-      {isAdmin && !_isApproved ?
+      {isAdmin && !_isApproved ? (
         <div className={css.adminPanel}>
-          <Button className={css.approve} onClick={handleApproveClick}>Approve</Button>
-          <Button className={css.deny} onClick={() => setModalVisible(true)}>Deny</Button>
-        </div> : <></>}
+          <Button className={css.approve} onClick={handleApproveClick}>
+            Approve
+          </Button>
+          <Button className={css.deny} onClick={() => setModalVisible(true)}>
+            Deny
+          </Button>
+        </div>
+      ) : (
+        <></>
+      )}
 
       <ModalWindow visible={modalVisible} setVisible={setModalVisible}>
         <h2>Explanation</h2>
@@ -121,7 +132,6 @@ function Lot({
         <Button onClick={handleSendClick}>Send reply</Button>
       </ModalWindow>
     </div>
-
   );
 }
 

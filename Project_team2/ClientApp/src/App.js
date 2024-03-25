@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Route, Switch, Redirect } from "react-router";
 import { Layout } from "./pages/Layout";
 import { Home } from "./pages/Home";
-import LotPage from "./pages/LotPage.js";
+import LotPage from "./pages/LotPage/LotPage.js";
 import CreateLot from "./pages/CreateLot.js";
 import "./custom.css";
 import SearchPage from "./pages/Search/SearchPage.js";

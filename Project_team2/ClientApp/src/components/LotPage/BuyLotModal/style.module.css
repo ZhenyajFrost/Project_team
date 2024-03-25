@@ -57,3 +57,12 @@
   top: 20px;
   cursor: pointer;
 }
+
+@media screen and (max-width: 769px) {
+  .main {
+    width: 80vw;
+  }
+  .bidCont input {
+    width: 50vw;
+  }
+}

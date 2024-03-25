@@ -56,3 +56,29 @@
   position: absolute;
   right: -20px;
 }
+.lotheader {
+}
+
+@media screen and (max-width: 376px) {
+  .lotheader {
+    display: flex;
+    justify-content: space-between  ;
+
+  }
+  .lotheader a{
+    font-family: Manrope;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 19.12px;
+    text-align: left;
+    text-decoration: none;
+    color: var(--textColor);
+  }
+  .lotheader h2 {
+    font-family: Manrope;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 24.59px;
+    text-align: center;
+  }
+}
