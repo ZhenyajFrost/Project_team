@@ -3,11 +3,9 @@
   justify-content: space-between;
 }
 .def {
-  font-family: Manrope;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 19.12px;
-  text-align: left;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  text-align: left !important;
 }
 .user {
   font-family: Manrope;

@@ -12,6 +12,7 @@
 .bidCont {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 20px;
   justify-content: space-between;
   margin-bottom: 20px;
