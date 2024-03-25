@@ -36,7 +36,7 @@ function PictureCarousel({ images }) {
     line.current.style.transform = "translate(-40vw, 0)";
 
     lineHigh.current.style.transition = "all 0.5s ease";
-    lineHigh.current.style.transform = "translate(-120vw, 0)";
+    lineHigh.current.style.transform = "translate(-200%, 0)";
     setTimeout(() => {
       order.push(order.shift());
       setOrder([...order]);
@@ -45,7 +45,7 @@ function PictureCarousel({ images }) {
       line.current.style.transform = "translate(-20vw, 0)";
 
       lineHigh.current.style.transition = "none";
-      lineHigh.current.style.transform = "translate(-60vw, 0)";
+      lineHigh.current.style.transform = "translate(-100%, 0)";
     }, 500);
   };
   const prev = () => {
@@ -62,7 +62,7 @@ function PictureCarousel({ images }) {
       line.current.style.transform = "translate(-20vw, 0)";
 
       lineHigh.current.style.transition = "none";
-      lineHigh.current.style.transform = "translate(-60vw, 0)";
+      lineHigh.current.style.transform = "translate(-100%, 0)";
     }, 500);
   };
   if (order.length <= 1) {
