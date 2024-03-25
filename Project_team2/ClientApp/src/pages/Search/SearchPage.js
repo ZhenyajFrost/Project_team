@@ -14,8 +14,6 @@ import DisplayChoose from "../../components/UI/DisplayChoose/DisplayChoose";
 
 function SearchPage(props) {
   function formatDate(date) {
-
-    console.log(date);
     if (!date || !date.getFullYear) {
       if (!date || date < 0) {
         return;
@@ -51,16 +49,15 @@ function SearchPage(props) {
   const types = {
     minPrice: (e) => Number(e),
     maxPrice: (e) => Number(e),
-    region: (e) => e,
+    region: (e) => decodeURI(e),
     isNew: (e) => e === "true",
     ascending: (e) => e === "true",
     orderBy: (e) => e,
     timeTillEnd: (e) => new Date(e),
-    searchString: (e) => e,
+    searchString: (e) => decodeURI(e),
     category: (e) => e,
     
   };
-  const [oldFilter, setOldFilter] = useState({});
   const [filter, setFilter] = useState({ ...initial });
   const [curPage, setCurPage] = useState(1);
   const [lotDisplay, setLotDisplay] = useState("list");
@@ -105,7 +102,6 @@ function SearchPage(props) {
     changed.timeTillEnd = formatDate(changed.timeTillEnd);
     changed.searchString = searchString;
     getLots(curPage, perPage, changed);
-    setOldFilter(changed);
 
     let location = "?";
     for (const key in changed) {

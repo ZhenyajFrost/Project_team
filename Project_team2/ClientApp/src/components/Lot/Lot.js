@@ -9,6 +9,7 @@ import ModalWindow from "../ModalWindow/ModalWindow.js";
 import useApproveLot from "../../API/Lots/useApproveLot.js";
 import useDenyLot from "../../API/Lots/useDenyLot.js";
 import store from "../../utils/Zustand/store.js";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min.js";
 
 function Lot({
   id,
@@ -26,7 +27,7 @@ function Lot({
   style = "default",
 }) {
   const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date()) / 10000);
-
+  const history = useHistory();
   const { token } = store();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -99,6 +100,7 @@ function Lot({
             to={"/lot/" + id}
             className={css.arrowOutward}
             onClick={() => {
+              history.push(`/lot/${id}`)
               window.location.reload();
             }}
           >
