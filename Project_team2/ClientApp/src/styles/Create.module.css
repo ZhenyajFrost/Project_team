@@ -1,5 +1,4 @@
 .createForm {
-
 }
 .createSection {
   background-color: var(--white);
@@ -43,7 +42,7 @@
 .priceInp {
   background-color: transparent;
 }
-.fincont{
+.fincont {
   display: flex;
   justify-content: right;
 }
@@ -53,4 +52,10 @@
   gap: 8px;
   background-color: var(--buttonColor);
   color: var(--white);
+}
+@media (max-width: 376px) {
+  .priceCont {
+    display: flex;
+    flex-direction: column;
+  }
 }

@@ -1,16 +1,25 @@
 .sel,
 .sel:focus {
-  width: 577px;
+  width: 57vw;
   height: 24px;
   position: absolute;
-  top:8px;
-  left:16px;
+  top: 8px;
+  left: 16px;
 }
 .cont {
-    position: relative;
-  width: 609px;
+  position: relative;
+  width: 61vw;
   height: 40px;
   border-radius: 40px;
   border: 1px solid var(--borderColor);
   padding: 8px 16px 8px 16px;
+}
+@media (max-width: 376px) {
+  .sel,
+  .sel:focus {
+    width: 75vw;
+  }
+  .cont{
+    width: 85vw;
+  }
 }
