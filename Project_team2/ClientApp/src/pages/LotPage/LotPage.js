@@ -26,7 +26,7 @@ import Notiflix from "notiflix";
 function LotPage() {
 
   const id = parseInt(window.location.href.split("/").pop(), 10);
-  const { user: me, token } = store();
+  const { user: me, token, webSocketToken, connectWebSocket } = store();
   const [modal, setModal] = useState(false);
   const [report, setReport] = useState(false)
   const [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
@@ -37,18 +37,19 @@ function LotPage() {
     getLotById(id, token);
     getHistory(id);
 
-    const intervalId = setInterval(() => {
-        getHistory(id);
-    }, 3000);
+    connectWebSocket(webSocketToken);
+    // const intervalId = setInterval(() => {
+    //     getHistory(id);
+    // }, 3000);
 
-    return () => clearInterval(intervalId);
-}, []);
+    // return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     if (Number(lot.userId) && !lots) getLots(Number(lot.userId), 1, 10);
   }, [lot, getLots, lots]);
 
-  
+
   if (!error && !isLoading && !lot.id) {
     return <h1>Щось пішло не так, спробуйте ще раз</h1>
   }
@@ -70,7 +71,7 @@ function LotPage() {
             { name: lot.title, path: "" },
           ]}
         /> */}
-        {window.screen.width <= 768 ? <h2 style={{marginLeft:"10px"}}>{lot.title}</h2> : null}
+        {window.screen.width <= 768 ? <h2 style={{ marginLeft: "10px" }}>{lot.title}</h2> : null}
         <div className={css.cont}>
           <div className={css.left}>
             <div className={css.sideThing}>
@@ -272,7 +273,7 @@ function LotPage() {
           {isLoadingLots ? (
             <Loader />
           ) : lots.length > 1 ? (
-            <LotsCarousel lots={lots.filter(v=>v.id!==lot.id)} userId={user.id} />
+            <LotsCarousel lots={lots.filter(v => v.id !== lot.id)} userId={user.id} />
           ) : (
             <h4>В цього користувача немає інших лотів</h4>
           )}
@@ -280,24 +281,22 @@ function LotPage() {
         {modal ? (
           <ModalWindow
             visible={modal}
-            setVisible={setModal}
-            children={
-              <BuyLotModal
-                userId={me.id}
-                lotUserId={lot.userId}
-                killMyself={() => setModal(false)}
-                maxBid={maxBid}
-                minStep={lot.minStepPrice}
-                minPrice={lot.minPrice}
-                lotId={lot.id}
-                sellOn={lot.price}
-              />
-            }
-          />
+            setVisible={setModal}>
+            <BuyLotModal
+              userId={me.id}
+              lotUserId={lot.userId}
+              killMyself={() => setModal(false)}
+              maxBid={maxBid}
+              minStep={lot.minStepPrice}
+              minPrice={lot.minPrice}
+              lotId={lot.id}
+              sellOn={lot.price} />
+          </ModalWindow>
+
         ) : null}
 
         {report ? (
-          me  ? (
+          me ? (
             <ModalWindow visible={report} setVisible={setReport}>
               <Report lotId={lot.id} />
             </ModalWindow>
@@ -306,7 +305,7 @@ function LotPage() {
             Notiflix.Notify.info("Увійдіть в акаунт")
           )
         ) : (
-         <></>
+          <></>
         )}
 
 

@@ -13,6 +13,8 @@ using Org.BouncyCastle.Asn1.Ocsp;
 using Org.BouncyCastle.Pqc.Crypto.Lms;
 using System.Security.Cryptography;
 using System.Text;
+using Project_team2.Controllers;
+using System.Configuration;
 
 namespace Project2.Controllers
 {
@@ -44,7 +46,9 @@ namespace Project2.Controllers
         private readonly string _smtpPassword;
         private readonly string _telegramBotToken;
         private readonly long _chatId;
-        public BidsController()
+        private readonly WebSocketServer _webSocketServer;
+        private readonly IConfiguration _configuration;
+        public BidsController(WebSocketServer webSocketServer, IConfiguration configuration)
         {
             _connString = Config.MySqlConnection;
             _smtpServer = Config.SmtpServer;
@@ -53,6 +57,8 @@ namespace Project2.Controllers
             _smtpPassword = Config.SmtpPassword;
             _telegramBotToken = Config.TelegramBotToken;
             _chatId = Config.ChatId;
+            _webSocketServer = webSocketServer;
+            _configuration = configuration;
         }
 
         private async Task SendEmailAsync(string toEmail, string subject, string body)
@@ -83,7 +89,7 @@ namespace Project2.Controllers
 
             try
             {
-                // Get lot information
+                // Получаем информацию о лоте
                 decimal minPrice;
                 decimal minStepPrice;
                 bool allowBids;
@@ -106,19 +112,19 @@ namespace Project2.Controllers
                             }
                             else
                             {
-                                return BadRequest(new { message = "Lot not found" });
+                                return BadRequest(new { message = "Лот не найден" });
                             }
                         }
                     }
                 }
 
-                // Check if bidding is allowed for the lot
+                // Проверяем, разрешены ли ставки для данного лота
                 if (!allowBids)
                 {
-                    return BadRequest(new { message = "Bidding is not allowed for this lot" });
+                    return BadRequest(new { message = "Ставки запрещены для этого лота" });
                 }
 
-                // Get current maximum bid for the lot
+                // Получаем текущую максимальную ставку для лота
                 decimal currentMaxBid = 0;
                 int userIdWhoseBidWasOutbid = 0;
                 using (MySqlConnection connection = new MySqlConnection(_connString))
@@ -141,19 +147,19 @@ namespace Project2.Controllers
                     }
                 }
 
-                // Check if the bid amount is valid
+                // Проверяем, является ли сумма ставки допустимой
                 if (model.BidAmount < minPrice || (currentMaxBid > 0 && model.BidAmount <= currentMaxBid))
                 {
-                    return BadRequest(new { message = "The bid amount must be greater than the minimum price and higher than the current maximum bid" });
+                    return BadRequest(new { message = "Сумма ставки должна быть больше минимальной цены и выше текущей максимальной ставки" });
                 }
 
-                // Check if the bid amount is at least MinStepPrice higher than the current maximum bid
+                // Проверяем, является ли сумма ставки хотя бы на MinStepPrice выше текущей максимальной ставки
                 if (model.BidAmount < currentMaxBid + minStepPrice)
                 {
-                    return BadRequest(new { message = "The bid amount must be at least the minimum step price higher than the current maximum bid" });
+                    return BadRequest(new { message = "Сумма ставки должна быть хотя бы на минимальную цену шага выше текущей максимальной ставки" });
                 }
 
-                // Add bid to Bids table
+                // Добавляем ставку в таблицу Bids
                 AddBidToDatabase(model.LotId, userId, model.BidAmount);
                 string lotTitle = "";
                 string lotDescription = "";
@@ -174,7 +180,7 @@ namespace Project2.Controllers
                                 lotTitle = lotDetailsReader.GetString("Title");
                                 lotDescription = lotDetailsReader.GetString("ShortDescription");
 
-                                // Get first image URL from comma-separated list
+                                // Получаем первый URL изображения из списка, разделенного запятыми
                                 string imageUrlString = lotDetailsReader.GetString("ImageUrls");
                                 string[] imageUrlArray = imageUrlString.Split(',');
                                 if (imageUrlArray.Length > 0)
@@ -186,33 +192,40 @@ namespace Project2.Controllers
                     }
                 }
 
-                // Send email notification if needed
+                // Отправляем электронное уведомление, если необходимо
                 if (userIdWhoseBidWasOutbid != 0)
                 {
                     string userEmail = GetUserEmail(userIdWhoseBidWasOutbid);
                     if (!string.IsNullOrEmpty(userEmail))
                     {
-                        // Read HTML template content
+                        // Читаем содержимое HTML-шаблона
                         string htmlTemplate = await System.IO.File.ReadAllTextAsync("Pages/Sending.html");
 
-                        // Replace placeholders with data from the database
+                        // Заменяем заполнители данными из базы данных
                         htmlTemplate = htmlTemplate.Replace("{{Zagolovok}}", "Ваша ставка была перебита");
                         htmlTemplate = htmlTemplate.Replace("{{lotId}}", model.LotId.ToString());
                         htmlTemplate = htmlTemplate.Replace("{{newBidAmount}}", model.BidAmount.ToString());
                         htmlTemplate = htmlTemplate.Replace("{{title}}", lotTitle);
                         htmlTemplate = htmlTemplate.Replace("{{Description}}", lotDescription);
                         htmlTemplate = htmlTemplate.Replace("{{URL_Lots}}", $"https://localhost:44424/lot/{model.LotId}");
-                        htmlTemplate = htmlTemplate.Replace("{{image_url}}", imageUrl); // Замена заполнителя для изображения
+                        htmlTemplate = htmlTemplate.Replace("{{image_url}}", imageUrl);
                         await SendEmailAsync(userEmail, "Ваша ставка была перебита", htmlTemplate);
                     }
                 }
+                var webSocketController = new WebSocketController(_webSocketServer, _configuration);
 
-                return Ok(new { message = "Bid placed successfully" });
+                // Отправить обновление ставки через WebSocket
+                if (HttpContext.WebSockets.IsWebSocketRequest)
+                {
+                    var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                    await webSocketController.SendBidUpdate(model.LotId, webSocket);
+                }
+                return Ok(new { message = "Ставка успешно размещена" });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in PlaceBid method: {ex.ToString()}");
-                return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
+                Console.WriteLine($"Ошибка в методе PlaceBid: {ex.ToString()}");
+                return StatusCode(500, new { message = $"Внутренняя ошибка сервера. Исключение: {ex.Message}" });
             }
         }
 
