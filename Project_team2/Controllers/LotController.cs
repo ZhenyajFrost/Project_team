@@ -965,10 +965,11 @@ namespace Project2.Controllers
         {
             try
             {
-                if (!CheckUserIsAdmin(ExtractUserIdFromToken(request.Token)))
+                if (!CheckUserIsAdmin(ExtractUserIdFromToken(request.Token)) || CheckUserIsOwnerOfLot(ExtractUserIdFromToken(request.Token), request.LotId))
                 {
-                    return BadRequest(new { message = "Only administrators can perform this action" });
+                    return BadRequest(new { message = "Only administrators or Owner can perform this action" });
                 }
+
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
@@ -1009,9 +1010,9 @@ namespace Project2.Controllers
         {
             try
             {
-                if (!CheckUserIsAdmin(ExtractUserIdFromToken(request.Token)))
+                if (!CheckUserIsAdmin(ExtractUserIdFromToken(request.Token)) || CheckUserIsOwnerOfLot(ExtractUserIdFromToken(request.Token), request.LotId))
                 {
-                    return BadRequest(new { message = "Only administrators can perform this action" });
+                    return BadRequest(new { message = "Only administrators or Owner can perform this action" });
                 }
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
@@ -1079,6 +1080,8 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
+
+
 
         [HttpPost("reportLot")]
         public async Task<IActionResult> ReportLot([FromBody] ReportLotModel model)
@@ -1511,13 +1514,13 @@ namespace Project2.Controllers
 
 
        [HttpPost("getLotById/{id}")]
-public IActionResult GetLotById([FromBody] TokenModel? model, int id)
+public IActionResult GetLotById([FromBody] TokenModel model, int id)
 {
     string token = model?.Token; // Проверяем, передан ли токен
     string userId = null;
 
     // Если передан токен, извлекаем из него идентификатор пользователя
-    if (!string.IsNullOrEmpty(token) && !token.StartsWith('0'))
+    if (!string.IsNullOrEmpty(token))
     {
         userId = ExtractUserIdFromToken(token);
     }
