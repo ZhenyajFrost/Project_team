@@ -110,7 +110,7 @@ function RegistrationConfirm({ user, isLogin, setEmailSent, setEmailSet, setModa
             <h2>Підтвердіть пошту</h2>
             <div className={classes.containerMain}>
 
-                <LoginSocMed />
+                <LoginSocMed setModalVisible={setModalVisible}/>
 
                 <div className={classes.contBlock}>або</div>
 

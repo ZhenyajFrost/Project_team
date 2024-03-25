@@ -81,7 +81,7 @@ const Login = ({ setModalVisible, setModalRegVisible, setForgotPass, setIsLoggin
     <div>
       <h2>Логін</h2>
       <div className={classes.containerMain}>
-        <LoginSocMed />
+        <LoginSocMed setModalVisible={setModalVisible}/>
         <div className={classes.contBlock}>або</div>
 
         <div className={classes.container}>
