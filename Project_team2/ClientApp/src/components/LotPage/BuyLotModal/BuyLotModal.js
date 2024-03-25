@@ -38,6 +38,7 @@ function BuyLotModal({ userId, lotUserId, lotId, maxBid, minStep, minPrice, sell
       );
     } else {
       addBid({ lotId, bidAmount: price, token });
+      killMyself();
     }
   };
 
