@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import classes from "../../../styles/InputSearch.module.css";
 import search from "../../../images/search.svg";
 import Button from "../Button/Button";
@@ -21,8 +21,10 @@ const InputSearch = ({
   value = null,
   nobutton,
 }) => {
-  const [inputValue, setInputValue] = useState(value);
-
+  const [inputValue, setInputValue] = useState();
+  useEffect(()=>{
+    setInputValue(value)
+  }, [value])
   const handleInputChange = (e) => {
     const newValue = e.target.value;
     setInputValue(newValue);

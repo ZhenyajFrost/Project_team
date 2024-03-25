@@ -119,7 +119,6 @@ function SearchPage(props) {
   const onFilterChange = (e) => {
     setFilter({ ...filter, ...e });
   };
-
   return (
     <>
       <div className={css.searchContainer}>
