@@ -184,7 +184,7 @@ function SearchPage(props) {
         ) : (
           <LotContainer
             display={lotDisplay}
-            lotStyle={lotDisplay === "listWrap" ? "small" : "basic"}
+            lotStyle={lotDisplay === "listWrap" || window.screen.width<=375? "small" : "basic"}
             lots={lots}
           />
         )}

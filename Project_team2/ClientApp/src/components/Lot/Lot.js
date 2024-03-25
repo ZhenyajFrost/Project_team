@@ -16,15 +16,13 @@ function Lot({
   title,
   price,
   shortDescription,
-  category,
   timeTillEnd,
-  hot,
   imageURLs,
   openModal,
   city,
   isAdmin,
   isApproved,
-  style = "default",
+  style = "basic",
 }) {
   const [ttl, setTtl] = useState((new Date(timeTillEnd) - new Date()) / 10000);
   const history = useHistory();
@@ -69,7 +67,7 @@ function Lot({
   return (
     <div
       className={`${css.lot} ${isChecked ? css.checked : ""} ${
-        style === "default" ? "" : css[style]
+        style === "basic" ? "" : css[style]
       }`}
     >
       <img src={imageURLs[0]} className={css.lotImage} alt="oleg" />
