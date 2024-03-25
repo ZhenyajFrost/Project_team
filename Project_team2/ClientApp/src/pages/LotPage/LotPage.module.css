@@ -56,18 +56,19 @@ svg {
   flex-wrap: wrap;
   gap: 15px;
   width: min(40vw 100%);
+  max-width: min(40vw 100%);
   flex-direction: column;
 
 }
 .lotChars div {
   display: flex;
   width: inherit;
+  max-width: inherit;
   overflow: hidden;
   justify-content: space-between;
 }
 
 .lotChars span {
-  min-width: 100px;
   font-family: Manrope;
   font-size: 14px;
   font-weight: 400;

@@ -27,7 +27,7 @@
   overflow: hidden;
   margin: auto;
   gap: 15px;
-  transform: translate(-200px, 0);
+  transform: translate(-20vw, 0);
   transition: all ease 0.5s;
 }
 .carouselContainer svg {
