@@ -62,7 +62,9 @@ function Filters({ onChange, current }) {
   const selCat = categories.find(
     (v) => Number(v.id) === Number(params.category)
   );
-
+  console.log(Math.ceil(
+    (new Date(params.timeTillEnd) - new Date()) / (1000 * 60 * 60 * 24)
+  ));
   return (
     <div className={css.filterContainer}>
       <div className={css.filterItem}>
@@ -119,9 +121,9 @@ function Filters({ onChange, current }) {
           onChange={(e) => {
             setParams({ ...params, timeTillEnd: e.target.value });
           }}
-          value={Math.ceil(
+          value={isNaN(Number(params.timeTillEnd)) ? Math.ceil(
             (new Date(params.timeTillEnd) - new Date()) / (1000 * 60 * 60 * 24)
-          )}
+          ):params.timeTillEnd}
         >
           <option value={-1}>Всі оголошення</option>
           <option value={1}>1 дня</option>
