@@ -19,7 +19,7 @@ function SearchPage(props) {
         return;
       }
       const today = new Date(Date.now());
-      if(isNaN(Number(date))){
+      if (isNaN(Number(date))) {
         return date;
       }
       date = new Date(
@@ -56,7 +56,6 @@ function SearchPage(props) {
     timeTillEnd: (e) => new Date(e),
     searchString: (e) => decodeURI(e),
     category: (e) => e,
-    
   };
   const [filter, setFilter] = useState({ ...initial });
   const [curPage, setCurPage] = useState(1);
@@ -113,12 +112,13 @@ function SearchPage(props) {
       window.location.href.split("?")[0] + location
     );
   };
-  useEffect(()=>{
-    doFetching(filter.searchString)
-  }, [changed])
+  useEffect(() => {
+    doFetching(filter.searchString);
+  }, [changed]);
   const onFilterChange = (e) => {
     setFilter({ ...filter, ...e });
   };
+  const isPhone = window.screen.width <= 375;
   return (
     <>
       <div className={css.searchContainer}>
@@ -127,10 +127,10 @@ function SearchPage(props) {
           <InputSearch onSearch={doFetching} value={filter.searchString} />
         </div>
         <p className={css.head}>Фільтри</p>
-        <Filters onChange={onFilterChange} current={filter}/>
+        <Filters onChange={onFilterChange} current={filter} />
         <hr />
         <div className={css.upThing}>
-          <NavLink href="/">На головну</NavLink>
+          {isPhone ? null : <NavLink href="/">На головну</NavLink>}
           <div>
             Сортувати за{" "}
             <div>
@@ -173,10 +173,12 @@ function SearchPage(props) {
                 <option value="city false">За містом вниз</option>
               </select>
             </div>
-            <DisplayChoose
-              setLotDisplay={setLotDisplay}
-              lotDisplay={lotDisplay}
-            />
+            {isPhone ? null : (
+              <DisplayChoose
+                setLotDisplay={setLotDisplay}
+                lotDisplay={lotDisplay}
+              />
+            )}
           </div>
         </div>
         {isLoading && lots ? (
@@ -184,7 +186,11 @@ function SearchPage(props) {
         ) : (
           <LotContainer
             display={lotDisplay}
-            lotStyle={lotDisplay === "listWrap" || window.screen.width<=375? "small" : "basic"}
+            lotStyle={
+              lotDisplay === "listWrap" || window.screen.width <= 375
+                ? "small"
+                : "basic"
+            }
             lots={lots}
           />
         )}

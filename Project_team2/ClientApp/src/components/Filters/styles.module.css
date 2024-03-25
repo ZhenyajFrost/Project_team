@@ -4,12 +4,12 @@
   background-color: #f8f8f8;
   gap: 20px;
   flex-wrap: wrap;
+  align-items: center;
 }
 .filterItem {
   display: grid;
 
   gap: 10px;
-  
 }
 input,
 select,
@@ -31,13 +31,21 @@ select:focus {
   max-height: 45px;
   min-width: 100px;
 }
-select.inputEl{
-    width: 250px;
+select.inputEl {
+  min-width: 250px;
 }
-.inputEl input{
-    width: 50px;
+.inputEl input {
+  min-width: 50px;
 }
 
-select.inputEl, select.inputEl:focus{
-  width: 290px;
+select.inputEl,
+select.inputEl:focus {
+  min-width: 290px;
+}
+@media screen and (max-width: 376px) {
+  .filterContainer {
+    justify-content: center;
+    max-width: 80vw;
+    margin: auto;
+  }
 }
