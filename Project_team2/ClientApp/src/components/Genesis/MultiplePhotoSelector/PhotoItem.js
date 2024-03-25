@@ -3,7 +3,7 @@ import css from "./style.module.css";
 import { Buffer } from "buffer";
 import { Notify } from "notiflix";
 
-function PhotoItem({ photo, setPhoto, order }) {
+function PhotoItem({ photo, setPhoto, order, kms }) {
   let disp;
   const [drag, setDrag] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -35,8 +35,7 @@ function PhotoItem({ photo, setPhoto, order }) {
 
         const data = await response.json();
 
-        console.log(data.secure_url);
-        setPhoto(data.secure_url)
+        setPhoto(data.secure_url);
         Notify.success("Зображення завантажено успішно!");
       } catch (error) {
         Notify.failure("Щось пішло не так");
@@ -46,15 +45,15 @@ function PhotoItem({ photo, setPhoto, order }) {
   };
 
   if (photo) {
-    if (photo === "+") disp = <button type="sex" onClick={addPhoto}>Додати</button>;
-    else
+    if (photo === "+")
       disp = (
-        <img
-          src={photo}
-          alt="item"
-          draggable="false"
-        />
+        <button type="sex" onClick={addPhoto}>
+          Додати
+        </button>
       );
+    else disp = <img src={photo} alt="item" draggable="false" />;
+  } else {
+    disp = <p></p>;
   }
   const move = (e) => {
     const left = e.clientX - e.target.width / 2;
@@ -80,7 +79,6 @@ function PhotoItem({ photo, setPhoto, order }) {
                 (position.left - positionStart.left) / (e.target.width * n)
               );
             }
-            // console.log({pt:position.top, pst:positionStart.top, eh: e.target.height})
             if (
               position.top - positionStart.top > e.target.height ||
               position.top - positionStart.top < -e.target.height
@@ -105,7 +103,7 @@ function PhotoItem({ photo, setPhoto, order }) {
     return (
       <div
         onMouseDown={(e) => {
-          if (photo && photo !== "+") {
+          if (!e.target.className.includes("cross") && photo && photo !== "+") {
             setDrag(true);
             move(e);
             setPositionStart({
@@ -117,6 +115,7 @@ function PhotoItem({ photo, setPhoto, order }) {
         className={css.item}
       >
         {disp}
+        {photo && photo !== "+" ? <div className={css.cross} onClick={kms}>x</div> : null}
       </div>
     );
   }

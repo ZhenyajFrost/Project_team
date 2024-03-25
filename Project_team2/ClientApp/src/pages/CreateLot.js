@@ -14,7 +14,7 @@ import store from "../utils/Zustand/store";
 export default function CreateLot({ data = {} }) {
   const initialState = {
     title: "",
-    category: 0,
+    category: 0, 
     timeTillEnd: 1,
     minPrice: 0,
     minStepPrice: 0,

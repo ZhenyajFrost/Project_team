@@ -7,15 +7,15 @@
 }
 
 .item {
-  width: max(160px, calc(20% - 24px));
+  width: calc(20% - 24px);
   height: 120px;
   border-radius: 24px;
   border: var(--borderColor) solid 1px;
   pointer-events: all;
   position: relative;
 }
-.item.dragable{
-    position: absolute;
+.item.dragable {
+  position: absolute;
 }
 
 .item button {
@@ -31,14 +31,14 @@
   border: inherit;
   border-radius: inherit;
   pointer-events: none;
-  pointer-events:stroke;
+  pointer-events: stroke;
 }
-.item.dragable{
+.item.dragable {
   position: fixed;
   z-index: 200;
 }
 
-.item:first-child:has(img):not(.dragable)::after{
+.item:first-child:has(img):not(.dragable)::after {
   background-color: var(--itemContainerColor);
   content: "головна";
   position: absolute;
@@ -47,4 +47,25 @@
 
   border-radius: 24px;
   padding: 0 10px;
+}
+
+.cross {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background-color: var(--white);
+  border-radius: 24px;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  pointer-events: all;
+}
+
+@media (max-width: 376px) {
+  .container {
+    max-height: fit-content;
+  }
+  .item {
+    width: calc(50% - 24px);
+  }
 }

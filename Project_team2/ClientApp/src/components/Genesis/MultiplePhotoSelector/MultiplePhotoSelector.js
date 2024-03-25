@@ -5,41 +5,43 @@ function MultiplePhotoSelector({ photos, setPhotos }) {
   let disp = [];
   const tidy = () => {
     let lastEmpty = -1;
-    const cop = [...photos]
+    const cop = [...photos];
     for (let i = 0; i < 10; i++) {
       if (cop.slice(0, i).includes(cop[i])) {
         cop[i] = "";
       }
-      if (cop[i] === '+') {
+      if (cop[i] === "+") {
         cop[i] = "";
       }
-      if (!cop[i] || cop[i] === "+" && lastEmpty === -1) {
+      if (!cop[i] || (cop[i] === "+" && lastEmpty === -1)) {
         lastEmpty = i;
       } else {
         if (i !== 0 && (!cop[i] || cop[i] === "+")) {
-          cop[lastEmpty] = cop[i]
+          cop[lastEmpty] = cop[i];
           cop[i] = " ";
           lastEmpty++;
-
         }
       }
     }
-    if (lastEmpty !== cop.length && !cop[lastEmpty])
-      cop[lastEmpty] = "+";
-    return cop
-  }
+    for (let i = 0; i < 10; i++) {
+      if (!cop[i]) {
+        cop[i] = "+";
+        return cop;
+      }
+    }
+    return cop;
+  };
 
   if (photos) {
     const cop = tidy();
+    console.log(cop);
     for (let i = 0; i < 10; i++) {
-      if (cop[i]) {
-        disp.push(cop[i]);
-      }
+      disp.push(cop[i]);
     }
+    console.log(disp);
   } else {
-    setPhotos([])
+    setPhotos([]);
   }
-
 
   const dispFin = disp.map((v, i) => (
     <PhotoItem
@@ -75,6 +77,10 @@ function MultiplePhotoSelector({ photos, setPhotos }) {
       setPhoto={(p) =>
         setPhotos([...disp.slice(0, i), p, ...disp.slice(i + 1)])
       }
+      kms={() => {
+        console.log(photos.filter((ph, j) => ph !== v))
+        setPhotos(photos.filter((ph, j) => ph !== v));
+      }}
     />
   ));
   return <div className={css.container}>{dispFin}</div>;

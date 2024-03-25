@@ -1,5 +1,5 @@
 .mainCont {
-  width: 408px;
+  width: 40vw;
   padding: 18px 24px 18px 24px;
   border-radius: 24px;
   justify-content: space-between;
@@ -38,6 +38,12 @@
   text-align: left;
   transition: all 0.5s ease;
 }
-.button:hover{
-    color: var(--strongGreen);
+.button:hover {
+  color: var(--strongGreen);
+}
+
+@media (max-width: 376px) {
+  .mainCont {
+    width: 80vw;
+  }
 }
