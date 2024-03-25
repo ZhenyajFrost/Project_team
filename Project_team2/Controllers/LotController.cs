@@ -757,13 +757,15 @@ namespace Project2.Controllers
             {
                 connection.Open();
 
-                string query = $"SELECT COUNT(*) FROM Lots WHERE Id = {lotId} AND UserID = {userId}";
-
+                string query = $"SELECT COUNT(*) FROM Lots WHERE Id = @lotId AND UserID = @userId";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
+                    command.Parameters.AddWithValue("@lotId", lotId);
+                    command.Parameters.AddWithValue("@userId", userId);
                     int count = Convert.ToInt32(command.ExecuteScalar());
                     return count > 0;
                 }
+               
             }
         }
 
@@ -963,14 +965,46 @@ namespace Project2.Controllers
         [HttpPost("UnactiveLot")]
         public IActionResult UnactiveLot( [FromBody] EditStatusLot request)
         {
+            var userId = ExtractUserIdFromToken(request.Token);
             try
             {
-                if (!CheckUserIsAdmin(ExtractUserIdFromToken(request.Token)) || CheckUserIsOwnerOfLot(ExtractUserIdFromToken(request.Token), request.LotId))
-                {
-                    return BadRequest(new { message = "Only administrators or Owner can perform this action" });
-                }
-
+                bool isAdmin = CheckUserIsAdmin(userId);
                 using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
+
+                    // Получаем информацию о лоте
+                    string lotInfoQuery = "SELECT UserId, AllowBids FROM Lots WHERE id = @id";
+                    using (MySqlCommand lotInfoCommand = new MySqlCommand(lotInfoQuery, connection))
+                    {
+                        lotInfoCommand.Parameters.AddWithValue("@id", request.LotId);
+                        using (MySqlDataReader reader = lotInfoCommand.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                var ownerId = reader["UserId"].ToString();
+                                var allowBids = Convert.ToBoolean(reader["AllowBids"]);
+
+                                // Проверяем, является ли UserId администратором или владельцем лота
+                                if (!isAdmin && ownerId != userId)
+                                {
+                                    return BadRequest(new { message = "You are not authorized to archive this lot" });
+                                }
+
+                                // Проверяем, можно ли архивировать лот (если на лоте есть ставки, то архивирование невозможно)
+                                if (!isAdmin && allowBids)
+                                {
+                                    return BadRequest(new { message = "Cannot archive a lot with existing bids" });
+                                }
+                            }
+                            else
+                            {
+                                return BadRequest(new { message = "Lot not found" });
+                            }
+                        }
+                    }
+                }
+                    using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
                     string checkBidsQuery = "SELECT COUNT(*) FROM Bids WHERE LotId = @id";
@@ -1006,32 +1040,60 @@ namespace Project2.Controllers
         }
 
         [HttpPost("ArchiveLot")]
-        public IActionResult ArchiveLot( [FromBody] EditStatusLot request)
+        public IActionResult ArchiveLot([FromBody] EditStatusLot request)
         {
+            var userId = ExtractUserIdFromToken(request.Token);
             try
             {
-                if (!CheckUserIsAdmin(ExtractUserIdFromToken(request.Token)) || CheckUserIsOwnerOfLot(ExtractUserIdFromToken(request.Token), request.LotId))
-                {
-                    return BadRequest(new { message = "Only administrators or Owner can perform this action" });
-                }
+                bool isAdmin = CheckUserIsAdmin(userId);
+
                 using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
+
+                    // Получаем информацию о лоте
+                    string lotInfoQuery = "SELECT UserId, AllowBids FROM Lots WHERE id = @id";
+                    using (MySqlCommand lotInfoCommand = new MySqlCommand(lotInfoQuery, connection))
+                    {
+                        lotInfoCommand.Parameters.AddWithValue("@id", request.LotId);
+                        using (MySqlDataReader reader = lotInfoCommand.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                var ownerId = reader["UserId"].ToString();
+                                var allowBids = Convert.ToBoolean(reader["AllowBids"]);
+
+                                // Проверяем, является ли UserId администратором или владельцем лота
+                                if (!isAdmin && ownerId != userId)
+                                {
+                                    return BadRequest(new { message = "You are not authorized to archive this lot" });
+                                }
+
+                                // Проверяем, можно ли архивировать лот (если на лоте есть ставки, то архивирование невозможно)
+                                if (!isAdmin && allowBids)
+                                {
+                                    return BadRequest(new { message = "Cannot archive a lot with existing bids" });
+                                }
+                            }
+                            else
+                            {
+                                return BadRequest(new { message = "Lot not found" });
+                            }
+                        }
+                    }
+
                     string checkBidsQuery = "SELECT COUNT(*) FROM Bids WHERE LotId = @id";
-                    using (MySqlCommand checkBidsCommand = new MySqlCommand(checkBidsQuery, connection)) // заменяем _connString на connection
+                    using (MySqlCommand checkBidsCommand = new MySqlCommand(checkBidsQuery, connection))
                     {
                         checkBidsCommand.Parameters.AddWithValue("@id", request.LotId);
                         int bidsCount = Convert.ToInt32(checkBidsCommand.ExecuteScalar());
                         if (bidsCount > 0)
                         {
-                            return BadRequest(new { message = "Нельзя удалить лот на котором уже есть ставки" });
+                            return BadRequest(new { message = "Cannot archive a lot with existing bids" });
                         }
                     }
-                }
-                using (MySqlConnection connection = new MySqlConnection(_connString))
-                {
-                    connection.Open();
 
+                    // Архивируем лот
                     string query = "UPDATE Lots SET active = false, unactive = false, archive = true, AllowBids = false, isWaitingDelivery = false, isWaitingPayment = false WHERE id = @id";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
@@ -1048,7 +1110,8 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error. Exception: {ex.Message}" });
             }
         }
-       
+
+
 
         [HttpPost("isWaitingPaymentLot")]
         public IActionResult isWaitingPaymentLot([FromBody] EditStatusLot request)
@@ -1513,19 +1576,19 @@ namespace Project2.Controllers
         }
 
 
-       [HttpPost("getLotById/{id}")]
-public IActionResult GetLotById([FromBody] TokenModel model, int id)
-{
-    string token = model?.Token; // Проверяем, передан ли токен
-    string userId = null;
+        [HttpPost("getLotById/{id}")]
+        public IActionResult GetLotById([FromBody] TokenModel model, int id)
+        {
+            string token = model?.Token ?? ""; // Устанавливаем токен как пустую строку, если он не передан
+            string userId = null;
 
-    // Если передан токен, извлекаем из него идентификатор пользователя
-    if (!string.IsNullOrEmpty(token))
-    {
-        userId = ExtractUserIdFromToken(token);
-    }
+            // Если передан токен, извлекаем из него идентификатор пользователя
+            if (!string.IsNullOrEmpty(token))
+            {
+                userId = ExtractUserIdFromToken(token);
+            }
 
-    try
+            try
     {
         Lot lot = null;
         User owner = null;
@@ -2167,6 +2230,6 @@ public IActionResult GetLotById([FromBody] TokenModel model, int id)
     }
     public class TokenModel
     {
-        public string Token { get; set; }
+        public string? Token { get; set; }
     }
 }

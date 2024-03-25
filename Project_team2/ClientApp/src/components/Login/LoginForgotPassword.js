@@ -65,7 +65,7 @@ const LoginForgotPassword = ({ setForgotPass }) => {
         <><h2>Вхід</h2>
 
           <div className={classes.containerMain}>
-            <LoginSocMed />
+            <LoginSocMed/>
             <div className={classes.contBlock}>або</div>
 
             <div className={classes.container}>

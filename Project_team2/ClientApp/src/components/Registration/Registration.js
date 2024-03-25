@@ -67,7 +67,7 @@ function Registration({ user, setModalVisible, setModalLogVisible, setUser, setE
         <p className={classes.error}>{`${validationErrors}`}</p>
       )}
       <div className={classes.containerMain}>
-        <LoginSocMed />
+        <LoginSocMed setModalVisible={setModalVisible}/>
         <div className={classes.contBlock}>або</div>
 
         <div className={classes.container}>

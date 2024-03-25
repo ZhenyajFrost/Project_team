@@ -8,7 +8,7 @@ import { GoogleLogin } from 'react-google-login';
 import { gapi } from 'gapi-script';
 import store from '../../utils/Zustand/store';
 
-const LoginSocMed = () => {
+const LoginSocMed = ({setModalVisible}) => {
   // Success handler for both login and logout
   const {setData} = store();
   const onSuccess = (response) => {
@@ -37,8 +37,10 @@ const LoginSocMed = () => {
 
           setData({user:userData, token:result.data.token, webSocketToken:result.data.webSocketToken, isLoggined:true})
   
+          setModalVisible(false);
 
           Notiflix.Notify.success("Вхід успішний!");
+
           //setTimeout(() => window.location.reload(), 3000);
 
         }).catch((err) => {
