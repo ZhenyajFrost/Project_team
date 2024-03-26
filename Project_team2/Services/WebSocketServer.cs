@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Project_team2.Controllers;
 using System;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
@@ -11,13 +12,15 @@ public class WebSocketServer
 {
     private readonly ILogger<WebSocketServer> _logger;
     private static readonly ConcurrentDictionary<string, WebSocket> _sockets = new ConcurrentDictionary<string, WebSocket>();
+    private readonly ILotConnectionController _lotConnectionController;
 
-    public WebSocketServer(ILogger<WebSocketServer> logger)
+    public WebSocketServer(ILogger<WebSocketServer> logger, ILotConnectionController lotConnectionController)
     {
         _logger = logger;
+        _lotConnectionController = lotConnectionController;
     }
 
-    public async Task<WebSocket> HandleWebSocketAsync(HttpContext context, string userToken)
+    public async Task<WebSocket> HandleWebSocketAsync(HttpContext context, string userToken, int lotId)
     {
         if (context.WebSockets.IsWebSocketRequest)
         {
@@ -28,6 +31,19 @@ public class WebSocketServer
             // Optionally, send a welcome message or perform some initialization here
             var welcomeMessage = Encoding.UTF8.GetBytes("Hello from server in");
             await webSocket.SendAsync(new ArraySegment<byte>(welcomeMessage), WebSocketMessageType.Text, true, CancellationToken.None);
+
+            if (webSocket != null)
+            {
+                _lotConnectionController.AddConnectionForLot(lotId, webSocket);// Добавляем соединение для этого лота
+                var message = Encoding.UTF8.GetBytes("Hello from server out");
+                await webSocket.SendAsync(new ArraySegment<byte>(message), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+            else
+            {
+                Console.WriteLine("Socket is null");
+            }
+
+            await Echo(context, webSocket, userToken); // Возможно, вам потребуется асинхронно вызвать этот метод без ожидания завершения, в зависимости от вашей логики
 
             return webSocket;
         }
@@ -55,6 +71,8 @@ public class WebSocketServer
             result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
         }
 
+        _logger.LogInformation($"Closed: \" for ID: {connectionId}");
+        Console.WriteLine($"Closed: \" for ID: {connectionId}");
         await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
     }
 }

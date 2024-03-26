@@ -1,69 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { WS_BASE_URL } from '../API/apiConstant';
-import store from '../utils/Zustand/store';
+import React, { useEffect, useState } from 'react';
+import { WS_BASE_URL } from '../API/apiConstant'; // Убедитесь, что импорт правильный
 
-function WebSocketComponent() {
+const WebSocketComponent = ({ token, lotId }) => {
   const [webSocket, setWebSocket] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
 
-  const {webSocketToken} = store()
-
-  // Устанавливаем соединение при монтировании компонента
   useEffect(() => {
-    const ws = new WebSocket(`${WS_BASE_URL}/connect?token=${webSocketToken}`);
-    
+    // Если токен или ID лота не предоставлены, не создавать WebSocket соединение
+    if (!token || !lotId) return;
+
+    // Создание нового WebSocket соединения
+    const ws = new WebSocket(`${WS_BASE_URL}/connect?token=${token}&lotId=${lotId}`);
+
     ws.onopen = () => {
-      console.log('WebSocket connection established');
+      console.log("WebSocket Connected");
+      setWebSocket(ws);
     };
 
     ws.onmessage = (event) => {
-      // При получении сообщения от сервера добавляем его в состояние
-      setMessages(prevMessages => [...prevMessages, event.data]);
+      console.log("Received message:", event.data);
+      // Обработка сообщений от сервера
     };
 
     ws.onclose = () => {
-      console.log('WebSocket connection closed');
+      console.log("WebSocket Disconnected");
+      setWebSocket(null);
     };
 
-    setWebSocket(ws);
-
-    // Закрываем соединение при размонтировании компонента
+    // Функция очистки, которая будет вызвана при размонтировании компонента
     return () => {
-      ws.close();
+      //ws.close();
+      console.log("WebSocket connection closed");
     };
-  }, []);
+  }, [token, lotId]); // Пересоздание WebSocket при изменении токена или ID лота
 
-  const sendMessage = () => {
-    if (webSocket && input.trim() && webSocket.readyState === WebSocket.OPEN) {
-      webSocket.send(input);
-      setInput(''); // Очищаем поле ввода после отправки
-    } else {
-      console.log('WebSocket is not connected.');
+  // Функция для отправки сообщения через WebSocket
+  const sendMessage = (message) => {
+    if (webSocket && webSocket.readyState === WebSocket.OPEN) {
+      webSocket.send(message);
     }
   };
 
+  // Пример интерфейса для отправки сообщения (можно адаптировать под ваши нужды)
   return (
     <div>
-      <h2>Chat</h2>
-      <div>
-        {messages.map((message, index) => (
-          <p key={index}>{message}</p>
-        ))}
-      </div>
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyPress={(e) => {
-          if (e.key === 'Enter') {
-            sendMessage();
-          }
-        }}
-      />
-      <button onClick={sendMessage}>Send</button>
+      <button onClick={() => sendMessage("Привет от клиента!")}>Отправить сообщение</button>
     </div>
   );
-}
+
+};
 
 export default WebSocketComponent;

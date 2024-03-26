@@ -15,7 +15,6 @@ export default function AdminPage() {
 
   return (
     <div>
-      <WebSocketComponent />
       {isLoading ? <Loader/> : <LotContainer lots={lots} display="list" lotStyle="basic" isAdmin="true" />}
       {/* TO DO Pagination */}
     </div>

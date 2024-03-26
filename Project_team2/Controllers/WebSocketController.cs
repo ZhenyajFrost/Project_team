@@ -18,53 +18,16 @@ public class WebSocketController : ControllerBase
 {
     private readonly WebSocketServer _webSocketServer;
     private readonly string _connectionString;
-    private readonly Dictionary<int, List<WebSocket>> _lotConnections = new Dictionary<int, List<WebSocket>>();
+
     // Метод для добавления соединения для определенного лота
+    private readonly ILotConnectionController _lotConnectionController;
 
-    public void AddConnectionForLot(int lotId, WebSocket webSocket)
-    {
-        if (!_lotConnections.ContainsKey(lotId))
-        {
-            _lotConnections[lotId] = new List<WebSocket>();
-        }
-
-        _lotConnections[lotId].Add(webSocket);
-    }
-
-    public async Task SendBidUpdate(int lotId, string jsonData)
-    {
-        if (_lotConnections.ContainsKey(lotId))
-        {
-            foreach (var webSocket in _lotConnections[lotId])
-            {
-                await SendDataToClientAsync(webSocket, jsonData);
-            }
-        }
-    }
-
-    public async Task SendDataToClientAsync(WebSocket webSocket, string jsonData)
-    {
-        if (webSocket != null && webSocket.State == WebSocketState.Open)
-        {
-            // Преобразуйте строку JSON в массив байт
-            byte[] data = Encoding.UTF8.GetBytes(jsonData);
-
-            // Отправьте данные клиенту через WebSocket
-            await webSocket.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Text, true, CancellationToken.None);
-        }
-        else
-        {
-            // Обработка случая, когда соединение с клиентом закрыто или недоступно
-            // Например, удаление отключенного клиента из списка подключенных 
-            // или другие действия, соответствующие вашим требованиям
-        }
-    }
-    public WebSocketController(WebSocketServer webSocketServer, IConfiguration configuration)
+    public WebSocketController(WebSocketServer webSocketServer, IConfiguration configuration, ILotConnectionController lotConnectionController)
     {
         _webSocketServer = webSocketServer;
         _connectionString = Config.MySqlConnection; // Убедитесь, что строка подключения указана в appsettings.json
+        _lotConnectionController = lotConnectionController;
     }
-
 
 
     [HttpGet("connect")]
@@ -78,10 +41,10 @@ public class WebSocketController : ControllerBase
                 return Unauthorized("Invalid or missing token.");
             }
 
-            var webSocket = await _webSocketServer.HandleWebSocketAsync(HttpContext, token);
+            var webSocket = await _webSocketServer.HandleWebSocketAsync(HttpContext, token, lotId);
             if (webSocket != null)
             {
-                this.AddConnectionForLot(lotId, webSocket);// Добавляем соединение для этого лота
+                _lotConnectionController.AddConnectionForLot(lotId, webSocket);// Добавляем соединение для этого лота
                 var message = Encoding.UTF8.GetBytes("Hello from server out");
                 await webSocket.SendAsync(new ArraySegment<byte>(message), WebSocketMessageType.Text, true, CancellationToken.None);
             }

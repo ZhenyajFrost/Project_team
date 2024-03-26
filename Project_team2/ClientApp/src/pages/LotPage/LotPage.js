@@ -17,6 +17,7 @@ import useGetUserLots from "../../API/Lots/Get/useGetUserLots.js";
 
 import { WS_BASE_URL } from "../../API/apiConstant.js";
 import useBidUpdatesWebSocket from '../../API/useBidUpdatesWebSocket.js'; // Импортируем наш хук
+import WebSocketComponent from '../../WebSockets/WebSocketComponent.js'
 
 import LotsCarousel from "../../components/Carousel/LotsCarousel/LotsCarousel.js";
 import store from "../../utils/Zustand/store.js";
@@ -24,7 +25,6 @@ import Report from "../../components/Report/Report.js";
 import Notiflix from "notiflix";
 
 function LotPage() {
-
   const id = parseInt(window.location.href.split("/").pop(), 10);
   const { user: me, token, webSocketToken, connectWebSocket } = store();
   const [modal, setModal] = useState(false);
@@ -37,7 +37,27 @@ function LotPage() {
     getLotById(id, token);
     getHistory(id);
 
-    connectWebSocket(webSocketToken, id);
+    //connectWebSocket(webSocketToken, id);
+
+    // const webSocket = new WebSocket(`${WS_BASE_URL}/connect?token=${token}&lotId=${id}`);
+
+    // webSocket.onopen = () => {
+    //   console.log("WebSocket Connected");
+    // };
+
+    // webSocket.onmessage = (event) => {
+    //   // Обработка входящих сообщений
+    //   console.log("Received message:", event.data);
+    // };
+
+    // webSocket.onclose = (event) => {
+    //   if (event.wasClean) {
+    //     console.log(`WebSocket Disconnected cleanly, code=${event.code}, reason=${event.reason}`);
+    //   } else {
+    //     // e.g., the server process is killed or the network is down
+    //     console.log('WebSocket Disconnected');
+    //   }
+    // };
     // const intervalId = setInterval(() => {
     //     getHistory(id);
     // }, 3000);
@@ -62,6 +82,7 @@ function LotPage() {
 
     return (
       <div className={css.big}>
+        <WebSocketComponent token={webSocketToken} lotId={id}/>
         {/* <LotPath
           path={[
             {

@@ -9,11 +9,14 @@ using Project_team2;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.Net.WebSockets;
+using Project_team2.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Настройка аутентификации и других сервисов
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<ILotConnectionController, LotConnectionController>();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -71,7 +74,6 @@ builder.Services.AddHostedService<LotSchedulingService>(sp =>
     )
 );
 
-
 // Регистрация WebSocketServer как Singleton, чтобы его можно было внедрить
 builder.Services.AddSingleton<WebSocketServer>();
 builder.Services.AddHttpClient();
@@ -101,8 +103,6 @@ app.MapControllerRoute(
 
 // Важно! Добавьте это для маршрутизации к контроллерам
 app.MapControllers();
-
-
 
 app.MapFallbackToFile("index.html");
 

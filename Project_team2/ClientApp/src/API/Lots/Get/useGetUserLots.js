@@ -21,7 +21,7 @@ const useGetUserLots = (initLots=[]) => {
                     ...filters
                 }
             });
-            console.log('Lots successfully retrieved: ', response.data);
+            //console.log('Lots successfully retrieved: ', response.data);
             setLots(response.data.userLots);
             setTotalCount(response.data.totalLotCount)
             setCategories(response.data.categoryCount)

@@ -91,7 +91,7 @@ namespace Project2.Controllers
             }
         }
         [HttpPost("placeBid")]
-        public async Task<IActionResult> PlaceBid([FromBody] BidModel model, [FromServices] WebSocketController webSocketController)
+        public async Task<IActionResult> PlaceBid([FromBody] BidModel model, [FromServices] ILotConnectionController lotConnectionController)
         {
             var userId = ExtractUserIdFromToken(model.Token);
 
@@ -234,7 +234,7 @@ namespace Project2.Controllers
                 string jsonData = JsonConvert.SerializeObject(bidUpdateData);
 
                 // Вызов метода SendBidUpdate с передачей данных JSON
-                await webSocketController.SendBidUpdate(model.LotId, jsonData);
+                await lotConnectionController.SendBidUpdate(model.LotId, jsonData);
 
                 return Ok(new { message = "Ставка успешно размещена" });
             }

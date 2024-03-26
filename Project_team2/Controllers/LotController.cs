@@ -1739,12 +1739,6 @@ namespace Project2.Controllers
             }
         }
 
-
-
-
-
-
-
         [HttpPost("getUnapprovedLots")]
         public IActionResult GetUnapprovedLots(string token)
         {
