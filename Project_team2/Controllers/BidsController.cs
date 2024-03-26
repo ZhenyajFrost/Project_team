@@ -229,7 +229,7 @@ namespace Project2.Controllers
                     FirstName = userProfile.FirstName,
                     LastName = userProfile.LastName,
                     MaxBidAmount = model.BidAmount,
-                    Time = new DateTime()
+                    Time = DateTime.UtcNow
                     
                     // Добавьте другие необходимые данные из профиля пользователя
                 };

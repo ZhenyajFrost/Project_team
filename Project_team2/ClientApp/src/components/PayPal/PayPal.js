@@ -12,7 +12,6 @@ export default function Paypal({amount, lot, setPayment}) {
             intent: "CAPTURE",
             purchase_units: [
               {
-                description: `${lot.title} ${lot.shortDescription ? lot.shortDescription : ''}`,
                 amount: {
                   currency_code: "USD",
                   value: parseFloat((amount / 40.15).toFixed(2)),
