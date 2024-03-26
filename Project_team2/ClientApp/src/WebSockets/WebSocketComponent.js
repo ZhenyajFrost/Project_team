@@ -23,6 +23,7 @@ const WebSocketComponent = ({ token, lotId, onRecieve }) => {
         console.log("Received message:", event.data);
         onRecieve(JSON.parse(event.data));
       } catch {}
+
       // Обработка сообщений от сервера
     };
 

@@ -225,9 +225,12 @@ namespace Project2.Controllers
                 var bidUpdateData = new
                 {
                     UserId = userProfile.Id,
+                    Login = userProfile.Login,
                     FirstName = userProfile.FirstName,
                     LastName = userProfile.LastName,
-                    MaxBidAmount = model.BidAmount
+                    MaxBidAmount = model.BidAmount,
+                    Time = new DateTime()
+                    
                     // Добавьте другие необходимые данные из профиля пользователя
                 };
                 // Преобразование объекта в строку JSON
