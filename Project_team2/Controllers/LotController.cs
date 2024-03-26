@@ -1156,7 +1156,7 @@ namespace Project2.Controllers
                 var client = _httpClientFactory.CreateClient();
 
                 // Формируем URL для запроса к Python-боту
-                string botUrl = "http://localhost:8080/receive_report";
+                string botUrl = "http://46.175.150.80:8080/receive_report";
 
                 // Формируем данные для отправки
                 var content = new FormUrlEncodedContent(new[]
