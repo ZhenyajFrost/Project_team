@@ -37,12 +37,18 @@ const store = create((set, get) => ({
   blockUser: () => set({ isBlocked: true }),
   unblockUser: () => set({ isBlocked: false }),
 
-  connectWebSocket: (token) => {
-    const webSocket = new WebSocket(`${WS_BASE_URL}/connect?token=${token}`);
+  connectWebSocket: (token, lotId) => {
+    const webSocket = new WebSocket(`${WS_BASE_URL}/connect?token=${token}&lotId=${lotId}`);
 
     webSocket.onopen = () => {
       console.log("WebSocket Connected");
     };
+
+    webSocket.onmessage = (event) => {
+      // Обработка входящих сообщений
+      console.log("Received message:", event.data);
+    };
+    
     webSocket.onclose = () => {
       console.log("WebSocket Disconnected");
     };

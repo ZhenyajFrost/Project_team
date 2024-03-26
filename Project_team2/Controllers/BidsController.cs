@@ -15,6 +15,8 @@ using System.Security.Cryptography;
 using System.Text;
 using Project_team2.Controllers;
 using System.Configuration;
+using Newtonsoft.Json;
+using System.Net.WebSockets;
 
 namespace Project2.Controllers
 {
@@ -22,6 +24,35 @@ namespace Project2.Controllers
     [ApiController]
     public class BidsController : ControllerBase
     {
+        private readonly string _connString;
+        private readonly string _smtpServer;
+        private readonly int _smtpPort;
+        private readonly string _smtpUsername;
+        private readonly string _smtpPassword;
+        private readonly string _telegramBotToken;
+        private readonly long _chatId;
+        private readonly WebSocketServer _webSocketServer;
+        private readonly IConfiguration _configuration;
+
+        // Удаляем поле _webSocketController, так как оно не используется в контроллере
+        private readonly Dictionary<int, List<WebSocket>> _lotConnections;
+
+        // Изменяем конструктор для удаления неиспользуемых параметров
+        public BidsController(WebSocketServer webSocketServer, IConfiguration configuration, Dictionary<int, List<WebSocket>> lotConnections)
+        {
+            _connString = Config.MySqlConnection;
+            _smtpServer = Config.SmtpServer;
+            _smtpPort = Config.SmtpPort;
+            _smtpUsername = Config.SmtpUsername;
+            _smtpPassword = Config.SmtpPassword;
+            _telegramBotToken = Config.TelegramBotToken;
+            _chatId = Config.ChatId;
+            _webSocketServer = webSocketServer;
+            _configuration = configuration;
+            _lotConnections = lotConnections;
+        }
+
+        // Добавляем пространство имен IConfiguration
         public string ExtractUserIdFromToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -37,28 +68,6 @@ namespace Project2.Controllers
             }
 
             return null;
-        }
-
-        private readonly string _connString;
-        private readonly string _smtpServer;
-        private readonly int _smtpPort;
-        private readonly string _smtpUsername;
-        private readonly string _smtpPassword;
-        private readonly string _telegramBotToken;
-        private readonly long _chatId;
-        private readonly WebSocketServer _webSocketServer;
-        private readonly IConfiguration _configuration;
-        public BidsController(WebSocketServer webSocketServer, IConfiguration configuration)
-        {
-            _connString = Config.MySqlConnection;
-            _smtpServer = Config.SmtpServer;
-            _smtpPort = Config.SmtpPort;
-            _smtpUsername = Config.SmtpUsername;
-            _smtpPassword = Config.SmtpPassword;
-            _telegramBotToken = Config.TelegramBotToken;
-            _chatId = Config.ChatId;
-            _webSocketServer = webSocketServer;
-            _configuration = configuration;
         }
 
         private async Task SendEmailAsync(string toEmail, string subject, string body)
@@ -81,9 +90,8 @@ namespace Project2.Controllers
                 }
             }
         }
-
         [HttpPost("placeBid")]
-        public async Task<IActionResult> PlaceBid([FromBody] BidModel model)
+        public async Task<IActionResult> PlaceBid([FromBody] BidModel model, [FromServices] WebSocketController webSocketController)
         {
             var userId = ExtractUserIdFromToken(model.Token);
 
@@ -212,14 +220,22 @@ namespace Project2.Controllers
                         await SendEmailAsync(userEmail, "Ваша ставка была перебита", htmlTemplate);
                     }
                 }
-                var webSocketController = new WebSocketController(_webSocketServer, _configuration);
-
-                // Отправить обновление ставки через WebSocket
-                if (HttpContext.WebSockets.IsWebSocketRequest)
+                UserProfile userProfile = await GetUserProfileAsync(userId);
+                // Создание данных JSON для отправки
+                var bidUpdateData = new
                 {
-                    var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                    await webSocketController.SendBidUpdate(model.LotId, webSocket);
-                }
+                    UserId = userProfile.Id,
+                    FirstName = userProfile.FirstName,
+                    LastName = userProfile.LastName,
+                    MaxBidAmount = model.BidAmount
+                    // Добавьте другие необходимые данные из профиля пользователя
+                };
+                // Преобразование объекта в строку JSON
+                string jsonData = JsonConvert.SerializeObject(bidUpdateData);
+
+                // Вызов метода SendBidUpdate с передачей данных JSON
+                await webSocketController.SendBidUpdate(model.LotId, jsonData);
+
                 return Ok(new { message = "Ставка успешно размещена" });
             }
             catch (Exception ex)
@@ -229,6 +245,101 @@ namespace Project2.Controllers
             }
         }
 
+        public async Task SendBidUpdate(int lotId)
+        {
+            if (_lotConnections.ContainsKey(lotId))
+            {
+                foreach (var webSocket in _lotConnections[lotId])
+                {
+                    // Получаем данные о самой большой BidAmount для указанного лота
+                    string query = @"
+            SELECT UserId, MAX(BidAmount) AS MaxBidAmount
+            FROM Bids
+            WHERE LotId = @lotId
+            GROUP BY UserId";
+
+                    using (MySqlConnection connection = new MySqlConnection(_connString))
+                    {
+                        await connection.OpenAsync();
+                        using (MySqlCommand command = new MySqlCommand(query, connection))
+                        {
+                            command.Parameters.AddWithValue("@lotId", lotId);
+                            using (MySqlDataReader reader = await command.ExecuteReaderAsync())
+                            {
+                                while (reader.Read())
+                                {
+                                    // Получаем профиль пользователя по UserId
+                                    string userId = reader["UserId"].ToString();
+                                    decimal maxBidAmount = Convert.ToDecimal(reader["MaxBidAmount"]);
+
+                                    UserProfile userProfile = await GetUserProfileAsync(userId);
+
+                                    // Создаем объект, содержащий данные о самой большой BidAmount и профиле пользователя
+                                    var bidUpdateData = new
+                                    {
+                                        UserId = userProfile.Id,
+                                        FirstName = userProfile.FirstName,
+                                        LastName = userProfile.LastName,
+                                        MaxBidAmount = maxBidAmount
+                                        // Добавьте другие необходимые данные из профиля пользователя
+                                    };
+
+                                    // Преобразуем объект в строку JSON
+                                    string jsonData = JsonConvert.SerializeObject(bidUpdateData);
+
+                                    // Отправляем обновление клиенту через WebSocket
+                                    await SendDataToClientAsync(webSocket, jsonData);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public async Task SendDataToClientAsync(WebSocket webSocket, string jsonData)
+        {
+            if (webSocket != null && webSocket.State == WebSocketState.Open)
+            {
+                // Преобразуйте строку JSON в массив байт
+                byte[] data = Encoding.UTF8.GetBytes(jsonData);
+
+                // Отправьте данные клиенту через WebSocket
+                await webSocket.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+            else
+            {
+                // Обработка случая, когда соединение с клиентом закрыто или недоступно
+                // Например, удаление отключенного клиента из списка подключенных 
+                // или другие действия, соответствующие вашим требованиям
+            }
+        }
+        private async Task<UserProfile> GetUserProfileAsync(string userId)
+        {
+            // Запрос для получения профиля пользователя по его идентификатору
+            string query = @"
+        SELECT * FROM Users WHERE Id = @userId";
+
+            using (MySqlConnection connection = new MySqlConnection(_connString))
+            {
+                await connection.OpenAsync();
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@userId", userId);
+                    using (MySqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        if (reader.Read())
+                        {
+                            // Создаем объект UserProfile из данных в reader и возвращаем его
+                            return new UserProfile(reader);
+                        }
+                    }
+                }
+            }
+
+            // Если пользователь не найден, возвращаем null
+            return null;
+        }
         private string GetUserEmail(int userId)
         {
             using (MySqlConnection connection = new MySqlConnection(_connString))
@@ -359,7 +470,7 @@ namespace Project2.Controllers
 
                     StringBuilder dataQueryBuilder = new StringBuilder();
                     dataQueryBuilder.Append("SELECT l.*, b.BidAmount, u.* ");
-                    dataQueryBuilder.Append(baseQueryBuilder.ToString()); 
+                    dataQueryBuilder.Append(baseQueryBuilder.ToString());
 
 
                     dataQueryBuilder.Append(" LIMIT @Offset, @PageSize");
@@ -477,7 +588,7 @@ namespace Project2.Controllers
                                 return BadRequest(new { message = "Lot is not active" });
                             }
 
-                           
+
 
                             // Добавляем ставку в таблицу Bids
                             using (MySqlConnection connectionForInsertBid = new MySqlConnection(_connString))

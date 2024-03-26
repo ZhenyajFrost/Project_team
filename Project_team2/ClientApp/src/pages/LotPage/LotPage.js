@@ -37,7 +37,7 @@ function LotPage() {
     getLotById(id, token);
     getHistory(id);
 
-    connectWebSocket(webSocketToken);
+    connectWebSocket(webSocketToken, id);
     // const intervalId = setInterval(() => {
     //     getHistory(id);
     // }, 3000);
