@@ -2,11 +2,11 @@ import create from "zustand";
 import { WS_BASE_URL } from "../../API/apiConstant";
 
 const store = create((set, get) => ({
-  user: null,
-  token: null,
+  user: {},
+  token: '',
   isLoggined: false,
   isBlocked: false,
-  webSocketToken: null,
+  webSocketToken: '',
   webSocket: null,
   likedLotIds:[],
   likedUsers:[],
