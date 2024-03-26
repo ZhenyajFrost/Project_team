@@ -8,14 +8,14 @@ const store = create((set, get) => ({
   isBlocked: false,
   webSocketToken: '',
   webSocket: null,
-  likedLotIds:[],
-  likedUsers:[],
+  likedLotIds: [],
+  likedUsers: [],
   setData: (data) => set(data),
   updateData: (data) => set({ ...get(), ...data }),
   updateUser: (user) => set((state) => ({ user: { ...state.user, ...user } })),
   setToken: (token) => set({ token }),
-  setlikedLotIds: (likedLotIds) =>set({ user:{...get().user, likedLotIds} }),
-  setlikedUsers: (likedUsers) =>set({ user:{...get().user, likedUsers} }),
+  setlikedLotIds: (likedLotIds) => set({ user: { ...get().user, likedLotIds } }),
+  setlikedUsers: (likedUsers) => set({ user: { ...get().user, likedUsers } }),
   setwebSocketToken: (webSocketToken) => set({ webSocketToken }),
   setwebSocket: (webSocket) => set({ webSocket }),
   login: () => set({ isLoggined: true }),
@@ -48,9 +48,14 @@ const store = create((set, get) => ({
       // Обработка входящих сообщений
       console.log("Received message:", event.data);
     };
-    
-    webSocket.onclose = () => {
-      console.log("WebSocket Disconnected");
+
+    webSocket.onclose = (event) => {
+      if (event.wasClean) {
+        console.log(`WebSocket Disconnected cleanly, code=${event.code}, reason=${event.reason}`);
+      } else {
+        // e.g., the server process is killed or the network is down
+        console.log('WebSocket Disconnected');
+      }
     };
 
     set({ webSocket });
