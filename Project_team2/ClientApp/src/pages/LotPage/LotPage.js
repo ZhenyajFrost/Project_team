@@ -36,8 +36,8 @@ function LotPage() {
 
   const onSocket = (data)=>{
     console.log(data);
-    setHistory([{userId:{login:data.login}, bidAmount:data.MaxBidAmount, bidTime:data.time} ,...history ]);//userId, maxBidAmount, firstName, lastName
-    setMaxBid({price:data.MaxBidAmount, user:{login:data.login, id:data.UserId}, })
+    setHistory([{userId:{login:data.Login}, bidAmount:data.MaxBidAmount, bidTime:data.Time} ,...history ]);//userId, maxBidAmount, firstName, lastName
+    setMaxBid({price:data.MaxBidAmount, user:{login:data.Login, id:data.UserId}, })
   }
 
   useEffect(() => {
