@@ -81,7 +81,6 @@ public class WebSocketController : ControllerBase
             var webSocket = await _webSocketServer.HandleWebSocketAsync(HttpContext, token);
             if (webSocket != null)
             {
-                // Now you can use webSocket.SendAsync, but make sure it is part of an async context or method
                 this.AddConnectionForLot(lotId, webSocket);// Добавляем соединение для этого лота
                 var message = Encoding.UTF8.GetBytes("Hello from server out");
                 await webSocket.SendAsync(new ArraySegment<byte>(message), WebSocketMessageType.Text, true, CancellationToken.None);
