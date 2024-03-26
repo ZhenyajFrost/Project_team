@@ -28,7 +28,7 @@ const WebSocketComponent = ({ token, lotId }) => {
 
     // Функция очистки, которая будет вызвана при размонтировании компонента
     return () => {
-      //ws.close();
+      ws.close();
       console.log("WebSocket connection closed");
     };
   }, [token, lotId]); // Пересоздание WebSocket при изменении токена или ID лота
@@ -43,7 +43,6 @@ const WebSocketComponent = ({ token, lotId }) => {
   // Пример интерфейса для отправки сообщения (можно адаптировать под ваши нужды)
   return (
     <div>
-      <button onClick={() => sendMessage("Привет от клиента!")}>Отправить сообщение</button>
     </div>
   );
 
