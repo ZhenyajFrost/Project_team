@@ -17,7 +17,7 @@ const useGetLotById = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${LOTS_ENDPOINT}/getLotById/${lotId}`, token ?  { token } : {});
+      const response = await axios.post(`${LOTS_ENDPOINT}/getLotById/${lotId}`, token  !== 'null' ?  { token } : {});
 
       console.log(response);
 
