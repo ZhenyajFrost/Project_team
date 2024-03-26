@@ -19,7 +19,7 @@ const useGetLotById = () => {
     try {
       const response = await axios.post(`${LOTS_ENDPOINT}/getLotById/${lotId}`, token && token  !== 'null' ?  { token } : {});
 
-      //console.log(response);
+      console.log(response);
 
       if (response.status === 404) {
         history.push('/404');
@@ -30,7 +30,7 @@ const useGetLotById = () => {
       const {
         data: { lot, owner, maxBidPrice, maxBidsUser },
       } = response;
-      //console.log("Lot successfully retrieved: ", response.data);
+      console.log("Lot successfully retrieved: ", response.data);
       setLot(lot);
       setUser(owner);
       setMaxBid({ price: maxBidPrice, user: response.data.maxBidsUser });

@@ -17,7 +17,9 @@ const WebSocketComponent = ({ token, lotId }) => {
     };
 
     ws.onmessage = (event) => {
-      console.log("Received message:", event.data);
+      if (event) {
+        console.log("Received message:", event.data);
+      }
       // Обработка сообщений от сервера
     };
 

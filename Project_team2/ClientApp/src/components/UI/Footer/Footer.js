@@ -19,8 +19,8 @@ const Footer = () => {
                     </div>
                     <div className={css.menu2}>
                         <h4>Слідуйте за нами</h4>
-                        <a href='https://uk-ua.facebook.com/'>Facebook</a>
-                        <a href='https://www.instagram.com/?hl=ru'>Instagram</a>
+                        <a href='https://www.facebook.com/profile.php?id=61557918862969'>Facebook</a>
+                        <a href='https://www.instagram.com/exestick.ua?igsh=MWp4ZzF6NmJoNXRqeA%3D%3D&utm_source=qr'>Instagram</a>
                         <a href='https://t.me/Exestic' target='blank'>Telegram</a>
                     </div>
                 </div>
