@@ -20,7 +20,7 @@ const useGetLotsHistory= () => {
         }
     };
 
-    return  [getHistory, history, isLoading, error ];
+    return  [getHistory, history, isLoading, error, setHistory ];
 };
 
 export default useGetLotsHistory;

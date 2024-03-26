@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { WS_BASE_URL } from '../API/apiConstant'; // Убедитесь, что импорт правильный
+import React, { useEffect, useState } from "react";
+import { WS_BASE_URL } from "../API/apiConstant"; // Убедитесь, что импорт правильный
 
-const WebSocketComponent = ({ token, lotId }) => {
+const WebSocketComponent = ({ token, lotId, onRecieve }) => {
   const [webSocket, setWebSocket] = useState(null);
 
   useEffect(() => {
@@ -9,7 +9,9 @@ const WebSocketComponent = ({ token, lotId }) => {
     if (!token || !lotId) return;
 
     // Создание нового WebSocket соединения
-    const ws = new WebSocket(`${WS_BASE_URL}/connect?token=${token}&lotId=${lotId}`);
+    const ws = new WebSocket(
+      `${WS_BASE_URL}/connect?token=${token}&lotId=${lotId}`
+    );
 
     ws.onopen = () => {
       console.log("WebSocket Connected");
@@ -17,7 +19,10 @@ const WebSocketComponent = ({ token, lotId }) => {
     };
 
     ws.onmessage = (event) => {
-      console.log("Received message:", event.data);
+      try {
+        console.log("Received message:", event.data);
+        onRecieve(JSON.parse(event.data));
+      } catch {}
       // Обработка сообщений от сервера
     };
 
@@ -41,11 +46,7 @@ const WebSocketComponent = ({ token, lotId }) => {
   };
 
   // Пример интерфейса для отправки сообщения (можно адаптировать под ваши нужды)
-  return (
-    <div>
-    </div>
-  );
-
+  return <div></div>;
 };
 
 export default WebSocketComponent;

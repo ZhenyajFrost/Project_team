@@ -51,7 +51,7 @@ const useGetLotById = () => {
     }
   };
 
-  return [getLotById, lot, user, maxBid, isLoading, error];
+  return [getLotById, lot, user, maxBid, isLoading, error, setMaxBid];
 };
 
 export default useGetLotById;

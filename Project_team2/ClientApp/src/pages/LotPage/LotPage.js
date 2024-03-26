@@ -29,9 +29,16 @@ function LotPage() {
   const { user: me, token, webSocketToken, connectWebSocket } = store();
   const [modal, setModal] = useState(false);
   const [report, setReport] = useState(false)
-  const [getLotById, lot, user, maxBid, isLoading, error] = useGetLotById();
+  const [getLotById, l, user, maxBid, isLoading, error, setMaxBid] = useGetLotById();
+  const [lot, setLot] = useState();
   const [getLots, lots, totalCount, catcount, isLoadingLots] = useGetUserLots("");
-  let [getHistory, history] = useGetLotsHistory();
+  const [getHistory, history, isLoadHistory, errHistory, setHistory] = useGetLotsHistory();
+
+  const onSocket = (data)=>{
+    console.log(data);
+    setHistory([{userId:{login:data.login}, bidAmount:data.MaxBidAmount, bidTime:data.time} ,...history ]);//userId, maxBidAmount, firstName, lastName
+    setMaxBid({price:data.MaxBidAmount, user:{login:data.login, id:data.UserId}, })
+  }
 
   useEffect(() => {
     getLotById(id, token);
@@ -65,15 +72,19 @@ function LotPage() {
     // return () => clearInterval(intervalId);
   }, []);
 
+  useEffect(()=>{
+    setLot(l);
+  }, [l])
+
   useEffect(() => {
-    if (Number(lot.userId) && !lots) getLots(Number(lot.userId), 1, 10);
+    if (lot && Number(lot.userId) && !lots) getLots(Number(lot.userId), 1, 10);
   }, [lot, getLots, lots]);
 
 
-  if (!error && !isLoading && !lot.id) {
+  if (!error && !isLoading && !l.id) {
     return <h1>Щось пішло не так, спробуйте ще раз</h1>
   }
-  if (!isLoading && !error) {
+  if (!isLoading && !error ) {
     const lotInfo = {
       Область: lot.region ? lot.region : "Невідоме",
       Місто: lot.city ? lot.city : "Невідоме",
@@ -82,7 +93,7 @@ function LotPage() {
 
     return (
       <div className={css.big}>
-        <WebSocketComponent token={webSocketToken} lotId={id}/>
+        <WebSocketComponent token={webSocketToken} lotId={id} onRecieve={onSocket}/>
         {/* <LotPath
           path={[
             {
