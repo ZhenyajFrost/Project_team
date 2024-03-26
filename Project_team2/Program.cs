@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Project_team2;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using System.Net.WebSockets;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,8 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSingleton<ILoggerFactory, LoggerFactory>();
+builder.Services.AddSingleton<WebSocketController>();
+builder.Services.AddSingleton<Dictionary<int, List<WebSocket>>>(new Dictionary<int, List<WebSocket>>());
 
 // Настройка Email и WebSocket сервисов
 builder.Services.AddHostedService<LotViewsEmailService>(sp =>
