@@ -63,7 +63,8 @@ function Lot({
 
     console.log(`Lot ${id} applroved`); //LOGIC TO SERVER
   };
-  const textLen = 190;
+  const textLen = 190
+  console.log(style);
   return (
     <div
       className={`${css.lot} ${isChecked ? css.checked : ""} ${

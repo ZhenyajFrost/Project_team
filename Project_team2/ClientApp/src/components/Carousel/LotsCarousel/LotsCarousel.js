@@ -13,13 +13,13 @@ function LotsCarousel({ userId, lots, lotWidth = 589 }) {
       setCurrentIndex(0);
     }
   }, [currentIndex]);
-  const style = window.screen.width > 375 ? "default" : "compact";
+  const style = window.screen.width > 375 ? "basic" : "compact";
   return (
     <div>
       <div className={styles.lotheader}>
         <h2>Усі оголошення автора</h2>
 
-        {style === "default" ? (
+        {style === "basic" ? (
           <div className={styles.buttons}>
             <button
               className={styles.prevBtn}
