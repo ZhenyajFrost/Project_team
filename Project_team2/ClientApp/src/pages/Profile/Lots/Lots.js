@@ -11,11 +11,13 @@ import { categoriesFromCategoriesCount } from '../../../utils/categoriesFromCate
 import Pagination from '../../../components/UI/Pagination/Pagination.js';
 import Loader from '../../../components/Loader/Loader.js'
 import store from '../../../utils/Zustand/store.js';
+import useWindowWidth from '../../../API/useWindowWidth.js';
 
 function Lots() {
     const { user } = store()
     const history = useHistory();
     const [activeTab, setActiveTab] = useState(sessionStorage.getItem('activeTab') || 'active');
+    const width = useWindowWidth();
 
     const [filters, setFilters] = useState({});
     const [categoryClicked, setCategoryClicked] = useState({ value: '' });
@@ -29,7 +31,7 @@ function Lots() {
 
     const [pagination, setPagination] = useState({
         pageNumber: 1,
-        pageSize: 9
+        pageSize: width >= 768 ? 9 : 3
     });
 
     useEffect(async () => {

@@ -6,16 +6,18 @@ import useGetUserSubscriptions from '../../API/User/Get/useGetUserSubscriptions'
 import Loader from '../../components/Loader/Loader';
 import UserContainer from '../../components/UI/UserContainer/UserContainer';
 import Pagination from '../../components/UI/Pagination/Pagination'
+import useWindowWidth from '../../API/useWindowWidth';
 
 function LikedItems() {
     const [activeTab, setActiveTab] = useState(sessionStorage.getItem('activeTab') || 'lots');
+    const width = useWindowWidth();
 
     const [getLots, lots, totalCount, isLoading, error] = useGetUserLikedLots();
     const [getUserSubscriptions, likedUsers, isLoadingUS, errorUs] = useGetUserSubscriptions();
 
     const [pagination, setPagination] = useState({
         page: 1,
-        pageSize: 6
+        pageSize: width >= 761 ? 6 : 2, 
     });
 
     useEffect(async () => {

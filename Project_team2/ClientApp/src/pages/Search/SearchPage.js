@@ -11,8 +11,11 @@ import useGetLots from "../../API/Lots/Get/useGetLots";
 import { Notify } from "notiflix";
 import Pagination from "../../components/UI/Pagination/Pagination";
 import DisplayChoose from "../../components/UI/DisplayChoose/DisplayChoose";
+import useWindowWidth from "../../API/useWindowWidth";
 
 function SearchPage(props) {
+  const width = useWindowWidth();
+
   function formatDate(date) {
     if (!date || !date.getFullYear) {
       if (!date || date < 0) {
@@ -60,7 +63,7 @@ function SearchPage(props) {
   const [filter, setFilter] = useState({ ...initial });
   const [curPage, setCurPage] = useState(1);
   const [lotDisplay, setLotDisplay] = useState("list");
-  const perPage = 7;
+  const perPage = window >= 768 ? 6 : 3;
   const [getLots, lots, totalCount, isLoading, error] = useGetLots();
   const [changed, setChanged] = useState({});
 
