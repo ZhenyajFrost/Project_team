@@ -1156,7 +1156,7 @@ namespace Project2.Controllers
                 var client = _httpClientFactory.CreateClient();
 
                 // Формируем URL для запроса к Python-боту
-                string botUrl = "http://46.175.150.80:8080/receive_report";
+                string botUrl = "http://localhost:8080/receive_report";
 
                 // Формируем данные для отправки
                 var content = new FormUrlEncodedContent(new[]
@@ -1293,7 +1293,7 @@ namespace Project2.Controllers
             {
                 connection.Open();
 
-                string query = "SELECT Email FROM Users WHERE UserId = @userId";
+                string query = "SELECT Email FROM Users WHERE Id = @userId";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@userId", userId);
@@ -1738,6 +1738,12 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
+
+
+
+
+
 
         [HttpPost("getUnapprovedLots")]
         public IActionResult GetUnapprovedLots(string token)

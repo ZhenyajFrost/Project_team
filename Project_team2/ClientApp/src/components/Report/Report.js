@@ -5,13 +5,14 @@ import Input from "../UI/Input/Input.js";
 import Button from "../UI/Button/Button.js";
 import reports from "../../Data/reports.json";
 
-function Report({ lotId }) {
+function Report({ lotId, setVisible }) {
   const [reportLot, isLoading, error] = useReportLot();
   const [cat, setCat] = useState();
   const [desc, setDesc] = useState();
 
   const handleReport = async () => {
     await reportLot(lotId, `Тема:${cat} Текст:${desc}`);
+    setVisible(false);
   };
 
   return (

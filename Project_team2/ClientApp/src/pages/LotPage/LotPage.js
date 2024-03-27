@@ -330,7 +330,7 @@ function LotPage() {
         {report ? (
           me ? (
             <ModalWindow visible={report} setVisible={setReport}>
-              <Report lotId={lot.id} />
+              <Report lotId={lot.id} setVisible={setReport}/>
             </ModalWindow>
           ) : (
             setReport(false),

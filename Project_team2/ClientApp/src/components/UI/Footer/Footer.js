@@ -14,8 +14,8 @@ const Footer = () => {
                     <div className={css.menu2}>
                         <h4>Меню</h4>
                         <a href='/howItWorks'>Про компанію</a>
-                        <a href='/howItWorks'>Новини</a>
                         <a href='https://t.me/Exestic'>Допомога</a>
+                        <a href='/howItWorks'>Зв'язатись з нами</a>
                     </div>
                     <div className={css.menu2}>
                         <h4>Слідуйте за нами</h4>

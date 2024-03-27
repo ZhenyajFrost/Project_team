@@ -20,6 +20,7 @@ const InputSearch = ({
   placeholder = "",
   value = null,
   nobutton,
+  className
 }) => {
   const [inputValue, setInputValue] = useState();
   useEffect(()=>{
@@ -42,12 +43,12 @@ const InputSearch = ({
 
   return (
     <form onSubmit={handleSearchClick}>
-      <div className={classes.search}>
-        <div>
+      <div className={`${classes.search}`}>
+        <div className={`${className || ''}`}>
           <img src={search} className={classes.search} alt="Search" />
           <input
             type="text"
-            className={classes.input}
+            className={`${classes.input} ${className || ''}`}
             value={inputValue}
             onChange={handleInputChange}
             placeholder={placeholder}
