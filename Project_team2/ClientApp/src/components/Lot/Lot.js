@@ -63,7 +63,7 @@ function Lot({
 
     console.log(`Lot ${id} applroved`); //LOGIC TO SERVER
   };
-
+  const textLen = 190;
   return (
     <div
       className={`${css.lot} ${isChecked ? css.checked : ""} ${
@@ -73,7 +73,7 @@ function Lot({
       <img src={imageURLs[0]} className={css.lotImage} alt="oleg" />
       <div className={css.lotText}>
         <h3 className={`${css.lotTitle}`}>{title}</h3>
-        <p className={css.lotDesc}>{shortDescription}</p>
+        <p className={css.lotDesc}>{shortDescription.length > textLen ? shortDescription.substring(0, textLen)+"...":shortDescription}</p>
 
         <div className={css.lotInfo}>
           <p className={css.money}>
