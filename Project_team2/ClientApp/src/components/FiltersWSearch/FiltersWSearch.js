@@ -53,6 +53,7 @@ function FiltersWSearch({ onChange, initial }) {
           onSearch={onSearch}
           value={filters.searchQuery}
           placeholder="Введіть будь-яку позицію"
+          className={css.input}
           nobutton
         />
       </div>

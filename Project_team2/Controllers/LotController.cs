@@ -23,7 +23,7 @@ namespace Project2.Controllers
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
-      
+
         private readonly ILogger<LotSchedulingService> _logger;
         private readonly string _connString;
         private readonly string _smtpServer;
@@ -765,7 +765,7 @@ namespace Project2.Controllers
                     int count = Convert.ToInt32(command.ExecuteScalar());
                     return count > 0;
                 }
-               
+
             }
         }
 
@@ -963,7 +963,7 @@ namespace Project2.Controllers
         }
 
         [HttpPost("UnactiveLot")]
-        public IActionResult UnactiveLot( [FromBody] EditStatusLot request)
+        public IActionResult UnactiveLot([FromBody] EditStatusLot request)
         {
             var userId = ExtractUserIdFromToken(request.Token);
             try
@@ -1004,7 +1004,7 @@ namespace Project2.Controllers
                         }
                     }
                 }
-                    using (MySqlConnection connection = new MySqlConnection(_connString))
+                using (MySqlConnection connection = new MySqlConnection(_connString))
                 {
                     connection.Open();
                     string checkBidsQuery = "SELECT COUNT(*) FROM Bids WHERE LotId = @id";
@@ -1156,7 +1156,7 @@ namespace Project2.Controllers
                 var client = _httpClientFactory.CreateClient();
 
                 // Формируем URL для запроса к Python-боту
-                string botUrl = "http://46.175.150.80:8080/receive_report";
+                string botUrl = "http://localhost:8080/receive_report";
 
                 // Формируем данные для отправки
                 var content = new FormUrlEncodedContent(new[]
@@ -1186,10 +1186,10 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = "Internal Server Error. Please try again later." });
             }
         }
-    
 
 
-    private async Task NotifyTelegramChat(string message)
+
+        private async Task NotifyTelegramChat(string message)
         {
             try
             {
@@ -1258,7 +1258,7 @@ namespace Project2.Controllers
                                         $"Район: {request.Delivery.Area}\n" +
                                         $"Регион: {request.Delivery.Region}\n" +
                                         $"Индекс: {request.Delivery.Index}\n" +
-                                        $"Служба доставки: {request.Delivery.DeliveryService}\n"+
+                                        $"Служба доставки: {request.Delivery.DeliveryService}\n" +
                                         $"Страница лот: https://localhost:44424/lot/{request.LotId}";
 
                 // Отправить письмо победителю лота с информацией о доставке
@@ -1293,7 +1293,7 @@ namespace Project2.Controllers
             {
                 connection.Open();
 
-                string query = "SELECT Email FROM Users WHERE UserId = @userId";
+                string query = "SELECT Email FROM Users WHERE Id = @userId";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@userId", userId);
@@ -1589,18 +1589,18 @@ namespace Project2.Controllers
             }
 
             try
-    {
-        Lot lot = null;
-        User owner = null;
-        User maxBidsUser = null;
-        decimal maxBidPrice = 0;
-        bool isAdmin = false;
+            {
+                Lot lot = null;
+                User owner = null;
+                User maxBidsUser = null;
+                decimal maxBidPrice = 0;
+                bool isAdmin = false;
 
-        using (MySqlConnection connection = new MySqlConnection(_connString))
-        {
-            connection.Open();
+                using (MySqlConnection connection = new MySqlConnection(_connString))
+                {
+                    connection.Open();
 
-            string query = @"
+                    string query = @"
                 SELECT 
                     l.*, 
                     u1.LastLogin AS OwnersLastLogin, 
@@ -1640,95 +1640,95 @@ namespace Project2.Controllers
                 WHERE 
                     l.Id = @id";
 
-            using (MySqlCommand command = new MySqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@id", id);
-
-                using (MySqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
-                        bool isArchived = Convert.ToBoolean(reader["Archive"]);
-                        bool isInactive = Convert.ToBoolean(reader["Unactive"]);
+                        command.Parameters.AddWithValue("@id", id);
 
-                        // Если передан токен и это администратор или пользователь владеет лотом, разрешаем доступ к архивным и неактивным лотам
-                        if (!string.IsNullOrEmpty(token))
+                        using (MySqlDataReader reader = command.ExecuteReader())
                         {
-                            isAdmin = IsAdmin(userId);
-                            string lotUserId = reader["UserId"].ToString();
-                            if (!isAdmin && userId != lotUserId)
+                            if (reader.Read())
                             {
-                                if (isArchived || isInactive)
+                                bool isArchived = Convert.ToBoolean(reader["Archive"]);
+                                bool isInactive = Convert.ToBoolean(reader["Unactive"]);
+
+                                // Если передан токен и это администратор или пользователь владеет лотом, разрешаем доступ к архивным и неактивным лотам
+                                if (!string.IsNullOrEmpty(token))
                                 {
-                                    return NotFound(new { message = "Lot not found" });
+                                    isAdmin = IsAdmin(userId);
+                                    string lotUserId = reader["UserId"].ToString();
+                                    if (!isAdmin && userId != lotUserId)
+                                    {
+                                        if (isArchived || isInactive)
+                                        {
+                                            return NotFound(new { message = "Lot not found" });
+                                        }
+                                    }
+                                }
+                                else // Если токен не передан, запрещаем доступ к архивным и неактивным лотам
+                                {
+                                    if (isArchived || isInactive)
+                                    {
+                                        return NotFound(new { message = "Lot not found" });
+                                    }
+                                }
+
+                                lot = new Lot(reader);
+
+                                owner = new User
+                                {
+                                    LastLogin = reader["OwnersLastLogin"].ToString(),
+                                    RegistrationTime = reader["OwnersRegistrationTime"].ToString(),
+                                    Avatar = reader["OwnersAvatar"].ToString(),
+                                    Id = reader["OwnersUserId"].ToString(),
+                                    FirstName = reader["OwnersFirstName"].ToString(),
+                                    LastName = reader["OwnersLastName"].ToString(),
+                                    Login = reader["OwnersLogin"].ToString(),
+                                    Email = reader["OwnersEmail"].ToString()
+                                };
+
+                                if (!reader.IsDBNull(reader.GetOrdinal("MaxBidsLastLogin")))
+                                {
+                                    maxBidsUser = new User
+                                    {
+                                        LastLogin = reader["MaxBidsLastLogin"].ToString(),
+                                        RegistrationTime = reader["MaxBidsRegistrationTime"].ToString(),
+                                        Avatar = reader["MaxBidsAvatar"].ToString(),
+                                        Id = reader["MaxBidsUserId"].ToString(),
+                                        FirstName = reader["MaxBidsFirstName"].ToString(),
+                                        LastName = reader["MaxBidsLastName"].ToString(),
+                                        Login = reader["MaxBidsLogin"].ToString(),
+                                        Email = reader["MaxBidsEmail"].ToString()
+                                    };
+                                }
+
+                                if (!reader.IsDBNull(reader.GetOrdinal("MaxBidPrice")))
+                                {
+                                    maxBidPrice = Convert.ToDecimal(reader["MaxBidPrice"]);
                                 }
                             }
-                        }
-                        else // Если токен не передан, запрещаем доступ к архивным и неактивным лотам
-                        {
-                            if (isArchived || isInactive)
+                            else
                             {
                                 return NotFound(new { message = "Lot not found" });
                             }
                         }
-
-                        lot = new Lot(reader);
-
-                        owner = new User
-                        {
-                            LastLogin = reader["OwnersLastLogin"].ToString(),
-                            RegistrationTime = reader["OwnersRegistrationTime"].ToString(),
-                            Avatar = reader["OwnersAvatar"].ToString(),
-                            Id = reader["OwnersUserId"].ToString(),
-                            FirstName = reader["OwnersFirstName"].ToString(),
-                            LastName = reader["OwnersLastName"].ToString(),
-                            Login = reader["OwnersLogin"].ToString(),
-                            Email = reader["OwnersEmail"].ToString()
-                        };
-
-                        if (!reader.IsDBNull(reader.GetOrdinal("MaxBidsLastLogin")))
-                        {
-                            maxBidsUser = new User
-                            {
-                                LastLogin = reader["MaxBidsLastLogin"].ToString(),
-                                RegistrationTime = reader["MaxBidsRegistrationTime"].ToString(),
-                                Avatar = reader["MaxBidsAvatar"].ToString(),
-                                Id = reader["MaxBidsUserId"].ToString(),
-                                FirstName = reader["MaxBidsFirstName"].ToString(),
-                                LastName = reader["MaxBidsLastName"].ToString(),
-                                Login = reader["MaxBidsLogin"].ToString(),
-                                Email = reader["MaxBidsEmail"].ToString()
-                            };
-                        }
-
-                        if (!reader.IsDBNull(reader.GetOrdinal("MaxBidPrice")))
-                        {
-                            maxBidPrice = Convert.ToDecimal(reader["MaxBidPrice"]);
-                        }
-                    }
-                    else
-                    {
-                        return NotFound(new { message = "Lot not found" });
                     }
                 }
-            }
-        }
 
-        using (MySqlConnection updateConnection = new MySqlConnection(_connString))
-        {
-            updateConnection.Open();
+                using (MySqlConnection updateConnection = new MySqlConnection(_connString))
+                {
+                    updateConnection.Open();
 
-            string updateViewsQuery = @"
+                    string updateViewsQuery = @"
                 UPDATE Lots 
                 SET Views = Views + 1 
                 WHERE Id = @id";
 
-            using (MySqlCommand updateCommand = new MySqlCommand(updateViewsQuery, updateConnection))
-            {
-                updateCommand.Parameters.AddWithValue("@id", id);
-                updateCommand.ExecuteNonQuery();
-            }
-        }
+                    using (MySqlCommand updateCommand = new MySqlCommand(updateViewsQuery, updateConnection))
+                    {
+                        updateCommand.Parameters.AddWithValue("@id", id);
+                        updateCommand.ExecuteNonQuery();
+                    }
+                }
 
                 return Ok(new { Lot = lot, Owner = owner, MaxBidsUser = maxBidsUser, MaxBidPrice = maxBidPrice });
             }
@@ -1738,6 +1738,12 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
+
+
+
+
+
+
 
         [HttpPost("getUnapprovedLots")]
         public IActionResult GetUnapprovedLots(string token)
@@ -1785,7 +1791,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-        
+
         [HttpGet("getLotsWaitingPayment")]
         public IActionResult GetLotsWaitingPayment([FromBody] string Token)
         {
@@ -1832,7 +1838,7 @@ namespace Project2.Controllers
                 return StatusCode(500, new { message = $"Internal Server Error: {ex.Message}" });
             }
         }
-        [HttpPost("getLotsWaitingDelivery")] 
+        [HttpPost("getLotsWaitingDelivery")]
         public IActionResult GetLotsWaitingDelivery([FromBody] string token) // Измените имя параметра на token
         {
             try
@@ -2098,19 +2104,20 @@ namespace Project2.Controllers
         public string Explanation { get; set; }
     }
     public class EditStatusLot
-    { 
-    
+    {
+
         public string Token { get; set; }
-        public int LotId { get; set; }  
+        public int LotId { get; set; }
 
     }
     public class GetUserLikedLotsRequest
     {
         public string Token { get; set; }
     }
-    public class LikesLot { 
-    public string Token { get; set; }
-    public int LotId { get; set; }
+    public class LikesLot
+    {
+        public string Token { get; set; }
+        public int LotId { get; set; }
     }
     public class DeleteLot
     {

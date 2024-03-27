@@ -45,6 +45,10 @@ select:focus {
     max-width: 50%;
 }
 
+.input{
+    background-color: white !important;
+}
+
 @media (max-width: 768px) {
     .filterContainer {
         display: grid;

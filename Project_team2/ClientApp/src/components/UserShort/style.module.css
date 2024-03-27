@@ -1,9 +1,12 @@
 .gUs{
     display: flex;
+    gap: 10px;
+    vertical-align: middle;
+    align-items: center;
 }
 .gUs img{
-    width: 54px;
-    height: 54px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
 }
 .gUs div span{

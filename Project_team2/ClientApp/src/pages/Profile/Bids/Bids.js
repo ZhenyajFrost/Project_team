@@ -16,7 +16,8 @@ function Bids() {
     const [bidsDisplay, setBidsDisplay] = useState('list');
 
     const width = useWindowWidth();
-    const bidStyle = width >= 381 ? 'basic' : 'small';
+    const bidStyle = width >= 394 ? 'basic' : 'small';
+
 
     const [pagination, setPagination] = useState({
         pageNumber: 1,
