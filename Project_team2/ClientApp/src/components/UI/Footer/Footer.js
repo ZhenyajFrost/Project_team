@@ -15,7 +15,7 @@ const Footer = () => {
                         <h4>Меню</h4>
                         <a href='/howItWorks'>Про компанію</a>
                         <a href='https://t.me/ExesticBot'>Допомога</a>
-                        <a href='/howItWorks'>Зв'язатись з нами</a>
+                        <a href='https://t.me/ExesticBot'>Зв'язатись з нами</a>
                     </div>
                     <div className={css.menu2}>
                         <h4>Слідуйте за нами</h4>
