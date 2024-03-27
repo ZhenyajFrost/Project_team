@@ -14,14 +14,14 @@ const Footer = () => {
                     <div className={css.menu2}>
                         <h4>Меню</h4>
                         <a href='/howItWorks'>Про компанію</a>
-                        <a href='https://t.me/Exestic'>Допомога</a>
+                        <a href='https://t.me/ExesticBot'>Допомога</a>
                         <a href='/howItWorks'>Зв'язатись з нами</a>
                     </div>
                     <div className={css.menu2}>
                         <h4>Слідуйте за нами</h4>
                         <a href='https://www.facebook.com/profile.php?id=61557918862969'>Facebook</a>
                         <a href='https://www.instagram.com/exestick.ua?igsh=MWp4ZzF6NmJoNXRqeA%3D%3D&utm_source=qr'>Instagram</a>
-                        <a href='https://t.me/ExesticBot' target='blank'>Telegram</a>
+                        <a href='https://t.me/Exestic' target='blank'>Telegram</a>
                     </div>
                 </div>
             </div>
