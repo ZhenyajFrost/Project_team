@@ -108,7 +108,7 @@ function LotPage() {
           <div className={css.left}>
             <div className={css.sideThing}>
               <PictureCarousel images={lot.imageURLs} />
-              <h3>Description</h3>
+              <h3>Опис</h3>
               <div className={css.shortDesc}>{lot.shortDescription}</div>
               <hr />
               <div className={css.sides}>
