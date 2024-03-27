@@ -2,6 +2,9 @@ const vidminDays = (days) => {
   days = days.toString();
   const dlen = days.length;
   const lnum = Number(days[dlen - 1]);
+  if(window.screen.width<=375){
+    return "дн"
+  }
   return dlen > 1 && days[dlen - 2] !== 1
     ? "днів"
     : lnum === 1
